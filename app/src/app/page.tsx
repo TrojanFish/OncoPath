@@ -71,9 +71,9 @@ export default function HomePage() {
 
   if (appState === "input") {
     return (
-      <div className="min-h-screen bg-grid radial-overlay">
+      <div className="min-h-screen bg-grid radial-overlay overflow-x-hidden">
         <nav className="glass-strong fixed top-0 left-0 right-0 z-50 px-6 py-4">
-          <div className="max-w-6xl mx-auto flex items-center justify-between">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
             <button
               onClick={() => setAppState("landing")}
               className="flex items-center gap-2 text-accent-blue hover:text-accent-blue-light transition-colors"
@@ -86,8 +86,10 @@ export default function HomePage() {
             <span className="text-text-secondary text-sm">输入病理资料</span>
           </div>
         </nav>
-        <div className="pt-24 pb-16">
-          <ProfileForm onSubmit={handleProfileSubmit} />
+        <div className="pt-24 pb-16 flex justify-center w-full">
+          <div className="w-full">
+            <ProfileForm onSubmit={handleProfileSubmit} />
+          </div>
         </div>
       </div>
     );
@@ -332,7 +334,7 @@ export default function HomePage() {
               "每一条医学结论，都必须可以追溯到证据。"
             </blockquote>
             <p className="text-text-secondary">
-              — LungEvidence 核心设计原则
+              — OncoPath 核心设计原则
             </p>
           </div>
         </div>
@@ -434,7 +436,7 @@ export default function HomePage() {
           </div>
           <div className="evidence-divider mb-6" />
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-text-muted text-xs">
-            <p>© 2026 LungEvidence. All rights reserved.</p>
+            <p>© 2026 OncoPath. All rights reserved.</p>
             <p className="text-center max-w-lg">
               ⚠️ 重要声明：本平台提供的信息仅供教育参考，不构成医疗诊断或治疗建议。所有医疗决策请咨询您的主治医生。
             </p>
@@ -463,10 +465,10 @@ function LogoMark() {
   return (
     <div className="flex items-center gap-2">
       <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-accent-blue to-accent-teal flex items-center justify-center text-white font-bold text-sm">
-        L
+        O
       </div>
       <span className="font-semibold text-text-primary">
-        Lung<span className="text-gradient">Evidence</span>
+        Onco<span className="text-gradient">Path</span>
       </span>
     </div>
   );

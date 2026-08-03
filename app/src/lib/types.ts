@@ -1,4 +1,4 @@
-// Shared type definitions for LungEvidence
+// Shared type definitions for OncoPath
 export interface PatientProfile {
   age: number;
   gender: "female" | "male";

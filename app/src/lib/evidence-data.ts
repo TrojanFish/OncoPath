@@ -1,4 +1,4 @@
-// LungEvidence Core Evidence Data Library
+// OncoPath Core Evidence Data Library
 // This is the curated knowledge base of evidence for lung cancer
 // All data points are traceable to published research
 

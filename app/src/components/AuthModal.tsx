@@ -50,7 +50,7 @@ export default function AuthModal({ onClose, onSuccess }: AuthModalProps) {
         </button>
 
         <h2 className="text-2xl font-semibold text-text-primary mb-6 text-center">
-          {isLogin ? "登录 LungEvidence" : "注册新账号"}
+          {isLogin ? "登录 OncoPath" : "注册新账号"}
         </h2>
 
         {error && (

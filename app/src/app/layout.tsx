@@ -16,7 +16,7 @@ const notoSansSC = Noto_Sans_SC({
 });
 
 export const metadata: Metadata = {
-  title: "LungEvidence — 肺癌循证知识平台",
+  title: "OncoPath — 肺癌循证知识平台",
   description:
     "帮助肺癌患者通过已发表的国际研究理解自己的病理情况。每一条结论都有来源，每一个解释都可追溯。",
   keywords: [
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
     "evidence-based medicine",
   ],
   openGraph: {
-    title: "LungEvidence — 肺癌循证知识平台",
+      title: "OncoPath — 肺癌循证知识平台",
     description:
       "把复杂的医学研究翻译成患者能理解的语言。每一句话都有证据来源。",
     type: "website",
