@@ -79,7 +79,8 @@ export default function DashboardView({ onBack, onViewReport }: DashboardViewPro
                   vpi: path.vpi || undefined,
                   lymphNodes: path.lymph_nodes || undefined,
                   egfr: path.egfr || undefined,
-                  margin: path.margin || undefined
+                  margin: path.margin || undefined,
+                  histology: []
                 };
                 onViewReport(profile, c.report_json);
               }}>
