@@ -155,7 +155,7 @@ export default function HomePage() {
       {/* Hero Section */}
       <section
         ref={heroRef}
-        className="relative min-h-screen flex items-center justify-center bg-grid radial-overlay overflow-hidden"
+        className="relative min-h-screen flex items-center justify-center bg-grid radial-overlay overflow-hidden pt-24 pb-12"
       >
         {/* Background orbs */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
