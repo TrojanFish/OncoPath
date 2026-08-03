@@ -2,15 +2,16 @@
 
 import { useEffect, useRef, useState } from "react";
 
-const stats = [
-  { label: "已收录研究", value: 42, suffix: "篇", icon: "📚" },
-  { label: "累计患者数据", value: 187450, suffix: "例", icon: "👥" },
-  { label: "Meta分析", value: 8, suffix: "项", icon: "🔬" },
-  { label: "随机对照试验", value: 4, suffix: "项", icon: "⚡" },
-];
+import { fetchStats } from "@/lib/api";
 
 export default function StatsBanner() {
   const [animated, setAnimated] = useState(false);
+  const [stats, setStats] = useState([
+    { label: "已收录研究", value: 42, suffix: "篇", icon: "📚" },
+    { label: "累计患者数据", value: 187450, suffix: "例", icon: "👥" },
+    { label: "Meta分析", value: 8, suffix: "项", icon: "🔬" },
+    { label: "随机对照试验", value: 4, suffix: "项", icon: "⚡" },
+  ]);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -23,6 +24,19 @@ export default function StatsBanner() {
       { threshold: 0.3 }
     );
     if (ref.current) observer.observe(ref.current);
+    
+    // Fetch dynamic stats
+    fetchStats().then(data => {
+      if (data) {
+        setStats([
+          { label: "已收录研究", value: data.total_studies, suffix: "篇", icon: "📚" },
+          { label: "累计患者数据", value: data.total_patients, suffix: "例", icon: "👥" },
+          { label: "Meta分析", value: data.total_meta_analysis, suffix: "项", icon: "🔬" },
+          { label: "随机对照试验", value: 4, suffix: "项", icon: "⚡" }, // Hardcoded for MVP
+        ]);
+      }
+    });
+
     return () => observer.disconnect();
   }, []);
 

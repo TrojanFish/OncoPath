@@ -1,7 +1,7 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
-from app.api import health, auth, evidence, analysis, cases
+from app.api import health, auth, evidence, analysis, cases, stats
 from app.core.config import settings
 from app.core.database import engine, Base
 import app.models # Ensure models are loaded before create_all
@@ -23,11 +23,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(health.router, prefix="/api")
-app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
-app.include_router(evidence.router, prefix="/api/evidence", tags=["evidence"])
-app.include_router(analysis.router, prefix="/api/analysis", tags=["analysis"])
-app.include_router(cases.router, prefix="/api/cases", tags=["cases"])
+api_router = APIRouter(prefix="/api")
+
+api_router.include_router(health.router)
+api_router.include_router(auth.router, prefix="/auth", tags=["auth"])
+api_router.include_router(evidence.router, prefix="/evidence", tags=["evidence"])
+api_router.include_router(analysis.router, prefix="/analysis", tags=["analysis"])
+api_router.include_router(cases.router, prefix="/cases", tags=["cases"])
+api_router.include_router(stats.router, prefix="/stats", tags=["stats"])
+
+app.include_router(api_router)
 
 @app.get("/")
 async def root():

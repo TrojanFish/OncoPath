@@ -517,7 +517,23 @@ function FeatureCard({ icon, title, desc, color }: { icon: string; title: string
   );
 }
 
+import { fetchStats } from "@/lib/api";
+
 function EvidencePreviewCard() {
+  const [stats, setStats] = useState({ studies: 32, patients: "6,800+" });
+
+  useEffect(() => {
+    fetchStats().then(data => {
+      if (data) {
+        setStats({ 
+          studies: data.total_studies, 
+          // Format patients string e.g. "187,450+"
+          patients: new Intl.NumberFormat('en-US').format(data.total_patients) + "+" 
+        });
+      }
+    });
+  }, []);
+
   return (
     <div className="glass rounded-2xl p-6 border border-accent-blue/20 max-w-2xl mx-auto text-left glow-blue animate-fade-in-up stagger-5" style={{ opacity: 0 }}>
       <div className="flex items-center gap-3 mb-4">
@@ -536,8 +552,8 @@ function EvidencePreviewCard() {
       </div>
       <div className="grid grid-cols-3 gap-3 mb-4">
         {[
-          { label: "匹配研究", value: "32篇", sub: "国际顶级期刊" },
-          { label: "相似患者", value: "6,800+", sub: "例已纳入研究" },
+          { label: "匹配研究", value: `${stats.studies}篇`, sub: "国际顶级期刊" },
+          { label: "相似患者", value: stats.patients, sub: "例已纳入研究" },
           { label: "5年RFS", value: "89-98%", sub: "基于现有研究" },
         ].map((item) => (
           <div key={item.label} className="glass rounded-xl p-3 text-center border border-white/5">

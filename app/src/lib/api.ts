@@ -1,4 +1,4 @@
-const API_BASE_URL = "http://127.0.0.1:8000/api";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
 
 export async function register(email: string, password: string) {
   const response = await fetch(`${API_BASE_URL}/auth/register`, {
@@ -60,5 +60,11 @@ export async function getCases() {
     throw new Error("Failed to fetch cases");
   }
   
+  return response.json();
+}
+
+export async function fetchStats() {
+  const response = await fetch(`${API_BASE_URL}/stats`);
+  if (!response.ok) return null;
   return response.json();
 }

@@ -1,11 +1,12 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from typing import List
 
-from app.core.database import get_db
+from app.core.database import get_db, AsyncSessionLocal
 from app.models.evidence import Evidence
 from app.schemas.evidence import EvidenceCreate, EvidenceResponse
+from app.services.pubmed import fetch_pubmed_studies
 
 router = APIRouter()
 
@@ -72,3 +73,38 @@ async def seed_evidence(db: AsyncSession = Depends(get_db)):
         await db.refresh(paper)
         
     return mock_papers
+
+async def process_pubmed_pipeline(query: str):
+    """Background task to fetch and save pubmed studies."""
+    studies = await fetch_pubmed_studies(query, max_results=5)
+    if not studies:
+        return
+        
+    async with AsyncSessionLocal() as db:
+        for s in studies:
+            # Check if exists by title
+            exists = await db.execute(select(Evidence).where(Evidence.title == s["title"]))
+            if exists.scalars().first():
+                continue
+                
+            evidence = Evidence(
+                title=s["title"],
+                journal=s["journal"],
+                year=s["year"],
+                authors=s["authors"],
+                summary=s["abstract"],
+                conclusion="Pending AI Analysis",
+                keywords="PubMed Auto-fetched"
+            )
+            db.add(evidence)
+        await db.commit()
+
+@router.post("/fetch-pubmed")
+async def trigger_pubmed_fetch(background_tasks: BackgroundTasks, query: str = '("stage IA" OR "T1N0") AND "non-small cell lung cancer"'):
+    """
+    Triggers an automated pipeline to fetch new studies from PubMed.
+    Runs asynchronously in the background.
+    """
+    background_tasks.add_task(process_pubmed_pipeline, query)
+    return {"message": "PubMed fetch pipeline started in the background", "query": query}
+
