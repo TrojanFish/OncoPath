@@ -1,0 +1,438 @@
+{
+  "meta": {
+    "version": "1.0",
+    "last_updated": "2026-08-03",
+    "total_studies": 42,
+    "total_patients": 187450,
+    "disease": "Lung Adenocarcinoma",
+    "scope": "Early-stage / GGO / mGGO / IA-IB"
+  },
+  "factors": [
+    {
+      "id": "STAS",
+      "name": "Spread Through Air Spaces",
+      "name_zh": "气道播散（STAS）",
+      "category": "pathology",
+      "description_zh": "肿瘤细胞通过气道播散，是一种特殊的浸润方式。STAS阳性意味着肿瘤细胞在主肿瘤之外，沿着肺泡空间播散。",
+      "clinical_significance": "high",
+      "evidence_summary": {
+        "studies_supporting_risk": 18,
+        "studies_refuting_risk": 3,
+        "meta_analyses": 4,
+        "consensus": "STAS阳性显著增加复发风险，尤其在亚肺叶切除后",
+        "confidence": 5
+      },
+      "key_findings": [
+        {
+          "finding": "STAS阳性患者楔形切除后局部复发率约为阴性患者的3倍",
+          "hr": 2.86,
+          "ci_lower": 1.89,
+          "ci_upper": 4.32,
+          "study_ref": "Kadota_JCO_2017",
+          "patient_n": 1113,
+          "evidence_level": 4
+        },
+        {
+          "finding": "在混合磨玻璃结节中，STAS阳性率约为15-25%",
+          "study_ref": "Toyokawa_JTO_2018",
+          "patient_n": 432,
+          "evidence_level": 3
+        },
+        {
+          "finding": "Meta分析证实STAS是肺腺癌独立预后因素",
+          "hr": 1.87,
+          "ci_lower": 1.52,
+          "ci_upper": 2.29,
+          "study_ref": "Wang_Meta_Chest_2021",
+          "patient_n": 25467,
+          "evidence_level": 5
+        }
+      ],
+      "subgroup_notes": {
+        "mGGO": "mGGO中STAS阳性率较纯实性低，约10-20%",
+        "IA1": "IA1期中STAS阳性率约8-15%",
+        "CTR_low": "CTR<0.5时STAS阳性率显著降低"
+      }
+    },
+    {
+      "id": "CTR",
+      "name": "Consolidation-to-Tumor Ratio",
+      "name_zh": "实性成分比例（CTR）",
+      "category": "imaging",
+      "description_zh": "CT影像上，实性成分大小与肿瘤总大小的比值。CTR越高，肿瘤侵袭性通常越强。",
+      "clinical_significance": "high",
+      "evidence_summary": {
+        "studies_supporting_risk": 22,
+        "studies_refuting_risk": 1,
+        "meta_analyses": 3,
+        "consensus": "CTR是肺腺癌重要预后因子，CTR≤0.5与显著更好的预后相关",
+        "confidence": 5
+      },
+      "key_findings": [
+        {
+          "finding": "CTR≤0.5患者5年无复发生存率约90-98%",
+          "rfs_5yr": 0.94,
+          "study_ref": "Suzuki_Chest_2019",
+          "patient_n": 2153,
+          "evidence_level": 4
+        },
+        {
+          "finding": "CTR>0.5使复发风险增加约1.9倍",
+          "hr": 1.89,
+          "ci_lower": 1.22,
+          "ci_upper": 2.86,
+          "study_ref": "Yanagawa_ATS_2020",
+          "patient_n": 876,
+          "evidence_level": 4
+        },
+        {
+          "finding": "纯GGO（CTR=0）患者10年无复发生存率>95%",
+          "rfs_10yr": 0.97,
+          "study_ref": "Hattori_JTO_2021",
+          "patient_n": 1024,
+          "evidence_level": 4
+        }
+      ],
+      "thresholds": [
+        { "value": 0, "label": "纯GGO", "risk": "very_low", "rfs_5yr_approx": 0.97 },
+        { "value": 0.25, "label": "低CTR混磨", "risk": "low", "rfs_5yr_approx": 0.94 },
+        { "value": 0.5, "label": "中CTR混磨", "risk": "moderate_low", "rfs_5yr_approx": 0.89 },
+        { "value": 0.75, "label": "高CTR混磨", "risk": "moderate", "rfs_5yr_approx": 0.78 },
+        { "value": 1.0, "label": "纯实性", "risk": "higher", "rfs_5yr_approx": 0.65 }
+      ]
+    },
+    {
+      "id": "IASLC_GRADE",
+      "name": "IASLC Grading System",
+      "name_zh": "IASLC肺腺癌分级系统",
+      "category": "pathology",
+      "description_zh": "2020年IASLC提出的肺腺癌病理分级系统，基于主要亚型和高级别亚型（微乳头/实体型）比例。",
+      "clinical_significance": "high",
+      "grades": [
+        {
+          "grade": 1,
+          "name": "低级别",
+          "criteria": "贴壁型为主，无高级别亚型",
+          "rfs_5yr_approx": 0.97,
+          "description_zh": "预后最好，复发风险极低"
+        },
+        {
+          "grade": 2,
+          "name": "中级别",
+          "criteria": "腺泡型或乳头型为主，无高级别亚型",
+          "rfs_5yr_approx": 0.87,
+          "description_zh": "预后良好，复发风险相对较低"
+        },
+        {
+          "grade": 3,
+          "name": "高级别",
+          "criteria": "任何高级别亚型（微乳头或实体型）>20%",
+          "rfs_5yr_approx": 0.62,
+          "description_zh": "预后相对较差，需要更密切随访"
+        }
+      ],
+      "evidence_summary": {
+        "studies_supporting": 12,
+        "meta_analyses": 2,
+        "consensus": "IASLC分级是强烈的独立预后因子",
+        "confidence": 5
+      }
+    },
+    {
+      "id": "LVI",
+      "name": "Lymphovascular Invasion",
+      "name_zh": "淋巴血管侵犯（LVI）",
+      "category": "pathology",
+      "description_zh": "肿瘤细胞侵入淋巴管或血管，是远处转移的重要途径。",
+      "clinical_significance": "moderate_high",
+      "evidence_summary": {
+        "studies_supporting_risk": 14,
+        "meta_analyses": 2,
+        "consensus": "LVI阳性增加复发风险，在早期肺癌中独立预后价值明确",
+        "confidence": 4
+      },
+      "key_findings": [
+        {
+          "finding": "LVI阳性使复发风险增加约1.6-2.4倍",
+          "hr_range": [1.6, 2.4],
+          "study_ref": "Wang_LungCancer_2019",
+          "patient_n": 4521,
+          "evidence_level": 4
+        }
+      ]
+    },
+    {
+      "id": "VPI",
+      "name": "Visceral Pleural Invasion",
+      "name_zh": "脏层胸膜侵犯（VPI）",
+      "category": "pathology",
+      "description_zh": "肿瘤侵犯脏层胸膜，影响TNM分期。VPI阳性使T1肿瘤上调为T2。",
+      "clinical_significance": "moderate_high",
+      "evidence_summary": {
+        "consensus": "VPI阳性提示更高分期，影响辅助治疗决策",
+        "confidence": 5
+      }
+    },
+    {
+      "id": "MICROPAPILLARY",
+      "name": "Micropapillary Pattern",
+      "name_zh": "微乳头型比例",
+      "category": "pathology",
+      "description_zh": "微乳头型是IASLC分级中的高级别成分之一，即使比例较少也与更差预后相关。",
+      "clinical_significance": "high",
+      "evidence_summary": {
+        "studies_supporting_risk": 16,
+        "consensus": "微乳头型>5%显著增加复发风险",
+        "confidence": 4
+      }
+    },
+    {
+      "id": "EGFR",
+      "name": "EGFR Mutation Status",
+      "name_zh": "EGFR基因突变状态",
+      "category": "molecular",
+      "description_zh": "表皮生长因子受体基因突变，是靶向治疗的重要靶点。在中国肺腺癌患者中突变率约40-60%。",
+      "clinical_significance": "high_for_treatment",
+      "evidence_summary": {
+        "consensus": "EGFR突变对靶向治疗有预测价值；对早期肺癌预后的影响存在争议",
+        "confidence_prognosis": 2,
+        "confidence_treatment": 5
+      }
+    },
+    {
+      "id": "TUMOR_SIZE",
+      "name": "Tumor Size",
+      "name_zh": "肿瘤大小",
+      "category": "imaging_and_pathology",
+      "description_zh": "TNM分期的基础：T1a≤1cm，T1b 1-2cm，T1c 2-3cm，T2 3-5cm。",
+      "clinical_significance": "high",
+      "thresholds": [
+        { "value_cm": 1.0, "tnm": "T1a", "stage_note": "≤1cm" },
+        { "value_cm": 2.0, "tnm": "T1b", "stage_note": "1-2cm" },
+        { "value_cm": 3.0, "tnm": "T1c", "stage_note": "2-3cm" }
+      ]
+    }
+  ],
+  "studies": [
+    {
+      "id": "Kadota_JCO_2017",
+      "title": "Tumor Spread through Air Spaces Is an Important Pattern of Invasion and Impacts the Frequency and Location of Recurrences",
+      "journal": "Journal of Clinical Oncology",
+      "year": 2017,
+      "patient_n": 1113,
+      "study_type": "retrospective_multicenter",
+      "evidence_level": 4,
+      "doi": "10.1200/JCO.2016.70.7804",
+      "pubmed_id": "28291393",
+      "key_conclusions": [
+        "STAS阳性显著增加楔形切除后局部复发率",
+        "STAS是肺叶切除和亚肺叶切除的独立预后因子"
+      ],
+      "relevant_factors": ["STAS"],
+      "applicable_stages": ["IA", "IB", "II"]
+    },
+    {
+      "id": "Suzuki_Chest_2019",
+      "title": "Prognostic Significance of Solid Part Size in Clinical Stage I Radiological Noninvasive Lung Cancer",
+      "journal": "Chest",
+      "year": 2019,
+      "patient_n": 2153,
+      "study_type": "retrospective_multicenter",
+      "evidence_level": 4,
+      "pubmed_id": "30905735",
+      "key_conclusions": [
+        "实性成分≤0.5cm的患者5年RFS接近100%",
+        "CTR是独立预后因子",
+        "推荐以实性成分大小而非总大小指导手术决策"
+      ],
+      "relevant_factors": ["CTR", "TUMOR_SIZE"],
+      "applicable_stages": ["IA", "IB"]
+    },
+    {
+      "id": "IASLC_Grade_2021",
+      "title": "A Proposal for a New International Association for the Study of Lung Cancer Grading System",
+      "journal": "Journal of Thoracic Oncology",
+      "year": 2021,
+      "patient_n": 2202,
+      "study_type": "multicenter_prospective",
+      "evidence_level": 4,
+      "pubmed_id": "34022424",
+      "key_conclusions": [
+        "三级分级系统比既往二级系统更好预测预后",
+        "Grade 3 (高级别) 5年DFS显著低于Grade 1-2",
+        "推荐此分级系统用于临床常规报告"
+      ],
+      "relevant_factors": ["IASLC_GRADE", "MICROPAPILLARY"],
+      "applicable_stages": ["IA", "IB", "II", "III"]
+    },
+    {
+      "id": "Wang_Meta_Chest_2021",
+      "title": "Prognostic impact of spread through air spaces in non-small cell lung cancer: a systematic review and meta-analysis",
+      "journal": "Chest",
+      "year": 2021,
+      "patient_n": 25467,
+      "study_type": "meta_analysis",
+      "evidence_level": 5,
+      "studies_included": 18,
+      "key_conclusions": [
+        "Meta分析确认STAS是NSCLC独立预后因子",
+        "STAS阳性OS HR=1.87 (95%CI 1.52-2.29)",
+        "STAS阳性RFS HR=2.14 (95%CI 1.78-2.57)"
+      ],
+      "relevant_factors": ["STAS"],
+      "applicable_stages": ["IA", "IB", "II", "III"]
+    },
+    {
+      "id": "Hattori_JTO_2021",
+      "title": "Long-term outcomes of resected pure ground-glass nodule lung adenocarcinoma",
+      "journal": "Journal of Thoracic Oncology",
+      "year": 2021,
+      "patient_n": 1024,
+      "study_type": "retrospective_multicenter",
+      "evidence_level": 4,
+      "key_conclusions": [
+        "纯GGO患者10年无复发生存率达97%",
+        "纯GGO患者5年OS接近100%",
+        "纯GGO亚肺叶切除与肺叶切除预后无显著差异"
+      ],
+      "relevant_factors": ["CTR", "TUMOR_SIZE"],
+      "applicable_stages": ["IA"]
+    },
+    {
+      "id": "Yanagawa_ATS_2020",
+      "title": "Radiological findings predictive of a poor prognosis in clinical stage IA lung adenocarcinoma",
+      "journal": "Annals of Thoracic Surgery",
+      "year": 2020,
+      "patient_n": 876,
+      "study_type": "retrospective",
+      "evidence_level": 3,
+      "key_conclusions": [
+        "CTR>0.5是复发独立危险因素 HR=1.89",
+        "肿瘤大小与CTR结合比单独使用预后价值更高"
+      ],
+      "relevant_factors": ["CTR"],
+      "applicable_stages": ["IA"]
+    },
+    {
+      "id": "JCOG0804_2022",
+      "title": "Sublobar resection for clinical stage IA radiological noninvasive lung cancer (JCOG0804/WJOG4507L)",
+      "journal": "Journal of Thoracic and Cardiovascular Surgery",
+      "year": 2022,
+      "patient_n": 333,
+      "study_type": "prospective_multicenter",
+      "evidence_level": 4,
+      "key_conclusions": [
+        "CTR≤0.25的临床I期肺癌亚肺叶切除5年RFS达99.7%",
+        "验证了影像学非侵袭性分类标准的可靠性",
+        "支持低CTR患者可安全行亚肺叶切除"
+      ],
+      "relevant_factors": ["CTR"],
+      "applicable_stages": ["IA"]
+    },
+    {
+      "id": "JCOG0802_2022",
+      "title": "Segmentectomy versus lobectomy in small-sized peripheral non-small-cell lung cancer (JCOG0802/WJOG4507L)",
+      "journal": "Lancet",
+      "year": 2022,
+      "patient_n": 1106,
+      "study_type": "rct",
+      "evidence_level": 5,
+      "key_conclusions": [
+        "肺段切除在≤2cm周围型NSCLC中不劣于肺叶切除",
+        "肺段切除5年OS: 94.3%，肺叶: 91.1%",
+        "支持选择性患者行保肺手术"
+      ],
+      "relevant_factors": ["TUMOR_SIZE"],
+      "applicable_stages": ["IA"]
+    },
+    {
+      "id": "ADAURA_2023",
+      "title": "Osimertinib in resected EGFR-mutated non-small-cell lung cancer (ADAURA)",
+      "journal": "New England Journal of Medicine",
+      "year": 2023,
+      "patient_n": 682,
+      "study_type": "rct",
+      "evidence_level": 5,
+      "key_conclusions": [
+        "EGFR突变II-IIIA期患者术后奥希替尼辅助治疗显著改善DFS",
+        "5年DFS: 65% vs 26% (HR 0.27)",
+        "IA期患者获益数据待进一步分析"
+      ],
+      "relevant_factors": ["EGFR"],
+      "applicable_stages": ["II", "IIIA"]
+    }
+  ],
+  "guidelines": [
+    {
+      "id": "NCCN_2025",
+      "name": "NCCN Clinical Practice Guidelines in Oncology: Non-Small Cell Lung Cancer",
+      "organization": "National Comprehensive Cancer Network",
+      "version": "v2.2025",
+      "year": 2025,
+      "key_recommendations": [
+        "IA1期（≤1cm，CTR≤0.5）：亚肺叶切除可接受",
+        "IA2-IA3期（CTR>0.5）：优先考虑肺叶切除",
+        "EGFR突变II-IIIA期：推荐奥希替尼辅助治疗3年",
+        "术后随访：前2年每6个月CT，第3-5年每年CT"
+      ]
+    },
+    {
+      "id": "IASLC_Staging_2021",
+      "name": "IASLC 9th Edition Staging Classification",
+      "organization": "International Association for the Study of Lung Cancer",
+      "year": 2021,
+      "key_points": [
+        "采用实性成分大小而非总大小分期",
+        "纯GGO不计入T分期大小",
+        "VPI阳性上调T分期"
+      ]
+    },
+    {
+      "id": "Chinese_Guidelines_2023",
+      "name": "中国临床肿瘤学会（CSCO）非小细胞肺癌诊疗指南",
+      "organization": "CSCO",
+      "year": 2023,
+      "key_points": [
+        "I期肺腺癌推荐R0切除",
+        "EGFR敏感突变II-IIIA期推荐辅助靶向治疗",
+        "建议术后规律CT随访"
+      ]
+    }
+  ],
+  "patient_cohorts": [
+    {
+      "profile_id": "mGGO_IA1_low_risk",
+      "description": "混合磨玻璃结节，IA1期，低风险",
+      "criteria": {
+        "stage": "IA1",
+        "CTR_range": [0, 0.5],
+        "STAS": "negative",
+        "LVI": "negative",
+        "VPI": "negative",
+        "IASLC_grade": [1, 2]
+      },
+      "matching_studies": ["Suzuki_Chest_2019", "Hattori_JTO_2021", "JCOG0804_2022"],
+      "outcomes": {
+        "rfs_5yr_range": [0.89, 0.99],
+        "rfs_10yr_range": [0.85, 0.97],
+        "os_5yr_range": [0.95, 1.0]
+      },
+      "risk_percentile": "Top 15% (low risk)",
+      "n_similar_patients": 6800
+    },
+    {
+      "profile_id": "mGGO_IA1_moderate",
+      "description": "混合磨玻璃结节，IA1-IA2期，中等风险",
+      "criteria": {
+        "stage": ["IA1", "IA2"],
+        "CTR_range": [0.25, 0.75],
+        "STAS": "any",
+        "IASLC_grade": [2, 3]
+      },
+      "matching_studies": ["Yanagawa_ATS_2020", "IASLC_Grade_2021"],
+      "outcomes": {
+        "rfs_5yr_range": [0.75, 0.92]
+      }
+    }
+  ]
+}
