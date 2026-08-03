@@ -80,19 +80,22 @@ nano .env
 Inside `.env`, make the following changes:
 1. Set your `OPENAI_API_KEY`.
 2. Change the `DATABASE_URL` to point to the Postgres container:
-   `DATABASE_URL=postgresql+asyncpg://postgres:password@db:5432/lungevidence`
+   `DATABASE_URL=postgresql+asyncpg://postgres:password@db:5432/oncopath`
 3. Change the `SECRET_KEY` to a secure random string.
 
 ### Step 4: Build and Run
 Go back to the root directory and start the services:
 ```bash
 cd ..
+# If you are on a VPS, you might want to edit docker-compose.yml 
+# and set NEXT_PUBLIC_API_URL=http://<YOUR_VPS_IP>:38080/api before building.
+
 docker-compose up -d --build
 ```
 
 This single command will spin up:
-- **Next.js Frontend** (Available at `http://your-vps-ip:3000`)
-- **FastAPI Backend** (Internal API)
+- **Next.js Frontend** (Available at `http://your-vps-ip:38030`)
+- **FastAPI Backend** (Internal API at port `38080`)
 - **PostgreSQL** (with `pgvector` for semantic search)
 - **Redis** (for caching)
 

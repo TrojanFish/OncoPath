@@ -3,22 +3,22 @@ version: '3.8'
 services:
   db:
     image: ankane/pgvector:pg16
-    container_name: lungevidence-db
+    container_name: oncopath-db
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: lungevidence
+      POSTGRES_DB: oncopath
     ports:
-      - "5432:5432"
+      - "35432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped
 
   redis:
     image: redis:7-alpine
-    container_name: lungevidence-redis
+    container_name: oncopath-redis
     ports:
-      - "6379:6379"
+      - "36379:6379"
     volumes:
       - redis_data:/data
     restart: unless-stopped
@@ -26,14 +26,14 @@ services:
   backend:
     build:
       context: ./backend
-    container_name: lungevidence-backend
+    container_name: oncopath-backend
     environment:
-      - DATABASE_URL=postgresql+asyncpg://postgres:password@db:5432/lungevidence
+      - DATABASE_URL=postgresql+asyncpg://postgres:password@db:5432/oncopath
       - REDIS_URL=redis://redis:6379/0
       - OPENAI_API_KEY=${OPENAI_API_KEY:-sk-mock-key-for-development}
       - OPENAI_BASE_URL=${OPENAI_BASE_URL:-https://api.openai.com/v1}
     ports:
-      - "8000:8000"
+      - "38080:8000"
     volumes:
       - ./backend:/app
     depends_on:
@@ -44,11 +44,12 @@ services:
   frontend:
     build:
       context: ./app
-    container_name: lungevidence-frontend
+    container_name: oncopath-frontend
     environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:8000/api
+      # NOTE: For VPS, change localhost to your VPS public IP in your environment or .env
+      - NEXT_PUBLIC_API_URL=http://localhost:38080/api
     ports:
-      - "3000:3000"
+      - "38030:3000"
     depends_on:
       - backend
     restart: unless-stopped
