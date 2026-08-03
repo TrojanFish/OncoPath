@@ -112,10 +112,10 @@ export default function KnowledgeMapPreview() {
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Graph */}
         <div className="lg:col-span-2 glass rounded-2xl border border-white/5 overflow-hidden relative" style={{ minHeight: 400 }}>
-          <div className="absolute inset-0 bg-grid opacity-50" />
+          <div className="absolute inset-0 bg-grid opacity-50 pointer-events-none" />
           <svg
             viewBox="0 0 100 100"
-            className="w-full h-full"
+            className="w-full h-full relative z-10"
             style={{ minHeight: 400 }}
           >
             {/* Connection lines */}
