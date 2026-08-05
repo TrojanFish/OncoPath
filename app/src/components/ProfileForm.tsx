@@ -198,7 +198,7 @@ function Step1({ form, updateForm }: StepProps) {
         </select>
       </FormField>
 
-      <FormField label="淡巴结果状态" tooltip="手术中所清扫的淡巴结。N0表示没有高钓点转移，是最理想的结果。这个数据在你的手术活检报告中可以找到">
+      <FormField label="淋巴结状态" tooltip="手术中所清扫的淋巴结。N0表示没有淋巴结转移，是最理想的结果。这个数据在你的手术活检报告中可以找到">
         <div className="flex gap-2">
           {(["N0", "N1", "N2"] as const).map((n) => (
             <button
@@ -213,7 +213,7 @@ function Step1({ form, updateForm }: StepProps) {
             >
               {n}
               <div className="text-xs mt-0.5 opacity-70">
-                {n === "N0" ? "无转移 ✓" : n === "N1" ? "同侧淡巴结" : "纵隔淡巴结"}
+                {n === "N0" ? "无转移 ✓" : n === "N1" ? "同侧淋巴结" : "纵隔淋巴结"}
               </div>
             </button>
           ))}
@@ -302,7 +302,7 @@ function Step2({ form, updateForm }: StepProps) {
         />
       </FormField>
 
-      <FormField label="LVI — 淡巴血管侵犯" tooltip="LVI表示癌细胞是否侵入小血管或淡巴管（就像进入了身体的运输通道）。阳性表示远处转移风险增加。在病理报告中应该有描述">
+      <FormField label="LVI — 淋巴血管侵犯" tooltip="LVI表示癌细胞是否侵入小血管或淋巴管（就像进入了身体的运输通道）。阳性表示远处转移风险增加。在病理报告中应该有描述">
         <ThreeWayToggle
           id="lvi"
           value={form.lvi || "unknown"}
