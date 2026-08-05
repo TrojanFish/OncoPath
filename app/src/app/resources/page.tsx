@@ -61,7 +61,7 @@ const CATEGORIES: ResourceCategory[] = [
       },
       {
         name: "中国临床肿瘤学会（CSCO）指南",
-        url: "http://www.csco.ac.cn/",
+        url: "https://www.csco.org.cn/",
         description: "中国本土权威临床肿瘤指南，制定的《非小细胞肺癌诊疗指南》是国内医院的标准参考文件，内容完全基于中国患者数据，更贴合国内实际。",
         lang: "zh",
         free: true,
@@ -176,9 +176,9 @@ const CATEGORIES: ResourceCategory[] = [
         free: true,
       },
       {
-        name: "医脉通（肿瘤频道）",
-        url: "https://www.medlive.cn/",
-        description: "国内面向临床医生的医学资讯平台，肿瘤频道收录大量指南解读、最新研究汉化解读。对于想了解医生视角解读最新研究的患者家属有参考价值。",
+        name: "丁香园（肿瘤频道）",
+        url: "https://oncol.dxy.cn/",
+        description: "国内最大的医疗专业人员学习社区，肿瘤频道收录大量前沿指南解读、最新研究汉化资讯。对于想从医生视角了解肺癌最新研究进展的患者家属有重要参考价值。",
         lang: "zh",
         free: true,
       },
