@@ -53,7 +53,7 @@ const CATEGORIES: ResourceCategory[] = [
       },
       {
         name: "IASLC（国际肺癌研究协会）",
-        url: "https://www.iaslc.org/research-education/library",
+        url: "https://www.iaslc.org/",
         description: "全球最大的专注于肺癌的学术组织，负责制定 TNM 分期系统（OncoPath 使用第九版）。提供最新的分期教育材料和患者手册。",
         tip: "💡 OncoPath 中的「T分期」「N分期」「M分期」定义均来源于此机构。",
         lang: "en",
@@ -61,7 +61,7 @@ const CATEGORIES: ResourceCategory[] = [
       },
       {
         name: "中国临床肿瘤学会（CSCO）指南",
-        url: "https://www.csco.ac.cn/",
+        url: "http://www.csco.ac.cn/",
         description: "中国本土权威临床肿瘤指南，制定的《非小细胞肺癌诊疗指南》是国内医院的标准参考文件，内容完全基于中国患者数据，更贴合国内实际。",
         lang: "zh",
         free: true,
@@ -177,7 +177,7 @@ const CATEGORIES: ResourceCategory[] = [
       },
       {
         name: "医脉通（肿瘤频道）",
-        url: "https://oncology.medlive.cn/",
+        url: "https://www.medlive.cn/",
         description: "国内面向临床医生的医学资讯平台，肿瘤频道收录大量指南解读、最新研究汉化解读。对于想了解医生视角解读最新研究的患者家属有参考价值。",
         lang: "zh",
         free: true,
