@@ -2,7 +2,7 @@ from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "OncoPath"
-    DATABASE_URL: str = "sqlite+aiosqlite:///./lungevidence.db"
+    DATABASE_URL: str = "sqlite+aiosqlite:///./oncopath.db"
     REDIS_URL: str = "redis://localhost:6379/0"
     SECRET_KEY: str = "super_secret_key_for_jwt_which_should_be_changed_in_prod"
     ALGORITHM: str = "HS256"
