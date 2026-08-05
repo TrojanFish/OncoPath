@@ -33,13 +33,20 @@ export const metadata: Metadata = {
     "lung cancer",
     "evidence-based medicine",
   ],
+  icons: {
+    icon: "/logo.png",
+    shortcut: "/logo.png",
+    apple: "/logo.png",
+  },
   openGraph: {
       title: "OncoPath — 肺癌循证知识平台",
     description:
       "把复杂的医学研究翻译成患者能理解的语言。每一句话都有证据来源。",
     type: "website",
+    images: [{ url: "/logo.png", width: 1024, height: 1024, alt: "OncoPath Logo" }],
   },
 };
+
 
 export default function RootLayout({
   children,
