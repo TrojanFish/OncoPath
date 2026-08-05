@@ -1,0 +1,63 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+
+export function LogoMark() {
+  return (
+    <div className="flex items-center gap-2">
+      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-accent-blue to-accent-teal flex items-center justify-center text-white font-bold text-sm">
+        O
+      </div>
+      <span className="font-semibold text-text-primary">
+        Onco<span className="text-gradient">Path</span>
+      </span>
+    </div>
+  );
+}
+
+const NAV_LINKS = [
+  { label: "首页", href: "/" },
+  { label: "知识图谱", href: "/knowledge" },
+  { label: "国际研究库", href: "/studies" },
+  { label: "学术导航", href: "/resources" },
+];
+
+export default function SubpageNavbar() {
+  const pathname = usePathname();
+
+  return (
+    <nav className="sticky top-0 z-50 bg-[#0a0e1a]/70 backdrop-blur-lg border-b border-white/5 px-6 py-4 shadow-sm">
+      <div className="max-w-7xl mx-auto flex items-center justify-between">
+        <Link href="/" className="flex-shrink-0 hover:opacity-80 transition-opacity">
+          <LogoMark />
+        </Link>
+        
+        <div className="hidden md:flex items-center gap-8">
+          {NAV_LINKS.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={`text-sm font-medium transition-colors ${
+                pathname === link.href
+                  ? "text-accent-blue"
+                  : "text-text-secondary hover:text-text-primary"
+              }`}
+            >
+              {link.label}
+            </Link>
+          ))}
+        </div>
+
+        <div className="flex items-center gap-4">
+          <Link
+            href="/"
+            className="btn-primary px-5 py-2 rounded-xl text-sm font-medium transition-all"
+          >
+            开始分析
+          </Link>
+        </div>
+      </div>
+    </nav>
+  );
+}

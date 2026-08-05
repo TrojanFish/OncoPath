@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import SubpageNavbar from "@/components/SubpageNavbar";
 
 interface ResourceLink {
   name: string;
@@ -206,27 +207,7 @@ export default function ResourcesPage() {
 
   return (
     <div className="min-h-screen pb-24">
-      {/* Navbar */}
-      <nav className="sticky top-0 z-50 bg-[#0a0e1a]/70 backdrop-blur-lg border-b border-white/5 px-6 py-4 shadow-sm">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-accent-blue to-accent-teal flex items-center justify-center text-white font-bold text-sm">
-              O
-            </div>
-            <span className="font-semibold text-text-primary">
-              Onco<span className="text-gradient">Path</span>
-            </span>
-          </Link>
-          <div className="flex items-center gap-4">
-            <Link href="/studies" className="text-sm text-text-muted hover:text-text-primary transition-colors">
-              研究库
-            </Link>
-            <Link href="/" className="text-sm font-medium text-text-secondary hover:text-text-primary transition-colors">
-              返回首页
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <SubpageNavbar />
 
       {/* Hero Header */}
       <header className="pt-16 pb-10 px-6 text-center max-w-3xl mx-auto">

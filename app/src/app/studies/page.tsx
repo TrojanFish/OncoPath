@@ -4,31 +4,12 @@ import Link from "next/link";
 import { FEATURED_STUDIES } from "@/lib/evidence-data";
 import StudyCard from "@/components/StudyCard";
 import PubMedSearch from "@/components/PubMedSearch";
+import SubpageNavbar from "@/components/SubpageNavbar";
 
 export default function StudiesPage() {
   return (
     <div className="min-h-screen pb-24">
-      {/* Navbar Minimal */}
-      <nav className="sticky top-0 z-50 bg-[#0a0e1a]/70 backdrop-blur-lg border-b border-white/5 px-6 py-4 shadow-sm">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-accent-blue to-accent-teal flex items-center justify-center text-white font-bold text-sm">
-              O
-            </div>
-            <span className="font-semibold text-text-primary">
-              Onco<span className="text-gradient">Path</span>
-            </span>
-          </Link>
-          <div className="flex items-center gap-4">
-            <Link
-              href="/"
-              className="text-sm font-medium text-text-secondary hover:text-text-primary transition-colors"
-            >
-              返回首页
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <SubpageNavbar />
 
       {/* Header */}
       <header className="pt-16 pb-12 px-6 text-center">
