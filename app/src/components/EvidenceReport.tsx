@@ -5,6 +5,7 @@ import type { PatientProfile } from "@/lib/types";
 import { analyzePatientProfile, EVIDENCE_FACTORS, FEATURED_STUDIES, STUDY_TYPE_LABELS, type PatientMatchResult } from "@/lib/evidence-data";
 import { generateReport } from "@/lib/api";
 import StudyCard from "./StudyCard";
+import KnowledgeMapPreview from "./KnowledgeMapPreview";
 
 interface EvidenceReportProps {
   profile: PatientProfile;
@@ -16,6 +17,7 @@ export default function EvidenceReport({ profile, onBack, initialReportJson }: E
   const [result, setResult] = useState<PatientMatchResult | null>(null);
   const [loading, setLoading] = useState(!initialReportJson);
   const [activeTab, setActiveTab] = useState<"overview" | "factors" | "studies" | "followup">("overview");
+  const [showGraphOverlay, setShowGraphOverlay] = useState(false);
 
   const [llmReport, setLlmReport] = useState<any>(initialReportJson || null);
 
@@ -76,6 +78,39 @@ export default function EvidenceReport({ profile, onBack, initialReportJson }: E
 
   return (
     <div className="min-h-screen bg-grid">
+      {/* Knowledge Graph Overlay */}
+      {showGraphOverlay && (
+        <div
+          className="fixed inset-0 z-[100] bg-[#070b17]/90 backdrop-blur-xl flex flex-col"
+          onClick={(e) => { if (e.target === e.currentTarget) setShowGraphOverlay(false); }}
+        >
+          {/* Overlay Header */}
+          <div className="bg-[#0a0e1a]/90 backdrop-blur-lg border-b border-white/5 px-6 py-4 flex items-center justify-between flex-shrink-0">
+            <div className="flex items-center gap-3">
+              <div className="w-2 h-2 rounded-full bg-accent-teal animate-pulse" />
+              <span className="text-text-primary font-semibold">专属路径图谱</span>
+              <span className="text-text-muted text-sm">— 根据您的病理特征高亮显示</span>
+            </div>
+            <button
+              onClick={() => setShowGraphOverlay(false)}
+              className="text-text-muted hover:text-text-primary transition-colors text-2xl leading-none cursor-pointer w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/5"
+            >
+              &times;
+            </button>
+          </div>
+          {/* Overlay Content */}
+          <div className="flex-1 overflow-y-auto px-6 pb-8">
+            <div className="max-w-6xl mx-auto">
+              <KnowledgeMapPreview profile={profile} />
+            </div>
+          </div>
+          {/* Bottom hint */}
+          <div className="flex-shrink-0 px-6 py-3 border-t border-white/5 text-center">
+            <span className="text-text-muted text-xs">点击连线可查看文献依据 · 点击背景关闭</span>
+          </div>
+        </div>
+      )}
+
       {/* Sticky Header */}
       <div className="bg-[#0a0e1a]/70 backdrop-blur-lg border-b border-white/5 sticky top-0 z-50 px-6 py-4">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
@@ -94,6 +129,23 @@ export default function EvidenceReport({ profile, onBack, initialReportJson }: E
             <span className="text-text-secondary text-sm">循证分析报告</span>
           </div>
           <div className="flex items-center gap-2">
+            {/* Knowledge Graph shortcut */}
+            <button
+              id="report-graph-btn"
+              onClick={() => setShowGraphOverlay(true)}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm border border-accent-teal/40 text-accent-teal bg-accent-teal/5 hover:bg-accent-teal/10 transition-all cursor-pointer"
+              title="查看专属路径图谱"
+            >
+              <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <circle cx="5" cy="5" r="2"/>
+                <circle cx="19" cy="5" r="2"/>
+                <circle cx="12" cy="19" r="2"/>
+                <line x1="7" y1="5" x2="17" y2="5"/>
+                <line x1="5" y1="7" x2="12" y2="17"/>
+                <line x1="19" y1="7" x2="12" y2="17"/>
+              </svg>
+              图谱
+            </button>
             <button
               id="report-share-btn"
               onClick={() => {
