@@ -7,8 +7,8 @@ import UserAvatar from "@/components/UserAvatar";
 export function LogoMark() {
   return (
     <div className="flex items-center gap-2">
-      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-accent-blue to-accent-teal flex items-center justify-center text-white font-bold text-sm">
-        O
+      <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center">
+        <img src="/logo.png" alt="OncoPath Logo" className="w-full h-full object-cover" />
       </div>
       <span className="font-semibold text-text-primary">
         Onco<span className="text-gradient">Path</span>
