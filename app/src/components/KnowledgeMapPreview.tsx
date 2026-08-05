@@ -10,6 +10,7 @@ interface KnowledgeNode {
   x: number;
   y: number;
   connections: string[];
+  connectionTypes?: Record<string, "risk" | "protective" | "guides">; // edge relationship type
   studies: number;
   evidence: number;
   description: string;
@@ -23,6 +24,7 @@ const initialNodes: KnowledgeNode[] = [
     id: "STAS", label: "STAS", type: "factor",
     x: 20, y: 35,
     connections: ["RECURRENCE", "SURGERY", "LVI"],
+    connectionTypes: { RECURRENCE: "risk", SURGERY: "guides", LVI: "risk" },
     studies: 18, evidence: 5,
     description: "气道播散：肿瘤细胞沿肺泡播散，影响局部复发。18项研究证实其预后价值。",
   },
@@ -30,6 +32,7 @@ const initialNodes: KnowledgeNode[] = [
     id: "CTR", label: "CTR", type: "factor",
     x: 50, y: 15,
     connections: ["RECURRENCE", "STAGING", "SURGERY"],
+    connectionTypes: { RECURRENCE: "risk", STAGING: "guides", SURGERY: "guides" },
     studies: 22, evidence: 5,
     description: "实性成分比例：CT影像关键参数，CTR≤0.5与显著更好预后相关。",
   },
@@ -37,13 +40,15 @@ const initialNodes: KnowledgeNode[] = [
     id: "IASLC", label: "IASLC\nGrade", type: "factor",
     x: 80, y: 35,
     connections: ["RECURRENCE", "ADJUVANT"],
+    connectionTypes: { RECURRENCE: "risk", ADJUVANT: "guides" },
     studies: 12, evidence: 4,
-    description: "IASLC分级：三级病理分级系统，Grade 3患者预后明显更差。",
+    description: "IASLC分级（第9版）：三级病理分级系统，Grade 3患者预后明显更差。",
   },
   {
     id: "LVI", label: "LVI", type: "factor",
     x: 15, y: 65,
     connections: ["RECURRENCE", "METASTASIS"],
+    connectionTypes: { RECURRENCE: "risk", METASTASIS: "risk" },
     studies: 14, evidence: 4,
     description: "淋巴血管侵犯：肿瘤侵入血管，增加远处转移风险。",
   },
@@ -51,6 +56,7 @@ const initialNodes: KnowledgeNode[] = [
     id: "VPI", label: "VPI", type: "factor",
     x: 85, y: 65,
     connections: ["STAGING", "ADJUVANT"],
+    connectionTypes: { STAGING: "guides", ADJUVANT: "guides" },
     studies: 8, evidence: 5,
     description: "脏层胸膜侵犯：影响T分期，VPI阳性使T1上调至T2。",
   },
@@ -58,6 +64,7 @@ const initialNodes: KnowledgeNode[] = [
     id: "EGFR", label: "EGFR", type: "factor",
     x: 50, y: 80,
     connections: ["ADJUVANT", "TARGETED"],
+    connectionTypes: { ADJUVANT: "guides", TARGETED: "guides" },
     studies: 9, evidence: 5,
     description: "EGFR突变：靶向治疗重要靶点，中国患者突变率约40-60%。",
   },
@@ -65,6 +72,7 @@ const initialNodes: KnowledgeNode[] = [
     id: "RECURRENCE", label: "复发风险", type: "outcome",
     x: 50, y: 45,
     connections: [],
+    connectionTypes: {},
     studies: 35, evidence: 5,
     description: "综合多项研究的复发风险指标，与多种病理因素相关。",
   },
@@ -72,6 +80,7 @@ const initialNodes: KnowledgeNode[] = [
     id: "SURGERY", label: "手术方式", type: "guideline",
     x: 30, y: 10,
     connections: [],
+    connectionTypes: {},
     studies: 6, evidence: 5,
     description: "JCOG0802（Lancet 2022）证实肺段切除与肺叶切除在小型肺癌中预后相当。",
   },
@@ -79,6 +88,7 @@ const initialNodes: KnowledgeNode[] = [
     id: "ADJUVANT", label: "辅助治疗", type: "guideline",
     x: 75, y: 85,
     connections: [],
+    connectionTypes: {},
     studies: 4, evidence: 5,
     description: "ADAURA（NEJM 2023）证实EGFR阳性II-IIIA期患者辅助靶向治疗获益显著。",
   },
@@ -86,8 +96,25 @@ const initialNodes: KnowledgeNode[] = [
     id: "STAGING", label: "TNM分期", type: "guideline",
     x: 70, y: 12,
     connections: [],
+    connectionTypes: {},
     studies: 12, evidence: 5,
-    description: "IASLC第9版分期系统，采用实性成分大小而非总大小分期。",
+    description: "IASLC第9版分期系统（2024年），采用实性成分大小而非总大小对T分期亚组进行细化。",
+  },
+  {
+    id: "METASTASIS", label: "远处转移", type: "outcome",
+    x: 10, y: 85,
+    connections: [],
+    connectionTypes: {},
+    studies: 10, evidence: 4,
+    description: "肿瘤远处转移，与LVI阳性显著相关，是影响预后的重要因素。",
+  },
+  {
+    id: "TARGETED", label: "靶向治疗", type: "guideline",
+    x: 90, y: 75,
+    connections: [],
+    connectionTypes: {},
+    studies: 6, evidence: 5,
+    description: "ADAURA等研究证实EGFR-TKI靶向治疗对EGFR阳性肺癌预后改善显著。",
   },
 ];
 
@@ -154,22 +181,54 @@ export default function KnowledgeMapPreview() {
             className="w-full h-full relative z-10"
             style={{ minHeight: 400 }}
           >
+            {/* Arrow marker definitions */}
+            <defs>
+              <marker id="arrow-risk" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+                <path d="M0,0 L0,6 L6,3 z" fill="rgba(239,68,68,0.7)" />
+              </marker>
+              <marker id="arrow-guides" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+                <path d="M0,0 L0,6 L6,3 z" fill="rgba(0,212,170,0.7)" />
+              </marker>
+              <marker id="arrow-default" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+                <path d="M0,0 L0,6 L6,3 z" fill="rgba(79,142,247,0.5)" />
+              </marker>
+              <marker id="arrow-active" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+                <path d="M0,0 L0,6 L6,3 z" fill="rgba(79,142,247,0.9)" />
+              </marker>
+            </defs>
+
             {/* Connection lines */}
             {nodes.map((node) =>
               node.connections.map((targetId) => {
                 const target = nodes.find((n) => n.id === targetId);
                 if (!target) return null;
                 const isActive = activeNode?.id === node.id || activeNode?.id === targetId;
+                const relType = (node.connectionTypes || {})[targetId] || "default";
+                // Shorten line to avoid overlapping with node circles
+                const dx = target.x - node.x;
+                const dy = target.y - node.y;
+                const len = Math.sqrt(dx * dx + dy * dy);
+                const offset = 4.2;
+                const x1 = node.x + (dx / len) * offset;
+                const y1 = node.y + (dy / len) * offset;
+                const x2 = target.x - (dx / len) * offset;
+                const y2 = target.y - (dy / len) * offset;
+                const strokeColor = isActive
+                  ? "rgba(79,142,247,0.85)"
+                  : relType === "risk"
+                  ? "rgba(239,68,68,0.3)"
+                  : relType === "guides"
+                  ? "rgba(0,212,170,0.3)"
+                  : "rgba(255,255,255,0.06)";
+                const markerId = isActive ? "arrow-active" : relType === "risk" ? "arrow-risk" : relType === "guides" ? "arrow-guides" : "arrow-default";
                 return (
                   <line
                     key={`${node.id}-${targetId}`}
-                    x1={node.x}
-                    y1={node.y}
-                    x2={target.x}
-                    y2={target.y}
-                    stroke={isActive ? "rgba(79,142,247,0.5)" : "rgba(255,255,255,0.06)"}
-                    strokeWidth={isActive ? "0.5" : "0.3"}
-                    strokeDasharray={isActive ? "none" : "1,1"}
+                    x1={x1} y1={y1} x2={x2} y2={y2}
+                    stroke={strokeColor}
+                    strokeWidth={isActive ? "0.55" : "0.3"}
+                    strokeDasharray={relType === "guides" && !isActive ? "1.5,1" : "none"}
+                    markerEnd={`url(#${markerId})`}
                   />
                 );
               })
@@ -228,6 +287,16 @@ export default function KnowledgeMapPreview() {
                 <span className="text-text-muted text-xs">{typeLabels[type]}</span>
               </div>
             ))}
+            <div className="w-full mt-1 flex gap-3">
+              <div className="flex items-center gap-1.5">
+                <div className="w-4 h-px" style={{ background: "rgba(239,68,68,0.7)" }} />
+                <span className="text-text-muted text-xs">风险关联</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <div className="w-4 h-px border-t border-dashed" style={{ borderColor: "rgba(0,212,170,0.7)" }} />
+                <span className="text-text-muted text-xs">指南关联</span>
+              </div>
+            </div>
           </div>
         </div>
 

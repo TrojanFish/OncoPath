@@ -388,9 +388,7 @@ export default function HomePage() {
             理解你的情况，
             <span className="text-gradient"> 从循证开始</span>
           </h2>
-          <p className="text-xl text-text-secondary mb-4 max-w-2xl mx-auto">
-            数据库中已收录 42 项研究，覆盖 187,450+ 例患者。
-          </p>
+          <CtaStats />
           <p className="text-base text-text-muted mb-12 max-w-xl mx-auto">
             输入你的病理特征，系统将在已发表的研究中为你精准定位，
             并用可理解的语言解释每一个指标的含义。
@@ -518,6 +516,24 @@ function FeatureCard({ icon, title, desc, color }: { icon: string; title: string
 }
 
 import { fetchStats } from "@/lib/api";
+
+function CtaStats() {
+  const [stats, setStats] = useState<{ total_studies: number; total_patients: number } | null>(null);
+  useEffect(() => {
+    fetchStats().then((s) => { if (s) setStats(s); });
+  }, []);
+  const studiesText = stats ? `${stats.total_studies} 项研究` : "持续更新中";
+  const patientsText = stats && stats.total_patients > 0
+    ? `${new Intl.NumberFormat("en-US").format(stats.total_patients)}+ 例患者`
+    : "覆盖海量患者";
+  return (
+    <p className="text-xl text-text-secondary mb-4 max-w-2xl mx-auto">
+      数据库已收录{" "}
+      <span className="text-gradient font-semibold">{studiesText}</span>，覆盖{" "}
+      <span className="text-gradient font-semibold">{patientsText}</span>。
+    </p>
+  );
+}
 
 function EvidencePreviewCard() {
   const [stats, setStats] = useState({ studies: 32, patients: "6,800+" });
