@@ -72,7 +72,7 @@ export default function HomePage() {
   if (appState === "input") {
     return (
       <div className="min-h-screen bg-grid radial-overlay overflow-x-hidden">
-        <nav className="glass-strong fixed top-0 left-0 right-0 z-50 px-6 py-4">
+        <nav className="bg-[#0a0e1a]/70 backdrop-blur-lg border-b border-white/5 fixed top-0 left-0 right-0 z-50 px-6 py-4">
           <div className="max-w-7xl mx-auto flex items-center justify-between">
             <button
               onClick={() => setAppState("landing")}
@@ -101,7 +101,7 @@ export default function HomePage() {
       {/* Navigation */}
       <nav
         className={`fixed top-0 left-0 right-0 z-50 px-6 py-4 transition-all duration-300 ${
-          scrollY > 50 ? "glass-strong shadow-lg" : "bg-transparent"
+          scrollY > 50 ? "bg-[#0a0e1a]/70 backdrop-blur-lg border-b border-white/5 shadow-lg" : "bg-transparent border-b border-transparent"
         }`}
       >
         <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -489,7 +489,7 @@ export default function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer className="glass-strong border-t border-border-color py-12 px-6">
+      <footer className="bg-transparent border-t border-white/5 py-12 px-6 mt-12">
         <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-4 gap-8 mb-8">
             <div>
