@@ -30,6 +30,13 @@ export default function ProfileForm({ onSubmit }: ProfileFormProps) {
     setForm((prev) => ({ ...prev, [key]: value }));
   };
 
+  const canProceed = () => {
+    if (step === 1) return !!form.age && form.age > 0;
+    if (step === 2) return true;
+    if (step === 3) return form.tumorSize !== undefined && form.solidSize !== undefined && !isNaN(form.tumorSize) && !isNaN(form.solidSize);
+    return true;
+  };
+
   const handleSubmit = () => {
     const profile: PatientProfile = {
       age: form.age || 50,
@@ -113,16 +120,22 @@ export default function ProfileForm({ onSubmit }: ProfileFormProps) {
           {step < totalSteps ? (
             <button
               onClick={() => setStep(step + 1)}
+              disabled={!canProceed()}
               id={`form-next-step-${step}`}
-              className="btn-primary px-6 py-3 rounded-xl font-medium flex-1 cursor-pointer"
+              className={`px-6 py-3 rounded-xl font-medium flex-1 transition-all ${
+                canProceed() ? "btn-primary cursor-pointer" : "bg-white/5 text-white/30 cursor-not-allowed"
+              }`}
             >
-              下一步 →
+              下一步
             </button>
           ) : (
             <button
               onClick={handleSubmit}
+              disabled={!canProceed()}
               id="form-submit-btn"
-              className="btn-primary px-6 py-3 rounded-xl font-medium flex-1 cursor-pointer flex items-center justify-center gap-2"
+              className={`px-6 py-3 rounded-xl font-medium flex-1 flex items-center justify-center gap-2 transition-all ${
+                canProceed() ? "btn-primary cursor-pointer" : "bg-white/5 text-white/30 cursor-not-allowed"
+              }`}
             >
               <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" strokeLinecap="round" strokeLinejoin="round" />
@@ -428,7 +441,7 @@ function Step3({ form, updateForm }: StepProps) {
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-semibold text-text-primary mb-1">🏥 CT 报告上的</h2>
-        <p className="text-text-secondary text-sm">这些数据在放射科报告中可以找到，不确定的项目可以跳过</p>
+        <p className="text-text-secondary text-sm">这些数据在放射科报告中可以找到，对于精准评估复发风险至关重要</p>
       </div>
 
       <FormField label="结节形态">
