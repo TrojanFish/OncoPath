@@ -21,12 +21,14 @@ export default function PubMedSearch() {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState("");
 
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
+
   const handleSearch = async () => {
     if (!query) return;
     setIsLoading(true);
     setMessage("");
     try {
-      const res = await fetch(`http://localhost:8000/api/evidence/search?q=${encodeURIComponent(query)}`);
+      const res = await fetch(`${API_BASE_URL}/evidence/search?q=${encodeURIComponent(query)}`);
       if (res.ok) {
         const data = await res.json();
         setResults(data);
@@ -48,7 +50,7 @@ export default function PubMedSearch() {
     setMessage("");
     try {
       const endpoint = source === "europe_pmc" ? "fetch-europe-pmc" : "fetch-pubmed";
-      const res = await fetch(`http://localhost:8000/api/evidence/${endpoint}?query=${encodeURIComponent(query)}`, {
+      const res = await fetch(`${API_BASE_URL}/evidence/${endpoint}?query=${encodeURIComponent(query)}`, {
         method: "POST",
       });
       if (res.ok) {
