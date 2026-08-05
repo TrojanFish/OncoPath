@@ -1,8 +1,9 @@
-# OncoPath
-
-> **Evidence-Based Oncology AI Agent Platform**
-> 
-> *A robust, AI-powered medical platform designed to interpret oncology reports strictly based on real-world medical evidence, AJCC guidelines, and peer-reviewed literature.*
+<div align="center">
+  <img src="https://raw.githubusercontent.com/TrojanFish/OncoPath/main/app/public/logo.svg" width="120" alt="OncoPath Logo">
+  <h1>OncoPath</h1>
+  <p><strong>Evidence-Based Oncology AI Agent Platform</strong></p>
+  <p><em>A robust, AI-powered medical platform designed to interpret oncology reports strictly based on real-world medical evidence, AJCC guidelines, and peer-reviewed literature.</em></p>
+</div>
 
 ---
 
@@ -12,13 +13,20 @@ The primary goal of this platform is to act as a bridge between complex medical 
 2. **Traceability**: Every medical assertion is backed by retrieved literature via a robust RAG (Retrieval-Augmented Generation) pipeline.
 3. **Data Privacy**: Fully persistent and isolated user case histories built with FastAPI, SQLAlchemy, and Next.js.
 
+## ✨ Key Features
+- **Medical-Grade Data Collection**: Rigorously designed pathology profile forms capturing precise nuances like `Tis/MIA` staging, `IASLC` grades, and exact percentage breakdowns of histology subtypes.
+- **Interactive Knowledge Graph**: A dynamically generated, strictly orthogonal medical knowledge graph that visualizes the cause-and-effect relationships between pathological factors (e.g., STAS, CTR, LVI) and clinical prognosis.
+- **Evidence-Based Reports**: Matches patient data against a database of seminal oncology studies (e.g., JCOG0804) to provide risk stratification and five-year Recurrence-Free Survival (RFS) projections.
+- **Personal Dashboard**: A secure timeline view for users to track historical evaluations and tumor progression.
+- **Microservice Architecture**: Fully containerized backend and frontend supporting robust relational databases (SQLite for local, PostgreSQL for prod).
+
 ## 🏗 Architecture
 This project implements a complete microservice architecture, ready for Docker deployment.
 
 - **Frontend (`/app`)**: Next.js 14, TailwindCSS, React. Dark sci-fi aesthetic focusing on extreme clarity.
 - **Backend (`/backend`)**: FastAPI, Python 3.11, Pydantic, SQLAlchemy.
 - **Database**: 
-  - *Current MVP*: SQLite for rapid local prototyping.
+  - *Current MVP*: SQLite for rapid local prototyping and user case history.
   - *Production*: PostgreSQL + `pgvector` for high-dimensional semantic search.
 - **AI Core**: OpenAI `gpt-4-turbo-preview` / `text-embedding-ada-002` (via Python SDK).
 
