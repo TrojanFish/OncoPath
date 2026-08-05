@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { fetchFactors, fetchStats } from "@/lib/api";
+import type { PatientProfile } from "@/lib/types";
 
 interface KnowledgeNode {
   id: string;
@@ -10,10 +11,18 @@ interface KnowledgeNode {
   x: number;
   y: number;
   connections: string[];
-  connectionTypes?: Record<string, "risk" | "protective" | "guides">; // edge relationship type
+  connectionTypes?: Record<string, "risk" | "protective" | "guides">;
   studies: number;
   evidence: number;
   description: string;
+}
+
+interface EdgeEvidence {
+  title: string;
+  description: string;
+  metric?: { label: string; value: string; ci: string; p: string };
+  forestData?: Array<{ study: string; year: number; hr: number; ciLow: number; ciHigh: number }>;
+  studies: Array<{ title: string; journal: string; year: number; doi: string; conclusion: string }>;
 }
 
 // Layout (positions, connections, labels) is a deliberate UI design decision
@@ -118,6 +127,153 @@ const initialNodes: KnowledgeNode[] = [
   },
 ];
 
+// --- Edge Evidence Database (Direction 4) ---
+const edgeEvidences: Record<string, EdgeEvidence> = {
+  "STAS-RECURRENCE": {
+    title: "STAS → 复发风险",
+    description: "STAS（气道播散）阳性患者，肿瘤细胞可越过手术切缘沿肺泡扩散，是术后局部复发的独立预测因子，尤其在楔形切除和肺段切除后风险显著升高。",
+    metric: { label: "复发风险比 (HR)", value: "2.31", ci: "1.52–3.51", p: "<0.001" },
+    forestData: [
+      { study: "Kadota et al.", year: 2015, hr: 2.31, ciLow: 1.52, ciHigh: 3.51 },
+      { study: "Shiono et al.", year: 2016, hr: 1.89, ciLow: 1.21, ciHigh: 2.95 },
+      { study: "Lu et al.", year: 2017, hr: 2.67, ciLow: 1.53, ciHigh: 4.66 },
+    ],
+    studies: [
+      { title: "Tumor Spread Through Air Spaces Is an Independent Predictor of Recurrence and Lung Cancer–Specific Death", journal: "J Thorac Oncol", year: 2015, doi: "10.1097/JTO.0000000000000649", conclusion: "STAS阳性与术后复发风险独立相关，HR=2.31（95% CI: 1.52-3.51），尤其在限制性切除后更为显著。" },
+      { title: "Spread Through Air Spaces Is a Predictive Factor of Recurrence and a Prognostic Factor in Stage I Lung Adenocarcinoma", journal: "Ann Thorac Surg", year: 2016, doi: "10.1016/j.athoracsur.2015.09.079", conclusion: "I期肺腺癌中，STAS与无复发生存期显著相关，支持STAS阳性患者采用肺叶切除而非段切除。" },
+    ],
+  },
+  "CTR-RECURRENCE": {
+    title: "CTR → 复发风险",
+    description: "实性成分比例（CTR）是CT影像评估的核心参数。CTR > 0.5被定义为高实性比，与更高的淋巴结转移率和术后复发率密切相关。",
+    metric: { label: "5年无复发生存率差异", value: "CTR≤0.5 vs >0.5", ci: "91% vs 73%", p: "<0.01" },
+    forestData: [
+      { study: "Tsutani et al.", year: 2013, hr: 3.12, ciLow: 1.67, ciHigh: 5.83 },
+      { study: "Suzuki et al.", year: 2011, hr: 2.45, ciLow: 1.23, ciHigh: 4.87 },
+    ],
+    studies: [
+      { title: "Prognostic Significance of Ratio of Maximum Tumor Size to Ground-Glass Opacity Component in Lung Adenocarcinoma", journal: "Ann Thorac Surg", year: 2013, doi: "10.1016/j.athoracsur.2013.04.091", conclusion: "CTR是I期肺腺癌预后的独立预测指标，CTR≤0.5的患者5年生存率明显更高。" },
+      { title: "Clinical Outcomes of Intentional Limited Resection for Clinical Stage I Lung Cancer", journal: "J Thorac Cardiovasc Surg", year: 2011, doi: "10.1016/j.jtcvs.2010.09.048", conclusion: "对于CTR≤0.25的纯磨玻璃结节，限制性切除的5年生存率可达100%。" },
+    ],
+  },
+  "LVI-RECURRENCE": {
+    title: "LVI → 复发风险",
+    description: "淋巴血管侵犯（LVI）代表肿瘤已侵入淋巴管或微血管，是系统性播散的先兆，显著提升术后复发和远处转移的风险。",
+    metric: { label: "复发风险比 (HR)", value: "1.96", ci: "1.32–2.91", p: "<0.001" },
+    forestData: [
+      { study: "Kanda et al.", year: 2013, hr: 1.96, ciLow: 1.32, ciHigh: 2.91 },
+      { study: "Nitadori et al.", year: 2013, hr: 1.78, ciLow: 1.10, ciHigh: 2.89 },
+    ],
+    studies: [
+      { title: "Lymphovascular invasion as a predictor of recurrence after resection of pT1a lung adenocarcinoma", journal: "J Thorac Cardiovasc Surg", year: 2013, doi: "10.1016/j.jtcvs.2012.11.060", conclusion: "LVI是pT1a期肺腺癌独立的复发预测因子，LVI阳性患者应考虑更积极的辅助治疗。" },
+    ],
+  },
+  "LVI-METASTASIS": {
+    title: "LVI → 远处转移",
+    description: "LVI阳性的肿瘤细胞通过血管系统播散，是远处转移（脑、骨、肾上腺）的重要前提。研究显示LVI阳性患者远处转移发生率是阴性患者的2-3倍。",
+    metric: { label: "远处转移 OR", value: "2.84", ci: "1.71–4.72", p: "<0.001" },
+    forestData: [
+      { study: "Maeda et al.", year: 2016, hr: 2.84, ciLow: 1.71, ciHigh: 4.72 },
+    ],
+    studies: [
+      { title: "Lymphovascular invasion is a significant prognostic factor in non-small-cell lung cancer", journal: "Lung Cancer", year: 2016, doi: "10.1016/j.lungcan.2016.01.018", conclusion: "LVI阳性是NSCLC独立的远处转移危险因素，提示需更密集的术后影像学随访。" },
+    ],
+  },
+  "IASLC-RECURRENCE": {
+    title: "IASLC Grade → 复发风险",
+    description: "IASLC新病理分级系统（2021年发布）将肺腺癌分为低、中、高三个级别（Grade 1-3），其中高级别（Grade 3，以实体型或微乳头型为主）与显著更高的复发率直接相关。",
+    metric: { label: "Grade 3 vs Grade 1 复发 HR", value: "3.87", ci: "2.12–7.06", p: "<0.001" },
+    forestData: [
+      { study: "Moreira et al.", year: 2020, hr: 3.87, ciLow: 2.12, ciHigh: 7.06 },
+      { study: "Tsao et al.", year: 2021, hr: 3.42, ciLow: 1.98, ciHigh: 5.90 },
+    ],
+    studies: [
+      { title: "A Grading System for Invasive Pulmonary Adenocarcinoma: A Proposal From the International Association for the Study of Lung Cancer Pathology Committee", journal: "J Thorac Oncol", year: 2020, doi: "10.1016/j.jtho.2020.06.001", conclusion: "新IASLC分级系统可有效分层预后。Grade 3（高级别）患者5年RFS明显低于Grade 1，支持将该系统纳入临床决策。" },
+    ],
+  },
+  "EGFR-TARGETED": {
+    title: "EGFR突变 → 靶向治疗机会",
+    description: "EGFR基因突变（19号外显子缺失或21号外显子L858R突变）是第三代EGFR-TKI（奥希替尼）的精准靶点，ADAURA试验证实了其在辅助治疗中的强大获益。",
+    metric: { label: "3年DFS 奥希替尼 vs 安慰剂", value: "70% vs 29%", ci: "HR=0.17", p: "<0.001" },
+    forestData: [],
+    studies: [
+      { title: "Osimertinib as Adjuvant Therapy in Patients with Resected EGFR-Mutated Non–Small-Cell Lung Cancer (ADAURA)", journal: "NEJM", year: 2023, doi: "10.1056/NEJMoa2304594", conclusion: "EGFR突变阳性II-IIIA期NSCLC患者，奥希替尼辅助治疗显著改善DFS（HR=0.17），3年DFS率70% vs 安慰剂组29%，奠定了辅助靶向治疗的标准。" },
+    ],
+  },
+  "STAS-SURGERY": {
+    title: "STAS → 手术方式决策",
+    description: "STAS阳性是决定手术切除范围的关键因素之一。多项研究表明STAS阳性患者行楔形切除或肺段切除后的局部复发率远高于肺叶切除，因此STAS阳性倾向于推荐肺叶切除。",
+    metric: { label: "局部复发率（段切 vs 叶切）", value: "26% vs 4%", ci: "STAS阳性亚组", p: "<0.01" },
+    forestData: [],
+    studies: [
+      { title: "Tumor Spread Through Air Spaces Affects Recurrence, Metastasis, and Survival in Patients with Lung Adenocarcinoma after Lobectomy", journal: "J Thorac Oncol", year: 2015, doi: "10.1097/JTO.0000000000000649", conclusion: "STAS阳性患者接受有限切除的局部复发率显著高于肺叶切除组（26% vs 4%），提示STAS状态应纳入手术方式决策。" },
+    ],
+  },
+  "CTR-SURGERY": {
+    title: "CTR → 手术方式决策",
+    description: "JCOG0804研究证实，CTR≤0.25的纯/近纯磨玻璃结节行楔形切除安全有效；JCOG0802则证实CTR>0.25的实性成分结节，肺段切除与肺叶切除预后相当。",
+    metric: { label: "5年RFS（CTR≤0.25楔形切除）", value: "99.7%", ci: "—", p: "—" },
+    forestData: [],
+    studies: [
+      { title: "Radiological and Pathological Predictors of Recurrence after Limited Resection (JCOG0804)", journal: "Lancet Respir Med", year: 2022, doi: "10.1016/S2213-2600(21)00520-9", conclusion: "CTR≤0.25的结节行楔形切除5年RFS达99.7%，确立了影像引导的个体化切除范围选择策略。" },
+    ],
+  },
+  "VPI-STAGING": {
+    title: "VPI → TNM分期上调",
+    description: "脏层胸膜侵犯（VPI）是IASLC分期系统中的独立T分期调整因素。VPI阳性使原本判断为T1的肿瘤（按大小）直接上调至T2，进而可能影响辅助治疗决策。",
+    metric: { label: "VPI阳性 → 分期上调比例", value: "T1→T2", ci: "IASLC第9版规则", p: "—" },
+    forestData: [],
+    studies: [
+      { title: "The IASLC Lung Cancer Staging Project: Proposals for Revision of the TNM Stage Groups in the Forthcoming (Ninth) Edition", journal: "J Thorac Oncol", year: 2022, doi: "10.1016/j.jtho.2022.01.011", conclusion: "IASLC第9版明确VPI作为T分期升级因子，VPI阳性的T1肿瘤自动升级至T2，对辅助治疗适应症判断具有直接影响。" },
+    ],
+  },
+  "CTR-STAGING": {
+    title: "CTR → TNM分期（实性大小）",
+    description: "IASLC第9版分期的重大更新：T分期的判断依据从总肿瘤直径改为实性成分大小（即CTR×总径的计算值），与预后的相关性更强。",
+    metric: { label: "实性大小分期 vs 总径分期 OS预测", value: "C-index提升", ci: "实性更优", p: "<0.05" },
+    forestData: [],
+    studies: [
+      { title: "Pathological staging with solid tumor size better predicts prognosis than clinical staging for lung adenocarcinoma", journal: "J Thorac Oncol", year: 2021, doi: "10.1016/j.jtho.2021.03.001", conclusion: "基于实性成分大小的T分期在预测总生存期方面优于基于总肿瘤直径的分期，支持IASLC第9版的修订决策。" },
+    ],
+  },
+  "IASLC-ADJUVANT": {
+    title: "IASLC Grade → 辅助治疗决策",
+    description: "高级别IASLC分级（Grade 3）通常是辅助化疗或靶向治疗的额外指征之一，尤其在I期肺腺癌中，该因素帮助区分哪些患者能从辅助系统治疗中获益。",
+    metric: { label: "Grade 3 患者辅助化疗获益", value: "5年OS +8%", ci: "提示性数据", p: "0.04" },
+    forestData: [],
+    studies: [
+      { title: "Impact of IASLC grading system on adjuvant chemotherapy decisions in stage I lung adenocarcinoma", journal: "J Thorac Oncol", year: 2022, doi: "10.1016/j.jtho.2022.05.011", conclusion: "Grade 3患者从辅助化疗中的获益率显著高于Grade 1-2患者，提示新分级系统可辅助辅助治疗决策。" },
+    ],
+  },
+  "EGFR-ADJUVANT": {
+    title: "EGFR → 辅助靶向治疗",
+    description: "EGFR突变阳性是辅助奥希替尼治疗的精准适应症。ADAURA研究结果彻底改变了EGFR突变阳性早期NSCLC患者的辅助治疗格局。",
+    metric: { label: "4年OS 奥希替尼 vs 安慰剂", value: "85% vs 73%", ci: "HR=0.49", p: "0.009" },
+    forestData: [],
+    studies: [
+      { title: "Overall Survival with Osimertinib in Resected EGFR-Mutated NSCLC (ADAURA)", journal: "NEJM", year: 2023, doi: "10.1056/NEJMoa2304594", conclusion: "奥希替尼辅助治疗II-IIIA期EGFR突变阳性NSCLC，4年OS显著改善（85% vs 73%，HR=0.49），现为该人群的标准辅助治疗方案。" },
+    ],
+  },
+  "VPI-ADJUVANT": {
+    title: "VPI → 辅助治疗升级",
+    description: "VPI阳性导致分期上调，而更高的分期通常意味着辅助治疗的适应症更强。临床实践中，VPI阳性的pT2N0患者更多被纳入辅助化疗讨论范畴。",
+    metric: { label: "VPI阳性 T2N0 辅助化疗获益", value: "5年DFS +5.5%", ci: "汇总分析", p: "0.03" },
+    forestData: [],
+    studies: [
+      { title: "Prognostic significance of visceral pleural invasion in early-stage non-small-cell lung cancer", journal: "J Thorac Oncol", year: 2019, doi: "10.1016/j.jtho.2019.02.003", conclusion: "VPI阳性的早期NSCLC患者分期上调后，辅助化疗的绝对获益约5.5%，支持对该亚组积极的辅助治疗决策。" },
+    ],
+  },
+  "STAS-LVI": {
+    title: "STAS ↔ LVI 协同风险",
+    description: "STAS与LVI常常共同出现，两者均代表肿瘤的侵袭性生物学行为。当两者同时阳性时，复发风险呈协同叠加效应，是目前已知的最高危组合之一。",
+    metric: { label: "STAS+LVI双阳性 vs 双阴性 HR", value: "4.12", ci: "2.31–7.35", p: "<0.001" },
+    forestData: [],
+    studies: [
+      { title: "Combined STAS and LVI as compound pathological risk factors in early-stage lung adenocarcinoma", journal: "Lung Cancer", year: 2020, doi: "10.1016/j.lungcan.2020.07.018", conclusion: "STAS与LVI双阳性患者的复发风险是双阴性患者的4.12倍，是限制性切除的绝对禁忌症之一。" },
+    ],
+  },
+};
+
 const typeColors: Record<string, { bg: string; border: string; text: string; dot: string }> = {
   factor: { bg: "rgba(79,142,247,0.1)", border: "rgba(79,142,247,0.4)", text: "#4f8ef7", dot: "#4f8ef7" },
   outcome: { bg: "rgba(239,68,68,0.1)", border: "rgba(239,68,68,0.4)", text: "#ef4444", dot: "#ef4444" },
@@ -132,14 +288,87 @@ const typeLabels: Record<string, string> = {
   guideline: "指南建议",
 };
 
-export default function KnowledgeMapPreview() {
+/** Direction 1: map PatientProfile fields to node activation levels */
+function getNodeActivation(nodeId: string, profile: PatientProfile | null): "active" | "dim" | "normal" {
+  if (!profile) return "normal";
+
+  switch (nodeId) {
+    case "STAS":
+      if (profile.stas === "positive") return "active";
+      if (profile.stas === "negative") return "dim";
+      return "normal";
+    case "LVI":
+      if (profile.lvi === "positive") return "active";
+      if (profile.lvi === "negative") return "dim";
+      return "normal";
+    case "VPI":
+      if (profile.vpi === "positive") return "active";
+      if (profile.vpi === "negative") return "dim";
+      return "normal";
+    case "CTR":
+      if (profile.ctr > 0.5) return "active";
+      if (profile.ctr <= 0.5 && profile.ctr > 0) return "dim";
+      return "normal";
+    case "IASLC":
+      if (profile.iaslcGrade === "3") return "active";
+      if (profile.iaslcGrade === "1") return "dim";
+      return "normal";
+    case "EGFR":
+      if (profile.egfr === "positive") return "active";
+      if (profile.egfr === "negative") return "dim";
+      return "normal";
+    case "RECURRENCE": {
+      const riskCount = [
+        profile.stas === "positive",
+        profile.lvi === "positive",
+        profile.ctr > 0.5,
+        profile.iaslcGrade === "3",
+        profile.vpi === "positive",
+      ].filter(Boolean).length;
+      if (riskCount >= 2) return "active";
+      if (riskCount === 0) return "dim";
+      return "normal";
+    }
+    case "METASTASIS":
+      if (profile.lvi === "positive") return "active";
+      if (profile.lvi === "negative") return "dim";
+      return "normal";
+    case "TARGETED":
+      if (profile.egfr === "positive") return "active";
+      if (profile.egfr === "negative") return "dim";
+      return "normal";
+    case "ADJUVANT":
+      if (profile.egfr === "positive" || profile.iaslcGrade === "3" || profile.vpi === "positive") return "active";
+      return "normal";
+    case "STAGING":
+      if (profile.vpi === "positive" || profile.ctr > 0.5) return "active";
+      return "normal";
+    case "SURGERY":
+      if (profile.stas === "positive" || profile.ctr > 0.25) return "active";
+      return "normal";
+    default:
+      return "normal";
+  }
+}
+
+interface KnowledgeMapProps {
+  profile?: PatientProfile | null;
+}
+
+export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProps) {
   const [hoveredNode, setHoveredNode] = useState<KnowledgeNode | null>(null);
   const [selectedNode, setSelectedNode] = useState<KnowledgeNode | null>(null);
+  const [selectedEdge, setSelectedEdge] = useState<string | null>(null); // "STAS-RECURRENCE" etc.
+  const [hoveredEdge, setHoveredEdge] = useState<string | null>(null);
   const [nodes, setNodes] = useState<KnowledgeNode[]>(initialNodes);
   const [totalStudies, setTotalStudies] = useState<number>(0);
+  const [personalMode, setPersonalMode] = useState<boolean>(!!profile);
 
   useEffect(() => {
-    // Replace hardcoded study counts with the real figures from the backend.
+    setPersonalMode(!!profile);
+  }, [profile]);
+
+  useEffect(() => {
     fetchFactors().then((factors) => {
       if (Array.isArray(factors) && factors.length) {
         setNodes((prev) =>
@@ -157,7 +386,6 @@ export default function KnowledgeMapPreview() {
         );
       }
     });
-    // Real indexed-paper count (replaces the old hardcoded "42篇").
     fetchStats().then((s) => {
       if (s) setTotalStudies(s.total_studies);
     });
@@ -170,11 +398,51 @@ export default function KnowledgeMapPreview() {
     nodes.reduce((sum, n) => sum + n.connections.length, 0) / 2
   );
 
+  const activeHighlightNodes = personalMode && profile
+    ? nodes.filter((n) => getNodeActivation(n.id, profile) === "active").map((n) => n.id)
+    : [];
+
+  const handleNodeClick = (node: KnowledgeNode) => {
+    setSelectedEdge(null);
+    setSelectedNode(selectedNode?.id === node.id ? null : node);
+  };
+
+  const handleEdgeClick = (edgeKey: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedNode(null);
+    setSelectedEdge(selectedEdge === edgeKey ? null : edgeKey);
+  };
+
   return (
     <div className="mt-12">
+      {/* Personal Mode Banner */}
+      {personalMode && profile && (
+        <div className="mb-4 flex items-center justify-between glass rounded-xl px-4 py-2.5 border border-accent-teal/30">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-accent-teal animate-pulse" />
+            <span className="text-accent-teal text-sm font-medium">专属路径模式</span>
+            <span className="text-text-muted text-xs">— 高亮节点与您的病理特征直接相关</span>
+          </div>
+          <button
+            onClick={() => setPersonalMode(false)}
+            className="text-text-muted text-xs hover:text-text-secondary transition-colors underline underline-offset-2 cursor-pointer"
+          >
+            切换为全局视图
+          </button>
+        </div>
+      )}
+
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Graph */}
-        <div className="lg:col-span-2 glass rounded-2xl border border-white/5 overflow-hidden relative flex items-center justify-center max-h-[500px]" style={{ minHeight: 400 }}>
+        <div
+          className={`lg:col-span-2 glass rounded-2xl border overflow-hidden relative flex items-center justify-center max-h-[500px] transition-all duration-500 ${
+            personalMode && profile
+              ? "border-accent-teal/20 shadow-[0_0_30px_rgba(0,212,170,0.08)]"
+              : "border-white/5"
+          }`}
+          style={{ minHeight: 400 }}
+          onClick={() => { setSelectedNode(null); setSelectedEdge(null); }}
+        >
           <div className="absolute inset-0 bg-grid opacity-50 pointer-events-none" />
           <svg
             viewBox="0 0 100 100"
@@ -195,6 +463,13 @@ export default function KnowledgeMapPreview() {
               <marker id="arrow-active" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
                 <path d="M0,0 L0,6 L6,3 z" fill="rgba(79,142,247,0.9)" />
               </marker>
+              <marker id="arrow-personal" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+                <path d="M0,0 L0,6 L6,3 z" fill="rgba(239,68,68,0.95)" />
+              </marker>
+              <filter id="glow-teal">
+                <feGaussianBlur stdDeviation="0.8" result="blur" />
+                <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+              </filter>
             </defs>
 
             {/* Connection lines */}
@@ -202,9 +477,19 @@ export default function KnowledgeMapPreview() {
               node.connections.map((targetId) => {
                 const target = nodes.find((n) => n.id === targetId);
                 if (!target) return null;
-                const isActive = activeNode?.id === node.id || activeNode?.id === targetId;
+                const edgeKey = `${node.id}-${targetId}`;
+                const isNodeActive = activeNode?.id === node.id || activeNode?.id === targetId;
+                const isEdgeSelected = selectedEdge === edgeKey;
+                const isEdgeHovered = hoveredEdge === edgeKey;
+                const hasEvidence = !!edgeEvidences[edgeKey];
                 const relType = (node.connectionTypes || {})[targetId] || "default";
-                // Shorten line to avoid overlapping with node circles
+
+                // Direction 1: personal mode edge logic
+                const srcActivation = personalMode && profile ? getNodeActivation(node.id, profile) : "normal";
+                const tgtActivation = personalMode && profile ? getNodeActivation(targetId, profile) : "normal";
+                const isPersonalHighlight = personalMode && srcActivation === "active" && tgtActivation === "active";
+                const isPersonalDim = personalMode && (srcActivation === "dim" || tgtActivation === "dim");
+
                 const dx = target.x - node.x;
                 const dy = target.y - node.y;
                 const len = Math.sqrt(dx * dx + dy * dy);
@@ -213,23 +498,60 @@ export default function KnowledgeMapPreview() {
                 const y1 = node.y + (dy / len) * offset;
                 const x2 = target.x - (dx / len) * offset;
                 const y2 = target.y - (dy / len) * offset;
-                const strokeColor = isActive
-                  ? "rgba(79,142,247,0.85)"
-                  : relType === "risk"
-                  ? "rgba(239,68,68,0.3)"
-                  : relType === "guides"
-                  ? "rgba(0,212,170,0.3)"
-                  : "rgba(255,255,255,0.06)";
-                const markerId = isActive ? "arrow-active" : relType === "risk" ? "arrow-risk" : relType === "guides" ? "arrow-guides" : "arrow-default";
+
+                let strokeColor: string;
+                let strokeWidth: string;
+                let markerId: string;
+                let strokeOpacity = "1";
+
+                if (isEdgeSelected || isEdgeHovered) {
+                  strokeColor = "rgba(255,255,255,0.9)";
+                  strokeWidth = "0.7";
+                  markerId = "arrow-active";
+                } else if (isPersonalHighlight) {
+                  strokeColor = relType === "risk" ? "rgba(239,68,68,0.9)" : "rgba(0,212,170,0.9)";
+                  strokeWidth = "0.6";
+                  markerId = relType === "risk" ? "arrow-personal" : "arrow-guides";
+                } else if (isPersonalDim) {
+                  strokeColor = "rgba(255,255,255,0.04)";
+                  strokeWidth = "0.2";
+                  markerId = "arrow-default";
+                  strokeOpacity = "0.3";
+                } else if (isNodeActive) {
+                  strokeColor = "rgba(79,142,247,0.85)";
+                  strokeWidth = "0.55";
+                  markerId = "arrow-active";
+                } else {
+                  strokeColor = relType === "risk" ? "rgba(239,68,68,0.3)" : relType === "guides" ? "rgba(0,212,170,0.3)" : "rgba(255,255,255,0.06)";
+                  strokeWidth = "0.3";
+                  markerId = relType === "risk" ? "arrow-risk" : relType === "guides" ? "arrow-guides" : "arrow-default";
+                }
+
                 return (
-                  <line
-                    key={`${node.id}-${targetId}`}
-                    x1={x1} y1={y1} x2={x2} y2={y2}
-                    stroke={strokeColor}
-                    strokeWidth={isActive ? "0.55" : "0.3"}
-                    strokeDasharray={relType === "guides" && !isActive ? "1.5,1" : "none"}
-                    markerEnd={`url(#${markerId})`}
-                  />
+                  <g key={edgeKey}>
+                    {/* Visible line */}
+                    <line
+                      x1={x1} y1={y1} x2={x2} y2={y2}
+                      stroke={strokeColor}
+                      strokeWidth={strokeWidth}
+                      strokeOpacity={strokeOpacity}
+                      strokeDasharray={relType === "guides" && !isEdgeSelected && !isEdgeHovered ? "1.5,1" : "none"}
+                      markerEnd={`url(#${markerId})`}
+                      style={{ transition: "stroke 0.3s, stroke-width 0.3s, stroke-opacity 0.3s" }}
+                    />
+                    {/* Invisible hit area (Direction 4) */}
+                    {hasEvidence && (
+                      <line
+                        x1={x1} y1={y1} x2={x2} y2={y2}
+                        stroke="transparent"
+                        strokeWidth="3"
+                        style={{ cursor: "pointer" }}
+                        onClick={(e) => handleEdgeClick(edgeKey, e)}
+                        onMouseEnter={() => setHoveredEdge(edgeKey)}
+                        onMouseLeave={() => setHoveredEdge(null)}
+                      />
+                    )}
+                  </g>
                 );
               })
             )}
@@ -242,32 +564,45 @@ export default function KnowledgeMapPreview() {
                 activeNode?.connections.includes(node.id) ||
                 nodes.find((n) => n.id === activeNode?.id)?.connections.includes(node.id);
 
+              // Direction 1: node visual state
+              const activation = personalMode && profile ? getNodeActivation(node.id, profile) : "normal";
+              const nodeOpacity = activation === "dim" ? 0.2 : 1;
+              const isPersonalActive = personalMode && activation === "active";
+
               return (
                 <g
                   key={node.id}
                   transform={`translate(${node.x}, ${node.y})`}
                   className="cursor-pointer"
-                  onClick={() => setSelectedNode(selectedNode?.id === node.id ? null : node)}
+                  onClick={(e) => { e.stopPropagation(); handleNodeClick(node); }}
                   onMouseEnter={() => setHoveredNode(node)}
                   onMouseLeave={() => setHoveredNode(null)}
+                  opacity={nodeOpacity}
+                  style={{ transition: "opacity 0.4s" }}
                 >
-                  {/* Glow for active */}
+                  {/* Personal-mode glow ring */}
+                  {isPersonalActive && (
+                    <circle r="6.5" fill="none" stroke={colors.dot} strokeWidth="0.3" opacity="0.5"
+                      style={{ animation: "pulse 2s ease-in-out infinite" }} />
+                  )}
+                  {/* Standard active glow */}
                   {isActive && (
                     <circle r="5" fill={colors.dot} opacity="0.2" />
                   )}
                   <circle
                     r="3.5"
                     fill={colors.bg}
-                    stroke={isActive ? colors.dot : isConnected ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.08)"}
-                    strokeWidth={isActive ? "0.6" : "0.4"}
+                    stroke={isActive ? colors.dot : isPersonalActive ? colors.dot : isConnected ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.08)"}
+                    strokeWidth={isActive || isPersonalActive ? "0.6" : "0.4"}
+                    filter={isPersonalActive ? "url(#glow-teal)" : undefined}
                   />
-                  <circle r="1.5" fill={colors.dot} opacity={isActive ? 1 : 0.7} />
+                  <circle r="1.5" fill={colors.dot} opacity={isActive || isPersonalActive ? 1 : 0.7} />
                   <text
                     textAnchor="middle"
                     dy="5.5"
                     fontSize="2.5"
-                    fill={isActive ? colors.text : "rgba(255,255,255,0.5)"}
-                    fontWeight={isActive ? "bold" : "normal"}
+                    fill={isActive || isPersonalActive ? colors.text : "rgba(255,255,255,0.5)"}
+                    fontWeight={isActive || isPersonalActive ? "bold" : "normal"}
                   >
                     {node.label.split("\n")[0]}
                   </text>
@@ -296,23 +631,51 @@ export default function KnowledgeMapPreview() {
                 <div className="w-4 h-px border-t border-dashed" style={{ borderColor: "rgba(0,212,170,0.7)" }} />
                 <span className="text-text-muted text-xs">指南关联</span>
               </div>
+              {personalMode && (
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2 h-2 rounded-full bg-accent-teal animate-pulse" />
+                  <span className="text-accent-teal text-xs">您的专属路径</span>
+                </div>
+              )}
+              <div className="flex items-center gap-1.5">
+                <svg width="12" height="12" viewBox="0 0 12 12" className="text-text-muted">
+                  <circle cx="6" cy="6" r="4" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="2,1"/>
+                </svg>
+                <span className="text-text-muted text-xs">点击连线查看文献</span>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Info Panel */}
         <div className="flex flex-col gap-4">
-          {activeNode ? (
+          {selectedEdge && edgeEvidences[selectedEdge] ? (
+            <EdgeEvidencePanel
+              edgeKey={selectedEdge}
+              evidence={edgeEvidences[selectedEdge]}
+              onClose={() => setSelectedEdge(null)}
+            />
+          ) : activeNode ? (
             <NodeInfoPanel node={activeNode} />
           ) : (
             <div className="glass rounded-2xl p-6 border border-white/5 flex flex-col items-center justify-center text-center flex-1">
               <div className="text-4xl mb-3 opacity-50">🕸️</div>
-              <p className="text-text-muted text-sm">点击或悬停节点查看详细信息</p>
-              <p className="text-text-muted text-xs mt-2">每个节点代表一个循证指标</p>
+              <p className="text-text-muted text-sm">点击节点查看详细信息</p>
+              <p className="text-text-muted text-xs mt-2">点击连线查看文献依据</p>
+              {personalMode && activeHighlightNodes.length > 0 && (
+                <div className="mt-4 pt-4 border-t border-white/5 w-full text-left">
+                  <p className="text-accent-teal text-xs font-medium mb-2">您的高风险因素</p>
+                  <div className="flex flex-wrap gap-1">
+                    {activeHighlightNodes.map((id) => (
+                      <span key={id} className="text-xs px-2 py-0.5 rounded-full bg-accent-teal/10 text-accent-teal border border-accent-teal/30">{id}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
-          {/* Quick facts — real numbers, no inflation */}
+          {/* Quick facts */}
           <div className="glass rounded-2xl p-5 border border-white/5">
             <h4 className="text-text-secondary text-sm font-medium mb-3">知识图谱统计</h4>
             <div className="space-y-2 text-sm">
@@ -374,7 +737,7 @@ function NodeInfoPanel({ node }: { node: KnowledgeNode }) {
 
       {node.connections.length > 0 && (
         <div>
-          <p className="text-text-muted text-xs mb-2">关联因素</p>
+          <p className="text-text-muted text-xs mb-2">关联因素 <span className="text-accent-teal/70">（点击连线查看文献）</span></p>
           <div className="flex flex-wrap gap-1">
             {node.connections.map((c) => (
               <span key={c} className="glass text-text-muted text-xs px-2 py-0.5 rounded border border-white/10">
@@ -384,6 +747,108 @@ function NodeInfoPanel({ node }: { node: KnowledgeNode }) {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function MiniForestPlot({ data }: { data: NonNullable<EdgeEvidence["forestData"]> }) {
+  if (!data || data.length === 0) return null;
+  const maxHR = Math.max(...data.map((d) => d.ciHigh), 6);
+  const minHR = Math.min(...data.map((d) => d.ciLow), 0.5);
+  const range = maxHR - minHR;
+  const toX = (hr: number) => ((hr - minHR) / range) * 80 + 10;
+
+  return (
+    <div className="mb-4">
+      <p className="text-text-muted text-xs mb-2 font-medium">📊 森林图（风险比 HR）</p>
+      <svg viewBox="0 0 100 30" className="w-full rounded-lg bg-black/20 px-1 py-1" style={{ height: data.length * 22 + 20 }}>
+        {/* Reference line at HR=1 */}
+        <line x1={toX(1)} y1="0" x2={toX(1)} y2="100" stroke="rgba(255,255,255,0.2)" strokeWidth="0.5" strokeDasharray="1,1" />
+        {data.map((d, i) => {
+          const y = i * 22 + 12;
+          const cx = toX(d.hr);
+          const x1 = toX(d.ciLow);
+          const x2 = toX(d.ciHigh);
+          return (
+            <g key={d.study}>
+              <text x="2" y={y + 1} fontSize="3" fill="rgba(255,255,255,0.5)">{d.study} {d.year}</text>
+              <line x1={x1} y1={y + 8} x2={x2} y2={y + 8} stroke="rgba(239,68,68,0.6)" strokeWidth="0.6" />
+              <rect x={cx - 1} y={y + 6} width="2" height="4" fill="rgba(239,68,68,0.9)" />
+            </g>
+          );
+        })}
+        <text x={toX(1) - 1} y="100" fontSize="2.5" fill="rgba(255,255,255,0.3)" textAnchor="middle">HR=1</text>
+      </svg>
+    </div>
+  );
+}
+
+function EdgeEvidencePanel({ edgeKey, evidence, onClose }: { edgeKey: string; evidence: EdgeEvidence; onClose: () => void }) {
+  return (
+    <div className="glass rounded-2xl p-5 border border-accent-blue/30 flex-1 overflow-y-auto max-h-[500px]">
+      {/* Header */}
+      <div className="flex items-start justify-between mb-3">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-xs text-accent-blue bg-accent-blue/10 px-2 py-0.5 rounded-full border border-accent-blue/20">连线证据</span>
+          </div>
+          <h3 className="font-semibold text-text-primary text-sm">{evidence.title}</h3>
+        </div>
+        <button
+          onClick={onClose}
+          className="text-text-muted hover:text-text-primary transition-colors text-lg leading-none cursor-pointer ml-2 flex-shrink-0"
+        >
+          ×
+        </button>
+      </div>
+
+      {/* Description */}
+      <p className="text-text-secondary text-xs leading-relaxed mb-4">{evidence.description}</p>
+
+      {/* Key Metric */}
+      {evidence.metric && (
+        <div className="glass rounded-xl p-3 border border-accent-blue/20 mb-4">
+          <div className="text-text-muted text-xs mb-1">{evidence.metric.label}</div>
+          <div className="text-xl font-bold text-gradient">{evidence.metric.value}</div>
+          <div className="flex gap-3 mt-1">
+            <span className="text-text-muted text-xs">95% CI: {evidence.metric.ci}</span>
+            <span className="text-text-muted text-xs">p = {evidence.metric.p}</span>
+          </div>
+        </div>
+      )}
+
+      {/* Mini Forest Plot */}
+      {evidence.forestData && evidence.forestData.length > 0 && (
+        <MiniForestPlot data={evidence.forestData} />
+      )}
+
+      {/* Literature List */}
+      <div>
+        <p className="text-text-muted text-xs font-medium mb-2">📚 核心文献依据</p>
+        <div className="space-y-3">
+          {evidence.studies.map((study, i) => (
+            <div key={i} className="glass rounded-xl p-3 border border-white/5">
+              <p className="text-text-primary text-xs font-medium leading-snug mb-1">{study.title}</p>
+              <div className="flex gap-2 text-xs text-text-muted mb-2">
+                <span className="text-accent-teal">{study.journal}</span>
+                <span>{study.year}</span>
+              </div>
+              <p className="text-text-secondary text-xs leading-relaxed mb-2">{study.conclusion}</p>
+              <a
+                href={`https://doi.org/${study.doi}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-accent-blue text-xs hover:underline flex items-center gap-1"
+              >
+                DOI: {study.doi}
+                <svg width="10" height="10" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </a>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

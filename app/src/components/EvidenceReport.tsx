@@ -504,6 +504,33 @@ function FollowupTab({ result, profile }: { result: PatientMatchResult; profile:
           以上信息均来自已发表的医学研究和国际指南。本平台不提供个人化医疗建议。
         </p>
       </div>
+
+      {/* Personalized Knowledge Graph CTA */}
+      <div className="glass rounded-2xl p-6 border border-accent-teal/20 bg-accent-teal/5">
+        <div className="flex items-start gap-4">
+          <div className="text-3xl flex-shrink-0">🕸️</div>
+          <div className="flex-1">
+            <h3 className="font-semibold text-text-primary mb-1">查看您的专属知识图谱</h3>
+            <p className="text-text-secondary text-sm mb-4 leading-relaxed">
+              根据您的病理特征，知识图谱将高亮显示与您直接相关的风险路径，并允许您点击每条连线查看真实文献依据。
+            </p>
+            <button
+              onClick={() => {
+                try {
+                  const encoded = encodeURIComponent(btoa(JSON.stringify(profile)));
+                  window.open(`/knowledge#profile=${encoded}`, "_blank");
+                } catch {}
+              }}
+              className="btn-primary px-4 py-2 rounded-lg text-sm font-medium cursor-pointer inline-flex items-center gap-2"
+            >
+              <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="3"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.64 5.64l1.42 1.42M16.94 16.94l1.42 1.42M5.64 18.36l1.42-1.42M16.94 7.06l1.42-1.42"/>
+              </svg>
+              查看专属路径图谱
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
