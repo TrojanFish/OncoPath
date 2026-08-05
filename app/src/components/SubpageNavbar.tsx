@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import UserAvatar from "@/components/UserAvatar";
 
 export function LogoMark() {
   return (
@@ -50,6 +51,7 @@ export default function SubpageNavbar() {
         </div>
 
         <div className="flex items-center gap-4">
+          <UserAvatar />
           <Link
             href="/"
             className="btn-primary px-5 py-2 rounded-xl text-sm font-medium transition-all"

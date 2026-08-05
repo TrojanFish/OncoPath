@@ -10,6 +10,7 @@ import StatsBanner from "@/components/StatsBanner";
 import StudyCard from "@/components/StudyCard";
 import DashboardView from "@/components/DashboardView";
 import { FEATURED_STUDIES } from "@/lib/evidence-data";
+import UserAvatar from "@/components/UserAvatar";
 import type { PatientProfile } from "@/lib/types";
 export type { PatientProfile };
 
@@ -25,8 +26,12 @@ export default function HomePage() {
   const heroRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const email = localStorage.getItem("email");
-    if (email) setUserEmail(email);
+    const checkAuth = () => {
+      setUserEmail(localStorage.getItem("email"));
+    };
+    checkAuth();
+    window.addEventListener("auth-change", checkAuth);
+    return () => window.removeEventListener("auth-change", checkAuth);
   }, []);
 
   useEffect(() => {
@@ -114,34 +119,7 @@ export default function HomePage() {
             <NavLink href="/resources">学术导航</NavLink>
           </div>
           <div className="flex items-center gap-4">
-            {userEmail ? (
-              <div className="hidden md:flex items-center gap-4 border-r border-white/10 pr-4 mr-1">
-                  <span className="text-sm text-text-muted">{userEmail}</span>
-                  <button
-                    onClick={() => setAppState("dashboard")}
-                    className="text-sm font-medium text-accent-blue hover:text-accent-blue-light transition-colors"
-                  >
-                    历史病例
-                  </button>
-                  <button 
-                    onClick={() => {
-                      localStorage.removeItem("token");
-                      localStorage.removeItem("email");
-                      setUserEmail(null);
-                    }}
-                    className="text-sm text-text-secondary hover:text-text-primary transition-colors"
-                  >
-                    退出
-                  </button>
-                </div>
-              ) : (
-              <button
-                onClick={() => setShowAuthModal(true)}
-                className="hidden md:block text-sm font-medium text-text-secondary hover:text-text-primary transition-colors border-r border-white/10 pr-4 mr-1"
-              >
-                登录 / 注册
-              </button>
-            )}
+            <UserAvatar />
             <button
               onClick={() => setAppState("input")}
               id="nav-start-btn"
@@ -526,6 +504,8 @@ export default function HomePage() {
         </div>
       </footer>
 
+      {/* UserAvatar manages AuthModal now, but we keep this here if needed elsewhere. We can actually remove it since UserAvatar handles it, but just to be safe if other things trigger setShowAuthModal, we can leave it or remove it. Wait, setShowAuthModal in page.tsx is only used by the removed login button and maybe the start analysis button if not logged in? Let's keep it just in case, or let's remove it if it's unused. 
+      Actually, let's keep it to avoid breaking other 'setShowAuthModal(true)' calls in page.tsx. */}
       {showAuthModal && (
         <AuthModal 
           onClose={() => setShowAuthModal(false)}
@@ -534,6 +514,7 @@ export default function HomePage() {
             localStorage.setItem("email", email);
             setUserEmail(email);
             setShowAuthModal(false);
+            window.dispatchEvent(new Event("auth-change"));
           }}
         />
       )}
