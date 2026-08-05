@@ -60,7 +60,7 @@ export default function ProfileForm({ onSubmit }: ProfileFormProps) {
         <div className="flex justify-between items-center mb-2">
           <span className="text-text-secondary text-sm">步骤 {step} / {totalSteps}</span>
           <span className="text-text-muted text-xs">
-            {step === 1 ? "基本信息" : step === 2 ? "病理报告" : "CT影像"}
+            {step === 1 ? "📋 你的基本情况" : step === 2 ? "🔬 医生告诉你的" : "🏥 CT报告上的"}
           </span>
         </div>
         <div className="progress-bar">
@@ -147,8 +147,8 @@ function Step1({ form, updateForm }: StepProps) {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-semibold text-text-primary mb-1">基本信息</h2>
-        <p className="text-text-secondary text-sm">填写基本的患者信息，用于匹配相关研究人群</p>
+        <h2 className="text-xl font-semibold text-text-primary mb-1">📋 你的基本情况</h2>
+        <p className="text-text-secondary text-sm">这些信息帮助系统在已发表的研究中找到与你情况相似的患者群体</p>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
@@ -184,21 +184,21 @@ function Step1({ form, updateForm }: StepProps) {
         </FormField>
       </div>
 
-      <FormField label="手术类型">
+      <FormField label="手术类型" tooltip="不同手术方式对预后的影响已有大量研究。切除范围越小，手术风险越低，但需达到安全切除的标准">
         <select
           id="input-surgery-type"
           value={form.surgeryType || ""}
           onChange={(e) => updateForm("surgeryType", e.target.value as PatientProfile["surgeryType"])}
           className="input-dark w-full px-4 py-3 rounded-xl"
         >
-          <option value="lobectomy">肺叶切除</option>
-          <option value="segmentectomy">肺段切除</option>
-          <option value="wedge">楔形切除</option>
-          <option value="unknown">未知</option>
+          <option value="lobectomy">肺叶切除（切除整个肺叶）</option>
+          <option value="segmentectomy">肺段切除（切除一个或多个肺段）</option>
+          <option value="wedge">楚形切除（切除局部小块肺组织）</option>
+          <option value="unknown">不确定 / 尚未手术</option>
         </select>
       </FormField>
 
-      <FormField label="手术后淋巴结状态">
+      <FormField label="淡巴结果状态" tooltip="手术中所清扫的淡巴结。N0表示没有高钓点转移，是最理想的结果。这个数据在你的手术活检报告中可以找到">
         <div className="flex gap-2">
           {(["N0", "N1", "N2"] as const).map((n) => (
             <button
@@ -213,14 +213,14 @@ function Step1({ form, updateForm }: StepProps) {
             >
               {n}
               <div className="text-xs mt-0.5 opacity-70">
-                {n === "N0" ? "无转移" : n === "N1" ? "同侧" : "纵隔"}
+                {n === "N0" ? "无转移 ✓" : n === "N1" ? "同侧淡巴结" : "纵隔淡巴结"}
               </div>
             </button>
           ))}
         </div>
       </FormField>
 
-      <FormField label="切缘状态">
+      <FormField label="手术切缘情况" tooltip="手术后切缘是否有癌细胞残留。阴性（R0）表示切除干净，是我们期望的结果。如果你的报告中没有相关记录，选“阴性”">
         <div className="flex gap-2">
           {(["negative", "positive"] as const).map((m) => (
             <button
@@ -235,7 +235,7 @@ function Step1({ form, updateForm }: StepProps) {
                   : "glass border border-white/10 text-text-muted hover:border-white/20"
               }`}
             >
-              切缘{m === "negative" ? "阴性" : "阳性"}
+              切缘{m === "negative" ? "阴性（切干净 R0）" : "阳性（有癌细胞残留）"}
             </button>
           ))}
         </div>
@@ -266,11 +266,11 @@ function Step2({ form, updateForm }: StepProps) {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-semibold text-text-primary mb-1">病理报告</h2>
-        <p className="text-text-secondary text-sm">输入病理报告中的关键指标，越详细匹配越准确</p>
+        <h2 className="text-xl font-semibold text-text-primary mb-1">🔬 医生告诉你的</h2>
+        <p className="text-text-secondary text-sm">这些来自手术后病理报告，不记得的项目可以选“未知”</p>
       </div>
 
-      <FormField label="TNM 分期">
+      <FormField label="TNM 分期" tooltip="分期是医生评估肿瘤进展的方式。IA1是最早期，数字越大表示进展越晚。在病理报告第一页一般可以找到">
         <div className="grid grid-cols-3 gap-2">
           {["IA1", "IA2", "IA3", "IB", "IIA", "IIB"].map((s) => (
             <button
@@ -290,9 +290,8 @@ function Step2({ form, updateForm }: StepProps) {
       </FormField>
 
       <FormField
-        label="STAS（气道播散）"
-        tooltip="肿瘤细胞通过气道播散，重要预后指标"
-      >
+        label="STAS — 气道播散"
+        tooltip="STAS 是较新的病理指标。表示癌细胞是否沿小气管扩散到主肿瘤之外的肖泡中。如果 STAS 阳性，复发风险会增加，这个指标在病理报告中应该有明确描述">
         <ThreeWayToggle
           id="stas"
           value={form.stas || "unknown"}
@@ -303,7 +302,7 @@ function Step2({ form, updateForm }: StepProps) {
         />
       </FormField>
 
-      <FormField label="LVI（淋巴血管侵犯）" tooltip="肿瘤细胞侵入淋巴管或血管">
+      <FormField label="LVI — 淡巴血管侵犯" tooltip="LVI表示癌细胞是否侵入小血管或淡巴管（就像进入了身体的运输通道）。阳性表示远处转移风险增加。在病理报告中应该有描述">
         <ThreeWayToggle
           id="lvi"
           value={form.lvi || "unknown"}
@@ -314,7 +313,7 @@ function Step2({ form, updateForm }: StepProps) {
         />
       </FormField>
 
-      <FormField label="VPI（脏层胸膜侵犯）" tooltip="肿瘤侵犯脏层胸膜，影响T分期">
+      <FormField label="VPI — 脏层胸膜侵犯" tooltip="VPI表示癌细胞是否林穿脏层胸膜（包裹山的一层薄膜）。VPI阳性会将 T 分期提高，影响分期判断。在病理报告中应有记录">
         <ThreeWayToggle
           id="vpi"
           value={form.vpi || "unknown"}
@@ -325,7 +324,7 @@ function Step2({ form, updateForm }: StepProps) {
         />
       </FormField>
 
-      <FormField label="IASLC 病理分级">
+      <FormField label="IASLC 病理分级" tooltip="这是 IASLC（国际肺癌研究学会）提出的分级系统，将癌细胞的“恶性程度”分为 1-3 级。Grade 1 最温和，Grade 3 相对侵进。在病理报告的“组织学”部分应该有记载">
         <div className="flex gap-2">
           {(["1", "2", "3", "unknown"] as const).map((g) => (
             <button
@@ -366,7 +365,7 @@ function Step2({ form, updateForm }: StepProps) {
         </div>
       </FormField>
 
-      <FormField label="EGFR 基因突变">
+      <FormField label="EGFR 基因突变" tooltip="EGFR是一种基因。如果突变，则可以使用“靶向药”（如奄沙替尼）等口服药。中国肺癌患者阳性率约40–60%。在基因检测报告或就诊评估中可以找到">
         <div className="flex gap-2">
           {(["positive", "negative", "not_tested", "unknown"] as const).map((e) => (
             <button
@@ -379,7 +378,7 @@ function Step2({ form, updateForm }: StepProps) {
                   : "glass border border-white/10 text-text-muted hover:border-white/20"
               }`}
             >
-              {e === "positive" ? "阳性" : e === "negative" ? "阴性" : e === "not_tested" ? "未检测" : "未知"}
+              {e === "positive" ? "阳性（有突变）" : e === "negative" ? "阴性（无突变）" : e === "not_tested" ? "未检测" : "未知"}
             </button>
           ))}
         </div>
@@ -397,8 +396,8 @@ function Step3({ form, updateForm }: StepProps) {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-semibold text-text-primary mb-1">CT 影像信息</h2>
-        <p className="text-text-secondary text-sm">输入 CT 报告中的结节测量数据</p>
+        <h2 className="text-xl font-semibold text-text-primary mb-1">🏥 CT 报告上的</h2>
+        <p className="text-text-secondary text-sm">这些数据在放射科报告中可以找到，不确定的项目可以跳过</p>
       </div>
 
       <FormField label="结节形态">

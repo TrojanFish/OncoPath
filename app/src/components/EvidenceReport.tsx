@@ -93,13 +93,32 @@ export default function EvidenceReport({ profile, onBack, initialReportJson }: E
             <div className="w-2 h-2 rounded-full bg-accent-teal animate-pulse" />
             <span className="text-text-secondary text-sm">循证分析报告</span>
           </div>
-          <button
-            id="report-print-btn"
-            onClick={() => window.print()}
-            className="btn-secondary px-4 py-2 rounded-lg text-sm cursor-pointer"
-          >
-            导出报告
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              id="report-share-btn"
+              onClick={() => {
+                const url = window.location.href;
+                if (navigator.share) {
+                  navigator.share({ title: "OncoPath 循证分析报告", url });
+                } else {
+                  navigator.clipboard.writeText(url).then(() => alert("页面链接已复制！可将链接分享给家属或医生。"));
+                }
+              }}
+              className="btn-secondary px-4 py-2 rounded-lg text-sm cursor-pointer flex items-center gap-1.5"
+            >
+              <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              分享
+            </button>
+            <button
+              id="report-print-btn"
+              onClick={() => window.print()}
+              className="btn-secondary px-4 py-2 rounded-lg text-sm cursor-pointer"
+            >
+              导出报告
+            </button>
+          </div>
         </div>
       </div>
 
@@ -170,13 +189,23 @@ export default function EvidenceReport({ profile, onBack, initialReportJson }: E
           </div>
         </div>
 
-        {/* Disclaimer */}
-        <div className="glass rounded-xl p-4 border border-amber-500/20 mb-6 flex items-start gap-3">
-          <span className="text-amber-400 text-xl">⚠️</span>
-          <p className="text-text-muted text-xs leading-relaxed">
-            <span className="text-amber-400 font-medium">重要声明：</span>
-            本报告中的数据来自已发表的国际医学研究，仅供参考学习。RFS 数据基于研究人群的统计结果，不代表个人具体预后。所有医疗决策请咨询您的主治医生。
-          </p>
+        {/* Authority & AI Disclaimer Banner */}
+        <div className="rounded-xl mb-6 overflow-hidden border border-amber-500/30">
+          <div className="bg-amber-500/10 px-5 py-3 border-b border-amber-500/20 flex items-center gap-2">
+            <span className="text-amber-400 text-base">⚠️</span>
+            <span className="text-amber-400 font-semibold text-sm">使用前请阅读重要声明</span>
+          </div>
+          <div className="bg-amber-500/5 px-5 py-4 space-y-2 text-sm">
+            <p className="text-text-secondary leading-relaxed">
+              📚 <span className="text-text-primary font-medium">数据来源：</span>本报告中所有统计数据均来自 Lancet、NEJM、JCO、Chest 等权威期刊的已发表学术研究，并非本平台自行生成。
+            </p>
+            <p className="text-text-secondary leading-relaxed">
+              🤖 <span className="text-text-primary font-medium">本报告由 AI 辅助整理：</span>文字部分由大语言模型根据检索到的文献自动整理，不代表医生诊断意见。请务必和您的主治医生探讨。
+            </p>
+            <p className="text-text-secondary leading-relaxed">
+              📊 <span className="text-text-primary font-medium">RFS 数据说明：</span>无复发生存率（RFS）数据基于历史研究群体的统计结果，<strong className="text-text-primary">不代表您个人的预后判断</strong>。相同病理的患者在实际中结果可能差异很大。
+            </p>
+          </div>
         </div>
 
         {/* Tabs */}

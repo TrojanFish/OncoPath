@@ -380,6 +380,88 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* What is EBM Section */}
+      <section className="py-20 px-6 bg-grid">
+        <div className="max-w-4xl mx-auto">
+          <SectionHeader
+            badge="循证医学是什么"
+            title="不是 AI 算命，而是把你的情况放进研究里"
+            subtitle="每一句话背后，都有真实发表的论文支撑"
+          />
+          <div className="mt-12 grid md:grid-cols-3 gap-6">
+            {[
+              {
+                icon: "📋",
+                title: "你提供病理信息",
+                desc: "把你的病理报告上的关键数字告诉我们，比如分期、STAS、CTR 这些医生写下来的东西。",
+              },
+              {
+                icon: "🔍",
+                title: "系统在研究中找相似案例",
+                desc: "系统在数百篇国际顶级期刊论文中，找到和你情况最接近的那批患者的数据。",
+              },
+              {
+                icon: "📊",
+                title: "用他们的结果帮你理解",
+                desc: "把那些和你相似的患者的预后数据，用通俗的语言解释给你看，并标明出自哪篇论文。",
+              },
+            ].map((item) => (
+              <div key={item.title} className="glass rounded-2xl p-6 border border-white/5 text-center">
+                <div className="text-3xl mb-4">{item.icon}</div>
+                <h3 className="font-semibold text-text-primary mb-2">{item.title}</h3>
+                <p className="text-text-secondary text-sm leading-relaxed">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-8 glass rounded-2xl p-6 border border-accent-blue/20 flex items-start gap-4">
+            <span className="text-2xl shrink-0">💬</span>
+            <div>
+              <p className="text-text-primary font-medium mb-1">这和问 ChatGPT 有什么区别？</p>
+              <p className="text-text-secondary text-sm leading-relaxed">
+                ChatGPT 是凭经验猜测，没有来源。OncoPath 是在<strong className="text-text-primary">已经发表的真实研究</strong>里面查你的情况，每一条结论都会告诉你出自哪篇论文、研究了多少患者。
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="py-20 px-6">
+        <div className="max-w-3xl mx-auto">
+          <SectionHeader
+            badge="常见问题"
+            title="你可能想问的"
+            subtitle="关于这个平台和你的报告，我们来解答"
+          />
+          <div className="mt-10 space-y-4">
+            {[
+              {
+                q: "我看不懂病理报告，怎么填？",
+                a: "没关系，每一个输入项旁边都有 ⓘ 图标，点击或悬停可以看到白话文解释，告诉你这个数字或词语在报告哪里找、是什么意思。不确定的项目可以选"未知"跳过。",
+              },
+              {
+                q: "这里的数据准确吗？是真实的研究吗？",
+                a: "是的。所有引用的研究均来自 Lancet、NEJM、JCO、Chest 等权威医学期刊，每一项数据都标注了来源期刊、发表年份和研究患者数量，您可以点击查看原文摘要。",
+              },
+              {
+                q: "报告里说我是"低风险"，我是不是就没事了？",
+                a: "请不要这样理解。"低风险"是指在研究统计中，与你情况相似的患者群体复发比例相对较低，并不意味着你个人一定没有风险。任何情况都必须请您的主治医生结合完整病史做最终判断。",
+              },
+              {
+                q: "这个可以代替医生的意见吗？",
+                a: "绝对不能，也不应该。这个平台的定位是"帮你看懂研究、方便和医生沟通"，不是诊断工具。我们希望患者拿着这份报告，去更有信心地跟医生提问和讨论。",
+              },
+              {
+                q: "我的信息会被保存或泄露吗？",
+                a: "您填写的病理信息仅用于本次分析，不会关联到您的真实身份。如果您选择登录并保存历史，数据会存储在您的账号下，您可以随时删除。",
+              },
+            ].map((item, i) => (
+              <FaqItem key={i} q={item.q} a={item.a} />
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="py-24 px-6 relative overflow-hidden">
         <div className="absolute inset-0 radial-overlay" />
@@ -654,6 +736,31 @@ function StarRating({ count }: { count: number }) {
           <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" />
         </svg>
       ))}
+    </div>
+  );
+}
+
+function FaqItem({ q, a }: { q: string; a: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="glass rounded-xl border border-white/5 overflow-hidden">
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full px-6 py-4 flex items-center justify-between text-left cursor-pointer hover:bg-white/3 transition-colors"
+      >
+        <span className="text-text-primary font-medium text-sm pr-4">{q}</span>
+        <svg
+          width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"
+          className={`shrink-0 text-text-muted transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+        >
+          <path d="M19 9l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </button>
+      {open && (
+        <div className="px-6 pb-4 border-t border-white/5">
+          <p className="text-text-secondary text-sm leading-relaxed pt-3">{a}</p>
+        </div>
+      )}
     </div>
   );
 }
