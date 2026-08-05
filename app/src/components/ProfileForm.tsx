@@ -35,8 +35,8 @@ export default function ProfileForm({ onSubmit }: ProfileFormProps) {
       age: form.age || 50,
       gender: form.gender || "female",
       stage: form.stage || "IA1",
-      tumorSize: form.tumorSize || 1.5,
-      solidSize: form.solidSize || 0.6,
+      tumorSize: (form.tumorSize || 15) / 10,
+      solidSize: (form.solidSize || 6) / 10,
       ctr: form.ctr || (form.solidSize && form.tumorSize ? form.solidSize / form.tumorSize : 0.4),
       morphology: form.morphology || "mixed_ggo",
       stas: form.stas || "unknown",
@@ -421,13 +421,13 @@ function Step3({ form, updateForm }: StepProps) {
       </FormField>
 
       <div className="grid grid-cols-2 gap-4">
-        <FormField label="CT影像结节总大小（cm）">
+        <FormField label="CT影像结节总大小（mm）">
           <input
             id="input-tumor-size"
             type="number"
-            step="0.1"
-            min="0.1"
-            max="10"
+            step="1"
+            min="1"
+            max="150"
             value={form.tumorSize || ""}
             onChange={(e) => {
               const v = parseFloat(e.target.value);
@@ -436,17 +436,17 @@ function Step3({ form, updateForm }: StepProps) {
                 updateForm("ctr", Math.round((form.solidSize / v) * 100) / 100);
               }
             }}
-            placeholder="例如：2.0"
+            placeholder="例如：20"
             className="input-dark w-full px-4 py-3 rounded-xl"
           />
         </FormField>
-        <FormField label="CT影像实性成分大小（cm）">
+        <FormField label="CT影像实性成分大小（mm）">
           <input
             id="input-solid-size"
             type="number"
-            step="0.1"
+            step="1"
             min="0"
-            max="10"
+            max="150"
             value={form.solidSize || ""}
             onChange={(e) => {
               const v = parseFloat(e.target.value);
@@ -455,7 +455,7 @@ function Step3({ form, updateForm }: StepProps) {
                 updateForm("ctr", Math.round((v / form.tumorSize) * 100) / 100);
               }
             }}
-            placeholder="例如：0.8"
+            placeholder="例如：8"
             className="input-dark w-full px-4 py-3 rounded-xl"
           />
         </FormField>
