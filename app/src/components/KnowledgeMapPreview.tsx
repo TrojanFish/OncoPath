@@ -30,7 +30,7 @@ const initialNodes: KnowledgeNode[] = [
   },
   {
     id: "CTR", label: "CTR", type: "factor",
-    x: 50, y: 20,
+    x: 45, y: 25,
     connections: ["RECURRENCE", "STAGING", "SURGERY"],
     connectionTypes: { RECURRENCE: "risk", STAGING: "guides", SURGERY: "guides" },
     studies: 22, evidence: 5,
@@ -38,7 +38,7 @@ const initialNodes: KnowledgeNode[] = [
   },
   {
     id: "IASLC", label: "IASLC\nGrade", type: "factor",
-    x: 75, y: 50,
+    x: 70, y: 50,
     connections: ["RECURRENCE", "ADJUVANT"],
     connectionTypes: { RECURRENCE: "risk", ADJUVANT: "guides" },
     studies: 12, evidence: 4,
@@ -46,7 +46,7 @@ const initialNodes: KnowledgeNode[] = [
   },
   {
     id: "LVI", label: "LVI", type: "factor",
-    x: 30, y: 75,
+    x: 45, y: 75,
     connections: ["RECURRENCE", "METASTASIS"],
     connectionTypes: { RECURRENCE: "risk", METASTASIS: "risk" },
     studies: 14, evidence: 4,
@@ -54,7 +54,7 @@ const initialNodes: KnowledgeNode[] = [
   },
   {
     id: "VPI", label: "VPI", type: "factor",
-    x: 85, y: 30,
+    x: 85, y: 50,
     connections: ["STAGING", "ADJUVANT"],
     connectionTypes: { STAGING: "guides", ADJUVANT: "guides" },
     studies: 8, evidence: 5,
@@ -62,7 +62,7 @@ const initialNodes: KnowledgeNode[] = [
   },
   {
     id: "EGFR", label: "EGFR", type: "factor",
-    x: 65, y: 75,
+    x: 85, y: 75,
     connections: ["ADJUVANT", "TARGETED"],
     connectionTypes: { ADJUVANT: "guides", TARGETED: "guides" },
     studies: 9, evidence: 5,
@@ -70,7 +70,7 @@ const initialNodes: KnowledgeNode[] = [
   },
   {
     id: "RECURRENCE", label: "复发风险", type: "outcome",
-    x: 50, y: 50,
+    x: 45, y: 50,
     connections: [],
     connectionTypes: {},
     studies: 35, evidence: 5,
@@ -78,7 +78,7 @@ const initialNodes: KnowledgeNode[] = [
   },
   {
     id: "SURGERY", label: "手术方式", type: "guideline",
-    x: 20, y: 20,
+    x: 20, y: 25,
     connections: [],
     connectionTypes: {},
     studies: 6, evidence: 5,
@@ -86,7 +86,7 @@ const initialNodes: KnowledgeNode[] = [
   },
   {
     id: "ADJUVANT", label: "辅助治疗", type: "guideline",
-    x: 85, y: 70,
+    x: 70, y: 75,
     connections: [],
     connectionTypes: {},
     studies: 4, evidence: 5,
@@ -94,7 +94,7 @@ const initialNodes: KnowledgeNode[] = [
   },
   {
     id: "STAGING", label: "TNM分期", type: "guideline",
-    x: 80, y: 15,
+    x: 70, y: 25,
     connections: [],
     connectionTypes: {},
     studies: 12, evidence: 5,
@@ -102,7 +102,7 @@ const initialNodes: KnowledgeNode[] = [
   },
   {
     id: "METASTASIS", label: "远处转移", type: "outcome",
-    x: 15, y: 85,
+    x: 45, y: 90,
     connections: [],
     connectionTypes: {},
     studies: 10, evidence: 4,
@@ -110,7 +110,7 @@ const initialNodes: KnowledgeNode[] = [
   },
   {
     id: "TARGETED", label: "靶向治疗", type: "guideline",
-    x: 65, y: 90,
+    x: 85, y: 90,
     connections: [],
     connectionTypes: {},
     studies: 6, evidence: 5,
