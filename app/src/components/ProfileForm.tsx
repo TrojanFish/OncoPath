@@ -421,7 +421,7 @@ function Step3({ form, updateForm }: StepProps) {
       </FormField>
 
       <div className="grid grid-cols-2 gap-4">
-        <FormField label="肿瘤总大小（cm）">
+        <FormField label="CT影像结节总大小（cm）">
           <input
             id="input-tumor-size"
             type="number"
@@ -440,7 +440,7 @@ function Step3({ form, updateForm }: StepProps) {
             className="input-dark w-full px-4 py-3 rounded-xl"
           />
         </FormField>
-        <FormField label="实性成分大小（cm）">
+        <FormField label="CT影像实性成分大小（cm）">
           <input
             id="input-solid-size"
             type="number"
