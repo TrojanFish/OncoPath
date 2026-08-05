@@ -7,6 +7,7 @@ from app.core.database import get_db, AsyncSessionLocal
 from app.models.evidence import Evidence
 from app.schemas.evidence import EvidenceCreate, EvidenceResponse
 from app.services.pubmed import fetch_pubmed_studies
+from app.services.europe_pmc import fetch_europe_pmc_studies
 
 router = APIRouter()
 
@@ -107,4 +108,38 @@ async def trigger_pubmed_fetch(background_tasks: BackgroundTasks, query: str = '
     """
     background_tasks.add_task(process_pubmed_pipeline, query)
     return {"message": "PubMed fetch pipeline started in the background", "query": query}
+
+async def process_europe_pmc_pipeline(query: str):
+    """Background task to fetch and save studies from Europe PMC."""
+    studies = await fetch_europe_pmc_studies(query, max_results=5)
+    if not studies:
+        return
+        
+    async with AsyncSessionLocal() as db:
+        for s in studies:
+            # Check if exists by title
+            exists = await db.execute(select(Evidence).where(Evidence.title == s["title"]))
+            if exists.scalars().first():
+                continue
+                
+            evidence = Evidence(
+                title=s["title"],
+                journal=s["journal"],
+                year=s["year"],
+                authors=s["authors"],
+                summary=s["abstract"],
+                conclusion="Pending AI Analysis",
+                keywords="EuropePMC Auto-fetched"
+            )
+            db.add(evidence)
+        await db.commit()
+
+@router.post("/fetch-europe-pmc")
+async def trigger_europe_pmc_fetch(background_tasks: BackgroundTasks, query: str = '("stage IA" OR "T1N0") AND "non-small cell lung cancer"'):
+    """
+    Triggers an automated pipeline to fetch new studies from Europe PMC.
+    Runs asynchronously in the background.
+    """
+    background_tasks.add_task(process_europe_pmc_pipeline, query)
+    return {"message": "Europe PMC fetch pipeline started in the background", "query": query}
 

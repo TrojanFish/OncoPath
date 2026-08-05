@@ -94,20 +94,36 @@ export default function StudyCard({ study, compact = false }: StudyCardProps) {
             </span>
           ))}
         </div>
-        {study.pubmedId && (
-          <a
-            id={`study-pubmed-${study.id}`}
-            href={`https://pubmed.ncbi.nlm.nih.gov/${study.pubmedId}/`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-accent-blue text-xs hover:underline flex items-center gap-1"
-          >
-            PubMed
-            <svg width="10" height="10" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </a>
-        )}
+        <div className="flex gap-3">
+          {study.doi && (
+            <a
+              id={`study-doi-${study.id}`}
+              href={`https://doi.org/${study.doi}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-accent-teal text-xs hover:underline flex items-center gap-1"
+            >
+              DOI
+              <svg width="10" height="10" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </a>
+          )}
+          {study.pubmedId && (
+            <a
+              id={`study-pubmed-${study.id}`}
+              href={`https://pubmed.ncbi.nlm.nih.gov/${study.pubmedId}/`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-accent-blue text-xs hover:underline flex items-center gap-1"
+            >
+              PubMed
+              <svg width="10" height="10" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </a>
+          )}
+        </div>
       </div>
     </div>
   );

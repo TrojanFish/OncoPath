@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { FEATURED_STUDIES } from "@/lib/evidence-data";
 import StudyCard from "@/components/StudyCard";
+import PubMedSearch from "@/components/PubMedSearch";
 
 export default function StudiesPage() {
   return (
@@ -40,6 +41,8 @@ export default function StudiesPage() {
 
       {/* Studies Grid */}
       <main className="max-w-7xl mx-auto px-6">
+        <PubMedSearch />
+        
         <div className="flex items-center justify-between mb-8">
           <div className="text-text-muted text-sm">
             共收录 <span className="text-accent-blue font-semibold">{FEATURED_STUDIES.length}</span> 篇核心研究

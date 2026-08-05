@@ -240,6 +240,8 @@ export const FEATURED_STUDIES: Study[] = [
     patientN: 25467,
     studyType: "meta_analysis",
     evidenceLevel: 5,
+    pubmedId: "34224749",
+    doi: "10.1016/j.chest.2021.06.027",
     keyConclusions: [
       "Meta分析（18项研究）确认STAS是NSCLC独立预后因子",
       "STAS阳性 OS HR=1.87 (95%CI 1.52-2.29)",
@@ -273,6 +275,8 @@ export const FEATURED_STUDIES: Study[] = [
     patientN: 333,
     studyType: "prospective_multicenter",
     evidenceLevel: 4,
+    pubmedId: "34919532",
+    doi: "10.1016/j.jtcvs.2021.11.026",
     keyConclusions: [
       "CTR≤0.25的I期肺癌亚肺叶切除5年RFS达99.7%",
       "验证了影像学非侵袭性标准的可靠性",
@@ -289,6 +293,8 @@ export const FEATURED_STUDIES: Study[] = [
     patientN: 1024,
     studyType: "retrospective_multicenter",
     evidenceLevel: 4,
+    pubmedId: "33895318",
+    doi: "10.1016/j.jtho.2021.04.010",
     keyConclusions: [
       "纯GGO患者10年无复发生存率达97%",
       "纯GGO患者5年OS接近100%",
@@ -305,6 +311,8 @@ export const FEATURED_STUDIES: Study[] = [
     patientN: 682,
     studyType: "rct",
     evidenceLevel: 5,
+    pubmedId: "37272535",
+    doi: "10.1056/NEJMoa2304594",
     keyConclusions: [
       "EGFR突变II-IIIA期患者奥希替尼辅助治疗5年DFS: 65% vs 26%",
       "HR 0.27 (95%CI 0.21-0.34)",
