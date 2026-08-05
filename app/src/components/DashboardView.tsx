@@ -30,7 +30,7 @@ export default function DashboardView({ onBack, onViewReport }: DashboardViewPro
 
   return (
     <div className="min-h-screen bg-grid radial-overlay pt-24 pb-16 px-6">
-      <nav className="glass-strong fixed top-0 left-0 right-0 z-50 px-6 py-4">
+      <nav className="bg-[#0a0e1a]/70 backdrop-blur-lg border-b border-white/5 fixed top-0 left-0 right-0 z-50 px-6 py-4">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <button
             onClick={onBack}

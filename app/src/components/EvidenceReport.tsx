@@ -77,7 +77,7 @@ export default function EvidenceReport({ profile, onBack, initialReportJson }: E
   return (
     <div className="min-h-screen bg-grid">
       {/* Sticky Header */}
-      <div className="glass-strong sticky top-0 z-40 px-6 py-4 border-b border-white/5">
+      <div className="bg-[#0a0e1a]/70 backdrop-blur-lg border-b border-white/5 sticky top-0 z-50 px-6 py-4">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <button
             onClick={onBack}
