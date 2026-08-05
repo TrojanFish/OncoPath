@@ -8,23 +8,20 @@ from app.models.evidence import Evidence
 from app.schemas.evidence import EvidenceCreate, EvidenceResponse
 from app.services.pubmed import fetch_pubmed_studies
 from app.services.europe_pmc import fetch_europe_pmc_studies
+from app.services.vector_search import VectorSearchService
+from app.services.seeding import seed_real_evidence
 
 router = APIRouter()
 
 @router.get("/search", response_model=List[EvidenceResponse])
 async def search_evidence(q: str, db: AsyncSession = Depends(get_db)):
     """
-    Mock retrieval API that performs a keyword search against the database.
-    (This will be replaced by pgvector embedding search in the future)
+    Semantic evidence retrieval using OpenAI embeddings + cosine similarity.
+    Automatically falls back to keyword search when no API key is configured
+    or the database has no embeddings yet.
     """
-    query = select(Evidence).where(
-        (Evidence.keywords.ilike(f"%{q}%")) | 
-        (Evidence.title.ilike(f"%{q}%")) |
-        (Evidence.summary.ilike(f"%{q}%"))
-    )
-    result = await db.execute(query)
-    evidences = result.scalars().all()
-    return evidences
+    search_service = VectorSearchService(db)
+    return await search_service.search_evidence(q, limit=10)
 
 @router.post("/seed", response_model=List[EvidenceResponse])
 async def seed_evidence(db: AsyncSession = Depends(get_db)):
@@ -142,4 +139,15 @@ async def trigger_europe_pmc_fetch(background_tasks: BackgroundTasks, query: str
     """
     background_tasks.add_task(process_europe_pmc_pipeline, query)
     return {"message": "Europe PMC fetch pipeline started in the background", "query": query}
+
+@router.post("/seed-real")
+async def seed_real_evidence_endpoint(db: AsyncSession = Depends(get_db)):
+    """
+    Seed the database with real studies from data/evidence_database.json.
+    Idempotent: skips already-present studies. Generates embeddings when an
+    OpenAI key is configured, otherwise stores zero-vectors (search degrades to
+    keyword matching automatically).
+    """
+    result = await seed_real_evidence(db)
+    return {"message": "Real evidence seeded", **result}
 

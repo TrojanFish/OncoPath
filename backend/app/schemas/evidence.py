@@ -16,6 +16,7 @@ class EvidenceCreate(EvidenceBase):
 
 class EvidenceResponse(EvidenceBase):
     id: str
+    url: Optional[str] = None
     created_at: datetime
 
     class Config:

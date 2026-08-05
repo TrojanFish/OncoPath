@@ -11,6 +11,7 @@ from app.models.case import PatientCase, Tumor, PathologyFeature
 from app.models.user import User
 from app.services.agent import AnalysisAgent
 from app.services.rules import MedicalRulesEngine
+from app.services.vector_search import VectorSearchService
 from app.api.deps import get_current_user
 
 router = APIRouter()
@@ -51,32 +52,34 @@ async def generate_analysis(
             # Overwrite stage with computed stage for safety
             profile.stage = tnm["stage"]
 
-        # Step 2: Rule-based translation of profile to search queries
-        queries = []
+        # Step 2: Build a semantic search query from the patient profile.
+        # A natural-language description retrieves semantically related
+        # evidence far better than exact keyword matching (e.g. "air space
+        # spread" matches "STAS", Chinese morphology matches English titles).
+        query_parts = []
+        if profile.stage:
+            query_parts.append(f"stage {profile.stage}")
         if profile.stas == "阳性":
-            queries.append("STAS")
-        if profile.ctr is not None and profile.ctr <= 0.5:
-            queries.append("CTR")
+            query_parts.append("STAS spread through air spaces")
+        if profile.ctr is not None:
+            query_parts.append(f"consolidation tumor ratio CTR {profile.ctr}")
         if profile.iaslcGrade:
-            queries.append("IASLC")
-            
-        if not queries:
-            queries.append("lung adenocarcinoma")
+            query_parts.append(f"IASLC grade {profile.iaslcGrade}")
+        if profile.morphology:
+            query_parts.append(profile.morphology)
+        if profile.lymphNodes:
+            query_parts.append(f"lymph node {profile.lymphNodes}")
+        if profile.egfr:
+            query_parts.append(f"EGFR {profile.egfr}")
+        if not query_parts:
+            query_parts.append("lung adenocarcinoma early stage prognosis")
+        semantic_query = " ".join(query_parts)
 
-        # Step 3: Retrieve Evidence
-        retrieved_evidences = []
-        seen_ids = set()
-        for q in queries:
-            db_query = select(Evidence).where(
-                (Evidence.keywords.ilike(f"%{q}%")) | 
-                (Evidence.title.ilike(f"%{q}%"))
-            )
-            result = await db.execute(db_query)
-            evidences = result.scalars().all()
-            for e in evidences:
-                if e.id not in seen_ids:
-                    retrieved_evidences.append(e)
-                    seen_ids.add(e.id)
+        # Step 3: Retrieve evidence via semantic (vector) search.
+        # VectorSearchService degrades to keyword ILIKE automatically when no
+        # embeddings / no API key is available.
+        search_service = VectorSearchService(db)
+        retrieved_evidences = await search_service.search_evidence(semantic_query, limit=5)
                     
         # Step 4: Call LLM Agent
         profile_dict = profile.model_dump(exclude_none=True)

@@ -14,4 +14,12 @@ class Evidence(Base):
     summary = Column(Text, nullable=False)
     conclusion = Column(Text, nullable=False)
     keywords = Column(String, nullable=False) # Store comma separated keywords for MVP search
+    # Optional source URL (PubMed / DOI link) for traceability
+    url = Column(String, nullable=True)
+    # Embedding stored as JSON-serialized float list (e.g. "[0.12, -0.03, ...]").
+    # Using Text (instead of pgvector Vector) keeps it compatible with the
+    # SQLite MVP AND PostgreSQL; similarity is computed in application layer
+    # (see app.services.vector_search). Migrating to a native pgvector column
+    # is a follow-up optimization once the RAG path is proven.
+    embedding = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
