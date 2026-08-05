@@ -423,16 +423,11 @@ export default function ResourcesPage() {
       </main>
 
       {/* Footer disclaimer */}
-      <div className="max-w-7xl mx-auto px-6 mt-16 pt-8 border-t border-white/5">
+      <div className="max-w-7xl mx-auto px-6 mt-16 pt-8 pb-8 border-t border-white/5">
         <p className="text-text-muted text-xs text-center leading-relaxed max-w-2xl mx-auto">
           ⚠️ 上述所有外部链接均指向独立的第三方学术机构网站，OncoPath 不对这些网站的内容或准确性负责。
           所有医学决策请以主治医生的意见为最终依据。
         </p>
-        <div className="text-center mt-4">
-          <Link href="/" className="text-accent-blue text-sm hover:text-accent-blue-light transition-colors">
-            ← 返回 OncoPath 首页
-          </Link>
-        </div>
       </div>
     </div>
   );
