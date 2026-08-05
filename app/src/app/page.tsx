@@ -111,6 +111,7 @@ export default function HomePage() {
             <NavLink href="#evidence">证据库</NavLink>
             <NavLink href="#studies">研究</NavLink>
             <NavLink href="#knowledge">知识图谱</NavLink>
+            <NavLink href="/resources">学术导航</NavLink>
           </div>
           <div className="flex items-center gap-4">
             {userEmail ? (
@@ -503,6 +504,7 @@ export default function HomePage() {
               { label: "研究匹配", href: "#" },
               { label: "知识图谱", href: "/knowledge" },
               { label: "研究库", href: "/studies" },
+              { label: "学术导航", href: "/resources" },
             ]} />
             <FooterCol title="关于" links={[
               { label: "项目理念", href: "#" },
