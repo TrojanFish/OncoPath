@@ -348,6 +348,8 @@ export interface FactorAssessment {
   evidenceLevel: number;
 }
 
+import type { HistologyItem } from "./types";
+
 export function analyzePatientProfile(profile: {
   stage: string;
   ctr: number;
@@ -355,7 +357,7 @@ export function analyzePatientProfile(profile: {
   lvi: string;
   vpi: string;
   iaslcGrade: string;
-  histology?: string[];
+  histology?: HistologyItem[];
   egfr?: string;
   lymphNodes?: string;
 }): PatientMatchResult {

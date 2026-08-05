@@ -21,7 +21,7 @@ export default function ProfileForm({ onSubmit }: ProfileFormProps) {
     lymphNodes: "N0",
     margin: "negative",
     surgeryType: "lobectomy",
-    histology: ["papillary", "acinar"],
+    histology: [{ type: "papillary" }, { type: "acinar" }],
   });
 
   const totalSteps = 3;
@@ -256,11 +256,19 @@ function Step2({ form, updateForm }: StepProps) {
 
   const toggleHistology = (val: string) => {
     const current = form.histology || [];
-    if (current.includes(val)) {
-      updateForm("histology", current.filter((h) => h !== val));
+    const exists = current.some((h) => h.type === val);
+    if (exists) {
+      updateForm("histology", current.filter((h) => h.type !== val));
     } else {
-      updateForm("histology", [...current, val]);
+      updateForm("histology", [...current, { type: val }]);
     }
+  };
+
+  const updateHistologyPercentage = (val: string, percentage: string) => {
+    const current = form.histology || [];
+    const num = parseInt(percentage);
+    const validNum = isNaN(num) ? undefined : num;
+    updateForm("histology", current.map(h => h.type === val ? { ...h, percentage: validNum } : h));
   };
 
   return (
@@ -346,22 +354,45 @@ function Step2({ form, updateForm }: StepProps) {
         </div>
       </FormField>
 
-      <FormField label="病理亚型（可多选）">
+      <FormField label="病理亚型（可多选）" tooltip="如果病理报告中写了各亚型的百分比，可以在选中后填写。如果没有写，留空即可。微乳头型和实体型属于容易复发的不良亚型">
         <div className="grid grid-cols-2 gap-2">
-          {Object.entries(pathologyOptions).map(([val, label]) => (
-            <button
-              key={val}
-              id={`histology-${val}`}
-              onClick={() => toggleHistology(val)}
-              className={`py-2.5 px-3 rounded-xl text-sm text-left transition-all cursor-pointer ${
-                (form.histology || []).includes(val)
-                  ? "bg-accent-teal/20 border border-accent-teal text-accent-teal"
-                  : "glass border border-white/10 text-text-muted hover:border-white/20"
-              }`}
-            >
-              {label}
-            </button>
-          ))}
+          {Object.entries(pathologyOptions).map(([val, label]) => {
+            const histItem = (form.histology || []).find((h) => h.type === val);
+            const isSelected = !!histItem;
+            return (
+              <div
+                key={val}
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-xl transition-all ${
+                  isSelected
+                    ? "bg-accent-teal/10 border border-accent-teal/50 text-accent-teal"
+                    : "glass border border-white/10 text-text-muted hover:border-white/20"
+                }`}
+              >
+                <button
+                  id={`histology-${val}`}
+                  onClick={() => toggleHistology(val)}
+                  className="flex-1 text-sm text-left py-1 cursor-pointer outline-none"
+                >
+                  {label}
+                </button>
+                {isSelected && (
+                  <div className="flex items-center gap-1">
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      value={histItem.percentage === undefined ? "" : histItem.percentage}
+                      onChange={(e) => updateHistologyPercentage(val, e.target.value)}
+                      placeholder="?"
+                      className="w-12 h-7 bg-black/40 border border-accent-teal/30 rounded text-center text-xs text-white placeholder-white/30 focus:outline-none focus:border-accent-teal"
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                    <span className="text-xs text-accent-teal/70">%</span>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       </FormField>
 

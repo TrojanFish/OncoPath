@@ -1,4 +1,9 @@
 // Shared type definitions for OncoPath
+export interface HistologyItem {
+  type: string;
+  percentage?: number;
+}
+
 export interface PatientProfile {
   age: number;
   gender: "female" | "male";
@@ -11,7 +16,7 @@ export interface PatientProfile {
   lvi: "negative" | "positive" | "unknown";
   vpi: "negative" | "positive" | "unknown";
   iaslcGrade: "1" | "2" | "3" | "unknown";
-  histology: string[];
+  histology: HistologyItem[];
   egfr: "positive" | "negative" | "unknown" | "not_tested";
   lymphNodes: "N0" | "N1" | "N2";
   margin: "negative" | "positive";
