@@ -339,7 +339,7 @@ function Step2({ form, updateForm }: StepProps) {
             >
               {g === "unknown" ? "未知" : `Grade ${g}`}
               <div className="text-xs mt-0.5 opacity-70">
-                {g === "1" ? "低级别" : g === "2" ? "中级别" : g === "3" ? "高级别" : ""}
+                {g === "1" ? "高分化" : g === "2" ? "中分化" : g === "3" ? "低分化" : ""}
               </div>
             </button>
           ))}
