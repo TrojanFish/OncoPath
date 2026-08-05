@@ -270,9 +270,9 @@ function Step2({ form, updateForm }: StepProps) {
         <p className="text-text-secondary text-sm">这些来自手术后病理报告，不记得的项目可以选“未知”</p>
       </div>
 
-      <FormField label="TNM 分期" tooltip="分期是医生评估肿瘤进展的方式。IA1是最早期，数字越大表示进展越晚。在病理报告第一页一般可以找到">
-        <div className="grid grid-cols-3 gap-2">
-          {["IA1", "IA2", "IA3", "IB", "IIA", "IIB"].map((s) => (
+      <FormField label="TNM 分期" tooltip="分期是医生评估肿瘤进展的方式。其中原位癌和微浸润属于极早期，IA1是最早期浸润癌，数字越大表示进展越晚。在病理报告第一页一般可以找到">
+        <div className="grid grid-cols-4 gap-2">
+          {["原位癌", "微浸润", "IA1", "IA2", "IA3", "IB", "IIA", "IIB"].map((s) => (
             <button
               key={s}
               id={`stage-${s}`}
