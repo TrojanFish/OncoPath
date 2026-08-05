@@ -16,6 +16,10 @@ class Evidence(Base):
     keywords = Column(String, nullable=False) # Store comma separated keywords for MVP search
     # Optional source URL (PubMed / DOI link) for traceability
     url = Column(String, nullable=True)
+    # Source study metadata — powers honest statistics (patient cohort size,
+    # study type) instead of inflated hardcoded base values.
+    patient_n = Column(Integer, nullable=True)
+    study_type = Column(String, nullable=True)
     # Embedding stored as JSON-serialized float list (e.g. "[0.12, -0.03, ...]").
     # Using Text (instead of pgvector Vector) keeps it compatible with the
     # SQLite MVP AND PostgreSQL; similarity is computed in application layer

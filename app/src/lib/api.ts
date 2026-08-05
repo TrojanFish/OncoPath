@@ -50,7 +50,7 @@ export async function generateReport(profile: any) {
 
 export async function getCases() {
   const token = localStorage.getItem("token");
-  const response = await fetch(`${API_BASE_URL}/cases`, {
+  const response = await fetch(`${API_BASE_URL}/cases/`, {
     headers: {
       "Authorization": `Bearer ${token}`
     }
@@ -67,4 +67,59 @@ export async function fetchStats() {
   const response = await fetch(`${API_BASE_URL}/stats`);
   if (!response.ok) return null;
   return response.json();
+}
+
+export async function fetchFactors() {
+  const response = await fetch(`${API_BASE_URL}/evidence/factors`);
+  if (!response.ok) return [];
+  return response.json();
+}
+
+export async function createCase(data: { age?: number; gender?: string; surgery_type?: string }) {
+  const token = localStorage.getItem("token");
+  const response = await fetch(`${API_BASE_URL}/cases/`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.detail || "Failed to create case");
+  }
+  return response.json();
+}
+
+export async function updateCase(caseId: string, data: { age?: number; gender?: string; surgery_type?: string }) {
+  const token = localStorage.getItem("token");
+  const response = await fetch(`${API_BASE_URL}/cases/${caseId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.detail || "Failed to update case");
+  }
+  return response.json();
+}
+
+export async function deleteCase(caseId: string) {
+  const token = localStorage.getItem("token");
+  const response = await fetch(`${API_BASE_URL}/cases/${caseId}`, {
+    method: "DELETE",
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.detail || "Failed to delete case");
+  }
+  return response.ok;
 }

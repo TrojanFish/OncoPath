@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { fetchFactors, fetchStats } from "@/lib/api";
 
 interface KnowledgeNode {
   id: string;
@@ -14,7 +15,10 @@ interface KnowledgeNode {
   description: string;
 }
 
-const nodes: KnowledgeNode[] = [
+// Layout (positions, connections, labels) is a deliberate UI design decision
+// and stays static. The dynamic parts (study counts, totals) are fetched from
+// the backend so the numbers always reflect the real evidence database.
+const initialNodes: KnowledgeNode[] = [
   {
     id: "STAS", label: "STAS", type: "factor",
     x: 20, y: 35,
@@ -104,8 +108,40 @@ const typeLabels: Record<string, string> = {
 export default function KnowledgeMapPreview() {
   const [hoveredNode, setHoveredNode] = useState<KnowledgeNode | null>(null);
   const [selectedNode, setSelectedNode] = useState<KnowledgeNode | null>(null);
+  const [nodes, setNodes] = useState<KnowledgeNode[]>(initialNodes);
+  const [totalStudies, setTotalStudies] = useState<number>(0);
+
+  useEffect(() => {
+    // Replace hardcoded study counts with the real figures from the backend.
+    fetchFactors().then((factors) => {
+      if (Array.isArray(factors) && factors.length) {
+        setNodes((prev) =>
+          prev.map((node) => {
+            const match = factors.find(
+              (f: any) =>
+                f.id === node.id ||
+                (typeof f.id === "string" && f.id.startsWith(node.id))
+            );
+            if (match) {
+              return { ...node, studies: match.studies_supporting_risk ?? node.studies };
+            }
+            return node;
+          })
+        );
+      }
+    });
+    // Real indexed-paper count (replaces the old hardcoded "42篇").
+    fetchStats().then((s) => {
+      if (s) setTotalStudies(s.total_studies);
+    });
+  }, []);
 
   const activeNode = selectedNode || hoveredNode;
+
+  const factorCount = nodes.filter((n) => n.type === "factor").length;
+  const connectionCount = Math.floor(
+    nodes.reduce((sum, n) => sum + n.connections.length, 0) / 2
+  );
 
   return (
     <div className="mt-12">
@@ -207,15 +243,15 @@ export default function KnowledgeMapPreview() {
             </div>
           )}
 
-          {/* Quick facts */}
+          {/* Quick facts — real numbers, no inflation */}
           <div className="glass rounded-2xl p-5 border border-white/5">
             <h4 className="text-text-secondary text-sm font-medium mb-3">知识图谱统计</h4>
             <div className="space-y-2 text-sm">
               {[
-                { label: "因素节点", value: "10个", color: "text-accent-blue" },
-                { label: "证据连接", value: "23条", color: "text-accent-teal" },
-                { label: "覆盖论文", value: "42篇", color: "text-purple-400" },
-                { label: "每日自动更新", value: "PubMed", color: "text-amber-400" },
+                { label: "因素节点", value: `${factorCount}个`, color: "text-accent-blue" },
+                { label: "证据连接", value: `${connectionCount}条`, color: "text-accent-teal" },
+                { label: "覆盖论文", value: `${totalStudies}篇`, color: "text-purple-400" },
+                { label: "数据来源", value: "核心文献", color: "text-amber-400" },
               ].map((item) => (
                 <div key={item.label} className="flex justify-between">
                   <span className="text-text-muted">{item.label}</span>

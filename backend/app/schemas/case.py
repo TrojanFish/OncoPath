@@ -37,6 +37,10 @@ class PatientCaseBase(BaseModel):
     gender: Optional[str] = None
     surgery_type: Optional[str] = None
 
+class PatientCaseCreate(PatientCaseBase):
+    """Used by POST /cases to manually create a case (without AI analysis)."""
+    pass
+
 class PatientCaseResponse(PatientCaseBase):
     id: str
     user_id: str

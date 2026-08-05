@@ -58,6 +58,8 @@ def map_study_to_evidence(study: Dict[str, Any]) -> Dict[str, Any]:
         "conclusion": conclusion,
         "keywords": keywords,
         "url": url,
+        "patient_n": study.get("patient_n"),
+        "study_type": study.get("study_type"),
     }
 
 

@@ -1,3 +1,5 @@
+import json
+
 from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
@@ -9,7 +11,7 @@ from app.schemas.evidence import EvidenceCreate, EvidenceResponse
 from app.services.pubmed import fetch_pubmed_studies
 from app.services.europe_pmc import fetch_europe_pmc_studies
 from app.services.vector_search import VectorSearchService
-from app.services.seeding import seed_real_evidence
+from app.services.seeding import seed_real_evidence, DATA_FILE
 
 router = APIRouter()
 
@@ -22,6 +24,30 @@ async def search_evidence(q: str, db: AsyncSession = Depends(get_db)):
     """
     search_service = VectorSearchService(db)
     return await search_service.search_evidence(q, limit=10)
+
+@router.get("/factors")
+async def get_factors():
+    """
+    Return the structured prognostic factors from data/evidence_database.json.
+    Powers the knowledge map with real factor metadata (study counts, consensus)
+    instead of hardcoded values.
+    """
+    data = json.loads(DATA_FILE.read_text(encoding="utf-8"))
+    factors = data.get("factors", []) or []
+    return [
+        {
+            "id": f.get("id"),
+            "name": f.get("name"),
+            "name_zh": f.get("name_zh"),
+            "category": f.get("category"),
+            "clinical_significance": f.get("clinical_significance"),
+            "studies_supporting_risk": (f.get("evidence_summary") or {}).get("studies_supporting_risk", 0),
+            "meta_analyses": (f.get("evidence_summary") or {}).get("meta_analyses", 0),
+            "consensus": (f.get("evidence_summary") or {}).get("consensus"),
+            "description_zh": f.get("description_zh"),
+        }
+        for f in factors
+    ]
 
 @router.post("/seed", response_model=List[EvidenceResponse])
 async def seed_evidence(db: AsyncSession = Depends(get_db)):
