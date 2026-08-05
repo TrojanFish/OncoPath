@@ -351,6 +351,38 @@ function getNodeActivation(nodeId: string, profile: PatientProfile | null): "act
   }
 }
 
+// --- What-If Sandbox Data ---
+const SANDBOX_NODES: Record<string, {
+  label: string;
+  mechanism: string;
+  effect: string;
+  trialName: string;
+  hrReduction: string;
+  protectiveEdges: Array<{ target: string; label: string }>;
+}> = {
+  TARGETED: {
+    label: "靶向治疗（EGFR-TKI）",
+    mechanism: "奥希替尼（第三代EGFR-TKI）通过精准阻断EGFR突变驱动的肿瘤增殖信号，降低术后微转移灶的激活风险。",
+    effect: "ADAURA研究证实，EGFR阳性II-IIIA期患者辅助奥希替尼治疗后，3年DFS从29%提升至70%，复发风险降低83%（HR=0.17）。",
+    trialName: "ADAURA (NEJM 2023)",
+    hrReduction: "HR = 0.17（复发风险↓83%）",
+    protectiveEdges: [
+      { target: "RECURRENCE", label: "-83%" },
+    ],
+  },
+  ADJUVANT: {
+    label: "辅助化疗 / 辅助治疗",
+    mechanism: "辅助化疗通过铂类药物杀灭手术后残余的微小转移灶，减少系统性复发；对于IASLC Grade 3或VPI阳性患者尤为重要。",
+    effect: "荟萃分析显示，IB-IIIA期NSCLC辅助化疗可提升5年OS约5-8%，IASLC Grade 3亚组获益更为显著。",
+    trialName: "LACE Meta-Analysis (JCO 2010)",
+    hrReduction: "5年OS +5–8%（高危亚组更优）",
+    protectiveEdges: [
+      { target: "RECURRENCE", label: "-8%" },
+      { target: "METASTASIS", label: "-6%" },
+    ],
+  },
+};
+
 interface KnowledgeMapProps {
   profile?: PatientProfile | null;
 }
@@ -358,11 +390,13 @@ interface KnowledgeMapProps {
 export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProps) {
   const [hoveredNode, setHoveredNode] = useState<KnowledgeNode | null>(null);
   const [selectedNode, setSelectedNode] = useState<KnowledgeNode | null>(null);
-  const [selectedEdge, setSelectedEdge] = useState<string | null>(null); // "STAS-RECURRENCE" etc.
+  const [selectedEdge, setSelectedEdge] = useState<string | null>(null);
   const [hoveredEdge, setHoveredEdge] = useState<string | null>(null);
   const [nodes, setNodes] = useState<KnowledgeNode[]>(initialNodes);
   const [totalStudies, setTotalStudies] = useState<number>(0);
   const [personalMode, setPersonalMode] = useState<boolean>(!!profile);
+  const [sandboxMode, setSandboxMode] = useState<boolean>(false);
+  const [sandboxActive, setSandboxActive] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     setPersonalMode(!!profile);
@@ -402,7 +436,35 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
     ? nodes.filter((n) => getNodeActivation(n.id, profile) === "active").map((n) => n.id)
     : [];
 
+  // Collect all active protective edges from sandbox
+  const activeProtectiveEdges: Array<{ from: string; to: string; label: string }> = [];
+  if (sandboxMode) {
+    sandboxActive.forEach((nodeId) => {
+      const sb = SANDBOX_NODES[nodeId];
+      if (sb) {
+        sb.protectiveEdges.forEach((pe) => {
+          activeProtectiveEdges.push({ from: nodeId, to: pe.target, label: pe.label });
+        });
+      }
+    });
+  }
+
+  const toggleSandboxNode = (nodeId: string) => {
+    setSandboxActive((prev) => {
+      const next = new Set(prev);
+      if (next.has(nodeId)) next.delete(nodeId);
+      else next.add(nodeId);
+      return next;
+    });
+    setSelectedNode(null);
+    setSelectedEdge(null);
+  };
+
   const handleNodeClick = (node: KnowledgeNode) => {
+    if (sandboxMode && SANDBOX_NODES[node.id]) {
+      toggleSandboxNode(node.id);
+      return;
+    }
     setSelectedEdge(null);
     setSelectedNode(selectedNode?.id === node.id ? null : node);
   };
@@ -413,21 +475,66 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
     setSelectedEdge(selectedEdge === edgeKey ? null : edgeKey);
   };
 
+  const enterSandbox = () => {
+    setSandboxMode(true);
+    setSandboxActive(new Set());
+    setPersonalMode(false);
+    setSelectedNode(null);
+    setSelectedEdge(null);
+  };
+
+  const exitSandbox = () => {
+    setSandboxMode(false);
+    setSandboxActive(new Set());
+    if (profile) setPersonalMode(true);
+  };
+
   return (
     <div className="mt-12">
-      {/* Personal Mode Banner */}
-      {personalMode && profile && (
+      {/* Mode Banners */}
+      {sandboxMode ? (
+        <div className="mb-4 flex items-center justify-between glass rounded-xl px-4 py-2.5 border border-amber-500/30 bg-amber-500/5">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+            <span className="text-amber-400 text-sm font-medium">沙盘推演模式</span>
+            <span className="text-text-muted text-xs">— 点击治疗节点，观察风险路径的变化</span>
+          </div>
+          <button
+            onClick={exitSandbox}
+            className="text-text-muted text-xs hover:text-text-secondary transition-colors underline underline-offset-2 cursor-pointer"
+          >
+            退出沙盘
+          </button>
+        </div>
+      ) : personalMode && profile ? (
         <div className="mb-4 flex items-center justify-between glass rounded-xl px-4 py-2.5 border border-accent-teal/30">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-accent-teal animate-pulse" />
             <span className="text-accent-teal text-sm font-medium">专属路径模式</span>
             <span className="text-text-muted text-xs">— 高亮节点与您的病理特征直接相关</span>
           </div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={enterSandbox}
+              className="text-amber-400/80 text-xs hover:text-amber-400 transition-colors border border-amber-400/20 hover:border-amber-400/40 px-2 py-1 rounded cursor-pointer"
+            >
+              ⚗️ 进入沙盘推演
+            </button>
+            <button
+              onClick={() => setPersonalMode(false)}
+              className="text-text-muted text-xs hover:text-text-secondary transition-colors underline underline-offset-2 cursor-pointer"
+            >
+              切换全局视图
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="mb-4 flex justify-end">
           <button
-            onClick={() => setPersonalMode(false)}
-            className="text-text-muted text-xs hover:text-text-secondary transition-colors underline underline-offset-2 cursor-pointer"
+            onClick={enterSandbox}
+            className="text-amber-400/70 text-xs hover:text-amber-400 transition-colors border border-amber-400/20 hover:border-amber-400/40 px-3 py-1.5 rounded-lg cursor-pointer flex items-center gap-1.5"
           >
-            切换为全局视图
+            ⚗️ 沙盘推演模式
           </button>
         </div>
       )}
@@ -470,6 +577,13 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
                 <feGaussianBlur stdDeviation="0.8" result="blur" />
                 <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
               </filter>
+              <filter id="glow-amber">
+                <feGaussianBlur stdDeviation="1.0" result="blur" />
+                <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+              </filter>
+              <marker id="arrow-protect" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+                <path d="M0,0 L0,6 L6,3 z" fill="rgba(34,197,94,0.9)" />
+              </marker>
             </defs>
 
             {/* Connection lines */}
@@ -556,6 +670,36 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
               })
             )}
 
+            {/* Sandbox Protective Edges */}
+            {activeProtectiveEdges.map((pe) => {
+              const fromNode = nodes.find((n) => n.id === pe.from);
+              const toNode = nodes.find((n) => n.id === pe.to);
+              if (!fromNode || !toNode) return null;
+              const dx = toNode.x - fromNode.x;
+              const dy = toNode.y - fromNode.y;
+              const len = Math.sqrt(dx * dx + dy * dy);
+              const offset = 4.2;
+              const x1 = fromNode.x + (dx / len) * offset;
+              const y1 = fromNode.y + (dy / len) * offset;
+              const x2 = toNode.x - (dx / len) * offset;
+              const y2 = toNode.y - (dy / len) * offset;
+              const mx = (x1 + x2) / 2;
+              const my = (y1 + y2) / 2;
+              return (
+                <g key={`protect-${pe.from}-${pe.to}`}>
+                  <line
+                    x1={x1} y1={y1} x2={x2} y2={y2}
+                    stroke="rgba(34,197,94,0.7)"
+                    strokeWidth="0.7"
+                    strokeDasharray="2,1"
+                    markerEnd="url(#arrow-protect)"
+                    style={{ filter: "drop-shadow(0 0 2px rgba(34,197,94,0.5))", transition: "all 0.4s" }}
+                  />
+                  <text x={mx} y={my - 1.5} textAnchor="middle" fontSize="2.2" fill="rgba(34,197,94,0.9)" fontWeight="bold">{pe.label}</text>
+                </g>
+              );
+            })}
+
             {/* Nodes */}
             {nodes.map((node) => {
               const colors = typeColors[node.type];
@@ -564,22 +708,35 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
                 activeNode?.connections.includes(node.id) ||
                 nodes.find((n) => n.id === activeNode?.id)?.connections.includes(node.id);
 
-              // Direction 1: node visual state
+              // Direction 1: personal mode visual state
               const activation = personalMode && profile ? getNodeActivation(node.id, profile) : "normal";
               const nodeOpacity = activation === "dim" ? 0.2 : 1;
               const isPersonalActive = personalMode && activation === "active";
+
+              // Sandbox visual state
+              const isSandboxNode = sandboxMode && !!SANDBOX_NODES[node.id];
+              const isSandboxOn = sandboxMode && sandboxActive.has(node.id);
 
               return (
                 <g
                   key={node.id}
                   transform={`translate(${node.x}, ${node.y})`}
-                  className="cursor-pointer"
+                  className={isSandboxNode ? "cursor-pointer" : "cursor-pointer"}
                   onClick={(e) => { e.stopPropagation(); handleNodeClick(node); }}
                   onMouseEnter={() => setHoveredNode(node)}
                   onMouseLeave={() => setHoveredNode(null)}
                   opacity={nodeOpacity}
                   style={{ transition: "opacity 0.4s" }}
                 >
+                  {/* Sandbox ON ring — amber pulsing */}
+                  {isSandboxOn && (
+                    <circle r="6.5" fill="rgba(245,158,11,0.15)" stroke="rgba(245,158,11,0.6)" strokeWidth="0.4"
+                      style={{ animation: "pulse 1.5s ease-in-out infinite" }} />
+                  )}
+                  {/* Sandbox interactable ring — amber outline */}
+                  {isSandboxNode && !isSandboxOn && (
+                    <circle r="5.5" fill="none" stroke="rgba(245,158,11,0.35)" strokeWidth="0.35" strokeDasharray="1.5,1" />
+                  )}
                   {/* Personal-mode glow ring */}
                   {isPersonalActive && (
                     <circle r="6.5" fill="none" stroke={colors.dot} strokeWidth="0.3" opacity="0.5"
@@ -591,18 +748,18 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
                   )}
                   <circle
                     r="3.5"
-                    fill={colors.bg}
-                    stroke={isActive ? colors.dot : isPersonalActive ? colors.dot : isConnected ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.08)"}
-                    strokeWidth={isActive || isPersonalActive ? "0.6" : "0.4"}
-                    filter={isPersonalActive ? "url(#glow-teal)" : undefined}
+                    fill={isSandboxOn ? "rgba(245,158,11,0.2)" : colors.bg}
+                    stroke={isSandboxOn ? "rgba(245,158,11,0.8)" : isActive ? colors.dot : isPersonalActive ? colors.dot : isConnected ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.08)"}
+                    strokeWidth={isActive || isPersonalActive || isSandboxOn ? "0.6" : "0.4"}
+                    filter={isPersonalActive ? "url(#glow-teal)" : isSandboxOn ? "url(#glow-amber)" : undefined}
                   />
-                  <circle r="1.5" fill={colors.dot} opacity={isActive || isPersonalActive ? 1 : 0.7} />
+                  <circle r="1.5" fill={isSandboxOn ? "rgba(245,158,11,0.9)" : colors.dot} opacity={isActive || isPersonalActive || isSandboxOn ? 1 : 0.7} />
                   <text
                     textAnchor="middle"
                     dy="5.5"
                     fontSize="2.5"
-                    fill={isActive || isPersonalActive ? colors.text : "rgba(255,255,255,0.5)"}
-                    fontWeight={isActive || isPersonalActive ? "bold" : "normal"}
+                    fill={isSandboxOn ? "rgba(245,158,11,0.9)" : isActive || isPersonalActive ? colors.text : "rgba(255,255,255,0.5)"}
+                    fontWeight={isActive || isPersonalActive || isSandboxOn ? "bold" : "normal"}
                   >
                     {node.label.split("\n")[0]}
                   </text>
@@ -852,3 +1009,68 @@ function EdgeEvidencePanel({ edgeKey, evidence, onClose }: { edgeKey: string; ev
     </div>
   );
 }
+
+function SandboxPanel({ sandboxActive, onToggle, onExit }: { sandboxActive: Set<string>, onToggle: (id: string) => void, onExit: () => void }) {
+  const activeNodes = Array.from(sandboxActive);
+  
+  return (
+    <div className="glass rounded-2xl p-6 border border-amber-500/30 flex flex-col h-full bg-amber-500/5 shadow-[0_0_20px_rgba(245,158,11,0.05)]">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="font-semibold text-amber-400 flex items-center gap-2">
+          ⚗️ 沙盘推演控制面板
+        </h3>
+        <button onClick={onExit} className="text-text-muted hover:text-text-primary text-lg leading-none">×</button>
+      </div>
+      
+      <p className="text-text-secondary text-xs leading-relaxed mb-6">
+        请选择下方治疗方案（干预节点），观察它们如何切断或削弱复发/转移风险链条。
+      </p>
+      
+      <div className="flex flex-col gap-4 flex-1">
+        {Object.entries(SANDBOX_NODES).map(([id, nodeData]) => {
+          const isActive = sandboxActive.has(id);
+          return (
+            <div
+              key={id}
+              onClick={() => onToggle(id)}
+              className={`p-4 rounded-xl border transition-all cursor-pointer ${
+                isActive
+                  ? "bg-amber-500/10 border-amber-500/50 shadow-[0_0_15px_rgba(245,158,11,0.1)]"
+                  : "bg-dark/40 border-white/10 hover:border-amber-500/30 hover:bg-white/5"
+              }`}
+            >
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <div className={`w-4 h-4 rounded flex items-center justify-center border ${isActive ? 'bg-amber-500 border-amber-500' : 'border-white/30'}`}>
+                    {isActive && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3"><path d="M5 12l5 5L20 7" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                  </div>
+                  <span className={`font-medium ${isActive ? 'text-amber-400' : 'text-text-primary'}`}>{nodeData.label}</span>
+                </div>
+              </div>
+              <p className="text-text-muted text-xs leading-relaxed mb-2">{nodeData.mechanism}</p>
+              {isActive && (
+                <div className="mt-3 pt-3 border-t border-amber-500/20">
+                  <div className="text-amber-400 text-xs font-semibold mb-1">干预效果：</div>
+                  <p className="text-amber-400/90 text-xs">{nodeData.hrReduction}</p>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      
+      {activeNodes.length === 0 && (
+        <div className="mt-6 text-center border-t border-white/5 pt-4">
+          <p className="text-text-muted text-xs">暂未激活任何干预方案</p>
+        </div>
+      )}
+      
+      <div className="mt-6 p-4 rounded-xl bg-[#0a0e1a]/80 border border-white/5">
+        <p className="text-text-muted text-[11px] leading-relaxed">
+          <strong>⚠️ 免责声明：</strong> 沙盘推演仅用于展示大规模临床试验（如 {Object.values(SANDBOX_NODES).map(n => n.trialName).join('、')}）的统计学结论，展示的风险降低比例不代表对您个人的疗效承诺。请务必与主治医生共同讨论制定最终治疗方案。
+        </p>
+      </div>
+    </div>
+  );
+}
+
