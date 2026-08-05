@@ -383,8 +383,8 @@ function Step2({ form, updateForm }: StepProps) {
                       max="100"
                       value={histItem.percentage === undefined ? "" : histItem.percentage}
                       onChange={(e) => updateHistologyPercentage(val, e.target.value)}
-                      placeholder="?"
-                      className="w-12 h-7 bg-black/40 border border-accent-teal/30 rounded text-center text-xs text-white placeholder-white/30 focus:outline-none focus:border-accent-teal"
+                      placeholder="选填"
+                      className="w-[52px] h-7 bg-black/40 border border-accent-teal/30 rounded text-center text-xs text-white placeholder-white/40 focus:outline-none focus:border-accent-teal"
                       onClick={(e) => e.stopPropagation()}
                     />
                     <span className="text-xs text-accent-teal/70">%</span>
