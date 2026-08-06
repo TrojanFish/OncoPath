@@ -435,6 +435,7 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
   const [aiNodeVisible, setAiNodeVisible] = useState<boolean>(false);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     setPersonalMode(!!profile);
   }, [profile]);
 
@@ -444,6 +445,7 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
         setNodes((prev) =>
           prev.map((node) => {
             const match = factors.find(
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               (f: any) =>
                 f.id === node.id ||
                 (typeof f.id === "string" && f.id.startsWith(node.id))
@@ -942,7 +944,13 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
 
         {/* Info Panel */}
         <div className="flex flex-col gap-4">
-          {selectedEdge && edgeEvidences[selectedEdge] ? (
+          {sandboxMode ? (
+            <SandboxPanel
+              sandboxActive={sandboxActive}
+              onToggle={toggleSandboxNode}
+              onExit={exitSandbox}
+            />
+          ) : selectedEdge && edgeEvidences[selectedEdge] ? (
             <EdgeEvidencePanel
               edgeKey={selectedEdge}
               evidence={edgeEvidences[selectedEdge]}
