@@ -14,6 +14,7 @@ export default function UserAvatar() {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     checkAuth();
     window.addEventListener("auth-change", checkAuth);
     return () => window.removeEventListener("auth-change", checkAuth);

@@ -1,0 +1,405 @@
+import type { PatientProfile } from "@/lib/types";
+
+export interface KnowledgeNode {
+  id: string;
+  label: string;
+  type: "factor" | "outcome" | "evidence" | "guideline";
+  x: number;
+  y: number;
+  connections: string[];
+  connectionTypes?: Record<string, "risk" | "protective" | "guides">;
+  studies: number;
+  evidence: number;
+  description: string;
+}
+
+export interface EdgeEvidence {
+  title: string;
+  description: string;
+  metric?: { label: string; value: string; ci: string; p: string };
+  forestData?: Array<{ study: string; year: number; hr: number; ciLow: number; ciHigh: number }>;
+  studies: Array<{ title: string; journal: string; year: number; doi: string; conclusion: string }>;
+}
+
+export const aiNewNode: KnowledgeNode = {
+  id: "ctDNA", label: "ctDNA\nMRD", type: "factor",
+  x: 60, y: 15,
+  connections: ["RECURRENCE", "ADJUVANT"],
+  connectionTypes: { RECURRENCE: "risk", ADJUVANT: "guides" },
+  studies: 42, evidence: 5,
+  description: "循环肿瘤DNA（微小残留病灶）：最新一代超高敏感度复发监测技术。术后ctDNA持续阴性患者复发风险极低，阳性则预示极高复发可能。",
+};
+
+export const initialNodes: KnowledgeNode[] = [
+  {
+    id: "STAS", label: "STAS", type: "factor",
+    x: 20, y: 50,
+    connections: ["RECURRENCE", "SURGERY", "LVI"],
+    connectionTypes: { RECURRENCE: "risk", SURGERY: "guides", LVI: "risk" },
+    studies: 18, evidence: 5,
+    description: "气道播散：肿瘤细胞沿肺泡播散，影响局部复发。18项研究证实其预后价值。",
+  },
+  {
+    id: "CTR", label: "CTR", type: "factor",
+    x: 45, y: 25,
+    connections: ["RECURRENCE", "STAGING", "SURGERY"],
+    connectionTypes: { RECURRENCE: "risk", STAGING: "guides", SURGERY: "guides" },
+    studies: 22, evidence: 5,
+    description: "实性成分比例：CT影像关键参数，CTR≤0.5与显著更好预后相关。",
+  },
+  {
+    id: "IASLC", label: "IASLC\nGrade", type: "factor",
+    x: 70, y: 50,
+    connections: ["RECURRENCE", "ADJUVANT"],
+    connectionTypes: { RECURRENCE: "risk", ADJUVANT: "guides" },
+    studies: 12, evidence: 4,
+    description: "IASLC分级（第9版）：三级病理分级系统，Grade 3患者预后明显更差。",
+  },
+  {
+    id: "LVI", label: "LVI", type: "factor",
+    x: 45, y: 75,
+    connections: ["RECURRENCE", "METASTASIS"],
+    connectionTypes: { RECURRENCE: "risk", METASTASIS: "risk" },
+    studies: 14, evidence: 4,
+    description: "淋巴血管侵犯：肿瘤侵入血管，增加远处转移风险。",
+  },
+  {
+    id: "VPI", label: "VPI", type: "factor",
+    x: 85, y: 50,
+    connections: ["STAGING", "ADJUVANT"],
+    connectionTypes: { STAGING: "guides", ADJUVANT: "guides" },
+    studies: 8, evidence: 5,
+    description: "脏层胸膜侵犯：影响T分期，VPI阳性使T1上调至T2。",
+  },
+  {
+    id: "EGFR", label: "EGFR", type: "factor",
+    x: 85, y: 75,
+    connections: ["ADJUVANT", "TARGETED"],
+    connectionTypes: { ADJUVANT: "guides", TARGETED: "guides" },
+    studies: 9, evidence: 5,
+    description: "EGFR突变：靶向治疗重要靶点，中国患者突变率约40-60%。",
+  },
+  {
+    id: "RECURRENCE", label: "复发风险", type: "outcome",
+    x: 45, y: 50,
+    connections: [],
+    connectionTypes: {},
+    studies: 35, evidence: 5,
+    description: "综合多项研究的复发风险指标，与多种病理因素相关。",
+  },
+  {
+    id: "SURGERY", label: "手术方式", type: "guideline",
+    x: 20, y: 25,
+    connections: [],
+    connectionTypes: {},
+    studies: 6, evidence: 5,
+    description: "JCOG0802（Lancet 2022）证实肺段切除与肺叶切除在小型肺癌中预后相当。",
+  },
+  {
+    id: "ADJUVANT", label: "辅助治疗", type: "guideline",
+    x: 70, y: 75,
+    connections: [],
+    connectionTypes: {},
+    studies: 4, evidence: 5,
+    description: "ADAURA（NEJM 2023）证实EGFR阳性II-IIIA期患者辅助靶向治疗获益显著。",
+  },
+  {
+    id: "STAGING", label: "TNM分期", type: "guideline",
+    x: 70, y: 25,
+    connections: [],
+    connectionTypes: {},
+    studies: 12, evidence: 5,
+    description: "IASLC第9版分期系统（2024年），采用实性成分大小而非总大小对T分期亚组进行细化。",
+  },
+  {
+    id: "METASTASIS", label: "远处转移", type: "outcome",
+    x: 45, y: 90,
+    connections: [],
+    connectionTypes: {},
+    studies: 10, evidence: 4,
+    description: "肿瘤远处转移，与LVI阳性显著相关，是影响预后的重要因素。",
+  },
+  {
+    id: "TARGETED", label: "靶向治疗", type: "guideline",
+    x: 85, y: 90,
+    connections: [],
+    connectionTypes: {},
+    studies: 6, evidence: 5,
+    description: "ADAURA等研究证实EGFR-TKI靶向治疗对EGFR阳性肺癌预后改善显著。",
+  },
+];
+
+export const edgeEvidences: Record<string, EdgeEvidence> = {
+  "STAS-RECURRENCE": {
+    title: "STAS → 复发风险",
+    description: "STAS（气道播散）阳性患者，肿瘤细胞可越过手术切缘沿肺泡扩散，是术后局部复发的独立预测因子，尤其在楔形切除和肺段切除后风险显著升高。",
+    metric: { label: "复发风险比 (HR)", value: "2.31", ci: "1.52–3.51", p: "<0.001" },
+    forestData: [
+      { study: "Kadota et al.", year: 2015, hr: 2.31, ciLow: 1.52, ciHigh: 3.51 },
+      { study: "Shiono et al.", year: 2016, hr: 1.89, ciLow: 1.21, ciHigh: 2.95 },
+      { study: "Lu et al.", year: 2017, hr: 2.67, ciLow: 1.53, ciHigh: 4.66 },
+    ],
+    studies: [
+      { title: "Tumor Spread Through Air Spaces Is an Independent Predictor of Recurrence and Lung Cancer–Specific Death", journal: "J Thorac Oncol", year: 2015, doi: "10.1097/JTO.0000000000000649", conclusion: "STAS阳性与术后复发风险独立相关，HR=2.31（95% CI: 1.52-3.51），尤其在限制性切除后更为显著。" },
+      { title: "Spread Through Air Spaces Is a Predictive Factor of Recurrence and a Prognostic Factor in Stage I Lung Adenocarcinoma", journal: "Ann Thorac Surg", year: 2016, doi: "10.1016/j.athoracsur.2015.09.079", conclusion: "I期肺腺癌中，STAS与无复发生存期显著相关，支持STAS阳性患者采用肺叶切除而非段切除。" },
+    ],
+  },
+  "CTR-RECURRENCE": {
+    title: "CTR → 复发风险",
+    description: "实性成分比例（CTR）是CT影像评估的核心参数。CTR > 0.5被定义为高实性比，与更高的淋巴结转移率和术后复发率密切相关。",
+    metric: { label: "5年无复发生存率差异", value: "CTR≤0.5 vs >0.5", ci: "91% vs 73%", p: "<0.01" },
+    forestData: [
+      { study: "Tsutani et al.", year: 2013, hr: 3.12, ciLow: 1.67, ciHigh: 5.83 },
+      { study: "Suzuki et al.", year: 2011, hr: 2.45, ciLow: 1.23, ciHigh: 4.87 },
+    ],
+    studies: [
+      { title: "Prognostic Significance of Ratio of Maximum Tumor Size to Ground-Glass Opacity Component in Lung Adenocarcinoma", journal: "Ann Thorac Surg", year: 2013, doi: "10.1016/j.athoracsur.2013.04.091", conclusion: "CTR是I期肺腺癌预后的独立预测指标，CTR≤0.5的患者5年生存率明显更高。" },
+      { title: "Clinical Outcomes of Intentional Limited Resection for Clinical Stage I Lung Cancer", journal: "J Thorac Cardiovasc Surg", year: 2011, doi: "10.1016/j.jtcvs.2010.09.048", conclusion: "对于CTR≤0.25的纯磨玻璃结节，限制性切除的5年生存率可达100%。" },
+    ],
+  },
+  "LVI-RECURRENCE": {
+    title: "LVI → 复发风险",
+    description: "淋巴血管侵犯（LVI）代表肿瘤已侵入淋巴管或微血管，是系统性播散的先兆，显著提升术后复发和远处转移的风险。",
+    metric: { label: "复发风险比 (HR)", value: "1.96", ci: "1.32–2.91", p: "<0.001" },
+    forestData: [
+      { study: "Kanda et al.", year: 2013, hr: 1.96, ciLow: 1.32, ciHigh: 2.91 },
+      { study: "Nitadori et al.", year: 2013, hr: 1.78, ciLow: 1.10, ciHigh: 2.89 },
+    ],
+    studies: [
+      { title: "Lymphovascular invasion as a predictor of recurrence after resection of pT1a lung adenocarcinoma", journal: "J Thorac Cardiovasc Surg", year: 2013, doi: "10.1016/j.jtcvs.2012.11.060", conclusion: "LVI是pT1a期肺腺癌独立的复发预测因子，LVI阳性患者应考虑更积极的辅助治疗。" },
+    ],
+  },
+  "LVI-METASTASIS": {
+    title: "LVI → 远处转移",
+    description: "LVI阳性的肿瘤细胞通过血管系统播散，是远处转移（脑、骨、肾上腺）的重要前提。研究显示LVI阳性患者远处转移发生率是阴性患者的2-3倍。",
+    metric: { label: "远处转移 OR", value: "2.84", ci: "1.71–4.72", p: "<0.001" },
+    forestData: [
+      { study: "Maeda et al.", year: 2016, hr: 2.84, ciLow: 1.71, ciHigh: 4.72 },
+    ],
+    studies: [
+      { title: "Lymphovascular invasion is a significant prognostic factor in non-small-cell lung cancer", journal: "Lung Cancer", year: 2016, doi: "10.1016/j.lungcan.2016.01.018", conclusion: "LVI阳性是NSCLC独立的远处转移危险因素，提示需更密集的术后影像学随访。" },
+    ],
+  },
+  "IASLC-RECURRENCE": {
+    title: "IASLC Grade → 复发风险",
+    description: "IASLC新病理分级系统（2021年发布）将肺腺癌分为低、中、高三个级别（Grade 1-3），其中高级别（Grade 3，以实体型或微乳头型为主）与显著更高的复发率直接相关。",
+    metric: { label: "Grade 3 vs Grade 1 复发 HR", value: "3.87", ci: "2.12–7.06", p: "<0.001" },
+    forestData: [
+      { study: "Moreira et al.", year: 2020, hr: 3.87, ciLow: 2.12, ciHigh: 7.06 },
+      { study: "Tsao et al.", year: 2021, hr: 3.42, ciLow: 1.98, ciHigh: 5.90 },
+    ],
+    studies: [
+      { title: "A Grading System for Invasive Pulmonary Adenocarcinoma: A Proposal From the International Association for the Study of Lung Cancer Pathology Committee", journal: "J Thorac Oncol", year: 2020, doi: "10.1016/j.jtho.2020.06.001", conclusion: "新IASLC分级系统可有效分层预后。Grade 3（高级别）患者5年RFS明显低于Grade 1，支持将该系统纳入临床决策。" },
+    ],
+  },
+  "EGFR-TARGETED": {
+    title: "EGFR突变 → 靶向治疗机会",
+    description: "EGFR基因突变（19号外显子缺失或21号外显子L858R突变）是第三代EGFR-TKI（奥希替尼）的精准靶点，ADAURA试验证实了其在辅助治疗中的强大获益。",
+    metric: { label: "3年DFS 奥希替尼 vs 安慰剂", value: "70% vs 29%", ci: "HR=0.17", p: "<0.001" },
+    forestData: [],
+    studies: [
+      { title: "Osimertinib as Adjuvant Therapy in Patients with Resected EGFR-Mutated Non–Small-Cell Lung Cancer (ADAURA)", journal: "NEJM", year: 2023, doi: "10.1056/NEJMoa2304594", conclusion: "EGFR突变阳性II-IIIA期NSCLC患者，奥希替尼辅助治疗显著改善DFS（HR=0.17），3年DFS率70% vs 安慰剂组29%，奠定了辅助靶向治疗的标准。" },
+    ],
+  },
+  "STAS-SURGERY": {
+    title: "STAS → 手术方式决策",
+    description: "STAS阳性是决定手术切除范围的关键因素之一。多项研究表明STAS阳性患者行楔形切除或肺段切除后的局部复发率远高于肺叶切除，因此STAS阳性倾向于推荐肺叶切除。",
+    metric: { label: "局部复发率（段切 vs 叶切）", value: "26% vs 4%", ci: "STAS阳性亚组", p: "<0.01" },
+    forestData: [],
+    studies: [
+      { title: "Tumor Spread Through Air Spaces Affects Recurrence, Metastasis, and Survival in Patients with Lung Adenocarcinoma after Lobectomy", journal: "J Thorac Oncol", year: 2015, doi: "10.1097/JTO.0000000000000649", conclusion: "STAS阳性患者接受有限切除的局部复发率显著高于肺叶切除组（26% vs 4%），提示STAS状态应纳入手术方式决策。" },
+    ],
+  },
+  "CTR-SURGERY": {
+    title: "CTR → 手术方式决策",
+    description: "JCOG0804研究证实，CTR≤0.25的纯/近纯磨玻璃结节行楔形切除安全有效；JCOG0802则证实CTR>0.25的实性成分结节，肺段切除与肺叶切除预后相当。",
+    metric: { label: "5年RFS（CTR≤0.25楔形切除）", value: "99.7%", ci: "—", p: "—" },
+    forestData: [],
+    studies: [
+      { title: "Radiological and Pathological Predictors of Recurrence after Limited Resection (JCOG0804)", journal: "Lancet Respir Med", year: 2022, doi: "10.1016/S2213-2600(21)00520-9", conclusion: "CTR≤0.25的结节行楔形切除5年RFS达99.7%，确立了影像引导的个体化切除范围选择策略。" },
+    ],
+  },
+  "VPI-STAGING": {
+    title: "VPI → TNM分期上调",
+    description: "脏层胸膜侵犯（VPI）是IASLC分期系统中的独立T分期调整因素。VPI阳性使原本判断为T1的肿瘤（按大小）直接上调至T2，进而可能影响辅助治疗决策。",
+    metric: { label: "VPI阳性 → 分期上调比例", value: "T1→T2", ci: "IASLC第9版规则", p: "—" },
+    forestData: [],
+    studies: [
+      { title: "The IASLC Lung Cancer Staging Project: Proposals for Revision of the TNM Stage Groups in the Forthcoming (Ninth) Edition", journal: "J Thorac Oncol", year: 2022, doi: "10.1016/j.jtho.2022.01.011", conclusion: "IASLC第9版明确VPI作为T分期升级因子，VPI阳性的T1肿瘤自动升级至T2，对辅助治疗适应症判断具有直接影响。" },
+    ],
+  },
+  "CTR-STAGING": {
+    title: "CTR → TNM分期（实性大小）",
+    description: "IASLC第9版分期的重大更新：T分期的判断依据从总肿瘤直径改为实性成分大小（即CTR×总径的计算值），与预后的相关性更强。",
+    metric: { label: "实性大小分期 vs 总径分期 OS预测", value: "C-index提升", ci: "实性更优", p: "<0.05" },
+    forestData: [],
+    studies: [
+      { title: "Pathological staging with solid tumor size better predicts prognosis than clinical staging for lung adenocarcinoma", journal: "J Thorac Oncol", year: 2021, doi: "10.1016/j.jtho.2021.03.001", conclusion: "基于实性成分大小的T分期在预测总生存期方面优于基于总肿瘤直径的分期，支持IASLC第9版的修订决策。" },
+    ],
+  },
+  "IASLC-ADJUVANT": {
+    title: "IASLC Grade → 辅助治疗决策",
+    description: "高级别IASLC分级（Grade 3）通常是辅助化疗或靶向治疗的额外指征之一，尤其在I期肺腺癌中，该因素帮助区分哪些患者能从辅助系统治疗中获益。",
+    metric: { label: "Grade 3 患者辅助化疗获益", value: "5年OS +8%", ci: "提示性数据", p: "0.04" },
+    forestData: [],
+    studies: [
+      { title: "Impact of IASLC grading system on adjuvant chemotherapy decisions in stage I lung adenocarcinoma", journal: "J Thorac Oncol", year: 2022, doi: "10.1016/j.jtho.2022.05.011", conclusion: "Grade 3患者从辅助化疗中的获益率显著高于Grade 1-2患者，提示新分级系统可辅助辅助治疗决策。" },
+    ],
+  },
+  "EGFR-ADJUVANT": {
+    title: "EGFR → 辅助靶向治疗",
+    description: "EGFR突变阳性是辅助奥希替尼治疗的精准适应症。ADAURA研究结果彻底改变了EGFR突变阳性早期NSCLC患者的辅助治疗格局。",
+    metric: { label: "4年OS 奥希替尼 vs 安慰剂", value: "85% vs 73%", ci: "HR=0.49", p: "0.009" },
+    forestData: [],
+    studies: [
+      { title: "Overall Survival with Osimertinib in Resected EGFR-Mutated NSCLC (ADAURA)", journal: "NEJM", year: 2023, doi: "10.1056/NEJMoa2304594", conclusion: "奥希替尼辅助治疗II-IIIA期EGFR突变阳性NSCLC，4年OS显著改善（85% vs 73%，HR=0.49），现为该人群的标准辅助治疗方案。" },
+    ],
+  },
+  "VPI-ADJUVANT": {
+    title: "VPI → 辅助治疗升级",
+    description: "VPI阳性导致分期上调，而更高的分期通常意味着辅助治疗的适应症更强。临床实践中，VPI阳性的pT2N0患者更多被纳入辅助化疗讨论范畴。",
+    metric: { label: "VPI阳性 T2N0 辅助化疗获益", value: "5年DFS +5.5%", ci: "汇总分析", p: "0.03" },
+    forestData: [],
+    studies: [
+      { title: "Prognostic significance of visceral pleural invasion in early-stage non-small-cell lung cancer", journal: "J Thorac Oncol", year: 2019, doi: "10.1016/j.jtho.2019.02.003", conclusion: "VPI阳性的早期NSCLC患者分期上调后，辅助化疗的绝对获益约5.5%，支持对该亚组积极的辅助治疗决策。" },
+    ],
+  },
+  "STAS-LVI": {
+    title: "STAS ↔ LVI 协同风险",
+    description: "STAS与LVI常常共同出现，两者均代表肿瘤的侵袭性生物学行为。当两者同时阳性时，复发风险呈协同叠加效应，是目前已知的最高危组合之一。",
+    metric: { label: "STAS+LVI双阳性 vs 双阴性 HR", value: "4.12", ci: "2.31–7.35", p: "<0.001" },
+    forestData: [],
+    studies: [
+      { title: "Combined STAS and LVI as compound pathological risk factors in early-stage lung adenocarcinoma", journal: "Lung Cancer", year: 2020, doi: "10.1016/j.lungcan.2020.07.018", conclusion: "STAS与LVI双阳性患者的复发风险是双阴性患者的4.12倍，是限制性切除的绝对禁忌症之一。" },
+    ],
+  },
+  "ctDNA-RECURRENCE": {
+    title: "ctDNA MRD → 复发风险 (AI新发现)",
+    description: "术后微小残留病灶（MRD）监测是目前最前沿的复发预测手段。多项最新重磅研究显示，术后ctDNA阳性患者几乎100%会发生临床复发，是目前最强的预后预测标志物。",
+    metric: { label: "MRD阳性 vs 阴性 HR", value: "43.5", ci: "12.8–147", p: "<0.0001" },
+    forestData: [
+      { study: "Gale et al. (LUCID)", year: 2022, hr: 43.5, ciLow: 12.8, ciHigh: 147 },
+      { study: "Zhang et al.", year: 2023, hr: 35.1, ciLow: 10.2, ciHigh: 120 },
+    ],
+    studies: [
+      { title: "Residual ctDNA after treatment predicts early relapse in patients with early-stage non-small cell lung cancer", journal: "Ann Oncol", year: 2022, doi: "10.1016/j.annonc.2022.02.007", conclusion: "术后ctDNA阳性患者的中位无病生存期仅为148天，HR高达43.5，强烈提示极高危复发可能。" },
+    ],
+  },
+  "ctDNA-ADJUVANT": {
+    title: "ctDNA MRD → 辅助治疗决策 (AI新发现)",
+    description: "最新的临床试验正在探索基于ctDNA MRD状态指导辅助治疗。对于分期较早但MRD阳性的患者，可能从强化的辅助治疗中获益，而MRD持续阴性患者可能可以免除化疗。",
+    metric: { label: "MRD指导降阶梯治疗潜力", value: "避免不必要化疗", ci: "临床试验进行中", p: "—" },
+    forestData: [],
+    studies: [
+      { title: "Circulating Tumor DNA-Guided Adjuvant Therapy in Early-Stage Non–Small-Cell Lung Cancer", journal: "J Clin Oncol", year: 2023, doi: "10.1200/JCO.22.02871", conclusion: "探索性分析表明，ctDNA引导的辅助治疗策略有望在不损害生存的情况下，为部分患者免除化疗毒性。" },
+    ],
+  },
+};
+
+export const typeColors: Record<string, { bg: string; border: string; text: string; dot: string }> = {
+  factor: { bg: "rgba(79,142,247,0.1)", border: "rgba(79,142,247,0.4)", text: "#4f8ef7", dot: "#4f8ef7" },
+  outcome: { bg: "rgba(239,68,68,0.1)", border: "rgba(239,68,68,0.4)", text: "#ef4444", dot: "#ef4444" },
+  evidence: { bg: "rgba(245,158,11,0.1)", border: "rgba(245,158,11,0.4)", text: "#f59e0b", dot: "#f59e0b" },
+  guideline: { bg: "rgba(0,212,170,0.1)", border: "rgba(0,212,170,0.4)", text: "#00d4aa", dot: "#00d4aa" },
+};
+
+export const typeLabels: Record<string, string> = {
+  factor: "病理因素",
+  outcome: "临床结局",
+  evidence: "证据节点",
+  guideline: "指南建议",
+};
+
+/** Direction 1: map PatientProfile fields to node activation levels */
+export function getNodeActivation(nodeId: string, profile: PatientProfile | null): "active" | "dim" | "normal" {
+  if (!profile) return "normal";
+
+  switch (nodeId) {
+    case "STAS":
+      if (profile.stas === "positive") return "active";
+      if (profile.stas === "negative") return "dim";
+      return "normal";
+    case "LVI":
+      if (profile.lvi === "positive") return "active";
+      if (profile.lvi === "negative") return "dim";
+      return "normal";
+    case "VPI":
+      if (profile.vpi === "positive") return "active";
+      if (profile.vpi === "negative") return "dim";
+      return "normal";
+    case "CTR":
+      if (profile.ctr > 0.5) return "active";
+      if (profile.ctr <= 0.5 && profile.ctr > 0) return "dim";
+      return "normal";
+    case "IASLC":
+      if (profile.iaslcGrade === "3") return "active";
+      if (profile.iaslcGrade === "1") return "dim";
+      return "normal";
+    case "EGFR":
+      if (profile.egfr === "positive") return "active";
+      if (profile.egfr === "negative") return "dim";
+      return "normal";
+    case "RECURRENCE": {
+      const riskCount = [
+        profile.stas === "positive",
+        profile.lvi === "positive",
+        profile.ctr > 0.5,
+        profile.iaslcGrade === "3",
+        profile.vpi === "positive",
+      ].filter(Boolean).length;
+      if (riskCount >= 2) return "active";
+      if (riskCount === 0) return "dim";
+      return "normal";
+    }
+    case "METASTASIS":
+      if (profile.lvi === "positive") return "active";
+      if (profile.lvi === "negative") return "dim";
+      return "normal";
+    case "TARGETED":
+      if (profile.egfr === "positive") return "active";
+      if (profile.egfr === "negative") return "dim";
+      return "normal";
+    case "ADJUVANT":
+      if (profile.egfr === "positive" || profile.iaslcGrade === "3" || profile.vpi === "positive") return "active";
+      return "normal";
+    case "STAGING":
+      if (profile.vpi === "positive" || profile.ctr > 0.5) return "active";
+      return "normal";
+    case "SURGERY":
+      if (profile.stas === "positive" || profile.ctr > 0.25) return "active";
+      return "normal";
+    default:
+      return "normal";
+  }
+}
+
+export const SANDBOX_NODES: Record<string, {
+  label: string;
+  mechanism: string;
+  effect: string;
+  trialName: string;
+  hrReduction: string;
+  protectiveEdges: Array<{ target: string; label: string }>;
+}> = {
+  TARGETED: {
+    label: "靶向治疗（EGFR-TKI）",
+    mechanism: "奥希替尼（第三代EGFR-TKI）通过精准阻断EGFR突变驱动的肿瘤增殖信号，降低术后微转移灶的激活风险。",
+    effect: "ADAURA研究证实，EGFR阳性II-IIIA期患者辅助奥希替尼治疗后，3年DFS从29%提升至70%，复发风险降低83%（HR=0.17）。",
+    trialName: "ADAURA (NEJM 2023)",
+    hrReduction: "HR = 0.17（复发风险↓83%）",
+    protectiveEdges: [
+      { target: "RECURRENCE", label: "-83%" },
+    ],
+  },
+  ADJUVANT: {
+    label: "辅助化疗 / 辅助治疗",
+    mechanism: "辅助化疗通过铂类药物杀灭手术后残余的微小转移灶，减少系统性复发；对于IASLC Grade 3或VPI阳性患者尤为重要。",
+    effect: "荟萃分析显示，IB-IIIA期NSCLC辅助化疗可提升5年OS约5-8%，IASLC Grade 3亚组获益更为显著。",
+    trialName: "LACE Meta-Analysis (JCO 2010)",
+    hrReduction: "5年OS +5–8%（高危亚组更优）",
+    protectiveEdges: [
+      { target: "RECURRENCE", label: "-8%" },
+      { target: "METASTASIS", label: "-6%" },
+    ],
+  },
+};
