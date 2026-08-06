@@ -28,6 +28,16 @@ interface EdgeEvidence {
 // Layout (positions, connections, labels) is a deliberate UI design decision
 // and stays static. The dynamic parts (study counts, totals) are fetched from
 // the backend so the numbers always reflect the real evidence database.
+
+export const aiNewNode: KnowledgeNode = {
+  id: "ctDNA", label: "ctDNA\nMRD", type: "factor",
+  x: 60, y: 15,
+  connections: ["RECURRENCE", "ADJUVANT"],
+  connectionTypes: { RECURRENCE: "risk", ADJUVANT: "guides" },
+  studies: 42, evidence: 5,
+  description: "循环肿瘤DNA（微小残留病灶）：最新一代超高敏感度复发监测技术。术后ctDNA持续阴性患者复发风险极低，阳性则预示极高复发可能。",
+};
+
 const initialNodes: KnowledgeNode[] = [
   {
     id: "STAS", label: "STAS", type: "factor",
@@ -272,6 +282,27 @@ const edgeEvidences: Record<string, EdgeEvidence> = {
       { title: "Combined STAS and LVI as compound pathological risk factors in early-stage lung adenocarcinoma", journal: "Lung Cancer", year: 2020, doi: "10.1016/j.lungcan.2020.07.018", conclusion: "STAS与LVI双阳性患者的复发风险是双阴性患者的4.12倍，是限制性切除的绝对禁忌症之一。" },
     ],
   },
+  "ctDNA-RECURRENCE": {
+    title: "ctDNA MRD → 复发风险 (AI新发现)",
+    description: "术后微小残留病灶（MRD）监测是目前最前沿的复发预测手段。多项最新重磅研究显示，术后ctDNA阳性患者几乎100%会发生临床复发，是目前最强的预后预测标志物。",
+    metric: { label: "MRD阳性 vs 阴性 HR", value: "43.5", ci: "12.8–147", p: "<0.0001" },
+    forestData: [
+      { study: "Gale et al. (LUCID)", year: 2022, hr: 43.5, ciLow: 12.8, ciHigh: 147 },
+      { study: "Zhang et al.", year: 2023, hr: 35.1, ciLow: 10.2, ciHigh: 120 },
+    ],
+    studies: [
+      { title: "Residual ctDNA after treatment predicts early relapse in patients with early-stage non-small cell lung cancer", journal: "Ann Oncol", year: 2022, doi: "10.1016/j.annonc.2022.02.007", conclusion: "术后ctDNA阳性患者的中位无病生存期仅为148天，HR高达43.5，强烈提示极高危复发可能。" },
+    ],
+  },
+  "ctDNA-ADJUVANT": {
+    title: "ctDNA MRD → 辅助治疗决策 (AI新发现)",
+    description: "最新的临床试验正在探索基于ctDNA MRD状态指导辅助治疗。对于分期较早但MRD阳性的患者，可能从强化的辅助治疗中获益，而MRD持续阴性患者可能可以免除化疗。",
+    metric: { label: "MRD指导降阶梯治疗潜力", value: "避免不必要化疗", ci: "临床试验进行中", p: "—" },
+    forestData: [],
+    studies: [
+      { title: "Circulating Tumor DNA-Guided Adjuvant Therapy in Early-Stage Non–Small-Cell Lung Cancer", journal: "J Clin Oncol", year: 2023, doi: "10.1200/JCO.22.02871", conclusion: "探索性分析表明，ctDNA引导的辅助治疗策略有望在不损害生存的情况下，为部分患者免除化疗毒性。" },
+    ],
+  },
 };
 
 const typeColors: Record<string, { bg: string; border: string; text: string; dot: string }> = {
@@ -397,6 +428,11 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
   const [personalMode, setPersonalMode] = useState<boolean>(!!profile);
   const [sandboxMode, setSandboxMode] = useState<boolean>(false);
   const [sandboxActive, setSandboxActive] = useState<Set<string>>(new Set());
+  
+  // 4D Time Slider & AI Growth State
+  const [timeYears, setTimeYears] = useState<number>(0);
+  const [aiScanning, setAiScanning] = useState<boolean>(false);
+  const [aiNodeVisible, setAiNodeVisible] = useState<boolean>(false);
 
   useEffect(() => {
     setPersonalMode(!!profile);
@@ -427,13 +463,15 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
 
   const activeNode = selectedNode || hoveredNode;
 
-  const factorCount = nodes.filter((n) => n.type === "factor").length;
+  const currentNodes = aiNodeVisible ? [...nodes, aiNewNode] : nodes;
+
+  const factorCount = currentNodes.filter((n) => n.type === "factor").length;
   const connectionCount = Math.floor(
-    nodes.reduce((sum, n) => sum + n.connections.length, 0) / 2
+    currentNodes.reduce((sum, n) => sum + n.connections.length, 0) / 2
   );
 
   const activeHighlightNodes = personalMode && profile
-    ? nodes.filter((n) => getNodeActivation(n.id, profile) === "active").map((n) => n.id)
+    ? currentNodes.filter((n) => getNodeActivation(n.id, profile) === "active").map((n) => n.id)
     : [];
 
   // Collect all active protective edges from sandbox
@@ -489,8 +527,42 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
     if (profile) setPersonalMode(true);
   };
 
+  const triggerAiScan = () => {
+    if (aiNodeVisible || aiScanning) return;
+    setAiScanning(true);
+    setTimeout(() => {
+      setAiScanning(false);
+      setAiNodeVisible(true);
+    }, 2500);
+  };
+
   return (
     <div className="mt-12">
+      {/* Time Slider */}
+      <div className="mb-6 flex flex-col items-center max-w-lg mx-auto bg-[#0a0e1a]/50 p-4 rounded-xl border border-white/5">
+        <div className="flex justify-between w-full text-xs text-text-muted mb-2 font-medium">
+          <span>手术后初始</span>
+          <span>1年</span>
+          <span>2年</span>
+          <span>3年</span>
+          <span>4年</span>
+          <span>5年+</span>
+        </div>
+        <input
+          type="range"
+          min="0"
+          max="5"
+          step="1"
+          value={timeYears}
+          onChange={(e) => setTimeYears(Number(e.target.value))}
+          className="w-full accent-accent-teal cursor-pointer h-1 bg-white/10 rounded-lg appearance-none"
+        />
+        <div className="text-center mt-3 text-xs text-text-secondary">
+          当前时间：<span className="text-accent-teal font-bold">{timeYears === 0 ? "初始基线" : `术后 ${timeYears} 年`}</span>
+          {timeYears > 0 && <span className="ml-2 text-text-muted">随着时间推移，大部分复发风险逐渐降低</span>}
+        </div>
+      </div>
+
       {/* Mode Banners */}
       {sandboxMode ? (
         <div className="mb-4 flex items-center justify-between glass rounded-xl px-4 py-2.5 border border-amber-500/30 bg-amber-500/5">
@@ -514,6 +586,19 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
             <span className="text-text-muted text-xs">— 高亮节点与您的病理特征直接相关</span>
           </div>
           <div className="flex items-center gap-3">
+            {!aiNodeVisible && (
+              <button
+                onClick={triggerAiScan}
+                disabled={aiScanning}
+                className={`text-xs border px-2 py-1 rounded transition-colors ${aiScanning ? 'text-text-muted border-white/10' : 'text-accent-blue/80 hover:text-accent-blue border-accent-blue/20 hover:border-accent-blue/40 cursor-pointer'} flex items-center gap-1.5`}
+              >
+                {aiScanning ? (
+                  <><span className="w-2 h-2 border-2 border-text-muted border-t-transparent rounded-full animate-spin" /> 正在追踪文献...</>
+                ) : (
+                  <>⚡ AI 实时追踪</>
+                )}
+              </button>
+            )}
             <button
               onClick={enterSandbox}
               className="text-amber-400/80 text-xs hover:text-amber-400 transition-colors border border-amber-400/20 hover:border-amber-400/40 px-2 py-1 rounded cursor-pointer"
@@ -529,7 +614,20 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
           </div>
         </div>
       ) : (
-        <div className="mb-4 flex justify-end">
+        <div className="mb-4 flex justify-end gap-3">
+          {!aiNodeVisible && (
+            <button
+              onClick={triggerAiScan}
+              disabled={aiScanning}
+              className={`text-xs border px-3 py-1.5 rounded-lg transition-colors ${aiScanning ? 'text-text-muted border-white/10' : 'text-accent-blue/80 hover:text-accent-blue border-accent-blue/20 hover:border-accent-blue/40 cursor-pointer'} flex items-center gap-1.5`}
+            >
+              {aiScanning ? (
+                <><span className="w-3 h-3 border-2 border-text-muted border-t-transparent rounded-full animate-spin" /> 正在追踪...</>
+              ) : (
+                <>⚡ AI 实时追踪</>
+              )}
+            </button>
+          )}
           <button
             onClick={enterSandbox}
             className="text-amber-400/70 text-xs hover:text-amber-400 transition-colors border border-amber-400/20 hover:border-amber-400/40 px-3 py-1.5 rounded-lg cursor-pointer flex items-center gap-1.5"
@@ -587,9 +685,9 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
             </defs>
 
             {/* Connection lines */}
-            {nodes.map((node) =>
+            {currentNodes.map((node) =>
               node.connections.map((targetId) => {
-                const target = nodes.find((n) => n.id === targetId);
+                const target = currentNodes.find((n) => n.id === targetId);
                 if (!target) return null;
                 const edgeKey = `${node.id}-${targetId}`;
                 const isNodeActive = activeNode?.id === node.id || activeNode?.id === targetId;
@@ -597,12 +695,22 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
                 const isEdgeHovered = hoveredEdge === edgeKey;
                 const hasEvidence = !!edgeEvidences[edgeKey];
                 const relType = (node.connectionTypes || {})[targetId] || "default";
+                const isAiEdge = node.id === "ctDNA" || targetId === "ctDNA";
 
                 // Direction 1: personal mode edge logic
                 const srcActivation = personalMode && profile ? getNodeActivation(node.id, profile) : "normal";
                 const tgtActivation = personalMode && profile ? getNodeActivation(targetId, profile) : "normal";
                 const isPersonalHighlight = personalMode && srcActivation === "active" && tgtActivation === "active";
                 const isPersonalDim = personalMode && (srcActivation === "dim" || tgtActivation === "dim");
+
+                // Direction 3: Time slider attenuation logic
+                // Risk decreases linearly from year 1 to year 5. Max attenuation is 0.2 opacity.
+                let timeOpacityAdjust = 1;
+                let timeWidthAdjust = 1;
+                if (relType === "risk" && timeYears > 0) {
+                  timeOpacityAdjust = Math.max(0.15, 1 - (timeYears * 0.17));
+                  timeWidthAdjust = Math.max(0.3, 1 - (timeYears * 0.15));
+                }
 
                 const dx = target.x - node.x;
                 const dy = target.y - node.y;
@@ -624,8 +732,9 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
                   markerId = "arrow-active";
                 } else if (isPersonalHighlight) {
                   strokeColor = relType === "risk" ? "rgba(239,68,68,0.9)" : "rgba(0,212,170,0.9)";
-                  strokeWidth = "0.6";
+                  strokeWidth = String(0.6 * timeWidthAdjust);
                   markerId = relType === "risk" ? "arrow-personal" : "arrow-guides";
+                  strokeOpacity = String(1 * timeOpacityAdjust);
                 } else if (isPersonalDim) {
                   strokeColor = "rgba(255,255,255,0.04)";
                   strokeWidth = "0.2";
@@ -637,12 +746,18 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
                   markerId = "arrow-active";
                 } else {
                   strokeColor = relType === "risk" ? "rgba(239,68,68,0.3)" : relType === "guides" ? "rgba(0,212,170,0.3)" : "rgba(255,255,255,0.06)";
-                  strokeWidth = "0.3";
+                  strokeWidth = String(0.3 * timeWidthAdjust);
                   markerId = relType === "risk" ? "arrow-risk" : relType === "guides" ? "arrow-guides" : "arrow-default";
+                  strokeOpacity = String(1 * timeOpacityAdjust);
+                }
+
+                if (isAiEdge) {
+                  strokeColor = "rgba(0,212,170,0.8)";
+                  markerId = "arrow-guides";
                 }
 
                 return (
-                  <g key={edgeKey}>
+                  <g key={edgeKey} className={isAiEdge ? "animate-edge-grow" : ""}>
                     {/* Visible line */}
                     <line
                       x1={x1} y1={y1} x2={x2} y2={y2}
@@ -672,8 +787,8 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
 
             {/* Sandbox Protective Edges */}
             {activeProtectiveEdges.map((pe) => {
-              const fromNode = nodes.find((n) => n.id === pe.from);
-              const toNode = nodes.find((n) => n.id === pe.to);
+              const fromNode = currentNodes.find((n) => n.id === pe.from);
+              const toNode = currentNodes.find((n) => n.id === pe.to);
               if (!fromNode || !toNode) return null;
               const dx = toNode.x - fromNode.x;
               const dy = toNode.y - fromNode.y;
@@ -701,33 +816,48 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
             })}
 
             {/* Nodes */}
-            {nodes.map((node) => {
+            {currentNodes.map((node) => {
               const colors = typeColors[node.type];
               const isActive = activeNode?.id === node.id;
               const isConnected =
                 activeNode?.connections.includes(node.id) ||
-                nodes.find((n) => n.id === activeNode?.id)?.connections.includes(node.id);
+                currentNodes.find((n) => n.id === activeNode?.id)?.connections.includes(node.id);
 
               // Direction 1: personal mode visual state
               const activation = personalMode && profile ? getNodeActivation(node.id, profile) : "normal";
-              const nodeOpacity = activation === "dim" ? 0.2 : 1;
+              
+              // Direction 3: Node attenuation
+              // E.g., METASTASIS risk attenuates heavily after year 3
+              let timeOpacityAdjust = 1;
+              if (node.id === "METASTASIS" && timeYears >= 2) {
+                timeOpacityAdjust = Math.max(0.3, 1 - ((timeYears - 1) * 0.2));
+              } else if (node.id === "RECURRENCE" && timeYears > 0) {
+                timeOpacityAdjust = Math.max(0.5, 1 - (timeYears * 0.1));
+              }
+
+              const nodeOpacity = (activation === "dim" ? 0.2 : 1) * timeOpacityAdjust;
               const isPersonalActive = personalMode && activation === "active";
 
               // Sandbox visual state
               const isSandboxNode = sandboxMode && !!SANDBOX_NODES[node.id];
               const isSandboxOn = sandboxMode && sandboxActive.has(node.id);
+              const isAiNode = node.id === "ctDNA";
 
               return (
                 <g
                   key={node.id}
                   transform={`translate(${node.x}, ${node.y})`}
-                  className={isSandboxNode ? "cursor-pointer" : "cursor-pointer"}
+                  className={`${isSandboxNode ? "cursor-pointer" : "cursor-pointer"} ${isAiNode ? "animate-fade-in-up" : ""}`}
                   onClick={(e) => { e.stopPropagation(); handleNodeClick(node); }}
                   onMouseEnter={() => setHoveredNode(node)}
                   onMouseLeave={() => setHoveredNode(null)}
                   opacity={nodeOpacity}
                   style={{ transition: "opacity 0.4s" }}
                 >
+                  {isAiNode && (
+                    <circle r="7.5" fill="none" stroke="rgba(0,212,170,0.8)" strokeWidth="0.4"
+                      style={{ animation: "pulse 1s ease-in-out infinite" }} />
+                  )}
                   {/* Sandbox ON ring — amber pulsing */}
                   {isSandboxOn && (
                     <circle r="6.5" fill="rgba(245,158,11,0.15)" stroke="rgba(245,158,11,0.6)" strokeWidth="0.4"
@@ -748,18 +878,24 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
                   )}
                   <circle
                     r="3.5"
-                    fill={isSandboxOn ? "rgba(245,158,11,0.2)" : colors.bg}
-                    stroke={isSandboxOn ? "rgba(245,158,11,0.8)" : isActive ? colors.dot : isPersonalActive ? colors.dot : isConnected ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.08)"}
-                    strokeWidth={isActive || isPersonalActive || isSandboxOn ? "0.6" : "0.4"}
+                    fill={isSandboxOn ? "rgba(245,158,11,0.2)" : isAiNode ? "rgba(0,212,170,0.15)" : colors.bg}
+                    stroke={isSandboxOn ? "rgba(245,158,11,0.8)" : isAiNode ? "rgba(0,212,170,0.9)" : isActive ? colors.dot : isPersonalActive ? colors.dot : isConnected ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.08)"}
+                    strokeWidth={isActive || isPersonalActive || isSandboxOn || isAiNode ? "0.6" : "0.4"}
                     filter={isPersonalActive ? "url(#glow-teal)" : isSandboxOn ? "url(#glow-amber)" : undefined}
                   />
-                  <circle r="1.5" fill={isSandboxOn ? "rgba(245,158,11,0.9)" : colors.dot} opacity={isActive || isPersonalActive || isSandboxOn ? 1 : 0.7} />
+                  <circle r="1.5" fill={isSandboxOn ? "rgba(245,158,11,0.9)" : isAiNode ? "rgba(0,212,170,0.9)" : colors.dot} opacity={isActive || isPersonalActive || isSandboxOn || isAiNode ? 1 : 0.7} />
+                  
+                  {isAiNode && (
+                    <text x="5.5" y="-3.5" fontSize="1.8" fill="rgba(0,212,170,0.9)" fontWeight="bold" className="animate-pulse">
+                      NEW
+                    </text>
+                  )}
                   <text
                     textAnchor="middle"
                     dy="5.5"
                     fontSize="2.5"
-                    fill={isSandboxOn ? "rgba(245,158,11,0.9)" : isActive || isPersonalActive ? colors.text : "rgba(255,255,255,0.5)"}
-                    fontWeight={isActive || isPersonalActive || isSandboxOn ? "bold" : "normal"}
+                    fill={isSandboxOn ? "rgba(245,158,11,0.9)" : isAiNode ? "rgba(0,212,170,1)" : isActive || isPersonalActive ? colors.text : "rgba(255,255,255,0.5)"}
+                    fontWeight={isActive || isPersonalActive || isSandboxOn || isAiNode ? "bold" : "normal"}
                   >
                     {node.label.split("\n")[0]}
                   </text>
