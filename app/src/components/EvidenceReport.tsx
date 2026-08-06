@@ -85,11 +85,11 @@ export default function EvidenceReport({ profile, onBack, initialReportJson }: E
           onClick={(e) => { if (e.target === e.currentTarget) setShowGraphOverlay(false); }}
         >
           {/* Overlay Header */}
-          <div className="bg-[#0a0e1a]/90 backdrop-blur-lg border-b border-white/5 px-6 py-4 flex items-center justify-between flex-shrink-0">
-            <div className="flex items-center gap-3">
+          <div className="bg-[#0a0e1a]/90 backdrop-blur-lg border-b border-white/5 px-4 md:px-6 py-4 flex items-center justify-between flex-shrink-0">
+            <div className="flex items-center gap-2 md:gap-3">
               <div className="w-2 h-2 rounded-full bg-accent-teal animate-pulse" />
-              <span className="text-text-primary font-semibold">专属路径图谱</span>
-              <span className="text-text-muted text-sm">— 根据您的病理特征高亮显示</span>
+              <span className="text-text-primary font-semibold text-sm md:text-base">专属路径图谱</span>
+              <span className="text-text-muted text-xs md:text-sm hidden sm:inline">— 根据您的病理特征高亮显示</span>
             </div>
             <button
               onClick={() => setShowGraphOverlay(false)}
@@ -174,9 +174,9 @@ export default function EvidenceReport({ profile, onBack, initialReportJson }: E
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-6 py-8">
+      <div className="max-w-5xl mx-auto px-4 md:px-6 py-6 md:py-8">
         {/* Hero Summary Card */}
-        <div className="glass rounded-2xl p-8 border border-white/10 mb-6 glow-blue">
+        <div className="glass rounded-2xl p-5 md:p-8 border border-white/10 mb-6 glow-blue">
           <div className="flex flex-col md:flex-row md:items-start gap-6">
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-4">
@@ -219,7 +219,7 @@ export default function EvidenceReport({ profile, onBack, initialReportJson }: E
           </div>
 
           {/* Key Stats */}
-          <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-t border-white/5">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6 pt-6 border-t border-white/5">
             <StatBlock
               label="5年RFS"
               value={`${Math.round(result.rfs5yrRange[0] * 100)}–${Math.round(result.rfs5yrRange[1] * 100)}%`}
@@ -261,7 +261,7 @@ export default function EvidenceReport({ profile, onBack, initialReportJson }: E
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-1 glass rounded-xl p-1 mb-6 border border-white/5">
+        <div className="flex gap-1 glass rounded-xl p-1 mb-6 border border-white/5 overflow-x-auto whitespace-nowrap scrollbar-hide">
           {(["overview", "factors", "studies", "followup"] as const).map((tab) => (
             <button
               key={tab}
@@ -348,7 +348,7 @@ function OverviewTab({ result, profile, riskColorMap }: { result: PatientMatchRe
       {/* Evidence level legend */}
       <div className="glass rounded-xl p-4 border border-white/5">
         <h4 className="text-text-secondary text-sm mb-3">证据等级说明</h4>
-        <div className="grid grid-cols-3 gap-2 text-xs">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
           {[
             { stars: 5, label: "Meta分析/RCT", color: "text-amber-400" },
             { stars: 4, label: "多中心研究", color: "text-amber-300" },

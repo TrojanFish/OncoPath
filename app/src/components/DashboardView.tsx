@@ -29,8 +29,8 @@ export default function DashboardView({ onBack, onViewReport }: DashboardViewPro
   }, []);
 
   return (
-    <div className="min-h-screen bg-grid radial-overlay pt-24 pb-16 px-6">
-      <nav className="bg-[#0a0e1a]/70 backdrop-blur-lg border-b border-white/5 fixed top-0 left-0 right-0 z-50 px-6 py-4">
+    <div className="min-h-screen bg-grid radial-overlay pt-20 md:pt-24 pb-12 md:pb-16 px-4 md:px-6">
+      <nav className="bg-[#0a0e1a]/70 backdrop-blur-lg border-b border-white/5 fixed top-0 left-0 right-0 z-50 px-4 md:px-6 py-4">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <button
             onClick={onBack}
@@ -43,7 +43,7 @@ export default function DashboardView({ onBack, onViewReport }: DashboardViewPro
               Onco<span className="text-accent-teal">Path</span>
             </span>
           </button>
-          <span className="text-text-secondary text-sm">用户中心 / 历史病例</span>
+          <span className="text-text-secondary text-sm hidden sm:inline">用户中心 / 历史病例</span>
         </div>
       </nav>
 
@@ -57,13 +57,13 @@ export default function DashboardView({ onBack, onViewReport }: DashboardViewPro
         ) : cases.length === 0 ? (
           <div className="text-center py-20 text-text-muted glass rounded-xl">暂无历史评估记录</div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {cases.map((c) => {
               const tumor = c.tumors && c.tumors.length > 0 ? c.tumors[0] : {};
               const path = tumor.pathology_features || {};
               
               return (
-              <div key={c.id} className="glass rounded-xl p-6 hover:shadow-glow-blue transition-all cursor-pointer group" onClick={() => {
+              <div key={c.id} className="glass rounded-xl p-5 md:p-6 hover:shadow-glow-blue transition-all cursor-pointer group" onClick={() => {
                 const profile: PatientProfile = {
                   age: c.age || undefined,
                   gender: c.gender || undefined,

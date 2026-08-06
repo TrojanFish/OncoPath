@@ -61,12 +61,12 @@ export default function ProfileForm({ onSubmit }: ProfileFormProps) {
   };
 
   return (
-    <div className="max-w-2xl mx-auto px-6">
+    <div className="max-w-2xl mx-auto px-4 sm:px-6">
       {/* Progress */}
-      <div className="mb-8">
+      <div className="mb-6 md:mb-8">
         <div className="flex justify-between items-center mb-2">
           <span className="text-text-secondary text-sm">步骤 {step} / {totalSteps}</span>
-          <span className="text-text-muted text-xs">
+          <span className="text-text-muted text-xs hidden sm:inline">
             {step === 1 ? "📋 你的基本情况" : step === 2 ? "🔬 医生告诉你的" : "🏥 CT报告上的"}
           </span>
         </div>
@@ -101,7 +101,7 @@ export default function ProfileForm({ onSubmit }: ProfileFormProps) {
       </div>
 
       {/* Form Card */}
-      <div className="glass rounded-2xl p-8 border border-border-color">
+      <div className="glass rounded-2xl p-5 md:p-8 border border-border-color">
         {step === 1 && <Step1 form={form} updateForm={updateForm} />}
         {step === 2 && <Step2 form={form} updateForm={updateForm} />}
         {step === 3 && <Step3 form={form} updateForm={updateForm} />}
