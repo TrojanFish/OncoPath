@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { fetchFactors } from "@/lib/api";
 import type { PatientProfile } from "@/lib/types";
 import { KnowledgeNode, initialNodes, aiNewNode, edgeEvidences, SANDBOX_NODES } from "@/lib/knowledgeGraphData";
+import { TransformWrapper, TransformComponent, useControls } from "react-zoom-pan-pinch";
 import { GraphRenderer } from "./knowledge-graph/GraphRenderer";
 import { SandboxPanel } from "./knowledge-graph/panels/SandboxPanel";
 import { EdgeEvidencePanel } from "./knowledge-graph/panels/EdgeEvidencePanel";
@@ -13,6 +14,17 @@ import { TimeSlider } from "./knowledge-graph/TimeSlider";
 interface KnowledgeMapProps {
   profile?: PatientProfile | null;
 }
+
+const ZoomControls = () => {
+  const { zoomIn, zoomOut, resetTransform } = useControls();
+  return (
+    <div className="absolute top-4 right-4 flex flex-col gap-2 z-20">
+      <button onClick={() => zoomIn()} className="glass w-8 h-8 flex items-center justify-center rounded-lg border border-white/10 hover:bg-white/10 text-text-primary shadow-lg">＋</button>
+      <button onClick={() => zoomOut()} className="glass w-8 h-8 flex items-center justify-center rounded-lg border border-white/10 hover:bg-white/10 text-text-primary shadow-lg">－</button>
+      <button onClick={() => resetTransform()} className="glass w-8 h-8 flex items-center justify-center rounded-lg border border-white/10 hover:bg-white/10 text-text-primary shadow-lg text-xs">↺</button>
+    </div>
+  );
+};
 
 export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProps) {
   const [hoveredNode, setHoveredNode] = useState<KnowledgeNode | null>(null);
@@ -59,6 +71,7 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
 
   const currentNodes = aiNodeVisible ? [...nodes, aiNewNode] : nodes;
   const activeNode = hoveredNode || selectedNode;
+  const isPanelActive = sandboxMode || selectedEdge || activeNode;
 
   // Directions 1 calculation for highlights
   let activeHighlightNodes: string[] = [];
@@ -208,32 +221,43 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Graph */}
         <div
-          className={`lg:col-span-2 glass rounded-2xl border overflow-hidden relative flex items-center justify-center max-h-[500px] transition-all duration-500 ${
+          className={`lg:col-span-2 glass rounded-2xl border overflow-hidden relative flex flex-col max-h-[65vh] lg:max-h-[700px] transition-all duration-500 ${
             personalMode && profile
               ? "border-accent-teal/20 shadow-[0_0_30px_rgba(0,212,170,0.08)]"
               : "border-white/5"
           }`}
-          style={{ minHeight: 400 }}
+          style={{ minHeight: 450 }}
           onClick={() => { setSelectedNode(null); setSelectedEdge(null); }}
         >
           <div className="absolute inset-0 bg-grid opacity-50 pointer-events-none" />
           
-          <GraphRenderer 
-            currentNodes={currentNodes}
-            activeNode={activeNode}
-            hoveredNode={hoveredNode}
-            selectedEdge={selectedEdge}
-            hoveredEdge={hoveredEdge}
-            sandboxMode={sandboxMode}
-            sandboxActive={sandboxActive}
-            personalMode={personalMode}
-            profile={profile}
-            timeYears={timeYears}
-            onNodeClick={handleNodeClick}
-            onNodeHover={setHoveredNode}
-            onEdgeClick={handleEdgeClick}
-            onEdgeHover={setHoveredEdge}
-          />
+          <TransformWrapper
+            initialScale={1}
+            minScale={0.5}
+            maxScale={4}
+            centerOnInit={true}
+            wheel={{ step: 0.1 }}
+          >
+            <ZoomControls />
+            <TransformComponent wrapperStyle={{ width: "100%", height: "100%", flex: 1 }} contentStyle={{ width: "100%", height: "100%" }}>
+              <GraphRenderer 
+                currentNodes={currentNodes}
+                activeNode={activeNode}
+                hoveredNode={hoveredNode}
+                selectedEdge={selectedEdge}
+                hoveredEdge={hoveredEdge}
+                sandboxMode={sandboxMode}
+                sandboxActive={sandboxActive}
+                personalMode={personalMode}
+                profile={profile}
+                timeYears={timeYears}
+                onNodeClick={handleNodeClick}
+                onNodeHover={setHoveredNode}
+                onEdgeClick={handleEdgeClick}
+                onEdgeHover={setHoveredEdge}
+              />
+            </TransformComponent>
+          </TransformWrapper>
 
           {/* Legend */}
           <div className="absolute bottom-4 left-4 flex flex-wrap gap-3">
@@ -276,55 +300,74 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
           </div>
         </div>
 
-        {/* Info Panel */}
-        <div className="flex flex-col gap-4">
-          {sandboxMode ? (
-            <SandboxPanel
-              sandboxActive={sandboxActive}
-              onToggle={toggleSandboxNode}
-              onExit={exitSandbox}
-            />
-          ) : selectedEdge && edgeEvidences[selectedEdge] ? (
-            <EdgeEvidencePanel
-              edgeKey={selectedEdge}
-              evidence={edgeEvidences[selectedEdge]}
-              onClose={() => setSelectedEdge(null)}
-            />
-          ) : activeNode ? (
-            <NodeInfoPanel node={activeNode} />
-          ) : (
-            <div className="glass rounded-2xl p-6 border border-white/5 flex flex-col items-center justify-center text-center flex-1">
-              <div className="text-4xl mb-3 opacity-50">🕸️</div>
-              <p className="text-text-muted text-sm">点击节点查看详细信息</p>
-              <p className="text-text-muted text-xs mt-2">点击连线查看文献依据</p>
-              {personalMode && activeHighlightNodes.length > 0 && (
-                <div className="mt-4 pt-4 border-t border-white/5 w-full text-left">
-                  <p className="text-accent-teal text-xs font-medium mb-2">您的高风险因素</p>
-                  <div className="flex flex-wrap gap-1">
-                    {activeHighlightNodes.map((id) => (
-                      <span key={id} className="text-xs px-2 py-0.5 rounded-full bg-accent-teal/10 text-accent-teal border border-accent-teal/30">{id}</span>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
+        {/* Info Panel Container */}
+        <div className="lg:static relative">
+          
+          {/* Mobile Overlay Background (only visible when active) */}
+          <div 
+            className={`lg:hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-40 transition-opacity duration-300 ${isPanelActive ? 'opacity-100 visible' : 'opacity-0 invisible'}`}
+            onClick={() => { setSelectedNode(null); setSelectedEdge(null); if(sandboxMode) exitSandbox(); }}
+          />
 
-          {/* Quick facts */}
-          <div className="glass rounded-2xl p-5 border border-white/5">
-            <h4 className="text-text-secondary text-sm font-medium mb-3">知识图谱统计</h4>
-            <div className="space-y-2 text-sm">
-              {[
-                { label: "因素节点", value: `${factorCount}个`, color: "text-accent-blue" },
-                { label: "证据连接", value: `${connectionCount}条`, color: "text-accent-teal" },
-                { label: "覆盖论文", value: `${totalStudies}篇`, color: "text-purple-400" },
-                { label: "数据来源", value: "核心文献", color: "text-amber-400" },
-              ].map((item) => (
-                <div key={item.label} className="flex justify-between">
-                  <span className="text-text-muted">{item.label}</span>
-                  <span className={item.color}>{item.value}</span>
-                </div>
-              ))}
+          {/* Drawer / Side Panel */}
+          <div className={`
+            flex flex-col gap-4 
+            lg:relative lg:translate-y-0 lg:h-auto lg:p-0 lg:bg-transparent lg:border-none lg:z-0 lg:shadow-none
+            fixed bottom-0 left-0 right-0 z-50 bg-[#0a0e1a]/95 backdrop-blur-xl border-t border-white/10 p-5 rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.5)]
+            transition-transform duration-300 ease-in-out max-h-[85vh] overflow-y-auto
+            ${isPanelActive ? 'translate-y-0' : 'translate-y-full lg:translate-y-0'}
+          `}>
+            {/* Mobile Drag Handle */}
+            <div className="lg:hidden w-12 h-1.5 bg-white/20 rounded-full mx-auto mb-4" />
+
+            {sandboxMode ? (
+              <SandboxPanel
+                sandboxActive={sandboxActive}
+                onToggle={toggleSandboxNode}
+                onExit={exitSandbox}
+              />
+            ) : selectedEdge && edgeEvidences[selectedEdge] ? (
+              <EdgeEvidencePanel
+                edgeKey={selectedEdge}
+                evidence={edgeEvidences[selectedEdge]}
+                onClose={() => setSelectedEdge(null)}
+              />
+            ) : activeNode ? (
+              <NodeInfoPanel node={activeNode} />
+            ) : (
+              <div className="glass rounded-2xl p-6 border border-white/5 flex-col items-center justify-center text-center flex-1 hidden lg:flex">
+                <div className="text-4xl mb-3 opacity-50">🕸️</div>
+                <p className="text-text-muted text-sm">点击节点查看详细信息</p>
+                <p className="text-text-muted text-xs mt-2">点击连线查看文献依据</p>
+                {personalMode && activeHighlightNodes.length > 0 && (
+                  <div className="mt-4 pt-4 border-t border-white/5 w-full text-left">
+                    <p className="text-accent-teal text-xs font-medium mb-2">您的高风险因素</p>
+                    <div className="flex flex-wrap gap-1">
+                      {activeHighlightNodes.map((id) => (
+                        <span key={id} className="text-xs px-2 py-0.5 rounded-full bg-accent-teal/10 text-accent-teal border border-accent-teal/30">{id}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Quick facts - Only show on desktop when panel is not active on mobile to save space, or just always show on desktop */}
+            <div className="glass rounded-2xl p-5 border border-white/5 hidden lg:block">
+              <h4 className="text-text-secondary text-sm font-medium mb-3">知识图谱统计</h4>
+              <div className="space-y-2 text-sm">
+                {[
+                  { label: "因素节点", value: `${factorCount}个`, color: "text-accent-blue" },
+                  { label: "证据连接", value: `${connectionCount}条`, color: "text-accent-teal" },
+                  { label: "覆盖论文", value: `${totalStudies}篇`, color: "text-purple-400" },
+                  { label: "数据来源", value: "核心文献", color: "text-amber-400" },
+                ].map((item) => (
+                  <div key={item.label} className="flex justify-between">
+                    <span className="text-text-muted">{item.label}</span>
+                    <span className={item.color}>{item.value}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
