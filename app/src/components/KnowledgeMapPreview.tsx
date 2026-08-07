@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { fetchFactors } from "@/lib/api";
 import type { PatientProfile } from "@/lib/types";
-import { KnowledgeNode, initialNodes, aiNewNode, edgeEvidences, SANDBOX_NODES } from "@/lib/knowledgeGraphData";
+import type { KnowledgeNode, EdgeEvidence } from "@/lib/knowledgeGraphData";
+import { aiNewNode, SANDBOX_NODES } from "@/lib/knowledgeGraphData";
 import { TransformWrapper, TransformComponent, useControls } from "react-zoom-pan-pinch";
 import { GraphRenderer } from "./knowledge-graph/GraphRenderer";
 import { SandboxPanel } from "./knowledge-graph/panels/SandboxPanel";
@@ -31,7 +32,9 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
   const [selectedNode, setSelectedNode] = useState<KnowledgeNode | null>(null);
   const [selectedEdge, setSelectedEdge] = useState<string | null>(null);
   const [hoveredEdge, setHoveredEdge] = useState<string | null>(null);
-  const [nodes, setNodes] = useState<KnowledgeNode[]>(initialNodes);
+  const [nodes, setNodes] = useState<KnowledgeNode[]>([]);
+  const [edgeEvidences, setEdgeEvidences] = useState<Record<string, EdgeEvidence>>({});
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [totalStudies, setTotalStudies] = useState<number>(0);
   const [personalMode, setPersonalMode] = useState<boolean>(!!profile);
   const [sandboxMode, setSandboxMode] = useState<boolean>(false);
@@ -48,25 +51,23 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
   }, [profile]);
 
   useEffect(() => {
-    fetchFactors().then((factors) => {
-      if (Array.isArray(factors) && factors.length) {
-        setNodes((prev) =>
-          prev.map((node) => {
-            const match = factors.find(
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              (f: any) =>
-                f.id === node.id ||
-                (typeof f.id === "string" && f.id.startsWith(node.id))
-            );
-            return match ? { ...node, studies: match.studies } : node;
-          })
-        );
-        const total = factors.reduce((sum: number, f: any) => sum + (f.studies || 0), 0);
-        setTotalStudies(total > 0 ? total : 142);
-      } else {
-        setTotalStudies(142); // Fallback
-      }
-    });
+    setIsLoading(true);
+    fetch('/api/graph')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.nodes && data.edgeEvidences) {
+          setNodes(data.nodes);
+          setEdgeEvidences(data.edgeEvidences);
+          const total = data.nodes.reduce((sum: number, n: any) => sum + (n.studies || 0), 0);
+          setTotalStudies(total > 0 ? total : 142);
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to fetch graph data:", err);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   }, []);
 
   const currentNodes = aiNodeVisible ? [...nodes, aiNewNode] : nodes;
@@ -136,6 +137,17 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
       setAiNodeVisible(true);
     }, 2500);
   };
+
+  if (isLoading) {
+    return (
+      <div className="mt-12 min-h-[600px] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-8 h-8 border-4 border-white/20 border-t-white rounded-full animate-spin"></div>
+          <p className="text-white/60">正在加载知识图谱...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mt-12">
@@ -251,6 +263,7 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
                 personalMode={personalMode}
                 profile={profile}
                 timeYears={timeYears}
+                edgeEvidences={edgeEvidences}
                 onNodeClick={handleNodeClick}
                 onNodeHover={setHoveredNode}
                 onEdgeClick={handleEdgeClick}

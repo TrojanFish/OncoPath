@@ -1,7 +1,8 @@
 import React from 'react';
 import type { KnowledgeNode } from '@/lib/knowledgeGraphData';
 import type { PatientProfile } from '@/lib/types';
-import { typeColors, typeLabels, getNodeActivation, SANDBOX_NODES, edgeEvidences } from '@/lib/knowledgeGraphData';
+import { typeColors, typeLabels, getNodeActivation, SANDBOX_NODES } from '@/lib/knowledgeGraphData';
+import type { EdgeEvidence } from '@/lib/knowledgeGraphData';
 
 interface GraphRendererProps {
   currentNodes: KnowledgeNode[];
@@ -14,6 +15,7 @@ interface GraphRendererProps {
   personalMode: boolean;
   profile: PatientProfile | null;
   timeYears: number;
+  edgeEvidences: Record<string, EdgeEvidence>;
   onNodeClick: (node: KnowledgeNode) => void;
   onNodeHover: (node: KnowledgeNode | null) => void;
   onEdgeClick: (edgeKey: string, e: React.MouseEvent) => void;
@@ -31,6 +33,7 @@ export function GraphRenderer({
   personalMode,
   profile,
   timeYears,
+  edgeEvidences,
   onNodeClick,
   onNodeHover,
   onEdgeClick,
