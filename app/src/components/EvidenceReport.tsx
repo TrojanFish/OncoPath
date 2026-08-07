@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import type { PatientProfile } from "@/lib/types";
 import { analyzePatientProfile, EVIDENCE_FACTORS, FEATURED_STUDIES, STUDY_TYPE_LABELS, type PatientMatchResult } from "@/lib/evidence-data";
 import { generateReport } from "@/lib/api";
@@ -14,16 +14,7 @@ interface EvidenceReportProps {
 }
 
 export default function EvidenceReport({ profile, onBack, initialReportJson }: EvidenceReportProps) {
-  const [result, setResult] = useState<PatientMatchResult | null>(null);
-  const [loading, setLoading] = useState(!initialReportJson);
-  const [activeTab, setActiveTab] = useState<"overview" | "factors" | "studies" | "followup">("overview");
-  const [showGraphOverlay, setShowGraphOverlay] = useState(false);
-
-  const [llmReport, setLlmReport] = useState<any>(initialReportJson || null);
-
-  useEffect(() => {
-    // Generate the static structural report immediately
-    const analysisResult = analyzePatientProfile({
+  const result = useMemo(() => analyzePatientProfile({
       stage: profile.stage,
       ctr: profile.ctr,
       stas: profile.stas,
@@ -33,9 +24,15 @@ export default function EvidenceReport({ profile, onBack, initialReportJson }: E
       histology: profile.histology,
       egfr: profile.egfr,
       lymphNodes: profile.lymphNodes,
-    });
-    setResult(analysisResult);
-    
+  }), [profile]);
+
+  const [loading, setLoading] = useState(!initialReportJson);
+  const [activeTab, setActiveTab] = useState<"overview" | "factors" | "studies" | "followup">("overview");
+  const [showGraphOverlay, setShowGraphOverlay] = useState(false);
+
+  const [llmReport, setLlmReport] = useState<any>(initialReportJson || null);
+
+  useEffect(() => {
     // If we already have the report (e.g. from Dashboard history), don't fetch it again
     if (initialReportJson) {
       setLoading(false);

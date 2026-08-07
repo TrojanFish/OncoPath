@@ -87,11 +87,15 @@ async def generate_analysis(
         
         # Step 5: Parse JSON and Save to Database
         try:
+            import re
             cleaned = raw_report.strip()
-            if cleaned.startswith("```json"): cleaned = cleaned[7:]
-            if cleaned.startswith("```"): cleaned = cleaned[3:]
-            if cleaned.endswith("```"): cleaned = cleaned[:-3]
-            report_json = json.loads(cleaned.strip())
+            
+            # Use regex to extract JSON object safely
+            json_match = re.search(r'\{.*\}', cleaned, re.DOTALL)
+            if json_match:
+                cleaned = json_match.group(0)
+                
+            report_json = json.loads(cleaned)
             
             # Save Patient Case Hierarchically
             new_case = PatientCase(

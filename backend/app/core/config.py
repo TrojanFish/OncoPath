@@ -8,6 +8,9 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     
+    # Security
+    CORS_ORIGINS: str = "http://localhost:3000,http://127.0.0.1:3000"
+    
     # LLM Configuration
     OPENAI_API_KEY: str = "sk-mock-key-for-development"
     OPENAI_BASE_URL: str = "https://api.openai.com/v1"

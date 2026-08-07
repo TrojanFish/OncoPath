@@ -51,7 +51,6 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
   }, [profile]);
 
   useEffect(() => {
-    setIsLoading(true);
     fetch('/api/graph')
       .then((res) => res.json())
       .then((data) => {
