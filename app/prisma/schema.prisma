@@ -1,0 +1,85 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Node {
+  id              String   @id // e.g. "STAS", "CTR"
+  label           String
+  type            String   // "factor" | "outcome" | "evidence" | "guideline"
+  x               Float
+  y               Float
+  description     String?  @db.Text
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  sourceEdges     Edge[]   @relation("SourceEdges")
+  targetEdges     Edge[]   @relation("TargetEdges")
+}
+
+model Edge {
+  id               String   @id @default(uuid())
+  sourceNodeId     String
+  targetNodeId     String
+  relationshipType String   // "risk" | "protective" | "guides"
+  
+  sourceNode       Node     @relation("SourceEdges", fields: [sourceNodeId], references: [id])
+  targetNode       Node     @relation("TargetEdges", fields: [targetNodeId], references: [id])
+
+  evidence         EdgeEvidence?
+  studies          EdgeStudy[]
+  forestData       ForestData[]
+
+  @@unique([sourceNodeId, targetNodeId])
+}
+
+model EdgeEvidence {
+  id           String @id @default(uuid())
+  edgeId       String @unique
+  title        String
+  description  String @db.Text
+  
+  metricLabel  String?
+  metricValue  String?
+  metricCi     String?
+  metricP      String?
+
+  edge         Edge   @relation(fields: [edgeId], references: [id], onDelete: Cascade)
+}
+
+model Study {
+  id             String      @id @default(uuid())
+  doi            String?     @unique
+  title          String
+  journal        String?
+  publishedYear  Int?
+  conclusion     String?     @db.Text
+  
+  edges          EdgeStudy[]
+}
+
+model EdgeStudy {
+  edgeId   String
+  studyId  String
+
+  edge     Edge  @relation(fields: [edgeId], references: [id], onDelete: Cascade)
+  study    Study @relation(fields: [studyId], references: [id], onDelete: Cascade)
+
+  @@id([edgeId, studyId])
+}
+
+model ForestData {
+  id          String @id @default(uuid())
+  edgeId      String
+  studyName   String
+  year        Int?
+  hr          Float
+  ciLow       Float
+  ciHigh      Float
+
+  edge        Edge   @relation(fields: [edgeId], references: [id], onDelete: Cascade)
+}
