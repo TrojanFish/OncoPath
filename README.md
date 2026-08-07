@@ -62,52 +62,74 @@ npm run dev
 
 Visit `http://localhost:3000` to interact with the platform.
 
-## 🐳 VPS / Production Deployment
-For production deployment on a Linux VPS (e.g., Ubuntu/Debian), the project includes fully configured Dockerfiles and a `docker-compose.yml`.
+## 🐳 VPS / Production Deployment (Detailed Guide)
+For production deployment on a Linux VPS (e.g., Ubuntu/Debian), we use Docker to ensure the environment is identical to development.
 
 ### Step 1: Install Docker & Git
-SSH into your VPS and install the required tools:
+SSH into your VPS. If you haven't installed Docker and Git, run:
 ```bash
 sudo apt update
 sudo apt install git docker.io docker-compose -y
+sudo systemctl enable docker
+sudo systemctl start docker
 ```
 
 ### Step 2: Clone the Repository
+Pull the code from GitHub to your server:
 ```bash
 git clone https://github.com/TrojanFish/OncoPath.git
 cd OncoPath
 ```
 
 ### Step 3: Configure Environment Variables
-You must configure the production environment before starting the containers:
+You need to configure environment variables for **both** the backend and the frontend.
+
+**1. Backend Configuration**
 ```bash
 cd backend
 cp .env.example .env
 nano .env
 ```
-Inside `.env`, make the following changes:
-1. Set your `OPENAI_API_KEY`.
-2. Change the `DATABASE_URL` to point to the Postgres container:
-   `DATABASE_URL=postgresql+asyncpg://postgres:password@db:5432/oncopath`
-3. Change the `SECRET_KEY` to a secure random string.
+Inside `backend/.env`, you **must** update the following:
+- `OPENAI_API_KEY`: Your OpenAI API key for the RAG pipeline.
+- `CORS_ORIGINS`: Change this to allow your frontend's address. E.g., `http://<YOUR_VPS_IP>:38030,http://<YOUR_DOMAIN>`.
+- `SECRET_KEY`: Change this to a secure random string.
+- `DATABASE_URL`: Ensure it points to the Postgres container (default in `docker-compose.yml` is `postgresql+asyncpg://postgres:password@db:5432/oncopath`).
+
+**2. Frontend Configuration**
+```bash
+cd ../app
+cp .env.example .env
+nano .env
+```
+Inside `app/.env`, ensure the API URL points to your backend container or your VPS public IP if exposing directly.
+- `NEXT_PUBLIC_API_URL`: Usually `http://<YOUR_VPS_IP>:38080/api` or your backend domain.
 
 ### Step 4: Build and Run
-Go back to the root directory and start the services:
+Go back to the root directory (`/OncoPath`) and start all services:
 ```bash
 cd ..
-# If you are on a VPS, you might want to edit docker-compose.yml 
-# and set NEXT_PUBLIC_API_URL=http://<YOUR_VPS_IP>:38080/api before building.
-
 docker-compose up -d --build
 ```
+*Note: The `--build` flag ensures that Next.js and Python environments are built fresh with your new `.env` settings.*
 
-This single command will spin up:
-- **Next.js Frontend** (Available at `http://your-vps-ip:38030`)
-- **FastAPI Backend** (Internal API at port `38080`)
-- **PostgreSQL** (with `pgvector` for semantic search)
-- **Redis** (for caching)
+### Step 5: Verify Deployment
+This single command will spin up 4 containers:
+- **oncopath-frontend**: Next.js App (Available at `http://<YOUR_VPS_IP>:38030`)
+- **oncopath-backend**: FastAPI Server (Available at `http://<YOUR_VPS_IP>:38080`)
+- **oncopath-db**: PostgreSQL Database
+- **oncopath-redis**: Redis Cache
 
-*Note: To run in the background permanently, ensure you use the `-d` flag. To stop the services, run `docker-compose down`.*
+**Useful Commands for Maintenance:**
+- **View live logs**: `docker-compose logs -f`
+- **Restart services**: `docker-compose restart`
+- **Stop services**: `docker-compose down`
+- **Update to new version**: 
+  ```bash
+  git pull origin main
+  docker-compose up -d --build
+  docker image prune -f  # (Optional) Clean up old images
+  ```
 
 ## 🛡️ Safety & Compliance
 - Complies with **AJCC 8th Edition** lung cancer staging guidelines.
