@@ -111,7 +111,7 @@ export default function EvidenceReportPage() {
               <div className="text-xs text-text-muted font-bold uppercase tracking-widest mb-2 print:text-black">Patient Profile</div>
               <div className="flex items-center gap-3">
                 <h1 className="text-xl font-bold text-gray-900 print:text-2xl">
-                  {profile.age}岁 · {profile.sex === 'male' ? '男性' : '女性'}
+                  {profile.age}岁 · {profile.gender === 'male' ? '男性' : '女性'}
                 </h1>
                 <span className="px-2 py-1 rounded bg-blue-50 text-accent-blue border border-blue-100 text-xs font-bold print:bg-transparent print:border-black print:text-black">
                   {profile.tStage || "T?"}{profile.nStage || "N?"}M0
