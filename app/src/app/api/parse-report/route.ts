@@ -2,9 +2,9 @@ import { NextResponse } from 'next/server';
 import { ai } from '@/lib/gemini';
 
 const SYSTEM_PROMPT = `
-你是一位专业的肺癌病理学家与肿瘤内科专家。你的任务是从患者粘贴的非结构化病理或影像报告中，提取出关键的临床决策指标，并严格输出为 JSON 格式。
+你是一位专业的肺癌病理学家与肿瘤内科专家。你的任务是从患者上传的病理/影像报告（可能是文本，也可能是报告的纸质照片截图）中，提取出关键的临床决策指标，并严格输出为 JSON 格式。
 
-无论原始文本有多乱，请尽力提取以下字段。如果文本中明确没有提及，则输出 null，而不是伪造数据。
+无论原始文本有多乱，或者照片有多模糊，请尽力提取以下字段。如果明确没有提及，则输出 null，而不是伪造数据。
 
 请严格遵守以下 JSON 结构输出，不要包含任何 Markdown 标记或多余的文字：
 {
@@ -30,16 +30,34 @@ const SYSTEM_PROMPT = `
 
 export async function POST(request: Request) {
   try {
-    const { reportText } = await request.json();
+    const { reportText, imageBase64, imageMimeType } = await request.json();
 
     if (!process.env.GEMINI_API_KEY) {
       return NextResponse.json({ success: false, error: "系统未配置 GEMINI_API_KEY" }, { status: 500 });
     }
 
+    // Construct multimodal contents
+    const contents: any[] = [];
+    if (reportText) {
+      contents.push(reportText);
+    }
+    if (imageBase64) {
+      contents.push({
+        inlineData: {
+          data: imageBase64,
+          mimeType: imageMimeType || "image/jpeg"
+        }
+      });
+    }
+
+    if (contents.length === 0) {
+      return NextResponse.json({ success: false, error: "未提供任何报告内容" }, { status: 400 });
+    }
+
     // Call Gemini API
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
-      contents: reportText,
+      contents: contents,
       config: {
         systemInstruction: SYSTEM_PROMPT,
         responseMimeType: 'application/json',

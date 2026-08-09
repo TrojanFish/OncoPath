@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import type { PatientProfile } from "@/lib/types";
 
 interface ReportUploaderProps {
@@ -12,9 +12,33 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
   const [isParsing, setIsParsing] = useState(false);
   const [error, setError] = useState("");
   const [parsedData, setParsedData] = useState<any | null>(null);
+  const [imageBase64, setImageBase64] = useState<string>("");
+  const [imageMimeType, setImageMimeType] = useState<string>("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const result = reader.result as string;
+        const [prefix, base64] = result.split(',');
+        const mimeType = prefix.match(/:(.*?);/)?.[1] || "image/jpeg";
+        setImageBase64(base64);
+        setImageMimeType(mimeType);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const clearImage = () => {
+    setImageBase64("");
+    setImageMimeType("");
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
 
   const handleParse = async () => {
-    if (!reportText.trim()) return;
+    if (!reportText.trim() && !imageBase64) return;
     setIsParsing(true);
     setError("");
 
@@ -22,7 +46,7 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
       const res = await fetch("/api/parse-report", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ reportText }),
+        body: JSON.stringify({ reportText, imageBase64, imageMimeType }),
       });
       
       const data = await res.json();
@@ -208,32 +232,68 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
         </div>
         <div>
           <h2 className="text-lg font-semibold text-text-primary">AI 报告智能解析</h2>
-          <p className="text-text-secondary text-sm">粘贴您的病理或影像报告，AI 将自动提取核心医学特征并建立档案</p>
+          <p className="text-text-secondary text-sm">粘贴您的病理/影像报告文本，或直接拍照上传纸质报告，AI 将自动提取核心特征</p>
         </div>
       </div>
 
-      <div className="mt-6">
+      <div className="mt-6 space-y-4">
+        {/* Image Upload Area */}
+        <div className="border-2 border-dashed border-gray-300 rounded-xl p-4 flex flex-col items-center justify-center bg-gray-50 hover:bg-gray-100 transition-colors relative">
+          <input 
+            type="file" 
+            accept="image/*" 
+            capture="environment" 
+            onChange={handleImageUpload} 
+            ref={fileInputRef}
+            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+            disabled={isParsing}
+          />
+          {imageBase64 ? (
+            <div className="relative w-full flex flex-col items-center">
+              <img src={`data:${imageMimeType};base64,${imageBase64}`} alt="Uploaded Report" className="max-h-48 rounded shadow-sm object-contain" />
+              <button 
+                onClick={(e) => { e.preventDefault(); clearImage(); }} 
+                className="mt-3 px-3 py-1 bg-red-100 text-red-700 text-xs rounded-full hover:bg-red-200 z-10 relative"
+              >
+                移除图片
+              </button>
+            </div>
+          ) : (
+            <div className="text-center py-6 pointer-events-none">
+              <div className="text-3xl mb-2">📷</div>
+              <div className="text-sm font-semibold text-gray-700">点击拍照或上传报告图片</div>
+              <div className="text-xs text-gray-500 mt-1">支持 JPG, PNG 格式</div>
+            </div>
+          )}
+        </div>
+
+        <div className="flex items-center gap-4">
+          <div className="h-px bg-gray-200 flex-1"></div>
+          <span className="text-xs text-gray-400 font-medium uppercase">或者粘贴文本</span>
+          <div className="h-px bg-gray-200 flex-1"></div>
+        </div>
+
         <textarea
           value={reportText}
           onChange={(e) => setReportText(e.target.value)}
-          placeholder="例如：右肺下叶切除标本：浸润性腺癌（腺泡型 80%，贴壁型 20%）。肿瘤最大径 1.5cm。可见气道播散 (STAS阳性)。支气管切缘阴性。淋巴结未见转移 (0/12)..."
-          className="input-artifact w-full h-48 p-4 rounded-xl resize-none text-sm leading-relaxed"
+          placeholder="例如：右肺下叶切除标本：浸润性腺癌（腺泡型 80%，贴壁型 20%）。肿瘤最大径 1.5cm..."
+          className="input-artifact w-full h-32 p-4 rounded-xl resize-none text-sm leading-relaxed"
           disabled={isParsing}
         />
         
         {error && (
-          <div className="mt-3 text-sm text-red-600 bg-red-50 p-3 rounded-lg border border-red-100">
+          <div className="text-sm text-red-600 bg-red-50 p-3 rounded-lg border border-red-100">
             {error}
           </div>
         )}
 
-        <div className="mt-4 flex items-center justify-between">
+        <div className="mt-2 flex items-center justify-between">
           <div className="text-xs text-text-muted max-w-xs">
             * 本系统仅进行医学实体抽取，不提供诊断结论。您的数据不会被保留或用于训练。
           </div>
           <button
             onClick={handleParse}
-            disabled={!reportText.trim() || isParsing}
+            disabled={(!reportText.trim() && !imageBase64) || isParsing}
             className={`btn-primary px-6 py-2.5 rounded-lg text-sm font-semibold transition-all ${isParsing ? 'opacity-75 cursor-not-allowed' : ''}`}
           >
             {isParsing ? (
