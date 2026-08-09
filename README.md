@@ -82,36 +82,28 @@ cd OncoPath
 ```
 
 ### Step 3: Configure Environment Variables
-You need to configure environment variables for **both** the backend and the frontend.
+You only need to configure a single `.env` file in the root directory. `docker-compose` will automatically distribute the variables to the respective containers.
 
-**1. Backend Configuration**
 ```bash
-cd backend
-cp .env.example .env
+cd OncoPath
 nano .env
 ```
-Inside `backend/.env`, you **must** update the following:
-- `OPENAI_API_KEY`: Your OpenAI API key for the RAG pipeline.
-- `CORS_ORIGINS`: Change this to allow your frontend's address. E.g., `http://<YOUR_VPS_IP>:38030,http://<YOUR_DOMAIN>`.
-- `SECRET_KEY`: Change this to a secure random string.
-- `DATABASE_URL`: Ensure it points to the Postgres container (default in `docker-compose.yml` is `postgresql+asyncpg://postgres:password@db:5432/oncopath`).
+Inside the root `.env`, you **must** add the following keys:
+```env
+# Required for Frontend AI Parsing & Report Generation
+GEMINI_API_KEY=your_gemini_api_key_here
 
-**2. Frontend Configuration**
-```bash
-cd ../app
-cp .env.example .env
-nano .env
+# Required for Backend RAG & Knowledge Graph (Optional if only testing frontend)
+OPENAI_API_KEY=sk-your-openai-api-key-here
 ```
-Inside `app/.env`, ensure the API URL points to your backend container or your VPS public IP if exposing directly.
-- `NEXT_PUBLIC_API_URL`: Usually `http://<YOUR_VPS_IP>:38080/api` or your backend domain.
+*(The `DATABASE_URL` is now automatically handled and securely routed within the Docker internal network).*
 
 ### Step 4: Build and Run
-Go back to the root directory (`/OncoPath`) and start all services:
+Start all services with a single command:
 ```bash
-cd ..
 docker-compose up -d --build
 ```
-*Note: The `--build` flag ensures that Next.js and Python environments are built fresh with your new `.env` settings.*
+*Note: The `--build` flag ensures that Next.js and Python environments are built fresh. The frontend container will automatically execute Prisma migrations and seed the database upon startup.*
 
 ### Step 5: Verify Deployment
 This single command will spin up 4 containers:
