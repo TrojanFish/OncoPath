@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import ReactMarkdown from "react-markdown";
-import remarkGfm from "remarkGfm";
+import remarkGfm from "remark-gfm";
 import type { PatientProfile } from "@/lib/types";
 
 export default function EvidenceReportPage() {
