@@ -167,6 +167,19 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
               <option value="wedge">楔形切除</option>
             </select>
           </div>
+          <div>
+            <label className="block text-xs font-semibold text-text-muted mb-1">分化程度 (Grade)</label>
+            <select 
+              value={parsedData.grade || ""} 
+              onChange={e => setParsedData({...parsedData, grade: e.target.value})}
+              className="w-full p-2 border border-gray-300 rounded-lg text-sm"
+            >
+              <option value="">未提及</option>
+              <option value="1">高分化 (Grade 1)</option>
+              <option value="2">中分化 (Grade 2)</option>
+              <option value="3">低分化 (Grade 3)</option>
+            </select>
+          </div>
         </div>
 
         <div className="flex gap-3 justify-end mt-6">

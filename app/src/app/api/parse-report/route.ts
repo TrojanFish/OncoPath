@@ -18,7 +18,8 @@ const SYSTEM_PROMPT = `
   "vpi": "positive" | "negative" | null (胸膜侵犯),
   "lvi": "positive" | "negative" | null (脉管内癌栓),
   "marginStatus": "positive" | "negative" | null (切缘状态),
-  "surgeryType": "lobectomy" | "segmentectomy" | "wedge" | null
+  "surgeryType": "lobectomy" | "segmentectomy" | "wedge" | null,
+  "grade": "1" | "2" | "3" | null (分化程度: 1为高分化, 2为中分化, 3为低分化)
 }
 
 规则：
@@ -66,6 +67,7 @@ export async function POST(request: Request) {
       lvi: extractedData.lvi || "negative",
       marginStatus: extractedData.marginStatus || "negative",
       surgeryType: extractedData.surgeryType || "lobectomy",
+      grade: extractedData.grade || null,
       
       // State Engine fields will be generated below
       currentStage: "evaluation",
