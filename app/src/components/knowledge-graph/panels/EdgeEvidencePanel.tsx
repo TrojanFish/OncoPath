@@ -4,7 +4,7 @@ import { MiniForestPlot } from '../MiniForestPlot';
 
 export function EdgeEvidencePanel({ edgeKey, evidence, onClose }: { edgeKey: string; evidence: EdgeEvidence; onClose: () => void }) {
   return (
-    <div className="glass rounded-2xl p-5 border border-accent-blue/30 flex-1 overflow-y-auto max-h-[500px]">
+    <div className="bg-white rounded-2xl shadow-sm p-5 border border-accent-blue/30 flex-1 overflow-y-auto max-h-[500px]">
       {/* Header */}
       <div className="flex items-start justify-between mb-3">
         <div>
@@ -26,9 +26,9 @@ export function EdgeEvidencePanel({ edgeKey, evidence, onClose }: { edgeKey: str
 
       {/* Key Metric */}
       {evidence.metric && (
-        <div className="glass rounded-xl p-3 border border-accent-blue/20 mb-4">
+        <div className="bg-white rounded-xl shadow-sm p-3 border border-accent-blue/20 mb-4">
           <div className="text-text-muted text-xs mb-1">{evidence.metric.label}</div>
-          <div className="text-xl font-bold text-gradient">{evidence.metric.value}</div>
+          <div className="text-xl font-bold text-gray-900 font-bold">{evidence.metric.value}</div>
           <div className="flex gap-3 mt-1">
             <span className="text-text-muted text-xs">95% CI: {evidence.metric.ci}</span>
             <span className="text-text-muted text-xs">p = {evidence.metric.p}</span>
@@ -46,7 +46,7 @@ export function EdgeEvidencePanel({ edgeKey, evidence, onClose }: { edgeKey: str
         <p className="text-text-muted text-xs font-medium mb-2">📚 核心文献依据</p>
         <div className="space-y-3">
           {evidence.studies.map((study, i) => (
-            <div key={i} className="glass rounded-xl p-3 border border-white/5">
+            <div key={i} className="bg-white rounded-xl shadow-sm p-3 border border-white/5">
               <p className="text-text-primary text-xs font-medium leading-snug mb-1">{study.title}</p>
               <div className="flex gap-2 text-xs text-text-muted mb-2">
                 <span className="text-accent-teal">{study.journal}</span>

@@ -355,7 +355,7 @@ function Step2({ form, updateForm }: StepProps) {
               className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer ${
                 form.iaslcGrade === g
                   ? "bg-accent-blue/20 border border-accent-blue text-accent-blue"
-                  : "glass border border-white/10 text-text-muted hover:border-white/20"
+                  : "bg-white shadow-sm border border-gray-200 text-gray-500 hover:border-gray-300"
               }`}
             >
               {g === "unknown" ? "未知" : `Grade ${g}`}

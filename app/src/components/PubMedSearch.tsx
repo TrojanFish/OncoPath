@@ -68,7 +68,7 @@ export default function PubMedSearch() {
 
   return (
     <div className="mt-16 mb-8">
-      <div className="glass-strong rounded-2xl p-6 border border-white/5">
+      <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
         <h2 className="text-xl font-bold text-text-primary mb-4 flex items-center gap-2">
           <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" className="text-accent-blue">
             <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" strokeLinecap="round" strokeLinejoin="round" />
@@ -103,7 +103,7 @@ export default function PubMedSearch() {
             <button
               onClick={handleFetchExternal}
               disabled={isLoading}
-              className="glass px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap border border-white/10 hover:bg-white/5 transition-colors"
+              className="bg-white shadow-sm px-4 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap border border-white/10 hover:bg-white/5 transition-colors"
             >
               从外部库抓取
             </button>
@@ -121,7 +121,7 @@ export default function PubMedSearch() {
             <h3 className="text-sm font-medium text-text-muted uppercase tracking-wider mb-2">检索结果</h3>
             <div className="grid md:grid-cols-2 gap-4">
               {results.map((item) => (
-                <div key={item.id} className="glass rounded-xl p-5 border border-white/5">
+                <div key={item.id} className="bg-white rounded-xl shadow-sm p-5 border border-white/5">
                   <div className="flex items-start justify-between gap-4 mb-2">
                     <span className="text-accent-blue font-semibold text-sm">{item.journal}</span>
                     <span className="text-text-muted text-xs whitespace-nowrap">{item.year}</span>
@@ -144,7 +144,7 @@ export default function PubMedSearch() {
                   
                   <div className="mt-4 pt-3 border-t border-white/5 flex flex-wrap gap-2">
                     {item.keywords.split(',').map(k => k.trim()).filter(Boolean).slice(0, 3).map((k, i) => (
-                      <span key={i} className="glass text-text-muted text-[10px] px-2 py-0.5 rounded border border-white/10">
+                      <span key={i} className="bg-gray-50 text-gray-500 text-[10px] px-2 py-0.5 rounded border border-gray-200">
                         {k}
                       </span>
                     ))}

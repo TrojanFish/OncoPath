@@ -73,20 +73,20 @@
 }
 
 /* Glass effect (Replaced with clean card look for Claude style) */
-.glass {
+.bg-white shadow-sm {
   background: #ffffff;
   border: 1px solid var(--border-color);
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
-.glass-strong {
+.bg-white shadow-sm-strong {
   background: #ffffff;
   border: 1px solid var(--border-glow);
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 /* Glow effects (Muted down to standard shadows) */
-.glow-blue {
+.shadow-sm {
   box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.1);
 }
 
@@ -95,12 +95,12 @@
 }
 
 /* Typography */
-.text-gradient {
+.text-gray-900 font-bold {
   color: var(--text-primary); /* Remove gradient text in clean style */
   font-weight: 600;
 }
 
-.text-gradient-gold {
+.text-gray-900 font-bold-gold {
   color: var(--gold);
 }
 

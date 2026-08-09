@@ -2,7 +2,7 @@ import React from 'react';
 
 export function TimeSlider({ value, onChange }: { value: number; onChange: (val: number) => void }) {
   return (
-    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 glass px-6 py-3 rounded-2xl border border-white/10 flex flex-col items-center gap-2 z-10 w-80 shadow-lg shadow-black/20">
+    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-white px-6 py-3 rounded-2xl border border-gray-200 shadow-sm flex flex-col items-center gap-2 z-10 w-80 shadow-lg shadow-black/20">
       <div className="flex justify-between w-full text-xs text-text-muted font-medium px-1">
         <span>初始</span>
         <span>1年</span>

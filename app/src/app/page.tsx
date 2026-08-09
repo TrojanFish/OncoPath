@@ -594,8 +594,8 @@ function CtaStats() {
   return (
     <p className="text-xl text-text-secondary mb-4 max-w-2xl mx-auto">
       数据库已收录{" "}
-      <span className="text-gradient font-semibold">{studiesText}</span>，覆盖{" "}
-      <span className="text-gradient font-semibold">{patientsText}</span>。
+      <span className="text-gray-900 font-bold font-semibold">{studiesText}</span>，覆盖{" "}
+      <span className="text-gray-900 font-bold font-semibold">{patientsText}</span>。
     </p>
   );
 }

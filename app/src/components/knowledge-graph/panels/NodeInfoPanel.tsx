@@ -6,7 +6,7 @@ export function NodeInfoPanel({ node }: { node: KnowledgeNode }) {
   const colors = typeColors[node.type];
 
   return (
-    <div className="glass rounded-2xl p-5 border flex-1" style={{ borderColor: colors.border }}>
+    <div className="bg-white rounded-2xl shadow-sm p-5 border flex-1" style={{ borderColor: colors.border }}>
       <div className="flex items-center gap-3 mb-4">
         <div
           className="w-10 h-10 rounded-xl flex items-center justify-center"
@@ -23,11 +23,11 @@ export function NodeInfoPanel({ node }: { node: KnowledgeNode }) {
       <p className="text-text-secondary text-sm leading-relaxed mb-4">{node.description}</p>
 
       <div className="grid grid-cols-2 gap-3 mb-4">
-        <div className="glass rounded-xl p-3 border border-white/5 text-center">
-          <div className="text-xl font-bold text-gradient">{node.studies}</div>
+        <div className="bg-white rounded-xl shadow-sm p-3 border border-white/5 text-center">
+          <div className="text-xl font-bold text-gray-900 font-bold">{node.studies}</div>
           <div className="text-text-muted text-xs">相关研究</div>
         </div>
-        <div className="glass rounded-xl p-3 border border-white/5 text-center">
+        <div className="bg-white rounded-xl shadow-sm p-3 border border-white/5 text-center">
           <div className="flex justify-center gap-0.5 mb-1">
             {Array.from({ length: 5 }).map((_, i) => (
               <svg key={i} width="12" height="12" viewBox="0 0 24 24" fill={i < node.evidence ? "currentColor" : "none"} stroke="currentColor" className={i < node.evidence ? "text-amber-400" : "text-white/10"}>
@@ -44,7 +44,7 @@ export function NodeInfoPanel({ node }: { node: KnowledgeNode }) {
           <p className="text-text-muted text-xs mb-2">关联因素 <span className="text-accent-teal/70">（点击连线查看文献）</span></p>
           <div className="flex flex-wrap gap-1">
             {node.connections.map((c) => (
-              <span key={c} className="glass text-text-muted text-xs px-2 py-0.5 rounded border border-white/10">
+              <span key={c} className="bg-gray-50 text-gray-500 text-xs px-2 py-0.5 rounded border border-gray-200">
                 {c}
               </span>
             ))}

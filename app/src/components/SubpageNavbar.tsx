@@ -11,7 +11,7 @@ export function LogoMark() {
         <img src="/logo.png" alt="OncoPath Logo" className="w-full h-full object-cover" />
       </div>
       <span className="font-semibold text-text-primary">
-        Onco<span className="text-gradient">Path</span>
+        Onco<span className="text-gray-900 font-bold">Path</span>
       </span>
     </div>
   );
@@ -28,7 +28,7 @@ export default function SubpageNavbar() {
   const pathname = usePathname();
 
   return (
-    <nav className="sticky top-0 z-50 bg-[#0a0e1a]/70 backdrop-blur-lg border-b border-white/5 px-6 py-4 shadow-sm">
+    <nav className="sticky top-0 z-50 bg-white border-b border-gray-200 px-6 py-4 shadow-sm">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <Link href="/" className="flex-shrink-0 hover:opacity-80 transition-opacity">
           <LogoMark />

@@ -41,7 +41,7 @@ export default function StatsBanner() {
   }, []);
 
   return (
-    <div ref={ref} className="glass-strong border-y border-white/5 py-12 px-6">
+    <div ref={ref} className="bg-white shadow-sm border-y border-gray-200 py-12 px-6">
       <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6">
         {stats.map((stat) => (
           <AnimatedStat key={stat.label} stat={stat} animate={animated} />
@@ -83,7 +83,7 @@ function AnimatedStat({
       <div className="text-2xl mb-2 group-hover:scale-110 transition-transform duration-300">
         {stat.icon}
       </div>
-      <div className="text-3xl font-black text-gradient mb-1">
+      <div className="text-3xl font-black text-gray-900 font-bold mb-1">
         {animate ? displayed.toLocaleString() : 0}
         <span className="text-lg font-semibold text-text-secondary ml-1">{stat.suffix}</span>
       </div>

@@ -55,7 +55,7 @@ export default function DashboardView({ onBack, onViewReport }: DashboardViewPro
         ) : error ? (
           <div className="text-center py-20 text-accent-red">{error}</div>
         ) : cases.length === 0 ? (
-          <div className="text-center py-20 text-text-muted glass rounded-xl">暂无历史评估记录</div>
+          <div className="text-center py-20 text-text-muted bg-white rounded-xl shadow-sm">暂无历史评估记录</div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {cases.map((c) => {
@@ -63,7 +63,7 @@ export default function DashboardView({ onBack, onViewReport }: DashboardViewPro
               const path = tumor.pathology_features || {};
               
               return (
-              <div key={c.id} className="glass rounded-xl p-5 md:p-6 hover:shadow-glow-blue transition-all cursor-pointer group" onClick={() => {
+              <div key={c.id} className="bg-white rounded-xl shadow-sm p-5 md:p-6 hover:shadow-shadow-sm transition-all cursor-pointer group" onClick={() => {
                 const profile: PatientProfile = {
                   age: c.age || undefined,
                   gender: c.gender || undefined,

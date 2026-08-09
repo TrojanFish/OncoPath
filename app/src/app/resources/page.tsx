@@ -31,7 +31,7 @@ const CATEGORIES: ResourceCategory[] = [
     icon: "🏥",
     level: "beginner",
     levelLabel: "最推荐 · 患者友好",
-    levelColor: "text-accent-teal border-accent-teal/30 bg-accent-teal/10",
+    levelColor: "text-teal-600 border-teal-200 bg-teal-50",
     title: "权威临床指南",
     subtitle: "由国际顶尖学术机构出版，结论最为权威，部分提供中文版本，适合患者直接参考。",
     links: [
@@ -73,7 +73,7 @@ const CATEGORIES: ResourceCategory[] = [
     icon: "📰",
     level: "intermediate",
     levelLabel: "进阶 · 高质量文献",
-    levelColor: "text-accent-blue border-accent-blue/30 bg-accent-blue/10",
+    levelColor: "text-blue-600 border-blue-200 bg-blue-50",
     title: "顶级学术期刊",
     subtitle: "发表全球最顶尖的肺癌临床研究成果。OncoPath 的核心证据库中的研究均来自这些期刊。",
     warning: "⚠️ 注意：期刊论文面向医生撰写，数据专业且需要医学背景才能正确解读。请勿将单篇研究的结论直接套用于自身情况。",
@@ -114,7 +114,7 @@ const CATEGORIES: ResourceCategory[] = [
     icon: "🔬",
     level: "advanced",
     levelLabel: "硬核 · 原始数据库",
-    levelColor: "text-accent-amber border-accent-amber/30 bg-accent-amber/10",
+    levelColor: "text-amber-600 border-amber-200 bg-amber-50",
     title: "学术文献原始数据库",
     subtitle: "全球最大的医学文献检索平台，包含数千万篇论文。适合医学专业背景人士或在家属陪同下深入查阅。",
     warning: "⚠️ 重要提示：数据库中包含大量不同质量的研究，其中部分研究样本量小、结论存在争议，甚至已被更新研究推翻。在没有医学背景的情况下，请务必在专业医生的指导下解读检索结果。",
@@ -157,7 +157,7 @@ const CATEGORIES: ResourceCategory[] = [
     icon: "🧰",
     level: "beginner",
     levelLabel: "实用工具",
-    levelColor: "text-accent-green border-accent-green/30 bg-accent-green/10",
+    levelColor: "text-green-600 border-green-200 bg-green-50",
     title: "患者实用辅助工具",
     subtitle: "帮助患者理解医学概念、管理病情记录、或与医疗团队更有效沟通的实用在线工具。",
     links: [
@@ -206,12 +206,12 @@ export default function ResourcesPage() {
   };
 
   return (
-    <div className="min-h-screen pb-24">
+    <div className="min-h-screen bg-gray-50 pb-24">
       <SubpageNavbar />
 
       {/* Hero Header */}
       <header className="pt-16 pb-10 px-6 text-center max-w-3xl mx-auto">
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm text-accent-teal mb-6 border border-accent-teal/20 bg-accent-teal/5">
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm text-teal-600 mb-6 border border-teal-200 bg-teal-50 shadow-sm">
           <span className="w-1.5 h-1.5 rounded-full bg-accent-teal" />
           循证导航库 · Beta
         </div>
@@ -222,7 +222,7 @@ export default function ResourcesPage() {
         </p>
 
         {/* Big Disclaimer */}
-        <div className="mt-8 p-4 rounded-2xl border border-accent-amber/20 bg-accent-amber/5 text-left">
+        <div className="mt-8 p-4 rounded-2xl border border-amber-200 bg-amber-50 text-left shadow-sm">
           <p className="text-accent-amber font-semibold text-sm mb-1">📌 在你开始查阅之前，请阅读这段话</p>
           <p className="text-text-secondary text-sm leading-relaxed">
             医学论文是写给专业医生的，其中充满了统计学术语和置信区间。<strong className="text-text-primary">同一数字对不同患者的意义可能天壤之别。</strong>
@@ -236,16 +236,16 @@ export default function ResourcesPage() {
         <div className="flex flex-wrap items-center gap-3">
           <span className="text-text-muted text-sm">筛选：</span>
           {[
-            { key: "all", label: "全部", color: "text-text-primary border-white/10" },
-            { key: "beginner", label: "🏥 患者友好", color: "text-accent-teal border-accent-teal/20" },
-            { key: "intermediate", label: "📰 核心期刊", color: "text-accent-blue border-accent-blue/20" },
-            { key: "advanced", label: "🔬 专业数据库", color: "text-accent-amber border-accent-amber/20" },
+            { key: "all", label: "全部", color: "text-gray-900 border-gray-200 bg-white shadow-sm" },
+            { key: "beginner", label: "🏥 患者友好", color: "text-teal-600 border-teal-200 bg-white shadow-sm" },
+            { key: "intermediate", label: "📰 核心期刊", color: "text-blue-600 border-blue-200 bg-white shadow-sm" },
+            { key: "advanced", label: "🔬 专业数据库", color: "text-amber-600 border-amber-200 bg-white shadow-sm" },
           ].map((f) => (
             <button
               key={f.key}
               onClick={() => setActiveFilter(f.key)}
               className={`px-4 py-1.5 rounded-full text-sm border transition-all ${f.color} ${
-                activeFilter === f.key ? "bg-white/10" : "bg-transparent hover:bg-white/5"
+                activeFilter === f.key ? "bg-gray-100 ring-2 ring-gray-200" : "hover:bg-gray-50"
               }`}
             >
               {f.label}
@@ -288,7 +288,7 @@ export default function ResourcesPage() {
                 return (
                   <div
                     key={i}
-                    className="group relative rounded-2xl border border-white/8 bg-[#0f1528]/60 hover:border-white/15 hover:bg-[#141b35]/80 transition-all duration-300 overflow-hidden"
+                    className="group relative rounded-2xl border border-gray-200 bg-white shadow-sm hover:border-gray-300 hover:bg-gray-50 transition-all duration-300 overflow-hidden"
                   >
                     {/* Top accent bar */}
                     <div className={`h-0.5 w-full ${
@@ -315,14 +315,14 @@ export default function ResourcesPage() {
                         </div>
                         <div className="flex items-center gap-1.5 shrink-0">
                           <span className={`text-[10px] px-1.5 py-0.5 rounded border ${
-                            link.lang === "zh" ? "text-accent-teal border-accent-teal/20 bg-accent-teal/5" :
-                            link.lang === "both" ? "text-accent-blue border-accent-blue/20 bg-accent-blue/5" :
-                            "text-text-muted border-white/10"
+                            link.lang === "zh" ? "text-teal-600 border-teal-200 bg-teal-50" :
+                            link.lang === "both" ? "text-blue-600 border-blue-200 bg-blue-50" :
+                            "text-gray-500 border-gray-200 bg-gray-50"
                           }`}>
                             {link.lang === "zh" ? "中文" : link.lang === "both" ? "中/英" : "英文"}
                           </span>
                           <span className={`text-[10px] px-1.5 py-0.5 rounded border ${
-                            link.free ? "text-accent-green border-accent-green/20 bg-accent-green/5" : "text-text-muted border-white/10"
+                            link.free ? "text-green-600 border-green-200 bg-green-50" : "text-gray-500 border-gray-200 bg-gray-50"
                           }`}>
                             {link.free ? "免费" : "部分收费"}
                           </span>
@@ -347,7 +347,7 @@ export default function ResourcesPage() {
                             {tipOpen ? "收起提示" : "查看使用提示"}
                           </button>
                           {tipOpen && (
-                            <div className="mt-2 p-3 rounded-xl bg-accent-teal/5 border border-accent-teal/15 text-xs text-text-secondary leading-relaxed">
+                            <div className="mt-2 p-3 rounded-xl bg-teal-50 border border-teal-200 text-xs text-gray-700 leading-relaxed">
                               {link.tip}
                             </div>
                           )}
@@ -359,7 +359,7 @@ export default function ResourcesPage() {
                         href={link.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="mt-4 inline-flex items-center gap-1.5 text-xs text-text-muted hover:text-text-primary border border-white/10 hover:border-white/20 px-3 py-1.5 rounded-lg transition-all"
+                        className="mt-4 inline-flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-900 border border-gray-200 hover:border-gray-300 px-3 py-1.5 rounded-lg transition-all bg-white"
                       >
                         前往访问
                         <svg width="10" height="10" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -389,7 +389,7 @@ export default function ResourcesPage() {
                 step: "01",
                 title: "使用标准医学术语",
                 content: "不要使用中文或口语词汇，使用标准英文术语效果最佳。",
-                example: ["lung adenocarcinoma recurrence", "STAS prognosis lung cancer", "ground glass nodule follow-up"],
+                example: ["lung adenocarcinoma recurrence", "STAS prognosis lung cancer", "ground bg-white shadow-sm nodule follow-up"],
               },
               {
                 step: "02",
@@ -404,7 +404,7 @@ export default function ResourcesPage() {
                 example: ["「我看到这篇研究说复发率是X%」", "「这与我的情况类似吗？」", "「我需要额外注意什么？」"],
               },
             ].map((item) => (
-              <div key={item.step} className="rounded-2xl border border-white/8 bg-[#0f1528]/60 p-5">
+              <div key={item.step} className="rounded-2xl border border-gray-200 bg-white shadow-sm p-5">
                 <div className="text-accent-blue font-bold text-3xl opacity-30 mb-3">{item.step}</div>
                 <h3 className="font-semibold text-text-primary mb-2 text-sm">{item.title}</h3>
                 <p className="text-text-muted text-xs mb-3 leading-relaxed">{item.content}</p>
@@ -423,7 +423,7 @@ export default function ResourcesPage() {
       </main>
 
       {/* Footer disclaimer */}
-      <div className="max-w-7xl mx-auto px-6 mt-16 pt-8 pb-8 border-t border-white/5">
+      <div className="max-w-7xl mx-auto px-6 mt-16 pt-8 pb-8 border-t border-gray-200">
         <p className="text-text-muted text-xs text-center leading-relaxed max-w-2xl mx-auto">
           ⚠️ 上述所有外部链接均指向独立的第三方学术机构网站，OncoPath 不对这些网站的内容或准确性负责。
           所有医学决策请以主治医生的意见为最终依据。

@@ -59,7 +59,7 @@ export default function UserAvatar() {
           </button>
           
           {showDropdown && (
-            <div className="absolute top-full right-0 mt-3 w-48 glass-strong rounded-xl border border-white/10 shadow-xl overflow-hidden py-1 z-50">
+            <div className="absolute top-full right-0 mt-3 w-48 bg-white rounded-xl shadow-sm border border-white/10 shadow-xl overflow-hidden py-1 z-50">
               <div className="px-4 py-3 border-b border-white/5">
                 <p className="text-xs text-text-muted mb-1">已登录为</p>
                 <p className="text-sm text-text-primary font-medium truncate">{userEmail}</p>

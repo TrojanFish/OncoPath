@@ -308,7 +308,7 @@ function OverviewTab({ result, profile, riskColorMap }: { result: PatientMatchRe
       <div className="grid md:grid-cols-2 gap-4">
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <h3 className="text-text-secondary text-sm mb-4">5年无复发生存率（RFS）范围</h3>
-          <div className="text-4xl font-black text-gradient mb-2">
+          <div className="text-4xl font-black text-gray-900 font-bold mb-2">
             {Math.round(result.rfs5yrRange[0] * 100)}–{Math.round(result.rfs5yrRange[1] * 100)}%
           </div>
           <p className="text-text-muted text-xs mb-4">
@@ -333,7 +333,7 @@ function OverviewTab({ result, profile, riskColorMap }: { result: PatientMatchRe
       </div>
 
       {/* Factor Summary */}
-      <div className="glass rounded-2xl p-6 border border-white/5">
+      <div className="bg-white rounded-2xl shadow-sm p-6 border border-white/5">
         <h3 className="text-text-primary font-medium mb-4">关键指标评估</h3>
         <div className="space-y-3">
           {result.keyFactors.map((factor) => (
@@ -481,7 +481,7 @@ function FollowupTab({ result, profile }: { result: PatientMatchResult; profile:
 
   return (
     <div className="space-y-4">
-      <div className="glass rounded-2xl p-6 border border-white/5">
+      <div className="bg-white rounded-2xl shadow-sm p-6 border border-white/5">
         <h3 className="font-semibold text-text-primary mb-2 flex items-center gap-2">
           <span>📅</span> 随访建议参考
         </h3>
@@ -511,7 +511,7 @@ function FollowupTab({ result, profile }: { result: PatientMatchResult; profile:
         </div>
       </div>
 
-      <div className="glass rounded-2xl p-6 border border-white/5">
+      <div className="bg-white rounded-2xl shadow-sm p-6 border border-white/5">
         <h3 className="font-semibold text-text-primary mb-4 flex items-center gap-2">
           <span>🔍</span> 需要特别关注的信号
         </h3>

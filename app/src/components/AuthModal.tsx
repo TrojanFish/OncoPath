@@ -39,7 +39,7 @@ export default function AuthModal({ onClose, onSuccess }: AuthModalProps) {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div className="glass w-full max-w-md rounded-2xl p-8 border border-accent-blue/20 animate-fade-in-up relative">
+      <div className="bg-white w-full max-w-md rounded-2xl p-8 border border-gray-200 shadow-sm animate-fade-in-up relative">
         <button 
           onClick={onClose}
           className="absolute top-4 right-4 text-text-muted hover:text-text-primary"

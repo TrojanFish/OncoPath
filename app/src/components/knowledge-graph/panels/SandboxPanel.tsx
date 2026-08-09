@@ -5,7 +5,7 @@ export function SandboxPanel({ sandboxActive, onToggle, onExit }: { sandboxActiv
   const activeNodes = Array.from(sandboxActive);
   
   return (
-    <div className="glass rounded-2xl p-6 border border-amber-500/30 flex flex-col h-full bg-amber-500/5 shadow-[0_0_20px_rgba(245,158,11,0.05)]">
+    <div className="bg-white rounded-2xl shadow-sm p-6 border border-amber-500/30 flex flex-col h-full bg-amber-500/5 shadow-[0_0_20px_rgba(245,158,11,0.05)]">
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-semibold text-amber-400 flex items-center gap-2">
           ⚗️ 沙盘推演控制面板

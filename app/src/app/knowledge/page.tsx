@@ -48,7 +48,7 @@ export default function KnowledgePage() {
 
       {/* Knowledge Map */}
       <main className="max-w-7xl mx-auto px-6">
-        <div className="glass rounded-2xl p-2 border border-border-color shadow-xl glow-blue">
+        <div className="bg-white rounded-2xl shadow-sm p-2 border border-border-color shadow-xl shadow-sm">
           {profileLoaded && <KnowledgeMapPreview profile={profile} />}
         </div>
       </main>
