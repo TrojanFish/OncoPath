@@ -11,7 +11,7 @@ RETRY_COUNT=0
 
 while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
   echo "Attempting to push DB Schema (Attempt $((RETRY_COUNT+1))/$MAX_RETRIES)..."
-  if npx -y prisma@5.22.0 db push --accept-data-loss; then
+  if npx -y prisma@5.22.0 db push --accept-data-loss --skip-generate; then
     echo "DB Schema pushed successfully."
     break
   fi
