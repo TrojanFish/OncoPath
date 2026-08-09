@@ -46,6 +46,8 @@ services:
     environment:
       # NOTE: For VPS, change localhost to your VPS public IP in your environment or .env
       - NEXT_PUBLIC_API_URL=http://localhost:38080/api
+      - DATABASE_URL=postgresql://postgres:password@db:5432/oncopath
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
     ports:
       - "38030:3000"
     depends_on:
