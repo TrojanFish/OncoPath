@@ -22,4 +22,18 @@ export interface PatientProfile {
   margin: "negative" | "positive";
   surgeryType: "lobectomy" | "segmentectomy" | "wedge" | "unknown";
   notes?: string;
+
+  // New Staging / Demographics fields
+  id?: string;
+  organ?: string;
+  tStage?: string;
+  nStage?: string;
+  mStage?: string;
+
+  // State Engine (Dynamic Decision Nodes)
+  currentStage?: string;
+  riskLevel?: string;
+  nextAction?: string;
+  psychologicalState?: string;
 }
+

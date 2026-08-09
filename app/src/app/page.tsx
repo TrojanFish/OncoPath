@@ -120,13 +120,13 @@ export default function HomePage() {
           </div>
           <div className="flex items-center gap-4">
             <UserAvatar />
-            <button
-              onClick={() => setAppState("input")}
+            <Link
+              href="/profile"
               id="nav-start-btn"
               className="btn-primary px-5 py-2 rounded-lg text-sm font-medium cursor-pointer"
             >
-              开始分析
-            </button>
+              建立癌症档案
+            </Link>
           </div>
         </div>
       </nav>
@@ -181,16 +181,16 @@ export default function HomePage() {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16 animate-fade-in-up stagger-4" style={{ opacity: 0 }}>
-            <button
-              onClick={() => setAppState("input")}
+            <Link
+              href="/profile"
               id="hero-start-btn"
               className="btn-primary px-8 py-4 rounded-xl text-base font-semibold cursor-pointer flex items-center gap-2 animate-pulse-glow"
             >
               <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
-              输入病理资料
-            </button>
+              建立专属癌症档案
+            </Link>
             <a
               href="#features"
               id="hero-learn-btn"
@@ -454,13 +454,13 @@ export default function HomePage() {
             输入你的病理特征，系统将在已发表的研究中为你精准定位，
             并用可理解的语言解释每一个指标的含义。
           </p>
-          <button
-            onClick={() => setAppState("input")}
+          <Link
+            href="/profile"
             id="cta-start-btn"
-            className="btn-primary px-10 py-5 rounded-2xl text-lg font-semibold cursor-pointer animate-pulse-glow"
+            className="btn-primary px-10 py-5 rounded-2xl text-lg font-semibold cursor-pointer animate-pulse-glow inline-block"
           >
-            立即开始分析
-          </button>
+            建立个人医学档案
+          </Link>
           <p className="mt-6 text-text-muted text-sm">
             完全免费 · 无需注册 · 结论均有文献来源
           </p>

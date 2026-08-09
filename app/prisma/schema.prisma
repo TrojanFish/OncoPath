@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -13,12 +13,25 @@ model Node {
   type            String   // "factor" | "outcome" | "evidence" | "guideline"
   x               Float
   y               Float
-  description     String?  @db.Text
+  description     String?  
+  nameZh          String?
+  nameEn          String?
+
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
   sourceEdges     Edge[]   @relation("SourceEdges")
   targetEdges     Edge[]   @relation("TargetEdges")
+  patientQuestions PatientQuestion[]
+}
+
+model PatientQuestion {
+  id          String @id @default(uuid())
+  nodeId      String
+  question    String
+  answer      String 
+  
+  node        Node   @relation(fields: [nodeId], references: [id], onDelete: Cascade)
 }
 
 model Edge {
@@ -41,12 +54,17 @@ model EdgeEvidence {
   id           String @id @default(uuid())
   edgeId       String @unique
   title        String
-  description  String @db.Text
+  description  String 
   
   metricLabel  String?
   metricValue  String?
   metricCi     String?
   metricP      String?
+  
+  confidenceRating String? // e.g., "⭐⭐⭐⭐☆"
+  confidenceLevel  String? // e.g., "High", "Moderate"
+  source           String?
+  clinicalImpact   String? 
 
   edge         Edge   @relation(fields: [edgeId], references: [id], onDelete: Cascade)
 }
@@ -57,7 +75,7 @@ model Study {
   title          String
   journal        String?
   publishedYear  Int?
-  conclusion     String?     @db.Text
+  conclusion     String?     
   
   edges          EdgeStudy[]
 }
@@ -82,4 +100,58 @@ model ForestData {
   ciHigh      Float
 
   edge        Edge   @relation(fields: [edgeId], references: [id], onDelete: Cascade)
+}
+
+model PatientProfile {
+  id                  String   @id @default(uuid())
+  userId              String?  // Optional, for future auth
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  
+  // Patient Demo
+  age                 Int?
+  sex                 String?
+  
+  // Disease
+  organ               String?  @default("lung")
+  histology           String?
+  
+  // Imaging
+  noduleType          String?
+  sizeMm              Float?
+  ctr                 Float?
+  
+  // Pathology
+  tumorSize           Float?
+  grade               String?
+  tStage              String?
+  nStage              String?
+  mStage              String?
+  stas                Boolean?
+  vpi                 Boolean?
+  lvi                 Boolean?
+  
+  // Treatment
+  surgeryType         String?
+  marginStatus        String?
+  
+  // State Engine (Dynamic Decision Nodes)
+  currentStage        String?
+  riskLevel           String?
+  nextAction          String?
+  psychologicalState  String?
+}
+
+model ClinicalCohort {
+  id               String   @id @default(uuid())
+  name             String
+  cohortSize       Int
+  rfs5Year         String
+  os5Year          String
+  confidenceRating String
+  confidenceLevel  String
+  source           String
+  description      String   
+  matchCriteria    String   
+  createdAt        DateTime @default(now())
 }
