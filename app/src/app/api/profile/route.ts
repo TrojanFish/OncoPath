@@ -51,9 +51,9 @@ export async function POST(request: Request) {
         tStage: data.tStage,
         nStage: data.nStage,
         mStage: data.mStage,
-        stas: data.stas,
-        vpi: data.vpi,
-        lvi: data.lvi,
+        stas: data.stas === 'positive' ? true : data.stas === 'negative' ? false : null,
+        vpi: data.vpi === 'positive' ? true : data.vpi === 'negative' ? false : null,
+        lvi: data.lvi === 'positive' ? true : data.lvi === 'negative' ? false : null,
         surgeryType: data.surgeryType,
         marginStatus: data.marginStatus,
         
