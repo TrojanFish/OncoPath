@@ -65,6 +65,9 @@ export async function POST(request: Request) {
       }
     });
 
+    if (profile) {
+      (profile as any).gender = profile.sex;
+    }
     return NextResponse.json({ success: true, profile });
   } catch (error: any) {
     console.error('Error saving profile:', error);
@@ -82,6 +85,9 @@ export async function GET(request: Request) {
       orderBy: { createdAt: 'desc' }
     });
     
+    if (profile) {
+      (profile as any).gender = profile.sex;
+    }
     return NextResponse.json({ profile });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });

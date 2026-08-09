@@ -59,6 +59,27 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
 
         <div className="grid grid-cols-2 gap-4 mb-6">
           <div>
+            <label className="block text-xs font-semibold text-text-muted mb-1">患者年龄</label>
+            <input 
+              type="number" 
+              value={parsedData.age || ""} 
+              onChange={e => setParsedData({...parsedData, age: parseInt(e.target.value) || 55})}
+              className="w-full p-2 border border-gray-300 rounded-lg text-sm"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-text-muted mb-1">患者性别</label>
+            <select 
+              value={parsedData.sex || "unknown"} 
+              onChange={e => setParsedData({...parsedData, sex: e.target.value})}
+              className="w-full p-2 border border-gray-300 rounded-lg text-sm"
+            >
+              <option value="male">男性</option>
+              <option value="female">女性</option>
+              <option value="unknown">未知</option>
+            </select>
+          </div>
+          <div>
             <label className="block text-xs font-semibold text-text-muted mb-1">T分期 (肿瘤大小)</label>
             <select 
               value={parsedData.tStage || ""} 
