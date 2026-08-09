@@ -11,7 +11,7 @@ RETRY_COUNT=0
 
 while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
   echo "Attempting to push DB Schema (Attempt $((RETRY_COUNT+1))/$MAX_RETRIES)..."
-  if npx -y prisma db push --accept-data-loss; then
+  if npx -y prisma@5.22.0 db push --accept-data-loss; then
     echo "DB Schema pushed successfully."
     break
   fi
@@ -26,7 +26,7 @@ if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
 fi
 
 echo "Seeding Database..."
-npx -y tsx prisma/seed_cohorts.ts
+npx -y tsx@4.23.9 prisma/seed_cohorts.ts
 
 echo "Starting Next.js..."
 exec node server.js
