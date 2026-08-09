@@ -13,7 +13,7 @@ const studyTypeColors: Record<string, string> = {
   meta_analysis: "text-purple-400 border-purple-500/30 bg-purple-500/10",
   prospective_multicenter: "text-blue-400 border-blue-500/30 bg-blue-500/10",
   retrospective_multicenter: "text-teal-400 border-teal-500/30 bg-teal-500/10",
-  retrospective: "text-text-muted border-white/20 bg-white/5",
+  retrospective: "text-gray-500 border-gray-200 bg-gray-50",
 };
 
 const evidenceLevelLabels: Record<number, string> = {
@@ -29,7 +29,7 @@ export default function StudyCard({ study, compact = false }: StudyCardProps) {
 
   if (compact) {
     return (
-      <div className="glass rounded-xl p-4 card-hover border border-white/5">
+      <div className="bg-white rounded-xl p-4 shadow-sm card-hover border border-gray-200">
         <div className="flex items-start justify-between gap-2 mb-2">
           <span className="text-accent-blue font-semibold text-sm">{study.journal}</span>
           <span className="text-text-muted text-xs flex-shrink-0">{study.year}</span>
@@ -49,7 +49,7 @@ export default function StudyCard({ study, compact = false }: StudyCardProps) {
   }
 
   return (
-    <div className="glass rounded-2xl p-6 card-hover border border-white/5">
+    <div className="bg-white rounded-2xl p-6 shadow-sm card-hover border border-gray-200">
       {/* Header */}
       <div className="flex items-start gap-4 mb-4">
         <div className="flex-1">
@@ -63,7 +63,7 @@ export default function StudyCard({ study, compact = false }: StudyCardProps) {
           <h3 className="text-text-primary text-sm font-medium leading-relaxed">{study.title}</h3>
         </div>
         <div className="flex-shrink-0 text-right">
-          <div className="text-xl font-bold text-gradient">{study.patientN.toLocaleString()}</div>
+          <div className="text-xl font-bold text-gray-900">{study.patientN.toLocaleString()}</div>
           <div className="text-text-muted text-xs">例患者</div>
         </div>
       </div>
@@ -86,10 +86,10 @@ export default function StudyCard({ study, compact = false }: StudyCardProps) {
       </div>
 
       {/* Footer */}
-      <div className="mt-4 pt-4 border-t border-white/5 flex items-center justify-between">
+      <div className="mt-4 pt-4 border-t border-gray-200 flex items-center justify-between">
         <div className="flex gap-2 flex-wrap">
           {study.relevantFactors.slice(0, 3).map((f) => (
-            <span key={f} className="glass text-text-muted text-xs px-2 py-0.5 rounded border border-white/10">
+            <span key={f} className="bg-gray-50 text-gray-500 text-xs px-2 py-0.5 rounded border border-gray-200">
               {f}
             </span>
           ))}
@@ -138,7 +138,7 @@ function EvidenceStars({ count }: { count: number }) {
           width="12" height="12" viewBox="0 0 24 24"
           fill={i < count ? "currentColor" : "none"}
           stroke="currentColor"
-          className={i < count ? "text-amber-400" : "text-white/10"}
+          className={i < count ? "text-amber-400" : "text-gray-200"}
         >
           <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" />
         </svg>

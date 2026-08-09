@@ -20,9 +20,9 @@ const ZoomControls = () => {
   const { zoomIn, zoomOut, resetTransform } = useControls();
   return (
     <div className="absolute top-4 right-4 flex flex-col gap-2 z-20">
-      <button onClick={() => zoomIn()} className="glass w-8 h-8 flex items-center justify-center rounded-lg border border-white/10 hover:bg-white/10 text-text-primary shadow-lg">＋</button>
-      <button onClick={() => zoomOut()} className="glass w-8 h-8 flex items-center justify-center rounded-lg border border-white/10 hover:bg-white/10 text-text-primary shadow-lg">－</button>
-      <button onClick={() => resetTransform()} className="glass w-8 h-8 flex items-center justify-center rounded-lg border border-white/10 hover:bg-white/10 text-text-primary shadow-lg text-xs">↺</button>
+      <button onClick={() => zoomIn()} className="bg-white w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 hover:bg-gray-50 text-gray-900 shadow-sm">＋</button>
+      <button onClick={() => zoomOut()} className="bg-white w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 hover:bg-gray-50 text-gray-900 shadow-sm">－</button>
+      <button onClick={() => resetTransform()} className="bg-white w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 hover:bg-gray-50 text-gray-900 shadow-sm text-xs">↺</button>
     </div>
   );
 };
@@ -141,8 +141,8 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
     return (
       <div className="mt-12 min-h-[600px] flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-8 h-8 border-4 border-white/20 border-t-white rounded-full animate-spin"></div>
-          <p className="text-white/60">正在加载知识图谱...</p>
+          <div className="w-8 h-8 border-4 border-gray-200 border-t-gray-400 rounded-full animate-spin"></div>
+          <p className="text-gray-500">正在加载知识图谱...</p>
         </div>
       </div>
     );
@@ -151,13 +151,13 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
   return (
     <div className="mt-12">
       {/* Time Slider */}
-      <div className="mb-6 flex flex-col items-center max-w-lg mx-auto bg-[#0a0e1a]/50 p-4 rounded-xl border border-white/5 relative h-20">
+      <div className="mb-6 flex flex-col items-center max-w-lg mx-auto bg-white shadow-sm p-4 rounded-xl border border-gray-200 relative h-20">
         <TimeSlider value={timeYears} onChange={setTimeYears} />
       </div>
 
       {/* Mode Banners */}
       {sandboxMode ? (
-        <div className="mb-4 flex items-center justify-between glass rounded-xl px-4 py-2.5 border border-amber-500/30 bg-amber-500/5">
+        <div className="mb-4 flex items-center justify-between bg-amber-50 rounded-xl px-4 py-2.5 border border-amber-200 shadow-sm">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
             <span className="text-amber-400 text-sm font-medium">沙盘推演模式</span>
@@ -171,7 +171,7 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
           </button>
         </div>
       ) : personalMode && profile ? (
-        <div className="mb-4 flex items-center justify-between glass rounded-xl px-4 py-2.5 border border-accent-teal/30">
+        <div className="mb-4 flex items-center justify-between bg-teal-50 rounded-xl px-4 py-2.5 border border-teal-200 shadow-sm">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-accent-teal animate-pulse" />
             <span className="text-accent-teal text-sm font-medium">专属路径模式</span>
@@ -182,7 +182,7 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
               <button
                 onClick={triggerAiScan}
                 disabled={aiScanning}
-                className={`text-xs border px-2 py-1 rounded transition-colors ${aiScanning ? 'text-text-muted border-white/10' : 'text-accent-blue/80 hover:text-accent-blue border-accent-blue/20 hover:border-accent-blue/40 cursor-pointer'} flex items-center gap-1.5`}
+                className={`text-xs border px-2 py-1 rounded transition-colors ${aiScanning ? 'text-gray-500 border-gray-200' : 'text-blue-600 hover:text-blue-700 border-blue-200 hover:border-blue-300 cursor-pointer'} flex items-center gap-1.5`}
               >
                 {aiScanning ? (
                   <><span className="w-2 h-2 border-2 border-text-muted border-t-transparent rounded-full animate-spin" /> 正在追踪文献...</>
@@ -211,7 +211,7 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
             <button
               onClick={triggerAiScan}
               disabled={aiScanning}
-              className={`text-xs border px-3 py-1.5 rounded-lg transition-colors ${aiScanning ? 'text-text-muted border-white/10' : 'text-accent-blue/80 hover:text-accent-blue border-accent-blue/20 hover:border-accent-blue/40 cursor-pointer'} flex items-center gap-1.5`}
+              className={`text-xs border px-3 py-1.5 rounded-lg transition-colors ${aiScanning ? 'text-gray-500 border-gray-200' : 'text-blue-600 hover:text-blue-700 border-blue-200 hover:border-blue-300 cursor-pointer'} flex items-center gap-1.5`}
             >
               {aiScanning ? (
                 <><span className="w-3 h-3 border-2 border-text-muted border-t-transparent rounded-full animate-spin" /> 正在追踪...</>
@@ -232,15 +232,15 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Graph */}
         <div
-          className={`lg:col-span-2 glass rounded-2xl border overflow-hidden relative flex flex-col max-h-[65vh] lg:max-h-[700px] transition-all duration-500 ${
+          className={`lg:col-span-2 bg-white rounded-2xl shadow-sm border overflow-hidden relative flex flex-col max-h-[65vh] lg:max-h-[700px] transition-all duration-500 ${
             personalMode && profile
-              ? "border-accent-teal/20 shadow-[0_0_30px_rgba(0,212,170,0.08)]"
-              : "border-white/5"
+              ? "border-teal-200 shadow-[0_0_30px_rgba(13,148,136,0.08)]"
+              : "border-gray-200"
           }`}
           style={{ minHeight: 450 }}
           onClick={() => { setSelectedNode(null); setSelectedEdge(null); }}
         >
-          <div className="absolute inset-0 bg-grid opacity-50 pointer-events-none" />
+          <div className="absolute inset-0 bg-gray-50 opacity-50 pointer-events-none" />
           
           <TransformWrapper
             initialScale={1}
@@ -325,12 +325,12 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
           <div className={`
             flex flex-col gap-4 
             lg:relative lg:translate-y-0 lg:h-auto lg:p-0 lg:bg-transparent lg:border-none lg:z-0 lg:shadow-none
-            fixed bottom-0 left-0 right-0 z-50 bg-[#0a0e1a]/95 backdrop-blur-xl border-t border-white/10 p-5 rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.5)]
+            fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 p-5 rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.1)]
             transition-transform duration-300 ease-in-out max-h-[85vh] overflow-y-auto
             ${isPanelActive ? 'translate-y-0' : 'translate-y-full lg:translate-y-0'}
           `}>
             {/* Mobile Drag Handle */}
-            <div className="lg:hidden w-12 h-1.5 bg-white/20 rounded-full mx-auto mb-4" />
+            <div className="lg:hidden w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-4" />
 
             {sandboxMode ? (
               <SandboxPanel
@@ -347,12 +347,12 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
             ) : activeNode ? (
               <NodeInfoPanel node={activeNode} />
             ) : (
-              <div className="glass rounded-2xl p-6 border border-white/5 flex-col items-center justify-center text-center flex-1 hidden lg:flex">
+              <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200 flex-col items-center justify-center text-center flex-1 hidden lg:flex">
                 <div className="text-4xl mb-3 opacity-50">🕸️</div>
-                <p className="text-text-muted text-sm">点击节点查看详细信息</p>
-                <p className="text-text-muted text-xs mt-2">点击连线查看文献依据</p>
+                <p className="text-gray-500 text-sm">点击节点查看详细信息</p>
+                <p className="text-gray-500 text-xs mt-2">点击连线查看文献依据</p>
                 {personalMode && activeHighlightNodes.length > 0 && (
-                  <div className="mt-4 pt-4 border-t border-white/5 w-full text-left">
+                  <div className="mt-4 pt-4 border-t border-gray-200 w-full text-left">
                     <p className="text-accent-teal text-xs font-medium mb-2">您的高风险因素</p>
                     <div className="flex flex-wrap gap-1">
                       {activeHighlightNodes.map((id) => (
@@ -365,7 +365,7 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
             )}
 
             {/* Quick facts - Only show on desktop when panel is not active on mobile to save space, or just always show on desktop */}
-            <div className="glass rounded-2xl p-5 border border-white/5 hidden lg:block">
+            <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-200 hidden lg:block">
               <h4 className="text-text-secondary text-sm font-medium mb-3">知识图谱统计</h4>
               <div className="space-y-2 text-sm">
                 {[

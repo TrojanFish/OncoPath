@@ -76,8 +76,8 @@ export default function HomePage() {
 
   if (appState === "input") {
     return (
-      <div className="min-h-screen bg-grid radial-overlay overflow-x-hidden">
-        <nav className="bg-[#0a0e1a]/70 backdrop-blur-lg border-b border-white/5 fixed top-0 left-0 right-0 z-50 px-6 py-4">
+      <div className="min-h-screen bg-gray-50 overflow-x-hidden">
+        <nav className="bg-white border-b border-gray-200 fixed top-0 left-0 right-0 z-50 px-6 py-4 shadow-sm">
           <div className="max-w-7xl mx-auto flex items-center justify-between">
             <button
               onClick={() => setAppState("landing")}
@@ -106,7 +106,7 @@ export default function HomePage() {
       {/* Navigation */}
       <nav
         className={`fixed top-0 left-0 right-0 z-50 px-6 py-4 transition-all duration-300 ${
-          scrollY > 50 ? "bg-[#0a0e1a]/70 backdrop-blur-lg border-b border-white/5 shadow-lg" : "bg-transparent border-b border-transparent"
+          scrollY > 50 ? "bg-white border-b border-gray-200 shadow-sm" : "bg-transparent border-b border-transparent"
         }`}
       >
         <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -134,7 +134,7 @@ export default function HomePage() {
       {/* Hero Section */}
       <section
         ref={heroRef}
-        className="relative min-h-screen flex items-center justify-center bg-grid radial-overlay overflow-hidden pt-24 pb-12"
+        className="relative min-h-screen flex items-center justify-center bg-gray-50 overflow-hidden pt-24 pb-12"
       >
         {/* Background orbs */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -157,7 +157,7 @@ export default function HomePage() {
 
         <div className="relative z-10 max-w-5xl mx-auto px-6 text-center">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 glass px-4 py-2 rounded-full text-sm text-text-secondary mb-8 animate-fade-in-up">
+          <div className="inline-flex items-center gap-2 bg-white px-4 py-2 rounded-full text-sm text-gray-500 mb-8 border border-gray-200 shadow-sm animate-fade-in-up">
             <span className="w-2 h-2 rounded-full bg-accent-teal animate-pulse" />
             <span>循证医学知识平台 · 每条结论均有来源</span>
           </div>
@@ -165,7 +165,7 @@ export default function HomePage() {
           {/* Main headline */}
           <h1 className="display-xl mb-6 animate-fade-in-up stagger-1" style={{ opacity: 0 }}>
             理解你的{" "}
-            <span className="text-gradient">病理报告</span>
+            <span className="text-gray-900 font-bold">病理报告</span>
             <br />
             通过已发表的国际研究
           </h1>
@@ -219,7 +219,7 @@ export default function HomePage() {
       <StatsBanner />
 
       {/* Features Section */}
-      <section id="features" className="py-24 px-6 bg-grid">
+      <section id="features" className="py-24 px-6 bg-gray-50">
         <div className="max-w-7xl mx-auto">
           <SectionHeader
             badge="核心功能"
@@ -307,7 +307,7 @@ export default function HomePage() {
           </div>
 
           {/* Principle box */}
-          <div className="mt-12 glass rounded-2xl p-8 border border-accent-blue/20 text-center">
+          <div className="mt-12 bg-white rounded-2xl p-8 shadow-sm border border-gray-200 text-center">
             <div className="text-4xl mb-4">⚖️</div>
             <blockquote className="text-xl font-medium text-text-primary mb-3">
               "每一条医学结论，都必须可以追溯到证据。"
@@ -320,7 +320,7 @@ export default function HomePage() {
       </section>
 
       {/* Studies Section */}
-      <section id="studies" className="py-24 px-6 bg-grid">
+      <section id="studies" className="py-24 px-6 bg-gray-50">
         <div className="max-w-7xl mx-auto">
           <SectionHeader
             badge="研究库"
@@ -360,7 +360,7 @@ export default function HomePage() {
       </section>
 
       {/* What is EBM Section */}
-      <section className="py-20 px-6 bg-grid">
+      <section className="py-20 px-6 bg-gray-50">
         <div className="max-w-4xl mx-auto">
           <SectionHeader
             badge="循证医学是什么"
@@ -385,14 +385,14 @@ export default function HomePage() {
                 desc: "把那些和你相似的患者的预后数据，用通俗的语言解释给你看，并标明出自哪篇论文。",
               },
             ].map((item) => (
-              <div key={item.title} className="glass rounded-2xl p-6 border border-white/5 text-center">
+              <div key={item.title} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200 text-center">
                 <div className="text-3xl mb-4">{item.icon}</div>
                 <h3 className="font-semibold text-text-primary mb-2">{item.title}</h3>
                 <p className="text-text-secondary text-sm leading-relaxed">{item.desc}</p>
               </div>
             ))}
           </div>
-          <div className="mt-8 glass rounded-2xl p-6 border border-accent-blue/20 flex items-start gap-4">
+          <div className="mt-8 bg-blue-50 rounded-2xl p-6 border border-blue-200 flex items-start gap-4">
             <span className="text-2xl shrink-0">💬</span>
             <div>
               <p className="text-text-primary font-medium mb-1">这和问 ChatGPT 有什么区别？</p>
@@ -443,11 +443,11 @@ export default function HomePage() {
 
       {/* CTA Section */}
       <section className="py-24 px-6 relative overflow-hidden">
-        <div className="absolute inset-0 radial-overlay" />
+        <div className="absolute inset-0 bg-gray-50" />
         <div className="relative max-w-4xl mx-auto text-center">
           <h2 className="display-lg mb-6">
             理解你的情况，
-            <span className="text-gradient"> 从循证开始</span>
+            <span className="text-gray-900 font-bold"> 从循证开始</span>
           </h2>
           <CtaStats />
           <p className="text-base text-text-muted mb-12 max-w-xl mx-auto">
@@ -468,7 +468,7 @@ export default function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-transparent border-t border-white/5 py-12 px-6 mt-12">
+      <footer className="bg-white border-t border-gray-200 py-12 px-6 mt-12">
         <div className="max-w-7xl mx-auto">
           <div className="grid md:grid-cols-4 gap-8 mb-8">
             <div>
@@ -531,7 +531,7 @@ function LogoMark() {
         <img src="/logo.png" alt="OncoPath Logo" className="w-full h-full object-cover" />
       </div>
       <span className="font-semibold text-text-primary">
-        Onco<span className="text-gradient">Path</span>
+        Onco<span className="text-gray-900 font-bold">Path</span>
       </span>
     </div>
   );
@@ -551,7 +551,7 @@ function NavLink({ href, children }: { href: string; children: React.ReactNode }
 function SectionHeader({ badge, title, subtitle }: { badge: string; title: string; subtitle: string }) {
   return (
     <div className="text-center">
-      <div className="inline-flex items-center gap-2 glass px-4 py-2 rounded-full text-sm text-accent-blue mb-6 border border-accent-blue/20">
+      <div className="inline-flex items-center gap-2 bg-blue-50 px-4 py-2 rounded-full text-sm text-blue-600 mb-6 border border-blue-200">
         <span className="w-1.5 h-1.5 rounded-full bg-accent-blue" />
         {badge}
       </div>
@@ -616,7 +616,7 @@ function EvidencePreviewCard() {
   }, []);
 
   return (
-    <div className="glass rounded-2xl p-6 border border-accent-blue/20 max-w-2xl mx-auto text-left glow-blue animate-fade-in-up stagger-5" style={{ opacity: 0 }}>
+    <div className="bg-white rounded-2xl p-6 border border-gray-200 max-w-2xl mx-auto text-left shadow-sm animate-fade-in-up stagger-5" style={{ opacity: 0 }}>
       <div className="flex items-center gap-3 mb-4">
         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-accent-blue/20 to-accent-teal/20 flex items-center justify-center text-lg">
           👤
@@ -637,14 +637,14 @@ function EvidencePreviewCard() {
           { label: "相似患者", value: stats.patients, sub: "例已纳入研究" },
           { label: "5年RFS", value: "89-98%", sub: "基于现有研究" },
         ].map((item) => (
-          <div key={item.label} className="glass rounded-xl p-3 text-center border border-white/5">
-            <div className="text-lg font-bold text-gradient">{item.value}</div>
+          <div key={item.label} className="bg-gray-50 rounded-xl p-3 text-center border border-gray-200">
+            <div className="text-lg font-bold text-gray-900">{item.value}</div>
             <div className="text-text-primary text-xs font-medium">{item.label}</div>
             <div className="text-text-muted text-xs">{item.sub}</div>
           </div>
         ))}
       </div>
-      <div className="flex items-start gap-2 bg-green-500/5 rounded-xl p-3 border border-green-500/15">
+      <div className="flex items-start gap-2 bg-green-50 rounded-xl p-3 border border-green-200">
         <span className="text-green-400 mt-0.5">●</span>
         <p className="text-text-secondary text-xs leading-relaxed">
           <span className="text-green-400 font-medium">STAS 阴性 · CTR 0.42 · N0 </span>
@@ -670,7 +670,7 @@ function EvidenceExampleCard({
   sources: Array<{ journal: string; year: number; type: string; patients: number; stars: number }>;
 }) {
   return (
-    <div className="glass rounded-2xl p-6 card-hover border border-white/5">
+    <div className="bg-white rounded-2xl p-6 shadow-sm card-hover border border-gray-200">
       <div className="flex items-center justify-between mb-4">
         <div>
           <div className="text-xs text-text-muted mb-1 uppercase tracking-wider">{type === "pathology" ? "病理指标" : "影像指标"}</div>
@@ -681,7 +681,7 @@ function EvidenceExampleCard({
         </span>
       </div>
       <p className="text-text-secondary text-sm mb-3 leading-relaxed">{summary}</p>
-      <div className="bg-accent-blue/5 rounded-xl p-4 border border-accent-blue/10 mb-4">
+      <div className="bg-blue-50 rounded-xl p-4 border border-blue-100 mb-4">
         <p className="text-text-primary text-sm leading-relaxed">{detail}</p>
       </div>
       <div className="space-y-2">
@@ -690,7 +690,7 @@ function EvidenceExampleCard({
             <div className="flex items-center gap-2">
               <span className="text-accent-blue font-medium">{s.journal}</span>
               <span className="text-text-muted">{s.year}</span>
-              <span className="glass px-2 py-0.5 rounded text-text-muted border border-white/5">{s.type}</span>
+              <span className="bg-gray-50 px-2 py-0.5 rounded text-gray-500 border border-gray-200">{s.type}</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-text-muted">{s.patients.toLocaleString()}例</span>
@@ -726,10 +726,10 @@ function StarRating({ count }: { count: number }) {
 function FaqItem({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="glass rounded-xl border border-white/5 overflow-hidden">
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
       <button
         onClick={() => setOpen(!open)}
-        className="w-full px-6 py-4 flex items-center justify-between text-left cursor-pointer hover:bg-white/3 transition-colors"
+        className="w-full px-6 py-4 flex items-center justify-between text-left cursor-pointer hover:bg-gray-50 transition-colors"
       >
         <span className="text-text-primary font-medium text-sm pr-4">{q}</span>
         <svg
@@ -740,7 +740,7 @@ function FaqItem({ q, a }: { q: string; a: string }) {
         </svg>
       </button>
       {open && (
-        <div className="px-6 pb-4 border-t border-white/5">
+        <div className="px-6 pb-4 border-t border-gray-200">
           <p className="text-text-secondary text-sm leading-relaxed pt-3">{a}</p>
         </div>
       )}

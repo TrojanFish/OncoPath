@@ -88,7 +88,7 @@ export default function ProfileForm({ onSubmit }: ProfileFormProps) {
                   ? "bg-accent-teal text-white"
                   : i + 1 === step
                   ? "bg-accent-blue text-white"
-                  : "glass text-text-muted border border-white/10"
+                  : "bg-white text-gray-500 border border-gray-200"
               }`}
             >
               {i + 1 < step ? "✓" : i + 1}
@@ -101,7 +101,7 @@ export default function ProfileForm({ onSubmit }: ProfileFormProps) {
       </div>
 
       {/* Form Card */}
-      <div className="glass rounded-2xl p-5 md:p-8 border border-border-color">
+      <div className="bg-white rounded-2xl p-5 md:p-8 shadow-sm border border-gray-200">
         {step === 1 && <Step1 form={form} updateForm={updateForm} />}
         {step === 2 && <Step2 form={form} updateForm={updateForm} />}
         {step === 3 && <Step3 form={form} updateForm={updateForm} />}
@@ -123,7 +123,7 @@ export default function ProfileForm({ onSubmit }: ProfileFormProps) {
               disabled={!canProceed()}
               id={`form-next-step-${step}`}
               className={`px-6 py-3 rounded-xl font-medium flex-1 transition-all ${
-                canProceed() ? "btn-primary cursor-pointer" : "bg-white/5 text-white/30 cursor-not-allowed"
+                canProceed() ? "btn-primary cursor-pointer" : "bg-gray-100 text-gray-400 cursor-not-allowed"
               }`}
             >
               下一步
@@ -134,7 +134,7 @@ export default function ProfileForm({ onSubmit }: ProfileFormProps) {
               disabled={!canProceed()}
               id="form-submit-btn"
               className={`px-6 py-3 rounded-xl font-medium flex-1 flex items-center justify-center gap-2 transition-all ${
-                canProceed() ? "btn-primary cursor-pointer" : "bg-white/5 text-white/30 cursor-not-allowed"
+                canProceed() ? "btn-primary cursor-pointer" : "bg-gray-100 text-gray-400 cursor-not-allowed"
               }`}
             >
               <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -186,8 +186,8 @@ function Step1({ form, updateForm }: StepProps) {
                 onClick={() => updateForm("gender", g)}
                 className={`flex-1 py-3 rounded-xl text-sm font-medium transition-all cursor-pointer ${
                   form.gender === g
-                    ? "bg-accent-blue/20 border border-accent-blue text-accent-blue"
-                    : "glass border border-white/10 text-text-muted hover:border-white/20"
+                    ? "bg-blue-50 border border-blue-500 text-blue-600"
+                    : "bg-white border border-gray-200 text-gray-500 hover:bg-gray-50"
                 }`}
               >
                 {g === "female" ? "👩 女性" : "👨 男性"}
@@ -220,8 +220,8 @@ function Step1({ form, updateForm }: StepProps) {
               onClick={() => updateForm("lymphNodes", n)}
               className={`flex-1 py-3 rounded-xl text-sm font-medium transition-all cursor-pointer ${
                 form.lymphNodes === n
-                  ? "bg-accent-blue/20 border border-accent-blue text-accent-blue"
-                  : "glass border border-white/10 text-text-muted hover:border-white/20"
+                  ? "bg-blue-50 border border-blue-500 text-blue-600"
+                  : "bg-white border border-gray-200 text-gray-500 hover:bg-gray-50"
               }`}
             >
               {n}
@@ -243,9 +243,9 @@ function Step1({ form, updateForm }: StepProps) {
               className={`flex-1 py-3 rounded-xl text-sm font-medium transition-all cursor-pointer ${
                 form.margin === m
                   ? m === "negative"
-                    ? "bg-green-500/20 border border-green-500 text-green-400"
-                    : "bg-red-500/20 border border-red-500 text-red-400"
-                  : "glass border border-white/10 text-text-muted hover:border-white/20"
+                    ? "bg-green-50 border border-green-500 text-green-600"
+                    : "bg-red-50 border border-red-500 text-red-600"
+                  : "bg-white border border-gray-200 text-gray-500 hover:bg-gray-50"
               }`}
             >
               切缘{m === "negative" ? "阴性（切干净 R0）" : "阳性（有癌细胞残留）"}
@@ -300,8 +300,8 @@ function Step2({ form, updateForm }: StepProps) {
               onClick={() => updateForm("stage", s)}
               className={`py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer ${
                 form.stage === s
-                  ? "bg-accent-blue/20 border border-accent-blue text-accent-blue"
-                  : "glass border border-white/10 text-text-muted hover:border-white/20"
+                  ? "bg-blue-50 border border-blue-500 text-blue-600"
+                  : "bg-white border border-gray-200 text-gray-500 hover:bg-gray-50"
               }`}
             >
               {s}
@@ -377,8 +377,8 @@ function Step2({ form, updateForm }: StepProps) {
                 key={val}
                 className={`flex items-center gap-2 px-3 py-1.5 rounded-xl transition-all ${
                   isSelected
-                    ? "bg-accent-teal/10 border border-accent-teal/50 text-accent-teal"
-                    : "glass border border-white/10 text-text-muted hover:border-white/20"
+                    ? "bg-teal-50 border border-teal-500 text-teal-600"
+                    : "bg-white border border-gray-200 text-gray-500 hover:bg-gray-50"
                 }`}
               >
                 <button
@@ -397,7 +397,7 @@ function Step2({ form, updateForm }: StepProps) {
                       value={histItem.percentage === undefined ? "" : histItem.percentage}
                       onChange={(e) => updateHistologyPercentage(val, e.target.value)}
                       placeholder="选填"
-                      className="w-[52px] h-7 bg-black/40 border border-accent-teal/30 rounded text-center text-xs text-white placeholder-white/40 focus:outline-none focus:border-accent-teal"
+                      className="w-[52px] h-7 bg-white border border-gray-300 rounded text-center text-xs text-gray-900 placeholder-gray-400 focus:outline-none focus:border-teal-500"
                       onClick={(e) => e.stopPropagation()}
                     />
                     <span className="text-xs text-accent-teal/70">%</span>
@@ -418,8 +418,8 @@ function Step2({ form, updateForm }: StepProps) {
               onClick={() => updateForm("egfr", e)}
               className={`flex-1 py-2.5 rounded-xl text-xs font-medium transition-all cursor-pointer ${
                 form.egfr === e
-                  ? "bg-accent-blue/20 border border-accent-blue text-accent-blue"
-                  : "glass border border-white/10 text-text-muted hover:border-white/20"
+                  ? "bg-blue-50 border border-blue-500 text-blue-600"
+                  : "bg-white border border-gray-200 text-gray-500 hover:bg-gray-50"
               }`}
             >
               {e === "positive" ? "阳性（有突变）" : e === "negative" ? "阴性（无突变）" : e === "not_tested" ? "未检测" : "未知"}
@@ -453,8 +453,8 @@ function Step3({ form, updateForm }: StepProps) {
               onClick={() => updateForm("morphology", m)}
               className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer ${
                 form.morphology === m
-                  ? "bg-accent-blue/20 border border-accent-blue text-accent-blue"
-                  : "glass border border-white/10 text-text-muted hover:border-white/20"
+                  ? "bg-blue-50 border border-blue-500 text-blue-600"
+                  : "bg-white border border-gray-200 text-gray-500 hover:bg-gray-50"
               }`}
             >
               {m === "pure_ggo" ? "纯磨玻璃" : m === "mixed_ggo" ? "混合磨玻璃" : "纯实性"}
@@ -506,10 +506,10 @@ function Step3({ form, updateForm }: StepProps) {
 
       {/* CTR Display */}
       {form.tumorSize && form.solidSize && (
-        <div className="glass rounded-xl p-4 border border-accent-blue/20">
+        <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
           <div className="flex items-center justify-between mb-2">
             <span className="text-text-secondary text-sm">计算得出 CTR（实性成分比例）</span>
-            <span className="text-2xl font-bold text-gradient">{computedCTR}</span>
+          <div className="text-2xl font-bold text-gray-900">{computedCTR}</div>
           </div>
           <div className="progress-bar">
             <div className="progress-fill" style={{ width: `${computedCTR * 100}%` }} />
@@ -542,7 +542,7 @@ function Step3({ form, updateForm }: StepProps) {
       </FormField>
 
       {/* Summary preview */}
-      <div className="glass rounded-xl p-4 border border-accent-teal/20">
+      <div className="bg-teal-50 rounded-xl p-4 border border-teal-200">
         <h4 className="text-accent-teal text-sm font-medium mb-3">📋 信息摘要预览</h4>
         <div className="grid grid-cols-2 gap-2 text-sm">
           <SummaryItem label="分期" value={form.stage || "—"} />
@@ -594,9 +594,9 @@ function ThreeWayToggle({
   colors: ("green" | "red" | "gray")[];
 }) {
   const colorClasses: Record<string, string> = {
-    green: "bg-green-500/20 border-green-500 text-green-400",
-    red: "bg-red-500/20 border-red-500 text-red-400",
-    gray: "bg-white/5 border-white/20 text-text-muted",
+    green: "bg-green-50 border-green-500 text-green-600",
+    red: "bg-red-50 border-red-500 text-red-600",
+    gray: "bg-white border-gray-200 text-gray-500 hover:bg-gray-50",
   };
 
   return (
@@ -609,7 +609,7 @@ function ThreeWayToggle({
           className={`flex-1 py-3 rounded-xl text-sm font-medium transition-all cursor-pointer border ${
             value === v
               ? colorClasses[colors[i]]
-              : "glass border-white/10 text-text-muted hover:border-white/20"
+              : "bg-white border-gray-200 text-gray-500 hover:bg-gray-50"
           }`}
         >
           {labels[i]}
@@ -621,7 +621,7 @@ function ThreeWayToggle({
 
 function SummaryItem({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex justify-between items-center py-1 border-b border-white/5">
+    <div className="flex justify-between items-center py-1 border-b border-gray-200">
       <span className="text-text-muted">{label}</span>
       <span className="text-text-primary font-medium">{value}</span>
     </div>

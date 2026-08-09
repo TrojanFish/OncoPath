@@ -74,15 +74,15 @@ export default function EvidenceReport({ profile, onBack, initialReportJson }: E
   };
 
   return (
-    <div className="min-h-screen bg-grid">
+    <div className="min-h-screen bg-gray-50 flex flex-col pb-12">
       {/* Knowledge Graph Overlay */}
       {showGraphOverlay && (
         <div
-          className="fixed inset-0 z-[100] bg-[#070b17]/90 backdrop-blur-xl flex flex-col"
+          className="fixed inset-0 z-[100] bg-gray-900/40 backdrop-blur-sm flex flex-col p-4 md:p-8"
           onClick={(e) => { if (e.target === e.currentTarget) setShowGraphOverlay(false); }}
         >
           {/* Overlay Header */}
-          <div className="bg-[#0a0e1a]/90 backdrop-blur-lg border-b border-white/5 px-4 md:px-6 py-4 flex items-center justify-between flex-shrink-0">
+          <div className="bg-white border-b border-gray-200 rounded-t-2xl px-4 md:px-6 py-4 flex items-center justify-between flex-shrink-0 w-full max-w-6xl mx-auto mt-4">
             <div className="flex items-center gap-2 md:gap-3">
               <div className="w-2 h-2 rounded-full bg-accent-teal animate-pulse" />
               <span className="text-text-primary font-semibold text-sm md:text-base">专属路径图谱</span>
@@ -109,7 +109,7 @@ export default function EvidenceReport({ profile, onBack, initialReportJson }: E
       )}
 
       {/* Sticky Header */}
-      <div className="bg-[#0a0e1a]/70 backdrop-blur-lg border-b border-white/5 sticky top-0 z-50 px-6 py-4">
+      <div className="bg-white border-b border-gray-200 sticky top-0 z-50 px-6 py-3 shadow-sm">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <button
             onClick={onBack}
@@ -171,9 +171,9 @@ export default function EvidenceReport({ profile, onBack, initialReportJson }: E
         </div>
       </div>
 
-      <div className="max-w-5xl mx-auto px-4 md:px-6 py-6 md:py-8">
+      <div className="w-full max-w-5xl mx-auto px-4 md:px-6 py-8">
         {/* Hero Summary Card */}
-        <div className="glass rounded-2xl p-5 md:p-8 border border-white/10 mb-6 glow-blue">
+        <div className="artifact-container mb-6 p-5 md:p-8">
           <div className="flex flex-col md:flex-row md:items-start gap-6">
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-4">
@@ -188,7 +188,7 @@ export default function EvidenceReport({ profile, onBack, initialReportJson }: E
                 </div>
               </div>
               
-              <div className="bg-dark/30 rounded-xl p-6 border border-white/5 relative">
+              <div className="bg-gray-50 rounded-xl p-6 border border-gray-200 relative">
                 <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
                   <svg width="64" height="64" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
@@ -216,7 +216,7 @@ export default function EvidenceReport({ profile, onBack, initialReportJson }: E
           </div>
 
           {/* Key Stats */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6 pt-6 border-t border-white/5">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6 pt-6 border-t border-gray-200">
             <StatBlock
               label="5年RFS"
               value={`${Math.round(result.rfs5yrRange[0] * 100)}–${Math.round(result.rfs5yrRange[1] * 100)}%`}
@@ -239,12 +239,12 @@ export default function EvidenceReport({ profile, onBack, initialReportJson }: E
         </div>
 
         {/* Authority & AI Disclaimer Banner */}
-        <div className="rounded-xl mb-6 overflow-hidden border border-amber-500/30">
-          <div className="bg-amber-500/10 px-5 py-3 border-b border-amber-500/20 flex items-center gap-2">
+        <div className="rounded-xl mb-6 overflow-hidden border border-amber-200">
+          <div className="bg-amber-50 px-5 py-3 border-b border-amber-200 flex items-center gap-2">
             <span className="text-amber-400 text-base">⚠️</span>
             <span className="text-amber-400 font-semibold text-sm">使用前请阅读重要声明</span>
           </div>
-          <div className="bg-amber-500/5 px-5 py-4 space-y-2 text-sm">
+          <div className="bg-amber-50/50 px-5 py-4 space-y-2 text-sm">
             <p className="text-text-secondary leading-relaxed">
               📚 <span className="text-text-primary font-medium">数据来源：</span>本报告中所有统计数据均来自 Lancet、NEJM、JCO、Chest 等权威期刊的已发表学术研究，并非本平台自行生成。
             </p>
@@ -258,7 +258,7 @@ export default function EvidenceReport({ profile, onBack, initialReportJson }: E
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-1 glass rounded-xl p-1 mb-6 border border-white/5 overflow-x-auto whitespace-nowrap scrollbar-hide">
+        <div className="flex gap-1 bg-white shadow-sm rounded-xl p-1 mb-6 border border-gray-200 overflow-x-auto whitespace-nowrap scrollbar-hide">
           {(["overview", "factors", "studies", "followup"] as const).map((tab) => (
             <button
               key={tab}
@@ -306,7 +306,7 @@ function OverviewTab({ result, profile, riskColorMap }: { result: PatientMatchRe
     <div className="space-y-6">
       {/* RFS Visual */}
       <div className="grid md:grid-cols-2 gap-4">
-        <div className="glass rounded-2xl p-6 border border-white/5">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <h3 className="text-text-secondary text-sm mb-4">5年无复发生存率（RFS）范围</h3>
           <div className="text-4xl font-black text-gradient mb-2">
             {Math.round(result.rfs5yrRange[0] * 100)}–{Math.round(result.rfs5yrRange[1] * 100)}%
@@ -326,7 +326,7 @@ function OverviewTab({ result, profile, riskColorMap }: { result: PatientMatchRe
           </div>
         </div>
 
-        <div className="glass rounded-2xl p-6 border border-white/5">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <h3 className="text-text-secondary text-sm mb-4">病理特征雷达图</h3>
           <RadarChart profile={profile} result={result} />
         </div>
@@ -343,7 +343,7 @@ function OverviewTab({ result, profile, riskColorMap }: { result: PatientMatchRe
       </div>
 
       {/* Evidence level legend */}
-      <div className="glass rounded-xl p-4 border border-white/5">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
         <h4 className="text-text-secondary text-sm mb-3">证据等级说明</h4>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
           {[
@@ -380,7 +380,7 @@ function FactorsTab({ result }: { result: PatientMatchResult }) {
         return (
           <div
             key={factor.factorId}
-            className="glass rounded-2xl border border-white/5 overflow-hidden card-hover"
+            className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden card-hover"
           >
             <button
               id={`factor-expand-${factor.factorId}`}
@@ -392,7 +392,7 @@ function FactorsTab({ result }: { result: PatientMatchResult }) {
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg ${
                     factor.riskDirection === "protective" ? "bg-green-500/10"
                     : factor.riskDirection === "risk" ? "bg-red-500/10"
-                    : "bg-white/5"
+                    : "bg-gray-50"
                   }`}>
                     {factor.riskDirection === "protective" ? "🛡️" : factor.riskDirection === "risk" ? "⚠️" : "ℹ️"}
                   </div>
@@ -422,8 +422,8 @@ function FactorsTab({ result }: { result: PatientMatchResult }) {
             </button>
 
             {isExpanded && (
-              <div className="px-5 pb-5 border-t border-white/5 pt-4">
-                <div className="bg-accent-blue/5 rounded-xl p-4 border border-accent-blue/10 mb-4">
+              <div className="px-5 pb-5 border-t border-gray-200 pt-4">
+                <div className="bg-blue-50 rounded-xl p-4 border border-blue-100 mb-4">
                   <p className="text-text-secondary text-sm leading-relaxed">{factor.explanation}</p>
                 </div>
 
@@ -434,7 +434,7 @@ function FactorsTab({ result }: { result: PatientMatchResult }) {
                     </h4>
                     <div className="space-y-2">
                       {evidenceFactor.keyFindings.map((finding, i) => (
-                        <div key={i} className="glass rounded-xl p-3 border border-white/5">
+                        <div key={i} className="bg-white rounded-xl shadow-sm border border-gray-200 p-3">
                           <p className="text-text-primary text-sm mb-2">{finding.finding}</p>
                           <div className="flex items-center gap-4 text-xs text-text-muted">
                             {finding.hr && (
@@ -463,7 +463,7 @@ function FactorsTab({ result }: { result: PatientMatchResult }) {
 function StudiesTab({ result }: { result: PatientMatchResult }) {
   return (
     <div className="space-y-4">
-      <div className="glass rounded-xl p-4 border border-accent-blue/20 mb-2">
+      <div className="bg-blue-50 rounded-xl p-4 border border-blue-100 mb-4">
         <p className="text-text-secondary text-sm">
           以下 {result.matchedStudies.length} 项研究与你的病理特征最为相关，
           共涵盖约 {result.matchedStudies.reduce((sum, s) => sum + s.patientN, 0).toLocaleString()} 例患者的数据。
@@ -532,11 +532,11 @@ function FollowupTab({ result, profile }: { result: PatientMatchResult; profile:
       </div>
 
       {profile.egfr === "positive" && (
-        <div className="glass rounded-2xl p-6 border border-accent-blue/20">
+        <div className="artifact-container p-6 border-blue-200">
           <h3 className="font-semibold text-text-primary mb-3 flex items-center gap-2">
             <span>💊</span> EGFR 阳性辅助治疗参考
           </h3>
-          <div className="bg-accent-blue/5 rounded-xl p-4 border border-accent-blue/10">
+          <div className="bg-blue-50 rounded-xl p-4 border border-blue-100">
             <p className="text-text-secondary text-sm leading-relaxed">
               ADAURA 研究（NEJM 2023，n=682）显示：EGFR 突变 II–IIIA 期患者术后奥希替尼治疗 3 年，5 年 DFS 达 65% vs 26%（HR 0.27）。
               IA 期患者的获益数据请咨询医生。
@@ -548,14 +548,14 @@ function FollowupTab({ result, profile }: { result: PatientMatchResult; profile:
         </div>
       )}
 
-      <div className="glass rounded-xl p-4 border border-white/5 text-center">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 text-center">
         <p className="text-text-muted text-xs">
           以上信息均来自已发表的医学研究和国际指南。本平台不提供个人化医疗建议。
         </p>
       </div>
 
       {/* Personalized Knowledge Graph CTA */}
-      <div className="glass rounded-2xl p-6 border border-accent-teal/20 bg-accent-teal/5">
+      <div className="artifact-container p-6 border-teal-200 bg-teal-50">
         <div className="flex items-start gap-4">
           <div className="text-3xl flex-shrink-0">🕸️</div>
           <div className="flex-1">
@@ -603,7 +603,7 @@ function LoadingScreen() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-grid flex items-center justify-center">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
       <div className="text-center">
         <div className="w-20 h-20 mx-auto mb-8 relative">
           <div className="absolute inset-0 rounded-full border-2 border-accent-blue/20 animate-spin-slow" />
@@ -619,7 +619,7 @@ function LoadingScreen() {
             <div
               key={i}
               className={`h-1 rounded-full transition-all duration-500 ${
-                i <= currentStep ? "w-8 bg-accent-blue" : "w-4 bg-white/10"
+                i <= currentStep ? "w-8 bg-blue-600" : "w-4 bg-gray-200"
               }`}
             />
           ))}
@@ -637,7 +637,7 @@ function StatBlock({ label, value, sub, color }: { label: string; value: string;
   };
 
   return (
-    <div className="glass rounded-xl p-4 border border-white/5 text-center">
+    <div className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm text-center">
       <div className={`text-2xl font-bold ${colorMap[color]} mb-1`}>{value}</div>
       <div className="text-text-primary text-sm font-medium">{label}</div>
       <div className="text-text-muted text-xs">{sub}</div>
@@ -682,7 +682,7 @@ function EvidenceStars({ count }: { count: number }) {
           width="10" height="10" viewBox="0 0 24 24"
           fill={i < count ? "currentColor" : "none"}
           stroke="currentColor"
-          className={i < count ? "text-amber-400" : "text-white/10"}
+          className={i < count ? "text-amber-400" : "text-gray-200"}
         >
           <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" />
         </svg>
@@ -696,7 +696,7 @@ function TimelineItem({ period, action, note, color }: { period: string; action:
     teal: "border-accent-teal bg-accent-teal/10 text-accent-teal",
     blue: "border-accent-blue bg-accent-blue/10 text-accent-blue",
     amber: "border-accent-amber bg-accent-amber/10 text-accent-amber",
-    gray: "border-white/20 bg-white/5 text-text-muted",
+    gray: "border-gray-200 bg-gray-50 text-gray-500",
   };
 
   return (
