@@ -59,17 +59,18 @@
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 4px;
+  height: 4px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--bg-secondary);
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #d1d5db;
-  border-radius: 3px;
+  background: #e5e7eb;
+  border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #9ca3af;
+  background: #d1d5db;
 }
 
 /* Glass effect (Replaced with clean card look for Claude style) */
@@ -169,17 +170,17 @@
 }
 
 /* Input styles */
-.input-dark {
+.input-artifact {
   background: #ffffff;
   border: 1px solid var(--border-color);
   color: var(--text-primary);
-  transition: all 0.2s;
+  transition: all 0.2s ease-in-out;
 }
 
-.input-dark:focus {
+.input-artifact:focus {
   outline: none;
-  border-color: var(--accent-blue);
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+  border-color: #9ca3af;
+  box-shadow: 0 0 0 3px rgba(243, 244, 246, 1);
 }
 
 /* Button styles */
@@ -229,22 +230,28 @@
   bottom: 100%;
   left: 50%;
   transform: translateX(-50%);
-  background: var(--text-primary);
-  color: #ffffff;
-  padding: 4px 8px;
-  border-radius: 4px;
+  background: #ffffff;
+  color: var(--text-primary);
+  padding: 6px 10px;
+  border-radius: 6px;
   font-size: 12px;
-  white-space: nowrap;
+  font-weight: 500;
+  white-space: normal;
+  width: max-content;
+  max-width: 200px;
+  text-align: center;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--border-color);
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.2s;
-  border: none;
+  transition: all 0.2s ease-in-out;
   z-index: 100;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 
 .tooltip:hover::after {
   opacity: 1;
+  transform: translateX(-50%) translateY(-2px);
 }
 
 /* Responsive typography */

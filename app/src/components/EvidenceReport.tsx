@@ -655,10 +655,10 @@ function FactorRow({ factor }: { factor: { factorId: string; factorName: string;
     <div className="flex items-center justify-between py-2">
       <div className="flex items-center gap-3">
         <div className={`w-2 h-2 rounded-full ${dotColor} flex-shrink-0`} />
-        <span className="text-text-secondary text-sm">{factor.factorName}</span>
+        <span className="text-gray-500 text-xs uppercase tracking-wide">{factor.factorName}</span>
       </div>
       <div className="flex items-center gap-3">
-        <span className={`text-sm font-medium ${
+        <span className={`text-sm font-semibold ${
           factor.riskLevel === "very_low" || factor.riskLevel === "low"
             ? "text-accent-green"
             : factor.riskLevel === "moderate"
@@ -745,7 +745,7 @@ function RadarChart({ profile, result }: { profile: PatientProfile; result: Pati
         const gridPoints = dimensions.map((d) => getPoint(d.angle, level * radius));
         const gridPath = gridPoints.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ") + " Z";
         return (
-          <path key={level} d={gridPath} fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="1" />
+          <path key={level} d={gridPath} fill="none" stroke="rgba(0,0,0,0.1)" strokeWidth="1" />
         );
       })}
 
@@ -753,7 +753,7 @@ function RadarChart({ profile, result }: { profile: PatientProfile; result: Pati
       {dimensions.map((d) => {
         const end = getPoint(d.angle, radius);
         return (
-          <line key={d.label} x1={center} y1={center} x2={end.x} y2={end.y} stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
+          <line key={d.label} x1={center} y1={center} x2={end.x} y2={end.y} stroke="rgba(0,0,0,0.1)" strokeWidth="1" />
         );
       })}
 
@@ -775,8 +775,8 @@ function RadarChart({ profile, result }: { profile: PatientProfile; result: Pati
             y={labelPos.y}
             textAnchor="middle"
             dominantBaseline="middle"
-            fill="rgba(138,155,192,0.8)"
-            fontSize="8"
+            fill="#6b7280"
+            fontSize="10"
           >
             {d.label}
           </text>

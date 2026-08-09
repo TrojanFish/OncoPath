@@ -112,7 +112,7 @@ export default function ProfileForm({ onSubmit }: ProfileFormProps) {
             <button
               onClick={() => setStep(step - 1)}
               id="form-back-btn"
-              className="btn-secondary px-6 py-3 rounded-xl font-medium flex-1 cursor-pointer"
+              className="btn-secondary px-6 py-3 rounded-lg font-medium flex-1 cursor-pointer"
             >
               上一步
             </button>
@@ -122,7 +122,7 @@ export default function ProfileForm({ onSubmit }: ProfileFormProps) {
               onClick={() => setStep(step + 1)}
               disabled={!canProceed()}
               id={`form-next-step-${step}`}
-              className={`px-6 py-3 rounded-xl font-medium flex-1 transition-all ${
+              className={`px-6 py-3 rounded-lg font-medium flex-1 transition-all ${
                 canProceed() ? "btn-primary cursor-pointer" : "bg-gray-100 text-gray-400 cursor-not-allowed"
               }`}
             >
@@ -133,7 +133,7 @@ export default function ProfileForm({ onSubmit }: ProfileFormProps) {
               onClick={handleSubmit}
               disabled={!canProceed()}
               id="form-submit-btn"
-              className={`px-6 py-3 rounded-xl font-medium flex-1 flex items-center justify-center gap-2 transition-all ${
+              className={`px-6 py-3 rounded-lg font-medium flex-1 flex items-center justify-center gap-2 transition-all ${
                 canProceed() ? "btn-primary cursor-pointer" : "bg-gray-100 text-gray-400 cursor-not-allowed"
               }`}
             >
@@ -174,7 +174,7 @@ function Step1({ form, updateForm }: StepProps) {
             value={form.age || ""}
             onChange={(e) => updateForm("age", parseInt(e.target.value))}
             placeholder="例如：45"
-            className="input-dark w-full px-4 py-3 rounded-xl"
+            className="input-artifact w-full px-4 py-3 rounded-lg"
           />
         </FormField>
         <FormField label="性别">
@@ -184,7 +184,7 @@ function Step1({ form, updateForm }: StepProps) {
                 key={g}
                 id={`gender-${g}`}
                 onClick={() => updateForm("gender", g)}
-                className={`flex-1 py-3 rounded-xl text-sm font-medium transition-all cursor-pointer ${
+                className={`flex-1 py-3 rounded-lg text-sm font-medium transition-all cursor-pointer ${
                   form.gender === g
                     ? "bg-blue-50 border border-blue-500 text-blue-600"
                     : "bg-white border border-gray-200 text-gray-500 hover:bg-gray-50"
@@ -202,7 +202,7 @@ function Step1({ form, updateForm }: StepProps) {
           id="input-surgery-type"
           value={form.surgeryType || ""}
           onChange={(e) => updateForm("surgeryType", e.target.value as PatientProfile["surgeryType"])}
-          className="input-dark w-full px-4 py-3 rounded-xl"
+          className="input-artifact w-full px-4 py-3 rounded-lg"
         >
           <option value="lobectomy">肺叶切除（切除整个肺叶）</option>
           <option value="segmentectomy">肺段切除（切除一个或多个肺段）</option>
@@ -218,7 +218,7 @@ function Step1({ form, updateForm }: StepProps) {
               key={n}
               id={`lymph-${n}`}
               onClick={() => updateForm("lymphNodes", n)}
-              className={`flex-1 py-3 rounded-xl text-sm font-medium transition-all cursor-pointer ${
+              className={`flex-1 py-3 rounded-lg text-sm font-medium transition-all cursor-pointer ${
                 form.lymphNodes === n
                   ? "bg-blue-50 border border-blue-500 text-blue-600"
                   : "bg-white border border-gray-200 text-gray-500 hover:bg-gray-50"
@@ -240,7 +240,7 @@ function Step1({ form, updateForm }: StepProps) {
               key={m}
               id={`margin-${m}`}
               onClick={() => updateForm("margin", m)}
-              className={`flex-1 py-3 rounded-xl text-sm font-medium transition-all cursor-pointer ${
+              className={`flex-1 py-3 rounded-lg text-sm font-medium transition-all cursor-pointer ${
                 form.margin === m
                   ? m === "negative"
                     ? "bg-green-50 border border-green-500 text-green-600"
@@ -298,7 +298,7 @@ function Step2({ form, updateForm }: StepProps) {
               key={s}
               id={`stage-${s}`}
               onClick={() => updateForm("stage", s)}
-              className={`py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer ${
+              className={`py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${
                 form.stage === s
                   ? "bg-blue-50 border border-blue-500 text-blue-600"
                   : "bg-white border border-gray-200 text-gray-500 hover:bg-gray-50"
@@ -352,7 +352,7 @@ function Step2({ form, updateForm }: StepProps) {
               key={g}
               id={`grade-${g}`}
               onClick={() => updateForm("iaslcGrade", g)}
-              className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer ${
+              className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${
                 form.iaslcGrade === g
                   ? "bg-accent-blue/20 border border-accent-blue text-accent-blue"
                   : "bg-white shadow-sm border border-gray-200 text-gray-500 hover:border-gray-300"
@@ -375,7 +375,7 @@ function Step2({ form, updateForm }: StepProps) {
             return (
               <div
                 key={val}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-xl transition-all ${
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all ${
                   isSelected
                     ? "bg-teal-50 border border-teal-500 text-teal-600"
                     : "bg-white border border-gray-200 text-gray-500 hover:bg-gray-50"
@@ -416,7 +416,7 @@ function Step2({ form, updateForm }: StepProps) {
               key={e}
               id={`egfr-${e}`}
               onClick={() => updateForm("egfr", e)}
-              className={`flex-1 py-2.5 rounded-xl text-xs font-medium transition-all cursor-pointer ${
+              className={`flex-1 py-2.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
                 form.egfr === e
                   ? "bg-blue-50 border border-blue-500 text-blue-600"
                   : "bg-white border border-gray-200 text-gray-500 hover:bg-gray-50"
@@ -451,7 +451,7 @@ function Step3({ form, updateForm }: StepProps) {
               key={m}
               id={`morphology-${m}`}
               onClick={() => updateForm("morphology", m)}
-              className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer ${
+              className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${
                 form.morphology === m
                   ? "bg-blue-50 border border-blue-500 text-blue-600"
                   : "bg-white border border-gray-200 text-gray-500 hover:bg-gray-50"
@@ -480,7 +480,7 @@ function Step3({ form, updateForm }: StepProps) {
               }
             }}
             placeholder="例如：20"
-            className="input-dark w-full px-4 py-3 rounded-xl"
+            className="input-artifact w-full px-4 py-3 rounded-lg"
           />
         </FormField>
         <FormField label="CT影像实性成分大小（mm）">
@@ -499,14 +499,14 @@ function Step3({ form, updateForm }: StepProps) {
               }
             }}
             placeholder="例如：8"
-            className="input-dark w-full px-4 py-3 rounded-xl"
+            className="input-artifact w-full px-4 py-3 rounded-lg"
           />
         </FormField>
       </div>
 
       {/* CTR Display */}
       {form.tumorSize && form.solidSize && (
-        <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
+        <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
           <div className="flex items-center justify-between mb-2">
             <span className="text-text-secondary text-sm">计算得出 CTR（实性成分比例）</span>
           <div className="text-2xl font-bold text-gray-900">{computedCTR}</div>
@@ -537,12 +537,12 @@ function Step3({ form, updateForm }: StepProps) {
           value={form.notes || ""}
           onChange={(e) => updateForm("notes", e.target.value)}
           placeholder="例如：ki-67 15%，第一秒用力呼气量正常范围..."
-          className="input-dark w-full px-4 py-3 rounded-xl resize-none"
+          className="input-artifact w-full px-4 py-3 rounded-lg resize-none"
         />
       </FormField>
 
       {/* Summary preview */}
-      <div className="bg-teal-50 rounded-xl p-4 border border-teal-200">
+      <div className="bg-teal-50 rounded-lg p-4 border border-teal-200">
         <h4 className="text-accent-teal text-sm font-medium mb-3">📋 信息摘要预览</h4>
         <div className="grid grid-cols-2 gap-2 text-sm">
           <SummaryItem label="分期" value={form.stage || "—"} />
@@ -606,7 +606,7 @@ function ThreeWayToggle({
           key={v}
           id={`${id}-${v}`}
           onClick={() => onChange(v)}
-          className={`flex-1 py-3 rounded-xl text-sm font-medium transition-all cursor-pointer border ${
+          className={`flex-1 py-3 rounded-lg text-sm font-medium transition-all cursor-pointer border ${
             value === v
               ? colorClasses[colors[i]]
               : "bg-white border-gray-200 text-gray-500 hover:bg-gray-50"
