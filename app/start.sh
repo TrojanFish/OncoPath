@@ -2,11 +2,14 @@
 # Wait for the database to be ready (optional, but good practice in docker-compose)
 sleep 3
 
-# Run Prisma schema push to create tables
+export HOME=/tmp
+export npm_config_cache=/tmp/.npm
+
+echo "Pushing DB Schema..."
 npx -y prisma db push --accept-data-loss
 
-# Run the seed script to populate clinical cohorts
+echo "Seeding Database..."
 npx -y tsx prisma/seed_cohorts.ts
 
-# Start Next.js standalone server
+echo "Starting Next.js..."
 exec node server.js
