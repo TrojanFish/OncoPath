@@ -132,6 +132,41 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
               <option value="positive">有 / 阳性</option>
             </select>
           </div>
+          <div>
+            <label className="block text-xs font-semibold text-text-muted mb-1">VPI (胸膜侵犯)</label>
+            <select 
+              value={parsedData.vpi || "negative"} 
+              onChange={e => setParsedData({...parsedData, vpi: e.target.value})}
+              className="w-full p-2 border border-gray-300 rounded-lg text-sm"
+            >
+              <option value="negative">无 / 阴性</option>
+              <option value="positive">有 / 阳性</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-text-muted mb-1">切缘状态</label>
+            <select 
+              value={parsedData.marginStatus || "negative"} 
+              onChange={e => setParsedData({...parsedData, marginStatus: e.target.value})}
+              className="w-full p-2 border border-gray-300 rounded-lg text-sm"
+            >
+              <option value="negative">阴性 (R0 切除)</option>
+              <option value="positive">阳性 (R1/R2)</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-text-muted mb-1">手术方式</label>
+            <select 
+              value={parsedData.surgeryType || ""} 
+              onChange={e => setParsedData({...parsedData, surgeryType: e.target.value})}
+              className="w-full p-2 border border-gray-300 rounded-lg text-sm"
+            >
+              <option value="">未提及</option>
+              <option value="lobectomy">肺叶切除</option>
+              <option value="segmentectomy">肺段切除</option>
+              <option value="wedge">楔形切除</option>
+            </select>
+          </div>
         </div>
 
         <div className="flex gap-3 justify-end mt-6">
