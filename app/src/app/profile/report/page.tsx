@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { PatientProfile } from "@/lib/types";
+import { getGuestId } from "@/lib/guest";
 
 export default function EvidenceReportPage() {
   const [profile, setProfile] = useState<PatientProfile | null>(null);
@@ -28,7 +29,7 @@ export default function EvidenceReportPage() {
 
       try {
         // 1. Fetch Profile
-        const res = await fetch('/api/profile');
+        const res = await fetch('/api/profile?userId=' + getGuestId());
         const data = await res.json();
         
         if (!data.profile) {

@@ -5,6 +5,7 @@ import JourneyMap from "./JourneyMap";
 import ReportUploader from "./ReportUploader";
 import SimilarCasesCard from "./SimilarCasesCard";
 import type { PatientProfile } from "@/lib/types";
+import { getGuestId } from "@/lib/guest";
 
 export default function PatientDashboard() {
   const [profile, setProfile] = useState<PatientProfile | null>(null);
@@ -15,7 +16,7 @@ export default function PatientDashboard() {
     // Try to load existing profile from DB
     async function loadProfile() {
       try {
-        const res = await fetch('/api/profile');
+        const res = await fetch('/api/profile?userId=' + getGuestId());
         const data = await res.json();
         if (data.profile) {
           setProfile(data.profile);
@@ -38,7 +39,7 @@ export default function PatientDashboard() {
       const res = await fetch('/api/profile', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(parsedData)
+        body: JSON.stringify({ ...parsedData, userId: getGuestId() })
       });
       const dbData = await res.json();
       if (dbData.success) {
