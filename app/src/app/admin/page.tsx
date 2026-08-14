@@ -374,8 +374,8 @@ export default function AdminPage() {
   // Loading Screen while verifying session
   if (checkingAuth) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="flex items-center gap-3 text-slate-500 text-sm">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="flex items-center gap-3 text-text-muted text-sm">
           <svg className="animate-spin h-5 w-5 text-accent-blue" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
@@ -386,50 +386,50 @@ export default function AdminPage() {
     );
   }
 
-  // Admin Login Screen (If not authenticated)
+  // Admin Login Screen (Unified Light Medical Theme)
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-slate-900 flex flex-col justify-between text-slate-100">
+      <div className="min-h-screen bg-gray-50 flex flex-col justify-between text-text-primary">
         <SubpageNavbar />
 
         <div className="flex-1 flex items-center justify-center px-4 py-12">
-          <div className="max-w-md w-full bg-slate-800/90 border border-slate-700/80 rounded-3xl p-8 shadow-2xl backdrop-blur-xl animate-fade-in">
+          <div className="max-w-md w-full bg-white border border-gray-200 rounded-3xl p-8 sm:p-10 shadow-lg relative animate-fade-in">
             {/* Header */}
             <div className="text-center mb-8">
-              <div className="w-16 h-16 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-accent-blue flex items-center justify-center text-3xl mx-auto mb-4">
+              <div className="w-14 h-14 rounded-2xl bg-blue-50 border border-blue-100 text-accent-blue flex items-center justify-center text-2xl mx-auto mb-4 shadow-xs">
                 🛡️
               </div>
-              <h1 className="text-xl font-bold text-white tracking-tight">OncoPath 证据中台</h1>
-              <p className="text-xs text-slate-400 mt-1">管理员安全访问受控系统 · Medical Evidence CMS</p>
+              <h1 className="text-2xl font-bold text-gray-900 tracking-tight">OncoPath 证据中台</h1>
+              <p className="text-xs text-text-muted mt-1.5">管理员安全访问受控系统 · Medical Evidence CMS</p>
             </div>
 
             {/* Login Form */}
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">管理员账号 (Username)</label>
+                <label className="block text-xs font-semibold text-text-secondary mb-1.5">管理员账号</label>
                 <input
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   placeholder="admin"
-                  className="w-full px-4 py-3 bg-slate-900/80 border border-slate-700 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-accent-blue focus:ring-1 focus:ring-accent-blue transition-colors"
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm text-text-primary placeholder:text-text-muted focus:bg-white focus:outline-none focus:border-accent-blue focus:ring-2 focus:ring-accent-blue/10 transition-all"
                   autoFocus
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">访问密码 (Password)</label>
+                <label className="block text-xs font-semibold text-text-secondary mb-1.5">访问密码</label>
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full px-4 py-3 bg-slate-900/80 border border-slate-700 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-accent-blue focus:ring-1 focus:ring-accent-blue transition-colors"
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm text-text-primary placeholder:text-text-muted focus:bg-white focus:outline-none focus:border-accent-blue focus:ring-2 focus:ring-accent-blue/10 transition-all"
                 />
               </div>
 
               {loginError && (
-                <div className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-xs text-rose-300 flex items-center gap-2">
+                <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-700 flex items-center gap-2">
                   <span>⚠️</span>
                   <span>{loginError}</span>
                 </div>
@@ -438,7 +438,7 @@ export default function AdminPage() {
               <button
                 type="submit"
                 disabled={isLoggingIn}
-                className="w-full py-3 bg-gradient-to-r from-blue-600 to-teal-600 hover:from-blue-500 hover:to-teal-500 text-white font-semibold text-sm rounded-xl shadow-lg transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-2"
+                className="w-full py-3.5 btn-primary text-white font-semibold text-sm rounded-xl shadow-sm transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-3"
               >
                 {isLoggingIn ? (
                   <>
@@ -446,7 +446,7 @@ export default function AdminPage() {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                     </svg>
-                    <span>正在验证...</span>
+                    <span>正在验证凭据...</span>
                   </>
                 ) : (
                   <span>安全登录进入证据中台 ➔</span>
@@ -454,29 +454,29 @@ export default function AdminPage() {
               </button>
             </form>
 
-            <div className="mt-6 pt-6 border-t border-slate-700/60 text-center">
-              <Link href="/" className="text-xs text-slate-400 hover:text-white transition-colors">
+            <div className="mt-8 pt-6 border-t border-gray-100 text-center">
+              <Link href="/" className="text-xs text-text-muted hover:text-accent-blue transition-colors">
                 ← 返回 OncoPath 患者主页
               </Link>
             </div>
           </div>
         </div>
 
-        <div className="text-center pb-6 text-xs text-slate-500">
+        <div className="text-center pb-8 text-xs text-text-muted">
           © 2026 OncoPath · 严格受控医学数据治理平台
         </div>
       </div>
     );
   }
 
-  // Authenticated Admin Dashboard View
+  // Authenticated Admin Dashboard View (Unified Light Medical Theme)
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 pb-24">
+    <div className="min-h-screen bg-gray-50 text-text-primary pb-24">
       <SubpageNavbar />
 
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-[999] bg-slate-900 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 animate-fade-in-up border border-slate-700 text-sm">
+        <div className="fixed bottom-6 right-6 z-[999] bg-gray-900 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 animate-fade-in-up border border-gray-700 text-sm">
           <span>{toastMessage}</span>
         </div>
       )}
@@ -485,15 +485,15 @@ export default function AdminPage() {
       <header className="pt-16 pb-10 px-6 max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold text-accent-blue bg-blue-50 border border-blue-200 mb-2">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold text-accent-blue bg-blue-50 border border-blue-200 mb-2.5">
               <span>🛠️ OncoPath 证据中台</span>
               <span className="w-1.5 h-1.5 rounded-full bg-accent-blue animate-pulse"></span>
               <span>Admin Evidence Studio (已鉴权)</span>
             </div>
-            <h1 className="text-2xl md:text-3xl font-bold text-slate-900">
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
               医学文献管理与智能录入工作台
             </h1>
-            <p className="text-slate-500 text-sm mt-1">
+            <p className="text-text-secondary text-sm mt-1.5">
               支持「本地 PDF 拖拽解析」与「PubMed / Europe PMC 在线检索」双核录入，覆盖 17 项核心与前沿临床指标。
             </p>
           </div>
@@ -501,9 +501,9 @@ export default function AdminPage() {
           <div className="flex items-center gap-3">
             <Link
               href="/studies"
-              className="px-4 py-2 text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl transition-all shadow-xs"
+              className="btn-secondary px-4 py-2 text-xs font-semibold rounded-xl transition-all shadow-xs"
             >
-              📖 前台证据库
+              📖 前台证据库预览
             </Link>
             <button
               onClick={handleLogout}
@@ -521,47 +521,43 @@ export default function AdminPage() {
             title="已收录文献总数" 
             value={metrics.totalStudies} 
             subtitle="篇前沿期刊论文" 
-            color="blue" 
           />
           <StatCard 
             icon="👥" 
             title="累积受试者规模" 
             value={metrics.totalPatients.toLocaleString()} 
             subtitle="例临床患者队列" 
-            color="teal" 
           />
           <StatCard 
             icon="🏆" 
             title="前瞻性RCT/Meta" 
             value={metrics.rctMetaCount} 
             subtitle="最高等级循证证据" 
-            color="amber" 
           />
           <StatCard 
             icon="🌐" 
             title="数据接入源" 
             value="双核驱动" 
             subtitle="PDF 多模态 + PubMed" 
-            color="emerald" 
           />
         </div>
       </header>
 
       {/* Main Studio Body */}
-      <main className="max-w-7xl mx-auto px-6 space-y-12">
+      <main className="max-w-7xl mx-auto px-6 space-y-10">
         
         {/* Ingestion Studio Card */}
-        <section className="bg-white rounded-2xl border border-slate-200 p-6 md:p-8 shadow-sm">
+        <section className="bg-white rounded-2xl border border-gray-200 p-6 md:p-8 shadow-sm">
           
           {/* Dual Ingestion Mode Tabs */}
           {!extractedData && (
-            <div className="flex items-center gap-2 p-1.5 bg-slate-100/80 rounded-xl max-w-md mb-6">
+            <div className="flex items-center gap-2 p-1.5 bg-gray-100/80 rounded-xl max-w-md mb-6">
               <button
                 onClick={() => setActiveTab("pdf")}
                 className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 ${
                   activeTab === "pdf"
-                    ? "bg-white text-slate-900 shadow-sm"
-                    : "text-slate-500 hover:text-slate-800"
+                    ? "bg-white text-gray-900 shadow-sm"
+                    : "text-text-muted hover:text-text-primary"
                 }`}
               >
                 <span>📄 上传本地 PDF 论文</span>
@@ -571,7 +567,7 @@ export default function AdminPage() {
                 className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 ${
                   activeTab === "pubmed"
                     ? "bg-white text-accent-blue shadow-sm"
-                    : "text-slate-500 hover:text-slate-800"
+                    : "text-text-muted hover:text-text-primary"
                 }`}
               >
                 <span>🌐 在线检索 PubMed / Europe PMC</span>
@@ -584,13 +580,13 @@ export default function AdminPage() {
             <div className="space-y-4">
               <div className="flex items-center justify-between pb-3">
                 <div>
-                  <h2 className="text-base font-bold text-slate-900">PDF 论文多模态深度抽取</h2>
-                  <p className="text-xs text-slate-500">直接上传论文 PDF 原文，Gemini 2.5 Flash 将自动结构化提取全文图表与效应量</p>
+                  <h2 className="text-base font-bold text-gray-900">PDF 论文多模态深度抽取</h2>
+                  <p className="text-xs text-text-muted">直接上传论文 PDF 原文，Gemini 2.5 Flash 将自动结构化提取全文图表与效应量</p>
                 </div>
                 {pdfFile && !isParsing && (
                   <button
                     onClick={() => { setPdfFile(null); if (fileInputRef.current) fileInputRef.current.value = ""; }}
-                    className="text-xs text-slate-400 hover:text-slate-600"
+                    className="text-xs text-text-muted hover:text-text-primary"
                   >
                     清空重选
                   </button>
@@ -602,7 +598,7 @@ export default function AdminPage() {
                 className={`border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all ${
                   pdfFile 
                     ? "border-accent-blue bg-blue-50/40" 
-                    : "border-slate-300 bg-slate-50/60 hover:bg-slate-100 hover:border-slate-400"
+                    : "border-gray-300 bg-gray-50/60 hover:bg-gray-100 hover:border-gray-400"
                 }`}
               >
                 <input 
@@ -616,15 +612,15 @@ export default function AdminPage() {
                   <span className="text-4xl mb-3">{pdfFile ? "📑" : "📤"}</span>
                   {pdfFile ? (
                     <div>
-                      <div className="font-bold text-slate-900 text-sm">{pdfFile.name}</div>
-                      <div className="text-xs text-slate-500 mt-1">
+                      <div className="font-bold text-gray-900 text-sm">{pdfFile.name}</div>
+                      <div className="text-xs text-text-muted mt-1">
                         大小: {(pdfFile.size / (1024 * 1024)).toFixed(2)} MB · 准备就绪
                       </div>
                     </div>
                   ) : (
                     <div>
-                      <div className="font-semibold text-slate-800 text-sm">点击选择或将 PDF 论文拖拽至此处</div>
-                      <div className="text-xs text-slate-400 mt-1">支持 JTO, JCO, Lancet, Chest 等国际期刊 PDF 原文 (最大 30MB)</div>
+                      <div className="font-semibold text-gray-800 text-sm">点击选择或将 PDF 论文拖拽至此处</div>
+                      <div className="text-xs text-text-muted mt-1">支持 JTO, JCO, Lancet, Chest 等国际期刊 PDF 原文 (最大 30MB)</div>
                     </div>
                   )}
                 </div>
@@ -669,8 +665,8 @@ export default function AdminPage() {
           {!extractedData && activeTab === "pubmed" && (
             <div className="space-y-5">
               <div>
-                <h2 className="text-base font-bold text-slate-900">PubMed / Europe PMC 在线检索抓取</h2>
-                <p className="text-xs text-slate-500">无需下载 PDF，输入研究名称、PMID（如 29190196）或 DOI，秒级检索并智能结构化回填</p>
+                <h2 className="text-base font-bold text-gray-900">PubMed / Europe PMC 在线检索抓取</h2>
+                <p className="text-xs text-text-muted">无需下载 PDF，输入研究名称、PMID（如 29190196）或 DOI，秒级检索并智能结构化回填</p>
               </div>
 
               <form onSubmit={handleSearchOnline} className="flex gap-2">
@@ -679,12 +675,12 @@ export default function AdminPage() {
                   value={onlineQuery}
                   onChange={e => setOnlineQuery(e.target.value)}
                   placeholder="例如：JCOG0802 segmentectomy 或 29190196 或 10.1200/JCO.2017.74.8871"
-                  className="flex-1 p-3 bg-slate-50 border border-slate-300 rounded-xl text-sm font-medium text-slate-900 focus:bg-white focus:ring-2 focus:ring-accent-blue/20"
+                  className="flex-1 p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-text-primary focus:bg-white focus:outline-none focus:border-accent-blue focus:ring-2 focus:ring-accent-blue/10"
                 />
                 <button
                   type="submit"
                   disabled={isSearchingOnline || !onlineQuery.trim()}
-                  className="btn-primary px-6 py-3 rounded-xl text-sm font-semibold flex items-center gap-2 cursor-pointer"
+                  className="btn-primary px-6 py-3 rounded-xl text-sm font-semibold flex items-center gap-2 cursor-pointer shadow-sm"
                 >
                   {isSearchingOnline ? (
                     <>
@@ -710,22 +706,22 @@ export default function AdminPage() {
               {/* Online Results List */}
               {onlineResults.length > 0 && (
                 <div className="space-y-3 pt-2">
-                  <div className="text-xs font-semibold text-slate-500">
+                  <div className="text-xs font-semibold text-text-secondary">
                     检索到 {onlineResults.length} 篇候选文献，点击「一键提取」即可加载至专家核验单：
                   </div>
 
                   <div className="space-y-3">
                     {onlineResults.map(item => (
-                      <div key={item.id} className="p-4 rounded-xl border border-slate-200 bg-slate-50/60 hover:bg-white hover:border-accent-blue/40 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4">
+                      <div key={item.id} className="p-4 rounded-xl border border-gray-200 bg-gray-50/60 hover:bg-white hover:border-accent-blue/40 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4">
                         <div className="flex-1 space-y-1">
                           <div className="flex items-center gap-2">
                             <span className="text-xs font-bold text-accent-blue">{item.journal || "Journal"}</span>
-                            {item.year && <span className="text-xs text-slate-400">({item.year})</span>}
+                            {item.year && <span className="text-xs text-text-muted">({item.year})</span>}
                             {item.isOpenAccess && <span className="text-[10px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded font-bold">Open Access</span>}
                           </div>
-                          <h4 className="font-bold text-sm text-slate-900 leading-snug">{item.title}</h4>
-                          <div className="text-xs text-slate-500 line-clamp-1">{item.authors}</div>
-                          <p className="text-xs text-slate-600 line-clamp-2 mt-1">{item.abstractText}</p>
+                          <h4 className="font-bold text-sm text-gray-900 leading-snug">{item.title}</h4>
+                          <div className="text-xs text-text-muted line-clamp-1">{item.authors}</div>
+                          <p className="text-xs text-text-secondary line-clamp-2 mt-1">{item.abstractText}</p>
                         </div>
 
                         <div className="flex items-center gap-2 flex-shrink-0">
@@ -771,66 +767,66 @@ export default function AdminPage() {
               </div>
 
               {/* Form Grid */}
-              <div className="grid md:grid-cols-2 gap-6 bg-slate-50/70 p-6 rounded-2xl border border-slate-200">
+              <div className="grid md:grid-cols-2 gap-6 bg-gray-50/70 p-6 rounded-2xl border border-gray-200">
                 {/* Column 1: Basic Study Info */}
                 <div className="space-y-4">
-                  <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">文献基本信息</h3>
+                  <h3 className="text-xs font-bold text-text-muted uppercase tracking-wider">文献基本信息</h3>
                   
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">论文标题 (Title)</label>
+                    <label className="block text-xs font-semibold text-text-secondary mb-1">论文标题 (Title)</label>
                     <input 
                       type="text" 
                       value={extractedData.title || ""} 
                       onChange={e => setExtractedData({...extractedData, title: e.target.value})}
-                      className="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-sm font-medium text-slate-900"
+                      className="w-full p-2.5 bg-white border border-gray-300 rounded-xl text-sm font-medium text-gray-900"
                     />
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">发表期刊 (Journal)</label>
+                      <label className="block text-xs font-semibold text-text-secondary mb-1">发表期刊 (Journal)</label>
                       <input 
                         type="text" 
                         value={extractedData.journal || ""} 
                         onChange={e => setExtractedData({...extractedData, journal: e.target.value})}
-                        className="w-full p-2 bg-white border border-slate-300 rounded-lg text-sm"
+                        className="w-full p-2 bg-white border border-gray-300 rounded-lg text-sm"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">发表年份 (Year)</label>
+                      <label className="block text-xs font-semibold text-text-secondary mb-1">发表年份 (Year)</label>
                       <input 
                         type="number" 
                         value={extractedData.year || 2023} 
                         onChange={e => setExtractedData({...extractedData, year: parseInt(e.target.value) || 2023})}
-                        className="w-full p-2 bg-white border border-slate-300 rounded-lg text-sm"
+                        className="w-full p-2 bg-white border border-gray-300 rounded-lg text-sm"
                       />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">第一作者 / Authors</label>
+                      <label className="block text-xs font-semibold text-text-secondary mb-1">第一作者 / Authors</label>
                       <input 
                         type="text" 
                         value={extractedData.authors || ""} 
                         onChange={e => setExtractedData({...extractedData, authors: e.target.value})}
-                        className="w-full p-2 bg-white border border-slate-300 rounded-lg text-sm"
+                        className="w-full p-2 bg-white border border-gray-300 rounded-lg text-sm"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">受试队列样本量 (n=)</label>
+                      <label className="block text-xs font-semibold text-text-secondary mb-1">受试队列样本量 (n=)</label>
                       <input 
                         type="number" 
                         value={extractedData.patientN || 0} 
                         onChange={e => setExtractedData({...extractedData, patientN: parseInt(e.target.value) || 0})}
-                        className="w-full p-2 bg-white border border-slate-300 rounded-lg text-sm font-bold text-accent-blue"
+                        className="w-full p-2 bg-white border border-gray-300 rounded-lg text-sm font-bold text-accent-blue"
                       />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">DOI 标识符</label>
+                      <label className="block text-xs font-semibold text-text-secondary mb-1">DOI 标识符</label>
                       <input 
                         type="text" 
                         value={extractedData.doi || ""} 
@@ -843,23 +839,23 @@ export default function AdminPage() {
                           });
                         }}
                         placeholder="10.1200/JCO.xxx"
-                        className="w-full p-2 bg-white border border-slate-300 rounded-lg text-xs"
+                        className="w-full p-2 bg-white border border-gray-300 rounded-lg text-xs"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">PubMed PMID</label>
+                      <label className="block text-xs font-semibold text-text-secondary mb-1">PubMed PMID</label>
                       <input 
                         type="text" 
                         value={extractedData.pubmedId || ""} 
                         onChange={e => setExtractedData({...extractedData, pubmedId: e.target.value})}
                         placeholder="29190196"
-                        className="w-full p-2 bg-white border border-slate-300 rounded-lg text-xs"
+                        className="w-full p-2 bg-white border border-gray-300 rounded-lg text-xs"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    <label className="block text-xs font-semibold text-text-secondary mb-1">
                       📖 出处原文网页链接 (Source URL / Paper Link)
                     </label>
                     <input 
@@ -867,22 +863,22 @@ export default function AdminPage() {
                       value={extractedData.url || ""} 
                       onChange={e => setExtractedData({...extractedData, url: e.target.value})}
                       placeholder="https://doi.org/... 或期刊原文所在页面链接"
-                      className="w-full p-2 bg-white border border-slate-300 rounded-lg text-xs text-accent-blue font-medium"
+                      className="w-full p-2 bg-white border border-gray-300 rounded-lg text-xs text-accent-blue font-medium"
                     />
                   </div>
                 </div>
 
                 {/* Column 2: Clinical Metrics */}
                 <div className="space-y-4">
-                  <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">临床效应量与分期</h3>
+                  <h3 className="text-xs font-bold text-text-muted uppercase tracking-wider">临床效应量与分期</h3>
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">研究类型 (Study Type)</label>
+                      <label className="block text-xs font-semibold text-text-secondary mb-1">研究类型 (Study Type)</label>
                       <select 
                         value={extractedData.studyType || "retrospective"} 
                         onChange={e => setExtractedData({...extractedData, studyType: e.target.value})}
-                        className="w-full p-2 bg-white border border-slate-300 rounded-lg text-sm"
+                        className="w-full p-2 bg-white border border-gray-300 rounded-lg text-sm"
                       >
                         <option value="rct">随机对照试验 (RCT)</option>
                         <option value="meta_analysis">Meta 分析</option>
@@ -892,11 +888,11 @@ export default function AdminPage() {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">证据等级 (1-5星)</label>
+                      <label className="block text-xs font-semibold text-text-secondary mb-1">证据等级 (1-5星)</label>
                       <select 
                         value={extractedData.evidenceLevel || 4} 
                         onChange={e => setExtractedData({...extractedData, evidenceLevel: parseInt(e.target.value) || 4})}
-                        className="w-full p-2 bg-white border border-slate-300 rounded-lg text-sm text-amber-600 font-bold"
+                        className="w-full p-2 bg-white border border-gray-300 rounded-lg text-sm text-amber-600 font-bold"
                       >
                         <option value="5">⭐⭐⭐⭐⭐ (最高级 RCT/Meta)</option>
                         <option value="4">⭐⭐⭐⭐ (多中心高级别)</option>
@@ -909,59 +905,59 @@ export default function AdminPage() {
 
                   <div className="grid grid-cols-3 gap-3">
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">Hazard Ratio (HR)</label>
+                      <label className="block text-xs font-semibold text-text-secondary mb-1">Hazard Ratio (HR)</label>
                       <input 
                         type="number" 
                         step="0.01" 
                         value={extractedData.hr || ""} 
                         onChange={e => setExtractedData({...extractedData, hr: parseFloat(e.target.value) || null})}
                         placeholder="如 1.87"
-                        className="w-full p-2 bg-white border border-slate-300 rounded-lg text-sm font-semibold text-rose-600"
+                        className="w-full p-2 bg-white border border-gray-300 rounded-lg text-sm font-semibold text-rose-600"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">95% CI 下限</label>
+                      <label className="block text-xs font-semibold text-text-secondary mb-1">95% CI 下限</label>
                       <input 
                         type="number" 
                         step="0.01" 
                         value={extractedData.ciLow || ""} 
                         onChange={e => setExtractedData({...extractedData, ciLow: parseFloat(e.target.value) || null})}
                         placeholder="如 1.52"
-                        className="w-full p-2 bg-white border border-slate-300 rounded-lg text-sm"
+                        className="w-full p-2 bg-white border border-gray-300 rounded-lg text-sm"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">95% CI 上限</label>
+                      <label className="block text-xs font-semibold text-text-secondary mb-1">95% CI 上限</label>
                       <input 
                         type="number" 
                         step="0.01" 
                         value={extractedData.ciHigh || ""} 
                         onChange={e => setExtractedData({...extractedData, ciHigh: parseFloat(e.target.value) || null})}
                         placeholder="如 2.29"
-                        className="w-full p-2 bg-white border border-slate-300 rounded-lg text-sm"
+                        className="w-full p-2 bg-white border border-gray-300 rounded-lg text-sm"
                       />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">5年无复发生存率 (5yr RFS)</label>
+                      <label className="block text-xs font-semibold text-text-secondary mb-1">5年无复发生存率 (5yr RFS)</label>
                       <input 
                         type="text" 
                         value={extractedData.rfs5Year || ""} 
                         onChange={e => setExtractedData({...extractedData, rfs5Year: e.target.value})}
                         placeholder="如 98.2%"
-                        className="w-full p-2 bg-white border border-slate-300 rounded-lg text-sm font-semibold text-emerald-600"
+                        className="w-full p-2 bg-white border border-gray-300 rounded-lg text-sm font-semibold text-emerald-600"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">关联病理因子 (逗号隔开)</label>
+                      <label className="block text-xs font-semibold text-text-secondary mb-1">关联病理因子 (逗号隔开)</label>
                       <input 
                         type="text" 
                         value={Array.isArray(extractedData.relevantFactors) ? extractedData.relevantFactors.join(', ') : extractedData.relevantFactors || ""} 
                         onChange={e => setExtractedData({...extractedData, relevantFactors: e.target.value.split(',').map(s => s.trim()).filter(Boolean)})}
                         placeholder="STAS, CTR, VPI, wedge"
-                        className="w-full p-2 bg-white border border-slate-300 rounded-lg text-xs"
+                        className="w-full p-2 bg-white border border-gray-300 rounded-lg text-xs"
                       />
                     </div>
                   </div>
@@ -969,16 +965,16 @@ export default function AdminPage() {
               </div>
 
               {/* 3 Advanced Frontier Oncology Fields */}
-              <div className="bg-gradient-to-r from-blue-50/70 via-teal-50/70 to-emerald-50/70 p-5 rounded-2xl border border-blue-200/80 space-y-4">
+              <div className="bg-blue-50/60 p-5 rounded-2xl border border-blue-100 space-y-4">
                 <div className="flex items-center gap-2">
                   <span className="text-base">🧬</span>
-                  <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider">前沿医学进阶指标 (Biomarkers & Interventions)</h4>
+                  <h4 className="text-xs font-bold text-gray-900 uppercase tracking-wider">前沿医学进阶指标 (Biomarkers & Interventions)</h4>
                   <span className="text-[10px] bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded-full">4D 图谱联动</span>
                 </div>
 
                 <div className="grid md:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    <label className="block text-xs font-semibold text-text-secondary mb-1">
                       分子靶点与生物标志物亚型
                     </label>
                     <input 
@@ -986,12 +982,12 @@ export default function AdminPage() {
                       value={extractedData.biomarkerDetails || ""} 
                       onChange={e => setExtractedData({...extractedData, biomarkerDetails: e.target.value})}
                       placeholder="如 EGFR 19del/L858R, PD-L1 TPS>=50%"
-                      className="w-full p-2.5 bg-white border border-blue-200 rounded-xl text-xs font-medium"
+                      className="w-full p-2.5 bg-white border border-gray-300 rounded-xl text-xs font-medium"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    <label className="block text-xs font-semibold text-text-secondary mb-1">
                       治疗干预组 vs 对照组对比
                     </label>
                     <input 
@@ -999,12 +995,12 @@ export default function AdminPage() {
                       value={extractedData.interventionArm || ""} 
                       onChange={e => setExtractedData({...extractedData, interventionArm: e.target.value})}
                       placeholder="如 试验组: 奥希替尼 80mg vs 对照组: 安慰剂"
-                      className="w-full p-2.5 bg-white border border-blue-200 rounded-xl text-xs font-medium"
+                      className="w-full p-2.5 bg-white border border-gray-300 rounded-xl text-xs font-medium"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    <label className="block text-xs font-semibold text-text-secondary mb-1">
                       相对风险降低率 (Risk Reduction %)
                     </label>
                     <input 
@@ -1012,7 +1008,7 @@ export default function AdminPage() {
                       value={extractedData.riskReduction || ""} 
                       onChange={e => setExtractedData({...extractedData, riskReduction: e.target.value})}
                       placeholder="如 -77% (HR=0.23)"
-                      className="w-full p-2.5 bg-white border border-blue-200 rounded-xl text-xs font-bold text-emerald-700"
+                      className="w-full p-2.5 bg-white border border-gray-300 rounded-xl text-xs font-bold text-emerald-700"
                     />
                   </div>
                 </div>
@@ -1021,34 +1017,34 @@ export default function AdminPage() {
               {/* Textareas */}
               <div className="space-y-4">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">核心临床结论与预后指导 (Conclusion)</label>
+                  <label className="block text-xs font-semibold text-text-secondary mb-1">核心临床结论与预后指导 (Conclusion)</label>
                   <textarea 
                     rows={3} 
                     value={extractedData.conclusion || ""} 
                     onChange={e => setExtractedData({...extractedData, conclusion: e.target.value})}
-                    className="w-full p-3 bg-white border border-slate-300 rounded-xl text-sm"
+                    className="w-full p-3 bg-white border border-gray-300 rounded-xl text-sm"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">研究背景与队列方法概述 (Summary)</label>
+                  <label className="block text-xs font-semibold text-text-secondary mb-1">研究背景与队列方法概述 (Summary)</label>
                   <textarea 
                     rows={2} 
                     value={extractedData.summary || ""} 
                     onChange={e => setExtractedData({...extractedData, summary: e.target.value})}
-                    className="w-full p-3 bg-white border border-slate-300 rounded-xl text-sm text-slate-600"
+                    className="w-full p-3 bg-white border border-gray-300 rounded-xl text-sm text-text-secondary"
                   />
                 </div>
               </div>
 
               {/* Final Confirm Buttons */}
-              <div className="flex items-center justify-between pt-4 border-t border-slate-100">
-                <span className="text-xs text-slate-400">
+              <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                <span className="text-xs text-text-muted">
                   * 确认入库后，数据将写入 PostgreSQL 并即时在循证检索与知识图谱中生效。
                 </span>
                 <div className="flex gap-3">
                   <button
                     onClick={() => setExtractedData(null)}
-                    className="px-4 py-2.5 rounded-xl border border-slate-300 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                    className="px-4 py-2.5 rounded-xl border border-gray-300 text-sm font-medium text-text-secondary hover:bg-gray-50"
                   >
                     取消
                   </button>
@@ -1066,11 +1062,11 @@ export default function AdminPage() {
         </section>
 
         {/* Section: Ingested Evidence Library Table */}
-        <section className="bg-white rounded-2xl border border-slate-200 p-6 md:p-8 shadow-sm">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-100 mb-6">
+        <section className="bg-white rounded-2xl border border-gray-200 p-6 md:p-8 shadow-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-gray-100 mb-6">
             <div>
-              <h2 className="text-lg font-bold text-slate-900">已收录医学证据文献库</h2>
-              <p className="text-xs text-slate-500">当前知识图谱与 RAG 检索引用的核心文献列表（含前沿分子靶点与干预特征）</p>
+              <h2 className="text-lg font-bold text-gray-900">已收录医学证据文献库</h2>
+              <p className="text-xs text-text-muted">当前知识图谱与 RAG 检索引用的核心文献列表（含前沿分子靶点与干预特征）</p>
             </div>
             
             {/* Search Input */}
@@ -1080,22 +1076,22 @@ export default function AdminPage() {
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
                 placeholder="搜索论文标题、期刊、因子、靶点..."
-                className="w-full p-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-xs"
+                className="w-full p-2.5 px-3 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-accent-blue/10"
               />
             </div>
           </div>
 
           {loading ? (
-            <div className="text-center py-12 text-slate-400 text-sm">正在加载文献数据...</div>
+            <div className="text-center py-12 text-text-muted text-sm">正在加载文献数据...</div>
           ) : studies.length === 0 ? (
-            <div className="text-center py-12 text-slate-400 text-sm">
+            <div className="text-center py-12 text-text-muted text-sm">
               暂无已收录文献。请在上方上传 PDF 或通过 PubMed 检索录入。
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
                 <thead>
-                  <tr className="border-b border-slate-100 text-slate-400 text-xs font-semibold uppercase">
+                  <tr className="border-b border-gray-100 text-text-muted text-xs font-semibold uppercase">
                     <th className="pb-3 pr-4">论文标题 & 期刊</th>
                     <th className="pb-3 px-3">队列规模 (n)</th>
                     <th className="pb-3 px-3">证据等级</th>
@@ -1104,14 +1100,14 @@ export default function AdminPage() {
                     <th className="pb-3 pl-3 text-right">操作</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-gray-100">
                   {studies.map((s) => (
-                    <tr key={s.id} className="hover:bg-slate-50/80 transition-colors">
+                    <tr key={s.id} className="hover:bg-gray-50/80 transition-colors">
                       <td className="py-4 pr-4 max-w-sm">
-                        <div className="font-semibold text-slate-900 text-sm leading-snug line-clamp-2">
+                        <div className="font-semibold text-gray-900 text-sm leading-snug line-clamp-2">
                           {s.title}
                         </div>
-                        <div className="text-xs text-slate-500 mt-1 flex items-center gap-2">
+                        <div className="text-xs text-text-muted mt-1 flex items-center gap-2">
                           <span className="text-accent-blue font-medium">{s.journal || "Unknown"}</span>
                           <span>·</span>
                           <span>{s.year || "2023"}</span>
@@ -1121,7 +1117,7 @@ export default function AdminPage() {
                       </td>
 
                       <td className="py-4 px-3 whitespace-nowrap">
-                        <span className="font-bold text-slate-800 text-xs">
+                        <span className="font-bold text-gray-800 text-xs">
                           {s.patientN ? s.patientN.toLocaleString() : "N/A"}
                         </span>
                       </td>
@@ -1148,7 +1144,7 @@ export default function AdminPage() {
                             5年RFS: {s.rfs5Year}
                           </div>
                         )}
-                        {!s.hr && !s.rfs5Year && !s.riskReduction && <span className="text-xs text-slate-400">定性证据</span>}
+                        {!s.hr && !s.rfs5Year && !s.riskReduction && <span className="text-xs text-text-muted">定性证据</span>}
                       </td>
 
                       <td className="py-4 px-3 max-w-[200px]">
@@ -1159,12 +1155,12 @@ export default function AdminPage() {
                             </div>
                           )}
                           {s.interventionArm && (
-                            <div className="text-[10px] text-slate-600 truncate" title={s.interventionArm}>
+                            <div className="text-[10px] text-text-secondary truncate" title={s.interventionArm}>
                               💊 {s.interventionArm}
                             </div>
                           )}
                           {!s.biomarkerDetails && !s.interventionArm && (
-                            <span className="text-xs text-slate-400">-</span>
+                            <span className="text-xs text-text-muted">-</span>
                           )}
                         </div>
                       </td>
@@ -1202,16 +1198,16 @@ export default function AdminPage() {
   );
 }
 
-function StatCard({ icon, title, value, subtitle, color }: { icon: string; title: string; value: string | number; subtitle: string; color: string }) {
+function StatCard({ icon, title, value, subtitle }: { icon: string; title: string; value: string | number; subtitle: string }) {
   return (
-    <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs flex flex-col justify-between">
+    <div className="bg-white rounded-2xl p-5 border border-gray-200 shadow-sm flex flex-col justify-between">
       <div className="flex items-center justify-between mb-2">
         <span className="text-2xl">{icon}</span>
-        <span className="text-[11px] font-semibold text-slate-400">{title}</span>
+        <span className="text-[11px] font-semibold text-text-muted">{title}</span>
       </div>
       <div>
-        <div className="text-2xl font-bold text-slate-900 tracking-tight">{value}</div>
-        <div className="text-xs text-slate-500 mt-0.5">{subtitle}</div>
+        <div className="text-2xl font-bold text-gray-900 tracking-tight">{value}</div>
+        <div className="text-xs text-text-muted mt-0.5">{subtitle}</div>
       </div>
     </div>
   );
