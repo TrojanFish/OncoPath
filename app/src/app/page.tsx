@@ -24,6 +24,7 @@ export default function HomePage() {
   const [scrollY, setScrollY] = useState(0);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -92,7 +93,7 @@ export default function HomePage() {
             <span className="text-text-secondary text-sm">输入病理资料</span>
           </div>
         </nav>
-        <div className="pt-24 pb-16 flex justify-center w-full">
+        <div className="pt-28 md:pt-32 pb-16 flex justify-center w-full">
           <div className="w-full">
             <ProfileForm onSubmit={handleProfileSubmit} />
           </div>
@@ -103,35 +104,151 @@ export default function HomePage() {
 
   // Landing page
   return (
-    <div className="min-h-screen overflow-x-hidden">
+    <div className="min-h-screen overflow-x-hidden bg-slate-50 text-slate-900">
       <ConsentModal />
+      
       {/* Floating Island Navigation Bar */}
       <div className="fixed top-4 left-0 right-0 z-50 px-4 sm:px-6 pointer-events-none">
-        <nav
-          className="max-w-7xl mx-auto flex items-center justify-between px-5 sm:px-7 py-3 rounded-2xl sm:rounded-full bg-white/85 backdrop-blur-md border border-slate-200/80 shadow-lg shadow-slate-900/5 transition-all duration-300 pointer-events-auto hover:border-slate-300"
-        >
+        <nav className="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-7 py-3 rounded-2xl sm:rounded-full bg-white/90 backdrop-blur-md border border-slate-200/80 shadow-lg shadow-slate-900/5 transition-all duration-300 pointer-events-auto hover:border-slate-300">
           <LogoMark />
+          
+          {/* Desktop Nav Links */}
           <div className="hidden md:flex items-center gap-7">
-            <NavLink href="#features">功能</NavLink>
-            <NavLink href="#evidence">证据库</NavLink>
-            <NavLink href="#studies">研究</NavLink>
+            <NavLink href="#workflow">工作流</NavLink>
+            <NavLink href="#difference">循证优势</NavLink>
+            <NavLink href="#studies">研究库</NavLink>
             <NavLink href="#knowledge">知识图谱</NavLink>
             <NavLink href="/resources">学术导航</NavLink>
           </div>
-          <div className="flex items-center gap-3">
+
+          {/* Right Action Area */}
+          <div className="flex items-center gap-2 sm:gap-3">
             <UserAvatar />
+            
             <Link
               href="/profile"
               id="nav-start-btn"
-              className="btn-primary px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold cursor-pointer shadow-sm"
+              className="hidden sm:inline-flex btn-primary px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold cursor-pointer shadow-sm"
             >
               建立癌症档案 ➔
             </Link>
+
+            {/* Mobile Hamburger Button */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2 rounded-xl text-slate-700 hover:bg-slate-100 border border-slate-200 transition-colors focus:outline-none"
+              aria-label="打开移动端导航菜单"
+            >
+              {mobileMenuOpen ? (
+                <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              ) : (
+                <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              )}
+            </button>
           </div>
         </nav>
       </div>
 
-      {/* Hero Section (2-Column Split Layout matching Telemedicine Demo) */}
+      {/* Mobile Slide-Over Drawer Menu */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-[100] md:hidden">
+          <div 
+            className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm animate-fade-in"
+            onClick={() => setMobileMenuOpen(false)}
+          />
+
+          <div className="fixed top-0 right-0 bottom-0 w-[85%] max-w-sm bg-white shadow-2xl p-6 flex flex-col justify-between animate-fade-in-up border-l border-slate-200">
+            <div className="space-y-6">
+              <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+                <LogoMark />
+                <button
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="p-2 rounded-xl text-slate-500 hover:bg-slate-100 transition-colors"
+                >
+                  <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              <div className="space-y-2">
+                <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-3 mb-2">
+                  系统功能导航
+                </div>
+                <Link
+                  href="#workflow"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-3 px-3.5 py-3 rounded-2xl text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-all"
+                >
+                  <span className="text-lg">⚡</span>
+                  <span>3步工作流</span>
+                </Link>
+                <Link
+                  href="/knowledge"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-3 px-3.5 py-3 rounded-2xl text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-all"
+                >
+                  <span className="text-lg">🗺️</span>
+                  <span>4D 知识图谱</span>
+                </Link>
+                <Link
+                  href="/studies"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-3 px-3.5 py-3 rounded-2xl text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-all"
+                >
+                  <span className="text-lg">📚</span>
+                  <span>国际研究库</span>
+                </Link>
+                <Link
+                  href="/resources"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-3 px-3.5 py-3 rounded-2xl text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-all"
+                >
+                  <span className="text-lg">📖</span>
+                  <span>学术导航与防坑</span>
+                </Link>
+                <Link
+                  href="/profile"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-3 px-3.5 py-3 rounded-2xl text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-all"
+                >
+                  <span className="text-lg">📋</span>
+                  <span>我的癌症档案</span>
+                </Link>
+              </div>
+
+              <div className="pt-2">
+                <Link
+                  href="/profile"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full btn-primary py-3.5 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 shadow-md"
+                >
+                  <span>🔬 立即解析病理报告 ➔</span>
+                </Link>
+              </div>
+            </div>
+
+            <div className="pt-6 border-t border-slate-100 text-center space-y-3">
+              <Link 
+                href="/admin" 
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-xs text-slate-400 hover:text-slate-600 transition-colors inline-flex items-center gap-1"
+              >
+                <span>🔒 管理员通道</span>
+              </Link>
+              <div className="text-[10px] text-slate-400">
+                © 2026 OncoPath · 严格同行评审循证医学知识库
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Act 1: Hero Section (2-Column Split Layout matching Telemedicine Demo) */}
       <section
         ref={heroRef}
         className="relative min-h-[85vh] flex items-center bg-gradient-to-b from-blue-50/40 via-slate-50 to-white overflow-hidden pt-28 pb-16"
@@ -148,7 +265,7 @@ export default function HomePage() {
           <div
             className="absolute bottom-10 right-10 w-[400px] h-[400px] rounded-full opacity-15 blur-3xl"
             style={{
-              background: "radial-gradient(circle, #0284c7 0%, transparent 70%)",
+              background: "radial-gradient(circle, #2563eb 0%, transparent 70%)",
               transform: `translateY(${scrollY * -0.04}px)`,
             }}
           />
@@ -171,7 +288,7 @@ export default function HomePage() {
               <h1 className="text-4xl sm:text-5xl lg:text-[3.25rem] font-extrabold text-slate-900 leading-[1.15] tracking-tight animate-fade-in-up stagger-1">
                 循证医学，让病理报告
                 <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-600 via-blue-600 to-teal-500">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-sky-500 to-teal-500">
                   清晰透彻 · 触手可及
                 </span>
               </h1>
@@ -209,7 +326,7 @@ export default function HomePage() {
                   <div className="text-xs text-slate-500 font-medium mt-0.5">循证病例队列</div>
                 </div>
                 <div>
-                  <div className="text-xl sm:text-2xl font-extrabold text-sky-600 tabular-nums">3,000+</div>
+                  <div className="text-xl sm:text-2xl font-extrabold text-blue-600 tabular-nums">3,000+</div>
                   <div className="text-xs text-slate-500 font-medium mt-0.5">同行评审文献</div>
                 </div>
                 <div>
@@ -288,329 +405,227 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Stats Banner */}
+      {/* Live Animated Database Stats Banner */}
       <StatsBanner />
 
-      {/* Features Section */}
-      <section id="features" className="py-24 px-6 bg-gray-50">
+      {/* Act 2: 3-Step Clean Workflow & Core Difference vs General AI */}
+      <section id="workflow" className="py-24 px-6 bg-white border-b border-slate-100">
         <div className="max-w-7xl mx-auto">
           <SectionHeader
-            badge="核心功能"
-            title="循证医学导航"
-            subtitle="不是 AI 给你打分，而是国际研究帮你定位"
+            badge="循证工作流"
+            title="3步极简定位你的专属预后"
+            subtitle="从一张病理报告，到国际同行评审研究的精准人群匹配"
+          />
+
+          {/* 3 Step Cards */}
+          <div className="grid md:grid-cols-3 gap-8 mt-16">
+            <div className="p-8 rounded-3xl bg-slate-50 border border-slate-200/80 hover:border-blue-300 transition-all card-hover relative group">
+              <div className="w-12 h-12 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center text-2xl font-black mb-6">
+                1
+              </div>
+              <h3 className="text-lg font-bold text-slate-900 mb-2">上传或录入病理报告</h3>
+              <p className="text-slate-600 text-sm leading-relaxed">
+                拍摄上传病理报告照片或填写 TNM、气道播散（STAS）、胸膜侵犯（VPI）与分子靶点等指标。
+              </p>
+            </div>
+
+            <div className="p-8 rounded-3xl bg-slate-50 border border-slate-200/80 hover:border-teal-300 transition-all card-hover relative group">
+              <div className="w-12 h-12 rounded-2xl bg-teal-100 text-teal-600 flex items-center justify-center text-2xl font-black mb-6">
+                2
+              </div>
+              <h3 className="text-lg font-bold text-slate-900 mb-2">匹配国际前瞻性队列</h3>
+              <p className="text-slate-600 text-sm leading-relaxed">
+                在 JTO、Chest、Lancet 等数千项多中心研究中检索与您完全吻合的亚群队列，获取客观生存率与复发风险比（HR）。
+              </p>
+            </div>
+
+            <div className="p-8 rounded-3xl bg-slate-50 border border-slate-200/80 hover:border-sky-300 transition-all card-hover relative group">
+              <div className="w-12 h-12 rounded-2xl bg-sky-100 text-sky-600 flex items-center justify-center text-2xl font-black mb-6">
+                3
+              </div>
+              <h3 className="text-lg font-bold text-slate-900 mb-2">生成门诊就医决策清单</h3>
+              <p className="text-slate-600 text-sm leading-relaxed">
+                输出四维红绿灯风险矩阵与结构化问诊清单，支持一键复制到剪贴板，方便与您的主管医生高效沟通。
+              </p>
+            </div>
+          </div>
+
+          {/* Core Differentiation vs General LLMs Box */}
+          <div id="difference" className="mt-16 bg-gradient-to-br from-blue-50/80 via-white to-teal-50/50 rounded-3xl p-8 sm:p-12 border border-blue-200/80 shadow-sm">
+            <div className="max-w-3xl mx-auto text-center mb-10">
+              <span className="text-xs font-bold text-blue-600 uppercase tracking-wider bg-blue-100/80 px-3 py-1 rounded-full">
+                EBM VS GENERAL AI · 为什么超越通用大模型？
+              </span>
+              <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-3">
+                这与直接问 ChatGPT 有何本质区别？
+              </h3>
+              <p className="text-slate-600 text-sm mt-2">
+                医疗决策不容容忍 AI 幻觉与概率瞎猜，每一句解释都必须能够追溯到原始同行评审论文。
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* General AI box */}
+              <div className="bg-white/80 p-6 rounded-2xl border border-rose-200/80 space-y-3">
+                <div className="flex items-center gap-2 text-rose-700 font-bold text-sm">
+                  <span>❌</span>
+                  <span>普通通用大模型 (如 ChatGPT / 聊天AI)</span>
+                </div>
+                <ul className="space-y-2 text-xs text-slate-600 leading-relaxed">
+                  <li className="flex items-start gap-2">
+                    <span className="text-rose-500">•</span>
+                    <span>易产生<strong>AI 幻觉</strong>，凭空编造不存在的统计数据或虚构医学文献。</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-rose-500">•</span>
+                    <span>给出的百分比是模糊的概率猜测（如“有20%复发可能”），缺乏样本量与真实队列支持。</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-rose-500">•</span>
+                    <span>容易越权给出误导性的绝对寿命预测，加重患者焦虑。</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* OncoPath Box */}
+              <div className="bg-white p-6 rounded-2xl border border-emerald-300 shadow-sm space-y-3">
+                <div className="flex items-center gap-2 text-emerald-800 font-bold text-sm">
+                  <span>✅</span>
+                  <span>OncoPath 严谨循证医学决策系统</span>
+                </div>
+                <ul className="space-y-2 text-xs text-slate-700 leading-relaxed font-medium">
+                  <li className="flex items-start gap-2">
+                    <span className="text-emerald-600">✓</span>
+                    <span><strong>100% 文献可溯</strong>：每一句话均带有 DOI 与 PubMed 直达链接。</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-emerald-600">✓</span>
+                    <span><strong>严密效应量统计</strong>：依据 HR (95% CI) 与多中心 5yr RFS 真实患者队列。</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-emerald-600">✓</span>
+                    <span><strong>知情同意与门诊协同</strong>：输出红绿灯矩阵与医生问诊清单，科学赋能医患沟通。</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Act 3: Peer-Reviewed International Studies Library */}
+      <section id="studies" className="py-24 px-6 bg-slate-50">
+        <div className="max-w-7xl mx-auto">
+          <SectionHeader
+            badge="权威研究库"
+            title="来自国际顶级期刊的真实研究"
+            subtitle="JTO、Chest、Lancet Oncology、JCO 等核心期刊文献，每一条预后结论皆有出处"
           />
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mt-16">
-            <FeatureCard
-              icon="🔬"
-              title="病理解析"
-              desc="上传病理报告，AI 自动识别关键指标：TNM 分期、STAS、LVI、VPI、IASLC 分级、病理亚型等。"
-              color="blue"
-            />
-            <FeatureCard
-              icon="🎯"
-              title="国际研究匹配"
-              desc="基于你的病理特征，在数千篇已收录的研究中找到与你最相似的患者群体，告诉你他们的预后数据。"
-              color="teal"
-            />
-            <FeatureCard
-              icon="📊"
-              title="证据可视化"
-              desc="用雷达图、时间线、证据等级星标等可视化方式呈现你的风险因素，直观理解每个指标的含义。"
-              color="purple"
-            />
-            <FeatureCard
-              icon="📚"
-              title="实时研究更新"
-              desc="每日自动从 PubMed、Europe PMC 同步最新研究，证据库持续增长，你看到的始终是最新证据。"
-              color="amber"
-            />
-            <FeatureCard
-              icon="🔗"
-              title="来源可追溯"
-              desc="每一句解释后面都标注来自哪篇论文、几例患者、什么证据等级。点击即可查看原文信息。"
-              color="green"
-            />
-            <FeatureCard
-              icon="👨‍⚕️"
-              title="医生模式"
-              desc="医生输入病理信息，一分钟内获得该患者在国际研究中的定位，辅助门诊科普和随访规划。"
-              color="red"
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* Evidence Section */}
-      <section id="evidence" className="py-24 px-6">
-        <div className="max-w-7xl mx-auto">
-          <SectionHeader
-            badge="证据库"
-            title="每一句话，都有出处"
-            subtitle="不是黑盒算法，是真正的循证知识图谱"
-          />
-
-          <div className="mt-16 grid md:grid-cols-2 gap-8">
-            <EvidenceExampleCard
-              factor="STAS（气道播散）"
-              type="pathology"
-              status="negative"
-              statusLabel="阴性"
-              statusColor="green"
-              summary="在收录的 18 项研究（共 25,467 例患者）中，STAS 阴性与显著更低的复发风险相关。"
-              detail="Meta 分析显示 STAS 阳性患者复发风险增加约 1.87 倍（HR=1.87, 95%CI 1.52-2.29）。你的 STAS 阴性状态属于低风险组。"
-              sources={[
-                { journal: "Chest", year: 2021, type: "Meta分析", patients: 25467, stars: 5 },
-                { journal: "J Clin Oncol", year: 2017, type: "多中心", patients: 1113, stars: 4 },
-              ]}
-            />
-            <EvidenceExampleCard
-              factor="CTR（实性成分比例）"
-              type="imaging"
-              status="0.42"
-              statusLabel="低CTR"
-              statusColor="green"
-              summary="CTR < 0.5 属于混合磨玻璃低风险组，在 22 项相关研究中，5 年无复发生存率约 89-98%。"
-              detail="JCOG0804 前瞻性研究证实，CTR ≤ 0.25 的患者 5 年 RFS 达 99.7%，支持亚肺叶切除的安全性。"
-              sources={[
-                { journal: "J Thorac Oncol", year: 2021, type: "多中心前瞻", patients: 1024, stars: 4 },
-                { journal: "Chest", year: 2019, type: "多中心回顾", patients: 2153, stars: 4 },
-              ]}
-            />
-          </div>
-
-          {/* Principle box */}
-          <div className="mt-12 bg-white rounded-2xl p-8 shadow-sm border border-gray-200 text-center">
-            <div className="text-4xl mb-4">⚖️</div>
-            <blockquote className="text-xl font-medium text-text-primary mb-3">
-              "每一条医学结论，都必须可以追溯到证据。"
-            </blockquote>
-            <p className="text-text-secondary">
-              — OncoPath 核心设计原则
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Studies Section */}
-      <section id="studies" className="py-24 px-6 bg-gray-50">
-        <div className="max-w-7xl mx-auto">
-          <SectionHeader
-            badge="研究库"
-            title="来自顶级期刊的真实研究"
-            subtitle="JTO、Chest、Lancet、JCO 等权威来源，持续更新"
-          />
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mt-12">
             {FEATURED_STUDIES.slice(0, 6).map((study) => (
-              <StudyCard key={study.id} study={study} compact />
+              <StudyCard key={study.id} study={study} />
             ))}
           </div>
-          <div className="mt-8 text-center">
+
+          <div className="mt-12 text-center">
             <Link
               href="/studies"
               id="view-all-studies-btn"
-              className="btn-secondary px-6 py-3 rounded-xl text-sm font-medium inline-flex items-center gap-2"
+              className="btn-primary px-8 py-3.5 rounded-2xl text-sm font-bold inline-flex items-center gap-2 shadow-md"
             >
-              查看全部研究库
-              <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path d="M9 18l6-6-6-6" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
+              <span>查看全部已收录国际研究库 ({FEATURED_STUDIES.length}篇+) ➔</span>
             </Link>
           </div>
         </div>
       </section>
 
-      {/* Knowledge Map Preview */}
-      <section id="knowledge" className="py-24 px-6">
+      {/* Act 4: 4D Knowledge Graph Sandbox */}
+      <section id="knowledge" className="py-24 px-6 bg-white border-y border-slate-100">
         <div className="max-w-7xl mx-auto">
           <SectionHeader
-            badge="知识图谱"
+            badge="动态推演沙盘"
             title="肺癌循证知识图谱"
-            subtitle="点击任何因素，查看全部相关研究"
+            subtitle="点击任意病理特征与靶点，动态推演复发路径与国际前沿治疗方案"
           />
-          <KnowledgeMapPreview />
+
+          <div className="mt-14 bg-white rounded-3xl p-2 border border-slate-200 shadow-xl overflow-hidden">
+            <KnowledgeMapPreview />
+          </div>
         </div>
       </section>
 
-      {/* What is EBM Section */}
-      <section className="py-20 px-6 bg-gray-50">
+      {/* Act 5: Frequently Asked Questions & Final Conversion CTA */}
+      <section className="py-24 px-6 bg-slate-50">
         <div className="max-w-4xl mx-auto">
           <SectionHeader
-            badge="循证医学是什么"
-            title="不是 AI 算命，而是把你的情况放进研究里"
-            subtitle="每一句话背后，都有真实发表的论文支撑"
+            badge="患者与家属答疑"
+            title="常见问题解答 (FAQ)"
+            subtitle="了解如何正确使用 OncoPath 辅助您的诊疗沟通"
           />
-          <div className="mt-12 grid md:grid-cols-3 gap-6">
-            {[
-              {
-                icon: "📋",
-                title: "你提供病理信息",
-                desc: "把你的病理报告上的关键数字告诉我们，比如分期、STAS、CTR 这些医生写下来的东西。",
-              },
-              {
-                icon: "🔍",
-                title: "系统在研究中找相似案例",
-                desc: "系统在数百篇国际顶级期刊论文中，找到和你情况最接近的那批患者的数据。",
-              },
-              {
-                icon: "📊",
-                title: "用他们的结果帮你理解",
-                desc: "把那些和你相似的患者的预后数据，用通俗的语言解释给你看，并标明出自哪篇论文。",
-              },
-            ].map((item) => (
-              <div key={item.title} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200 text-center">
-                <div className="text-3xl mb-4">{item.icon}</div>
-                <h3 className="font-semibold text-text-primary mb-2">{item.title}</h3>
-                <p className="text-text-secondary text-sm leading-relaxed">{item.desc}</p>
-              </div>
-            ))}
+
+          <div className="mt-12 space-y-4">
+            <FaqItem
+              q="我该如何获取我的病理报告参数？"
+              a="在您完成手术或穿刺活检后，医院病理科会出具一份正式的《病理组织学诊断报告》。您只需使用手机拍摄报告全貌，或在个人档案中直接填写报告上注明的 TNM 分期、STAS（气道播散）及分化程度即可。"
+            />
+            <FaqItem
+              q="系统给出的数据会替代主治医生的诊断吗？"
+              a="绝对不会。OncoPath 是一个纯粹的循证医学科普与信息平权工具。我们帮助您把艰涩的医学术语翻译为清晰的国际顶级研究数据，并生成一份《门诊就医问诊清单》，帮助您在复查或问诊时与主治医生更加高效地沟通。"
+            />
+            <FaqItem
+              q="如何将 OncoPath 作为手机 App 使用？"
+              a="本站已全面支持 PWA (Progressive Web App) 技术。在 iPhone 的 Safari 浏览器中点击底部的【分享】按钮并选择【添加到主屏幕】；在安卓 Chrome 中点击右上角菜单选择【添加到主屏幕】，即可像原生 App 一样全屏沉浸使用。"
+            />
           </div>
-          <div className="mt-8 bg-blue-50 rounded-2xl p-6 border border-blue-200 flex items-start gap-4">
-            <span className="text-2xl shrink-0">💬</span>
+
+          {/* Final Action Card */}
+          <div className="mt-16 bg-gradient-to-r from-blue-600 to-teal-600 rounded-3xl p-8 sm:p-12 text-white text-center shadow-xl space-y-6">
+            <h3 className="text-2xl sm:text-4xl font-black tracking-tight">
+              准备好理解您的病理档案了吗？
+            </h3>
+            <p className="text-blue-100 text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
+              只需一分钟，让国际顶级医学研究为您点亮清晰、理性的抗癌导航之路。
+            </p>
             <div>
-              <p className="text-text-primary font-medium mb-1">这和问 ChatGPT 有什么区别？</p>
-              <p className="text-text-secondary text-sm leading-relaxed">
-                ChatGPT 是凭经验猜测，没有来源。OncoPath 是在<strong className="text-text-primary">已经发表的真实研究</strong>里面查你的情况，每一条结论都会告诉你出自哪篇论文、研究了多少患者。
-              </p>
+              <Link
+                href="/profile"
+                className="inline-flex items-center gap-2 bg-white text-blue-700 hover:bg-blue-50 px-8 py-4 rounded-2xl font-extrabold text-base shadow-lg transition-all transform hover:-translate-y-0.5"
+              >
+                <span>🔬 立即免费建立专属癌症档案 ➔</span>
+              </Link>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* FAQ Section */}
-      <section className="py-20 px-6">
-        <div className="max-w-3xl mx-auto">
-          <SectionHeader
-            badge="常见问题"
-            title="你可能想问的"
-            subtitle="关于这个平台和你的报告，我们来解答"
-          />
-          <div className="mt-10 space-y-4">
-            {[
-              {
-                q: "我看不懂病理报告，怎么填？",
-                a: "没关系，每一个输入项旁边都有 ⓘ 图标，点击或悬停可以看到白话文解释，告诉你这个数字或词语在报告哪里找、是什么意思。不确定的项目可以选「未知」跳过。",
-              },
-              {
-                q: "这里的数据准确吗？是真实的研究吗？",
-                a: "是的。所有引用的研究均来自 Lancet、NEJM、JCO、Chest 等权威医学期刊，每一项数据都标注了来源期刊、发表年份和研究患者数量，您可以点击查看原文摘要。",
-              },
-              {
-                q: "报告里说我是「低风险」，我是不是就没事了？",
-                a: "请不要这样理解。「低风险」是指在研究统计中，与你情况相似的患者群体复发比例相对较低，并不意味着你个人一定没有风险。任何情况都必须请您的主治医生结合完整病史做最终判断。",
-              },
-              {
-                q: "这个可以代替医生的意见吗？",
-                a: "绝对不能，也不应该。这个平台的定位是「帮你看懂研究、方便和医生沟通」，不是诊断工具。我们希望患者拿着这份报告，去更有信心地跟医生提问和讨论。",
-              },
-              {
-                q: "我的信息会被保存或泄露吗？",
-                a: "您填写的病理信息仅用于本次分析，不会关联到您的真实身份。如果您选择登录并保存历史，数据会存储在您的账号下，您可以随时删除。",
-              },
-            ].map((item, i) => (
-              <FaqItem key={i} q={item.q} a={item.a} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-24 px-6 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gray-50" />
-        <div className="relative max-w-4xl mx-auto text-center">
-          <h2 className="display-lg mb-6">
-            理解你的情况，
-            <span className="text-gray-900 font-bold"> 从循证开始</span>
-          </h2>
-          <CtaStats />
-          <p className="text-base text-text-muted mb-12 max-w-xl mx-auto">
-            输入你的病理特征，系统将在已发表的研究中为你精准定位，
-            并用可理解的语言解释每一个指标的含义。
-          </p>
-          <Link
-            href="/profile"
-            id="cta-start-btn"
-            className="btn-primary px-10 py-5 rounded-2xl text-lg font-semibold cursor-pointer animate-pulse-glow inline-block"
-          >
-            建立个人医学档案
-          </Link>
-          <p className="mt-6 text-text-muted text-sm">
-            完全免费 · 无需注册 · 结论均有文献来源
-          </p>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-gray-200 py-12 px-6 mt-12">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-4 gap-8 mb-8">
-            <div>
-              <LogoMark />
-              <p className="mt-3 text-text-muted text-sm leading-relaxed">
-                肺癌循证知识平台。帮助患者理解医学研究，而不是替代医生。
-              </p>
-            </div>
-            <FooterCol title="功能" links={[
-              { label: "病理分析", href: "#" },
-              { label: "研究匹配", href: "#" },
-              { label: "知识图谱", href: "/knowledge" },
-              { label: "研究库", href: "/studies" },
-              { label: "学术导航", href: "/resources" },
-            ]} />
-            <FooterCol title="关于" links={[
-              { label: "项目理念", href: "#" },
-              { label: "数据来源", href: "#" },
-              { label: "证据方法论", href: "#" },
-            ]} />
-            <FooterCol title="联系" links={[
-              { label: "医生合作", href: "#" },
-              { label: "反馈建议", href: "#" },
-            ]} />
+      <footer className="bg-white border-t border-slate-200 py-16 px-6">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+          <LogoMark />
+          <div className="text-xs text-slate-500 text-center md:text-left space-y-1">
+            <div>© 2026 OncoPath · 严格同行评审肺癌循证知识与决策导航系统</div>
+            <div>所有数据均可追溯至 JTO、Lancet、JCO、Chest 等国际顶级学术期刊。</div>
           </div>
-          <div className="evidence-divider mb-6" />
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-text-muted text-xs">
-            <div className="flex items-center gap-3">
-              <p>© 2026 OncoPath. All rights reserved.</p>
-              <span>·</span>
-              <a href="/admin" className="hover:text-text-secondary transition-colors text-[11px] opacity-70">
-                🔒 管理员通道
-              </a>
-            </div>
-            <p className="text-center max-w-lg">
-              ⚠️ 重要声明：本平台提供的信息仅供教育参考，不构成医疗诊断或治疗建议。所有医疗决策请咨询您的主治医生。
-            </p>
+          <div className="flex items-center gap-4 text-xs text-slate-400">
+            <Link href="/admin" className="hover:text-slate-600 transition-colors">
+              🔒 管理员通道
+            </Link>
           </div>
         </div>
       </footer>
-
-      {/* UserAvatar manages AuthModal now, but we keep this here if needed elsewhere. We can actually remove it since UserAvatar handles it, but just to be safe if other things trigger setShowAuthModal, we can leave it or remove it. Wait, setShowAuthModal in page.tsx is only used by the removed login button and maybe the start analysis button if not logged in? Let's keep it just in case, or let's remove it if it's unused. 
-      Actually, let's keep it to avoid breaking other 'setShowAuthModal(true)' calls in page.tsx. */}
-      {showAuthModal && (
-        <AuthModal 
-          onClose={() => setShowAuthModal(false)}
-          onSuccess={(token, email) => {
-            localStorage.setItem("token", token);
-            localStorage.setItem("email", email);
-            setUserEmail(email);
-            setShowAuthModal(false);
-            window.dispatchEvent(new Event("auth-change"));
-          }}
-        />
-      )}
     </div>
   );
 }
 
-// ============ Sub-components ============
-
 function LogoMark() {
   return (
-    <div className="flex items-center gap-2">
-      <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center">
+    <div className="flex items-center gap-2.5">
+      <div className="w-8 h-8 rounded-xl overflow-hidden flex items-center justify-center shadow-xs">
         <img src="/logo.png" alt="OncoPath Logo" className="w-full h-full object-cover" />
       </div>
-      <span className="font-semibold text-text-primary">
-        Onco<span className="text-gray-900 font-bold">Path</span>
+      <span className="font-bold text-slate-900 tracking-tight text-base">
+        Onco<span className="text-accent-blue font-extrabold">Path</span>
       </span>
     </div>
   );
@@ -620,7 +635,7 @@ function NavLink({ href, children }: { href: string; children: React.ReactNode }
   return (
     <a
       href={href}
-      className="text-text-secondary hover:text-text-primary transition-colors text-sm"
+      className="text-xs sm:text-sm font-semibold text-slate-600 hover:text-accent-blue transition-colors"
     >
       {children}
     </a>
@@ -629,175 +644,13 @@ function NavLink({ href, children }: { href: string; children: React.ReactNode }
 
 function SectionHeader({ badge, title, subtitle }: { badge: string; title: string; subtitle: string }) {
   return (
-    <div className="text-center">
-      <div className="inline-flex items-center gap-2 bg-blue-50 px-4 py-2 rounded-full text-sm text-blue-600 mb-6 border border-blue-200">
-        <span className="w-1.5 h-1.5 rounded-full bg-accent-blue" />
+    <div className="text-center max-w-3xl mx-auto">
+      <div className="inline-flex items-center gap-2 bg-blue-50 px-3.5 py-1.5 rounded-full text-xs font-bold text-blue-700 mb-3 border border-blue-200">
+        <span className="w-1.5 h-1.5 rounded-full bg-accent-blue animate-pulse" />
         {badge}
       </div>
-      <h2 className="display-md text-text-primary mb-4">{title}</h2>
-      <p className="text-text-secondary text-lg max-w-xl mx-auto">{subtitle}</p>
-    </div>
-  );
-}
-
-const colorMap: Record<string, string> = {
-  blue: "from-blue-500/20 to-blue-600/5 border-blue-500/20",
-  teal: "from-teal-500/20 to-teal-600/5 border-teal-500/20",
-  purple: "from-purple-500/20 to-purple-600/5 border-purple-500/20",
-  amber: "from-amber-500/20 to-amber-600/5 border-amber-500/20",
-  green: "from-green-500/20 to-green-600/5 border-green-500/20",
-  red: "from-red-500/20 to-red-600/5 border-red-500/20",
-};
-
-function FeatureCard({ icon, title, desc, color }: { icon: string; title: string; desc: string; color: string }) {
-  return (
-    <div className={`card-hover rounded-2xl p-6 border bg-gradient-to-br ${colorMap[color]} relative overflow-hidden`}>
-      <div className="text-3xl mb-4">{icon}</div>
-      <h3 className="font-semibold text-text-primary mb-2 text-lg">{title}</h3>
-      <p className="text-text-secondary text-sm leading-relaxed">{desc}</p>
-    </div>
-  );
-}
-
-import { fetchStats } from "@/lib/api";
-
-function CtaStats() {
-  const [stats, setStats] = useState<{ total_studies: number; total_patients: number } | null>(null);
-  useEffect(() => {
-    fetchStats().then((s) => { if (s) setStats(s); });
-  }, []);
-  const studiesText = stats ? `${stats.total_studies} 项研究` : "持续更新中";
-  const patientsText = stats && stats.total_patients > 0
-    ? `${new Intl.NumberFormat("en-US").format(stats.total_patients)}+ 例患者`
-    : "覆盖海量患者";
-  return (
-    <p className="text-xl text-text-secondary mb-4 max-w-2xl mx-auto">
-      数据库已收录{" "}
-      <span className="text-gray-900 font-bold font-semibold">{studiesText}</span>，覆盖{" "}
-      <span className="text-gray-900 font-bold font-semibold">{patientsText}</span>。
-    </p>
-  );
-}
-
-function EvidencePreviewCard() {
-  const [stats, setStats] = useState({ studies: 32, patients: "6,800+" });
-
-  useEffect(() => {
-    fetchStats().then(data => {
-      if (data) {
-        setStats({ 
-          studies: data.total_studies, 
-          // Format patients string e.g. "187,450+"
-          patients: new Intl.NumberFormat('en-US').format(data.total_patients) + "+" 
-        });
-      }
-    });
-  }, []);
-
-  return (
-    <div className="bg-white rounded-2xl p-6 border border-gray-200 max-w-2xl mx-auto text-left shadow-sm animate-fade-in-up stagger-5" style={{ opacity: 0 }}>
-      <div className="flex items-center gap-3 mb-4">
-        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-accent-blue/20 to-accent-teal/20 flex items-center justify-center text-lg">
-          👤
-        </div>
-        <div>
-          <div className="font-medium text-text-primary text-sm">示例患者画像</div>
-          <div className="text-text-muted text-xs">IA1 期 · 混合磨玻璃 · 女性 · 38岁</div>
-        </div>
-        <div className="ml-auto">
-          <span className="risk-badge-low text-xs px-3 py-1 rounded-full border font-medium">
-            低风险组
-          </span>
-        </div>
-      </div>
-      <div className="grid grid-cols-3 gap-3 mb-4">
-        {[
-          { label: "匹配研究", value: `${stats.studies}篇`, sub: "国际顶级期刊" },
-          { label: "相似患者", value: stats.patients, sub: "例已纳入研究" },
-          { label: "5年RFS", value: "89-98%", sub: "基于现有研究" },
-        ].map((item) => (
-          <div key={item.label} className="bg-gray-50 rounded-xl p-3 text-center border border-gray-200">
-            <div className="text-lg font-bold text-gray-900">{item.value}</div>
-            <div className="text-text-primary text-xs font-medium">{item.label}</div>
-            <div className="text-text-muted text-xs">{item.sub}</div>
-          </div>
-        ))}
-      </div>
-      <div className="flex items-start gap-2 bg-green-50 rounded-xl p-3 border border-green-200">
-        <span className="text-green-400 mt-0.5">●</span>
-        <p className="text-text-secondary text-xs leading-relaxed">
-          <span className="text-green-400 font-medium">STAS 阴性 · CTR 0.42 · N0 </span>
-          — 在 18 项研究（共 25,467 例）中，属于低复发风险亚群。
-          <span className="text-text-muted ml-1">→ Chest 2021 (Meta)</span>
-        </p>
-      </div>
-    </div>
-  );
-}
-
-function EvidenceExampleCard({
-  factor, type, status, statusLabel, statusColor,
-  summary, detail, sources
-}: {
-  factor: string;
-  type: string;
-  status: string;
-  statusLabel: string;
-  statusColor: "green" | "amber" | "red";
-  summary: string;
-  detail: string;
-  sources: Array<{ journal: string; year: number; type: string; patients: number; stars: number }>;
-}) {
-  return (
-    <div className="bg-white rounded-2xl p-6 shadow-sm card-hover border border-gray-200">
-      <div className="flex items-center justify-between mb-4">
-        <div>
-          <div className="text-xs text-text-muted mb-1 uppercase tracking-wider">{type === "pathology" ? "病理指标" : "影像指标"}</div>
-          <h3 className="font-semibold text-text-primary">{factor}</h3>
-        </div>
-        <span className={`risk-badge-${statusColor} text-sm px-3 py-1 rounded-full border font-medium`}>
-          {status} · {statusLabel}
-        </span>
-      </div>
-      <p className="text-text-secondary text-sm mb-3 leading-relaxed">{summary}</p>
-      <div className="bg-blue-50 rounded-xl p-4 border border-blue-100 mb-4">
-        <p className="text-text-primary text-sm leading-relaxed">{detail}</p>
-      </div>
-      <div className="space-y-2">
-        {sources.map((s, i) => (
-          <div key={i} className="flex items-center justify-between text-xs">
-            <div className="flex items-center gap-2">
-              <span className="text-accent-blue font-medium">{s.journal}</span>
-              <span className="text-text-muted">{s.year}</span>
-              <span className="bg-gray-50 px-2 py-0.5 rounded text-gray-500 border border-gray-200">{s.type}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-text-muted">{s.patients.toLocaleString()}例</span>
-              <StarRating count={s.stars} />
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function StarRating({ count }: { count: number }) {
-  return (
-    <div className="flex gap-0.5">
-      {Array.from({ length: 5 }).map((_, i) => (
-        <svg
-          key={i}
-          width="10"
-          height="10"
-          viewBox="0 0 24 24"
-          fill={i < count ? "currentColor" : "none"}
-          stroke="currentColor"
-          className={i < count ? "star-filled" : "star-empty"}
-        >
-          <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" />
-        </svg>
-      ))}
+      <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-900 mb-3 tracking-tight">{title}</h2>
+      <p className="text-slate-600 text-sm sm:text-base leading-relaxed">{subtitle}</p>
     </div>
   );
 }
@@ -805,47 +658,27 @@ function StarRating({ count }: { count: number }) {
 function FaqItem({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+    <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden transition-all">
       <button
         onClick={() => setOpen(!open)}
-        className="w-full px-6 py-4 flex items-center justify-between text-left cursor-pointer hover:bg-gray-50 transition-colors"
+        className="w-full px-6 py-4 text-left flex items-center justify-between gap-4 font-bold text-slate-900 text-sm sm:text-base hover:text-accent-blue transition-colors"
       >
-        <span className="text-text-primary font-medium text-sm pr-4">{q}</span>
-        <svg
-          width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"
-          className={`shrink-0 text-text-muted transition-transform duration-200 ${open ? "rotate-180" : ""}`}
-        >
-          <path d="M19 9l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
+        <span>{q}</span>
+        <span className="text-slate-400 text-lg transition-transform duration-200 shrink-0">
+          {open ? "−" : "+"}
+        </span>
       </button>
       {open && (
-        <div className="px-6 pb-4 border-t border-gray-200">
-          <p className="text-text-secondary text-sm leading-relaxed pt-3">{a}</p>
+        <div className="px-6 pb-5 pt-1 text-slate-600 text-xs sm:text-sm leading-relaxed border-t border-slate-100">
+          {a}
         </div>
       )}
     </div>
   );
 }
 
-function FooterCol({ title, links }: { title: string; links: Array<{ label: string; href: string }> }) {
-  return (
-    <div>
-      <h4 className="font-medium text-text-primary mb-3 text-sm">{title}</h4>
-      <ul className="space-y-2">
-        {links.map((link) => (
-          <li key={link.label}>
-            <a href={link.href} className="text-text-muted hover:text-text-secondary transition-colors text-sm">
-              {link.label}
-            </a>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
 function FloatingParticles() {
-  const particles = Array.from({ length: 20 }, (_, i) => ({
+  const particles = Array.from({ length: 16 }, (_, i) => ({
     id: i,
     x: Math.random() * 100,
     y: Math.random() * 100,
@@ -872,5 +705,3 @@ function FloatingParticles() {
     </div>
   );
 }
-
-

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Noto_Sans_SC } from "next/font/google";
 import "./globals.css";
 
@@ -15,10 +15,24 @@ const notoSansSC = Noto_Sans_SC({
   display: "swap",
 });
 
+export const viewport: Viewport = {
+  themeColor: "#0284c7",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  viewportFit: "cover",
+};
+
 export const metadata: Metadata = {
   title: "OncoPath — 肺癌循证知识平台",
   description:
     "帮助肺癌患者通过已发表的国际研究理解自己的病理情况。每一条结论都有来源，每一个解释都可追溯。",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "OncoPath",
+  },
   keywords: [
     "肺癌",
     "肺腺癌",
@@ -39,14 +53,13 @@ export const metadata: Metadata = {
     apple: "/logo.png",
   },
   openGraph: {
-      title: "OncoPath — 肺癌循证知识平台",
+    title: "OncoPath — 肺癌循证知识平台",
     description:
       "把复杂的医学研究翻译成患者能理解的语言。每一句话都有证据来源。",
     type: "website",
     images: [{ url: "/logo.png", width: 1024, height: 1024, alt: "OncoPath Logo" }],
   },
 };
-
 
 export default function RootLayout({
   children,
@@ -55,6 +68,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-CN" className={`${inter.variable} ${notoSansSC.variable}`}>
+      <head>
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="mobile-web-app-capable" content="yes" />
+      </head>
       <body className="antialiased">{children}</body>
     </html>
   );
