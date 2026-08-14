@@ -24,6 +24,9 @@ interface IngestedStudy {
   ciLow?: number;
   ciHigh?: number;
   rfs5Year?: string;
+  biomarkerDetails?: string;
+  interventionArm?: string;
+  riskReduction?: string;
   pdfFileName?: string;
   createdAt: string;
 }
@@ -34,7 +37,20 @@ interface EvidenceMetrics {
   rctMetaCount: number;
 }
 
+interface OnlineSearchResult {
+  id: string;
+  title: string;
+  journal: string;
+  year: number | null;
+  authors: string;
+  doi: string;
+  pmid: string;
+  abstractText: string;
+  isOpenAccess: boolean;
+}
+
 export default function AdminPage() {
+  const [activeTab, setActiveTab] = useState<"pdf" | "pubmed">("pdf");
   const [studies, setStudies] = useState<IngestedStudy[]>([]);
   const [metrics, setMetrics] = useState<EvidenceMetrics>({ totalStudies: 0, totalPatients: 0, rctMetaCount: 0 });
   const [loading, setLoading] = useState(true);
@@ -45,6 +61,15 @@ export default function AdminPage() {
   const [isParsing, setIsParsing] = useState(false);
   const [parsingStep, setParsingStep] = useState<string>("");
   const [parseError, setParseError] = useState("");
+  
+  // PubMed Online Search States
+  const [onlineQuery, setOnlineQuery] = useState("");
+  const [isSearchingOnline, setIsSearchingOnline] = useState(false);
+  const [onlineResults, setOnlineResults] = useState<OnlineSearchResult[]>([]);
+  const [onlineError, setOnlineError] = useState("");
+  const [extractingId, setExtractingId] = useState<string | null>(null);
+
+  // Verification & Ingestion States
   const [extractedData, setExtractedData] = useState<any | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
@@ -76,7 +101,7 @@ export default function AdminPage() {
     loadStudies();
   }, [searchQuery]);
 
-  // Handle File selection
+  // Handle PDF File selection
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -133,6 +158,71 @@ export default function AdminPage() {
     } catch (err: any) {
       setParseError("文件读取失败: " + err.message);
       setIsParsing(false);
+    }
+  };
+
+  // Search PubMed / Europe PMC Online
+  const handleSearchOnline = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!onlineQuery.trim()) return;
+
+    setIsSearchingOnline(true);
+    setOnlineError("");
+    setOnlineResults([]);
+
+    try {
+      const res = await fetch('/api/admin/fetch-pubmed', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'search',
+          query: onlineQuery.trim()
+        })
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        if (data.results.length === 0) {
+          setOnlineError("未找到匹配的文献，请尝试更换关键词、PMID 或 DOI。");
+        } else {
+          setOnlineResults(data.results);
+        }
+      } else {
+        setOnlineError(data.error || "PubMed 检索失败");
+      }
+    } catch (err: any) {
+      setOnlineError("检索异常: " + err.message);
+    } finally {
+      setIsSearchingOnline(false);
+    }
+  };
+
+  // Extract from an Online Search Result
+  const handleExtractFromArticle = async (article: OnlineSearchResult) => {
+    setExtractingId(article.id);
+    setOnlineError("");
+
+    try {
+      const res = await fetch('/api/admin/fetch-pubmed', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'extract',
+          article: article
+        })
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        setExtractedData(data.data);
+        showToast("🎉 已成功从 PubMed 摘要中提取结构化指标！");
+      } else {
+        alert("指标提取失败: " + data.error);
+      }
+    } catch (err: any) {
+      alert("提取异常: " + err.message);
+    } finally {
+      setExtractingId(null);
     }
   };
 
@@ -201,10 +291,10 @@ export default function AdminPage() {
               <span>Admin Evidence Studio</span>
             </div>
             <h1 className="text-2xl md:text-3xl font-bold text-slate-900">
-              医学文献管理与 PDF 智能录入工作台
+              医学文献管理与智能录入工作台
             </h1>
             <p className="text-slate-500 text-sm mt-1">
-              直接拖拽上传论文 PDF 原文，AI 自动提取关键效应量 (HR, 5年RFS, 样本量)，经专家核验后一键入库与向量化。
+              支持「本地 PDF 拖拽解析」与「PubMed / Europe PMC 在线检索」双核录入，覆盖 17 项核心与前沿临床指标。
             </p>
           </div>
 
@@ -248,10 +338,10 @@ export default function AdminPage() {
             color="amber" 
           />
           <StatCard 
-            icon="🤖" 
-            title="多模态抽取引擎" 
-            value="Gemini 2.5" 
-            subtitle="原生支持 PDF 结构化" 
+            icon="🌐" 
+            title="数据接入源" 
+            value="双核驱动" 
+            subtitle="PDF 多模态 + PubMed" 
             color="emerald" 
           />
         </div>
@@ -260,31 +350,53 @@ export default function AdminPage() {
       {/* Main Studio Body */}
       <main className="max-w-7xl mx-auto px-6 space-y-12">
         
-        {/* Section 1: PDF Upload & Human-in-the-Loop Extraction Studio */}
+        {/* Ingestion Studio Card */}
         <section className="bg-white rounded-2xl border border-slate-200 p-6 md:p-8 shadow-sm">
-          <div className="flex items-center justify-between pb-5 border-b border-slate-100 mb-6">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-blue-50 text-accent-blue flex items-center justify-center text-xl">
-                📄
-              </div>
-              <div>
-                <h2 className="text-lg font-bold text-slate-900">PDF 论文智能录入工作室</h2>
-                <p className="text-xs text-slate-500">拖入医学研究 PDF 原文，系统将自动识别提取标题、期刊、HR 风险比、样本量等结构化字段</p>
-              </div>
-            </div>
-            {pdfFile && !isParsing && !extractedData && (
-              <button
-                onClick={() => { setPdfFile(null); if (fileInputRef.current) fileInputRef.current.value = ""; }}
-                className="text-xs text-slate-400 hover:text-slate-600 cursor-pointer"
-              >
-                清空重选
-              </button>
-            )}
-          </div>
-
-          {/* Upload Drop Area */}
+          
+          {/* Dual Ingestion Mode Tabs */}
           {!extractedData && (
+            <div className="flex items-center gap-2 p-1.5 bg-slate-100/80 rounded-xl max-w-md mb-6">
+              <button
+                onClick={() => setActiveTab("pdf")}
+                className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                  activeTab === "pdf"
+                    ? "bg-white text-slate-900 shadow-sm"
+                    : "text-slate-500 hover:text-slate-800"
+                }`}
+              >
+                <span>📄 上传本地 PDF 论文</span>
+              </button>
+              <button
+                onClick={() => setActiveTab("pubmed")}
+                className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                  activeTab === "pubmed"
+                    ? "bg-white text-accent-blue shadow-sm"
+                    : "text-slate-500 hover:text-slate-800"
+                }`}
+              >
+                <span>🌐 在线检索 PubMed / Europe PMC</span>
+              </button>
+            </div>
+          )}
+
+          {/* Mode A: Local PDF Upload */}
+          {!extractedData && activeTab === "pdf" && (
             <div className="space-y-4">
+              <div className="flex items-center justify-between pb-3">
+                <div>
+                  <h2 className="text-base font-bold text-slate-900">PDF 论文多模态深度抽取</h2>
+                  <p className="text-xs text-slate-500">直接上传论文 PDF 原文，Gemini 2.5 Flash 将自动结构化提取全文图表与效应量</p>
+                </div>
+                {pdfFile && !isParsing && (
+                  <button
+                    onClick={() => { setPdfFile(null); if (fileInputRef.current) fileInputRef.current.value = ""; }}
+                    className="text-xs text-slate-400 hover:text-slate-600"
+                  >
+                    清空重选
+                  </button>
+                )}
+              </div>
+
               <div 
                 onClick={() => fileInputRef.current?.click()}
                 className={`border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all ${
@@ -325,7 +437,6 @@ export default function AdminPage() {
                 </div>
               )}
 
-              {/* Action Button */}
               {pdfFile && (
                 <div className="flex justify-end gap-3 pt-2">
                   <button
@@ -354,13 +465,102 @@ export default function AdminPage() {
             </div>
           )}
 
-          {/* Section 2: Human-in-the-Loop Verification Card */}
+          {/* Mode B: Online PubMed / Europe PMC Search */}
+          {!extractedData && activeTab === "pubmed" && (
+            <div className="space-y-5">
+              <div>
+                <h2 className="text-base font-bold text-slate-900">PubMed / Europe PMC 在线检索抓取</h2>
+                <p className="text-xs text-slate-500">无需下载 PDF，输入研究名称、PMID（如 29190196）或 DOI，秒级检索并智能结构化回填</p>
+              </div>
+
+              <form onSubmit={handleSearchOnline} className="flex gap-2">
+                <input 
+                  type="text" 
+                  value={onlineQuery}
+                  onChange={e => setOnlineQuery(e.target.value)}
+                  placeholder="例如：JCOG0802 segmentectomy 或 29190196 或 10.1200/JCO.2017.74.8871"
+                  className="flex-1 p-3 bg-slate-50 border border-slate-300 rounded-xl text-sm font-medium text-slate-900 focus:bg-white focus:ring-2 focus:ring-accent-blue/20"
+                />
+                <button
+                  type="submit"
+                  disabled={isSearchingOnline || !onlineQuery.trim()}
+                  className="btn-primary px-6 py-3 rounded-xl text-sm font-semibold flex items-center gap-2 cursor-pointer"
+                >
+                  {isSearchingOnline ? (
+                    <>
+                      <svg className="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      <span>检索中...</span>
+                    </>
+                  ) : (
+                    <span>🔍 在线检索</span>
+                  )}
+                </button>
+              </form>
+
+              {onlineError && (
+                <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-800 flex items-center gap-2">
+                  <span>⚠️</span>
+                  <span>{onlineError}</span>
+                </div>
+              )}
+
+              {/* Online Results List */}
+              {onlineResults.length > 0 && (
+                <div className="space-y-3 pt-2">
+                  <div className="text-xs font-semibold text-slate-500">
+                    检索到 {onlineResults.length} 篇候选文献，点击「一键提取」即可加载至专家核验单：
+                  </div>
+
+                  <div className="space-y-3">
+                    {onlineResults.map(item => (
+                      <div key={item.id} className="p-4 rounded-xl border border-slate-200 bg-slate-50/60 hover:bg-white hover:border-accent-blue/40 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div className="flex-1 space-y-1">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-bold text-accent-blue">{item.journal || "Journal"}</span>
+                            {item.year && <span className="text-xs text-slate-400">({item.year})</span>}
+                            {item.isOpenAccess && <span className="text-[10px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded font-bold">Open Access</span>}
+                          </div>
+                          <h4 className="font-bold text-sm text-slate-900 leading-snug">{item.title}</h4>
+                          <div className="text-xs text-slate-500 line-clamp-1">{item.authors}</div>
+                          <p className="text-xs text-slate-600 line-clamp-2 mt-1">{item.abstractText}</p>
+                        </div>
+
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <button
+                            onClick={() => handleExtractFromArticle(item)}
+                            disabled={extractingId === item.id}
+                            className="px-4 py-2 bg-blue-50 text-accent-blue hover:bg-accent-blue hover:text-white border border-blue-200 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer flex items-center gap-1.5"
+                          >
+                            {extractingId === item.id ? (
+                              <>
+                                <span className="animate-spin text-xs">🌀</span>
+                                <span>AI 提取中...</span>
+                              </>
+                            ) : (
+                              <>
+                                <span>⚡ 一键提取并核验</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Section: Human-in-the-Loop Verification Card (Common to both PDF & PubMed) */}
           {extractedData && (
             <div className="space-y-6 animate-fade-in">
               <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 flex items-center justify-between">
                 <div className="flex items-center gap-2 font-medium">
                   <span>🛡️ 专家核验屏障 (Human-in-the-Loop)</span>
-                  <span className="text-emerald-700 font-normal">AI 已完成指标初筛，请核对并可直接修改表单数据，确认无误后录入数据库。</span>
+                  <span className="text-emerald-700 font-normal">已完成 17 项指标智能提取，请核对并可微调表单数据，确认无误后录入数据库。</span>
                 </div>
                 <button
                   onClick={() => setExtractedData(null)}
@@ -548,6 +748,56 @@ export default function AdminPage() {
                 </div>
               </div>
 
+              {/* 3 Advanced Frontier Oncology Fields (新增三项前沿进阶字段) */}
+              <div className="bg-gradient-to-r from-blue-50/70 via-teal-50/70 to-emerald-50/70 p-5 rounded-2xl border border-blue-200/80 space-y-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-base">🧬</span>
+                  <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider">前沿医学进阶指标 (Biomarkers & Interventions)</h4>
+                  <span className="text-[10px] bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded-full">4D 图谱联动</span>
+                </div>
+
+                <div className="grid md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">
+                      分子靶点与生物标志物亚型
+                    </label>
+                    <input 
+                      type="text" 
+                      value={extractedData.biomarkerDetails || ""} 
+                      onChange={e => setExtractedData({...extractedData, biomarkerDetails: e.target.value})}
+                      placeholder="如 EGFR 19del/L858R, PD-L1 TPS>=50%"
+                      className="w-full p-2.5 bg-white border border-blue-200 rounded-xl text-xs font-medium"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">
+                      治疗干预组 vs 对照组对比
+                    </label>
+                    <input 
+                      type="text" 
+                      value={extractedData.interventionArm || ""} 
+                      onChange={e => setExtractedData({...extractedData, interventionArm: e.target.value})}
+                      placeholder="如 试验组: 奥希替尼 80mg vs 对照组: 安慰剂"
+                      className="w-full p-2.5 bg-white border border-blue-200 rounded-xl text-xs font-medium"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">
+                      相对风险降低率 (Risk Reduction %)
+                    </label>
+                    <input 
+                      type="text" 
+                      value={extractedData.riskReduction || ""} 
+                      onChange={e => setExtractedData({...extractedData, riskReduction: e.target.value})}
+                      placeholder="如 -77% (HR=0.23)"
+                      className="w-full p-2.5 bg-white border border-blue-200 rounded-xl text-xs font-bold text-emerald-700"
+                    />
+                  </div>
+                </div>
+              </div>
+
               {/* Textareas */}
               <div className="space-y-4">
                 <div>
@@ -595,12 +845,12 @@ export default function AdminPage() {
           )}
         </section>
 
-        {/* Section 3: Ingested Evidence Library Table */}
+        {/* Section: Ingested Evidence Library Table */}
         <section className="bg-white rounded-2xl border border-slate-200 p-6 md:p-8 shadow-sm">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-100 mb-6">
             <div>
               <h2 className="text-lg font-bold text-slate-900">已收录医学证据文献库</h2>
-              <p className="text-xs text-slate-500">当前知识图谱与 RAG 检索引用的核心文献列表</p>
+              <p className="text-xs text-slate-500">当前知识图谱与 RAG 检索引用的核心文献列表（含前沿分子靶点与干预特征）</p>
             </div>
             
             {/* Search Input */}
@@ -609,7 +859,7 @@ export default function AdminPage() {
                 type="text" 
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
-                placeholder="搜索论文标题、期刊、因子..."
+                placeholder="搜索论文标题、期刊、因子、靶点..."
                 className="w-full p-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-xs"
               />
             </div>
@@ -619,7 +869,7 @@ export default function AdminPage() {
             <div className="text-center py-12 text-slate-400 text-sm">正在加载文献数据...</div>
           ) : studies.length === 0 ? (
             <div className="text-center py-12 text-slate-400 text-sm">
-              暂无已收录文献。请在上方拖入 PDF 论文进行录入。
+              暂无已收录文献。请在上方上传 PDF 或通过 PubMed 检索录入。
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -629,8 +879,8 @@ export default function AdminPage() {
                     <th className="pb-3 pr-4">论文标题 & 期刊</th>
                     <th className="pb-3 px-3">队列规模 (n)</th>
                     <th className="pb-3 px-3">证据等级</th>
-                    <th className="pb-3 px-3">关键指标 (HR / 5年RFS)</th>
-                    <th className="pb-3 px-3">关联因子</th>
+                    <th className="pb-3 px-3">核心效应量 (HR / 获益)</th>
+                    <th className="pb-3 px-3">靶点与干预组</th>
                     <th className="pb-3 pl-3 text-right">操作</th>
                   </tr>
                 </thead>
@@ -668,32 +918,32 @@ export default function AdminPage() {
                             HR: {s.hr} {s.ciLow && s.ciHigh ? `(${s.ciLow}-${s.ciHigh})` : ""}
                           </div>
                         )}
-                        {s.rfs5Year && (
+                        {s.riskReduction && (
+                          <div className="text-xs font-bold text-emerald-700">
+                            获益: {s.riskReduction}
+                          </div>
+                        )}
+                        {s.rfs5Year && !s.riskReduction && (
                           <div className="text-xs font-bold text-emerald-600">
                             5年RFS: {s.rfs5Year}
                           </div>
                         )}
-                        {!s.hr && !s.rfs5Year && <span className="text-xs text-slate-400">定性证据</span>}
+                        {!s.hr && !s.rfs5Year && !s.riskReduction && <span className="text-xs text-slate-400">定性证据</span>}
                       </td>
 
-                      <td className="py-4 px-3 max-w-[160px]">
-                        <div className="flex flex-wrap gap-1">
-                          {s.relevantFactors ? (
-                            (() => {
-                              try {
-                                const parsed = JSON.parse(s.relevantFactors);
-                                if (Array.isArray(parsed)) {
-                                  return parsed.slice(0, 3).map((tag: string, i: number) => (
-                                    <span key={i} className="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">
-                                      {tag}
-                                    </span>
-                                  ));
-                                }
-                              } catch {
-                                return <span className="text-[10px] text-slate-500">{s.relevantFactors}</span>;
-                              }
-                            })()
-                          ) : (
+                      <td className="py-4 px-3 max-w-[200px]">
+                        <div className="space-y-1">
+                          {s.biomarkerDetails && (
+                            <div className="text-[11px] font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded truncate">
+                              🧬 {s.biomarkerDetails}
+                            </div>
+                          )}
+                          {s.interventionArm && (
+                            <div className="text-[10px] text-slate-600 truncate" title={s.interventionArm}>
+                              💊 {s.interventionArm}
+                            </div>
+                          )}
+                          {!s.biomarkerDetails && !s.interventionArm && (
                             <span className="text-xs text-slate-400">-</span>
                           )}
                         </div>

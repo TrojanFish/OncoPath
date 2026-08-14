@@ -21,6 +21,9 @@ const PDF_EXTRACTION_PROMPT = `
   "ciLow": Number | null (95% CI 下限，如 1.52),
   "ciHigh": Number | null (95% CI 上限，如 2.29),
   "rfs5Year": String | null (5年无复发生存率数据，例如 "98.2%" 或 "68.5%"),
+  "biomarkerDetails": String | null (分子靶点与生物标志物亚型，如 "EGFR 19del/L858R", "PD-L1 TPS>=50%", "KRAS G12C"),
+  "interventionArm": String | null (治疗干预组 vs 对照组对比，如 "试验组: 奥希替尼 80mg vs 对照组: 安慰剂"),
+  "riskReduction": String | null (相对风险降低率，如 "-77% (HR=0.23)"),
   "summary": String (100-200字的研究背景、队列设计与主要方法总结),
   "conclusion": String (100-200字的核心临床结论与用药/手术预后指导),
   "keywords": String (以英文逗号分隔的关键词列表，例如 "STAS, lung adenocarcinoma, sublobar resection, prognosis")
@@ -53,7 +56,7 @@ export async function POST(request: Request) {
             mimeType: 'application/pdf',
           }
         },
-        "请完整阅读并解析该医学研究论文，按要求提取结构化临床证据指标。"
+        "请完整阅读并解析该医学研究论文，按要求提取结构化临床证据指标（含分子靶点、干预对照组、风险降低率）。"
       ],
       config: {
         systemInstruction: PDF_EXTRACTION_PROMPT,
@@ -92,6 +95,9 @@ export async function POST(request: Request) {
       ciLow: extracted.ciLow !== undefined ? Number(extracted.ciLow) : null,
       ciHigh: extracted.ciHigh !== undefined ? Number(extracted.ciHigh) : null,
       rfs5Year: extracted.rfs5Year || "",
+      biomarkerDetails: extracted.biomarkerDetails || "",
+      interventionArm: extracted.interventionArm || "",
+      riskReduction: extracted.riskReduction || "",
       summary: extracted.summary || "基于上传 PDF 提取的研究背景与方法。",
       conclusion: extracted.conclusion || "基于上传 PDF 提取的临床预后结论。",
       keywords: extracted.keywords || "lung cancer, oncology, evidence",

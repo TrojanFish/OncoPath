@@ -66,6 +66,9 @@ export async function POST(request: Request) {
       ciLow,
       ciHigh,
       rfs5Year,
+      biomarkerDetails,
+      interventionArm,
+      riskReduction,
       pdfFileName,
     } = body;
 
@@ -97,6 +100,9 @@ export async function POST(request: Request) {
         ciLow: ciLow ? parseFloat(ciLow) : null,
         ciHigh: ciHigh ? parseFloat(ciHigh) : null,
         rfs5Year: rfs5Year || null,
+        biomarkerDetails: biomarkerDetails || null,
+        interventionArm: interventionArm || null,
+        riskReduction: riskReduction || null,
         pdfFileName: pdfFileName || null,
       },
     });

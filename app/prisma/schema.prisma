@@ -176,6 +176,9 @@ model IngestedStudy {
   ciLow            Float?
   ciHigh           Float?
   rfs5Year         String?
+  biomarkerDetails String?  // 分子亚型与生物标志物 (如 "EGFR 19del/L858R", "PD-L1 TPS>=50%")
+  interventionArm  String?  // 治疗干预组 vs 对照组 (如 "奥希替尼 80mg vs 安慰剂")
+  riskReduction    String?  // 风险降低率 (如 "-77% (HR=0.23)")
   pdfFileName      String?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
