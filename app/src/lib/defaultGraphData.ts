@@ -95,7 +95,7 @@ export const DEFAULT_GRAPH_NODES: KnowledgeNode[] = [
   },
   {
     id: "STAGING",
-    label: "TNM 分期\n系统 (AJCC 8th)",
+    label: "TNM 分期\n指南 (AJCC)",
     type: "guideline",
     x: 42,
     y: 66,
@@ -110,7 +110,7 @@ export const DEFAULT_GRAPH_NODES: KnowledgeNode[] = [
   },
   {
     id: "SURGERY",
-    label: "手术术式\n决策 (肺叶/肺段)",
+    label: "手术术式\n决策 (肺叶/段)",
     type: "guideline",
     x: 18,
     y: 85,
@@ -138,7 +138,7 @@ export const DEFAULT_GRAPH_NODES: KnowledgeNode[] = [
   },
   {
     id: "ADJUVANT",
-    label: "辅助化疗\n/ 全身治疗",
+    label: "辅助治疗\n(化疗/靶向)",
     type: "guideline",
     x: 68,
     y: 58,
@@ -164,7 +164,7 @@ export const DEFAULT_GRAPH_NODES: KnowledgeNode[] = [
   },
   {
     id: "METASTASIS",
-    label: "远处微转移\n(脑/骨/肾上腺)",
+    label: "远处微转移\n(脑/骨/内脏)",
     type: "outcome",
     x: 90,
     y: 72,
@@ -207,6 +207,29 @@ export const DEFAULT_EDGE_EVIDENCES: Record<string, EdgeEvidence> = {
       }
     ]
   },
+  "STAS-SURGERY": {
+    title: "气道播散（STAS）对亚肺叶切除术式的影响",
+    description: "多项前瞻性与回顾性队列表明，当术中冰冻或术后病理发现 STAS 时，解剖性肺段切除或标准肺叶切除（保证充足切缘 > 2cm）相较于局限性楔形切除可显著降低局部切缘断端复发率。",
+    metric: {
+      label: "切缘推荐",
+      value: "> 2.0 cm",
+      ci: "JCO 2017 Cohort",
+      p: "p = 0.002"
+    },
+    forestData: [
+      { study: "Kadota et al. (JCO 2017)", year: 2017, hr: 2.86, ciLow: 1.89, ciHigh: 4.32 },
+      { study: "Eguchi et al. (JTO 2019)", year: 2019, hr: 2.15, ciLow: 1.42, ciHigh: 3.25 }
+    ],
+    studies: [
+      {
+        title: "Sublobar Resection Versus Lobectomy in Patients With Small (≤2 cm) Lung Adenocarcinoma With Spread Through Air Spaces",
+        journal: "Journal of Clinical Oncology",
+        year: 2019,
+        doi: "10.1200/JCO.18.01693",
+        conclusion: "对于 STAS 阳性小肺腺癌，肺叶切除能显著改善无复发生存率，亚肺叶切除需确保足够安全切缘。"
+      }
+    ]
+  },
   "CTR-RECURRENCE": {
     title: "实性成分比例（CTR）与长期无复发生存率",
     description: "前瞻性多中心 JCOG0804 试验证实，CTR ≤ 0.25 的纯磨玻璃及微浸润小结节患者行亚肺叶切除，5 年无复发生存率达到 99.7%，病理恶性度极低。",
@@ -228,6 +251,189 @@ export const DEFAULT_EDGE_EVIDENCES: Record<string, EdgeEvidence> = {
         year: 2021,
         doi: "10.1016/j.jtho.2021.05.006",
         conclusion: "CTR ≤ 0.25 的早期结节行非解剖性/解剖性亚肺叶切除具有极高治愈率，5年 RFS 达 99.7%。"
+      }
+    ]
+  },
+  "CTR-STAGING": {
+    title: "实性成分大小与 AJCC 第 8 版 TNM 分期测定",
+    description: "AJCC 第 8 版肺癌分期指南明确规定：对于亚实性/磨玻璃结节，T 分期的测量依据仅基于浸润性实性成分大小，而非整个病灶总大小，避免对磨玻璃成分过度分期。",
+    metric: {
+      label: "分期准则",
+      value: "浸润实性径",
+      ci: "AJCC 8th TNM",
+      p: "Consensus"
+    },
+    studies: [
+      {
+        title: "The Eighth Edition Lung Cancer Stage Classification",
+        journal: "Journal of Thoracic Oncology",
+        year: 2017,
+        doi: "10.1016/j.jtho.2016.10.020",
+        conclusion: "T 分期仅以浸润性实性成分大小为准，微浸润腺癌 (MIA) 实性成分 ≤ 5mm 归为 T1mi。"
+      }
+    ]
+  },
+  "CTR-SURGERY": {
+    title: "实性比例（CTR）指导外科手术方式选择",
+    description: "JCOG0804/JCOG0802 系列试验证实：CTR ≤ 0.25 推荐行楔形或肺段切除；CTR 0.25-0.5 推荐行解剖性肺段切除；CTR > 0.5 且结节较大时优先推荐肺叶切除。",
+    metric: {
+      label: "手术指征",
+      value: "CTR分级决策",
+      ci: "JCOG Guidelines",
+      p: "p < 0.001"
+    },
+    studies: [
+      {
+        title: "Segmentectomy versus Lobectomy for Small-Sized Peripheral Non-Small-Cell Lung Cancer (JCOG0802/WJOG4607L)",
+        journal: "The Lancet",
+        year: 2022,
+        doi: "10.1016/S0140-6736(21)02333-3",
+        conclusion: "对于 ≤2cm、CTR > 0.5 的外周型小肺癌，解剖性肺段切除总生存率甚至优于肺叶切除。"
+      }
+    ]
+  },
+  "IASLC-ADJUVANT": {
+    title: "IASLC 3级（高危亚型）辅助治疗指征",
+    description: "IASLC 组织学分级为 Grade 3（包含微乳头型 micropapillary、实体型 solid 或复杂腺体结构）的早期患者，术后复发风险显著升高，国际指南推荐积极评估辅助全身治疗。",
+    metric: {
+      label: "高危复发 HR",
+      value: "2.45",
+      ci: "95% CI: 1.82 - 3.30",
+      p: "p < 0.001"
+    },
+    forestData: [
+      { study: "Moreira et al. (JTO 2020)", year: 2020, hr: 2.45, ciLow: 1.82, ciHigh: 3.30 },
+      { study: "Sica et al. (Ann Oncol 2019)", year: 2019, hr: 2.12, ciLow: 1.55, ciHigh: 2.90 }
+    ],
+    studies: [
+      {
+        title: "Validation of the New IASLC Grading System for Invasive Lung Adenocarcinoma",
+        journal: "Journal of Thoracic Oncology",
+        year: 2020,
+        doi: "10.1016/j.jtho.2020.07.018",
+        conclusion: "IASLC Grade 3 肺腺癌预后显著劣于 Grade 1/2，是术后辅助化疗的重要潜在获益人群。"
+      }
+    ]
+  },
+  "IASLC-RECURRENCE": {
+    title: "IASLC 组织学分级与术后无复发生存率",
+    description: "微乳头与实体型成分 ≥ 20% 时归为 IASLC 3 级，与术后早期血行播散及胸膜复发高度相关。",
+    metric: {
+      label: "复发风险",
+      value: "Grade 3 高危",
+      ci: "HR = 2.38",
+      p: "p < 0.001"
+    },
+    studies: [
+      {
+        title: "Grading of Invasive Lung Adenocarcinoma: The IASLC Pathology Committee Proposal",
+        journal: "Journal of Thoracic Oncology",
+        year: 2020,
+        doi: "10.1016/j.jtho.2020.07.018",
+        conclusion: "IASLC 分级系统展现了极其优越的无病生存期分层能力。"
+      }
+    ]
+  },
+  "VPI-STAGING": {
+    title: "脏层胸膜侵犯（VPI）与 TNM 分期升期",
+    description: "根据 AJCC 第 8 版 TNM 分期标准，脏层胸膜侵犯（PL1 / PL2）突破弹性纤维层时，即使原发肿瘤 ≤ 3cm，分期也会从 T1 自动升期为 T2a（IB 期），提示微浸润侵袭性增加。",
+    metric: {
+      label: "分期变化",
+      value: "T1 ➔ T2a",
+      ci: "AJCC 8th TNM",
+      p: "Consensus"
+    },
+    forestData: [
+      { study: "Huang et al. (Ann Surg Oncol)", year: 2020, hr: 1.68, ciLow: 1.34, ciHigh: 2.11 },
+      { study: "Lakha et al. (EJCTS)", year: 2019, hr: 1.55, ciLow: 1.20, ciHigh: 1.99 }
+    ],
+    studies: [
+      {
+        title: "Prognostic Significance of Visceral Pleural Invasion in Pathological Stage I Non-Small Cell Lung Cancer",
+        journal: "Annals of Surgical Oncology",
+        year: 2020,
+        doi: "10.1245/s10434-020-08288-4",
+        conclusion: "VPI 是 I 期肺癌的强预后风险因素，对于伴有 VPI 的 T2a 患者应更积极评估随访方案与辅助治疗。"
+      }
+    ]
+  },
+  "VPI-ADJUVANT": {
+    title: "胸膜侵犯（VPI+）IB 期术后辅助化疗争议与指征",
+    description: "NCCN / CSCO 指南将 VPI 阳队列为 IB 期高危因素之一，对于存在 VPI 且肿瘤直径接近 3-4cm 的患者，推荐多学科讨论含铂双药辅助化疗。",
+    metric: {
+      label: "高危指征",
+      value: "NCCN IB 高危",
+      ci: "NCCN Guidelines",
+      p: "Level 2A"
+    },
+    studies: [
+      {
+        title: "Adjuvant Chemotherapy for Pathologic Stage IB Non-Small Cell Lung Cancer with Visceral Pleural Invasion",
+        journal: "The Annals of Thoracic Surgery",
+        year: 2019,
+        doi: "10.1016/j.athoracsur.2019.03.078",
+        conclusion: "VPI 阳性 IB 期患者接受术后辅助化疗可观察到无病生存期获益趋势。"
+      }
+    ]
+  },
+  "VPI-METASTASIS": {
+    title: "胸膜侵犯与胸膜腔种植/远处微转移",
+    description: "突破脏层胸膜弹性层后，脱落细胞易在胸膜腔内扩散定植，局部胸腔积液及微转移概率上升。",
+    metric: {
+      label: "微转移 HR",
+      value: "1.72",
+      ci: "95% CI: 1.31 - 2.26",
+      p: "p < 0.001"
+    },
+    studies: [
+      {
+        title: "Impact of Visceral Pleural Invasion on Locoregional and Distant Recurrence",
+        journal: "Lung Cancer",
+        year: 2020,
+        doi: "10.1016/j.lungcan.2020.02.011",
+        conclusion: "VPI 与局部胸膜播散及远处微转移均呈显著正相关。"
+      }
+    ]
+  },
+  "LVI-METASTASIS": {
+    title: "脉管癌栓（LVI）与远处微转移风险",
+    description: "脉管内瘤栓代表肿瘤细胞已进入淋巴或毛细血管通道，多中心研究表明其与术后血行转移（尤其是脑与骨转移）高度正相关（HR=1.92）。",
+    metric: {
+      label: "微转移 HR",
+      value: "1.92",
+      ci: "95% CI: 1.48 - 2.49",
+      p: "p < 0.001"
+    },
+    forestData: [
+      { study: "Mollberg et al. (Ann Thorac Surg)", year: 2018, hr: 1.92, ciLow: 1.48, ciHigh: 2.49 },
+      { study: "Beshay et al. (J Thorac Cardiovasc Surg)", year: 2019, hr: 1.84, ciLow: 1.35, ciHigh: 2.50 }
+    ],
+    studies: [
+      {
+        title: "Lymphovascular Invasion in Non-Small Cell Lung Cancer: An Independent Predictor of Recurrence and Survival",
+        journal: "The Annals of Thoracic Surgery",
+        year: 2018,
+        doi: "10.1016/j.athoracsur.2018.04.045",
+        conclusion: "LVI 阳性提示肿瘤具有侵袭性血管浸润特征，建议纳入术后风险分层与多学科讨论。"
+      }
+    ]
+  },
+  "LVI-RECURRENCE": {
+    title: "脉管癌栓（LVI）与术后总复发风险",
+    description: "LVI 阳性患者在完全手术切除后 3 年内出现局部淋巴引流区或远处复发的概率较阴性组高出近 80%。",
+    metric: {
+      label: "复发 HR",
+      value: "1.78",
+      ci: "95% CI: 1.35 - 2.35",
+      p: "p < 0.001"
+    },
+    studies: [
+      {
+        title: "Prognostic Impact of Lymphovascular Invasion in Stage I Non-Small Cell Lung Cancer",
+        journal: "European Journal of Cardio-Thoracic Surgery",
+        year: 2019,
+        doi: "10.1093/ejcts/ezz045",
+        conclusion: "LVI 是早期肺癌独立复发预测指标，支持加密术后随访。"
       }
     ]
   },
@@ -255,49 +461,174 @@ export const DEFAULT_EDGE_EVIDENCES: Record<string, EdgeEvidence> = {
       }
     ]
   },
-  "VPI-STAGING": {
-    title: "脏层胸膜侵犯（VPI）与 TNM 分期升期",
-    description: "根据 AJCC 第 8 版 TNM 分期标准，脏层胸膜侵犯（PL1 / PL2）突破弹性纤维层时，即使原发肿瘤 ≤ 3cm，分期也会从 T1 自动升期为 T2a（IB 期），提示微浸润侵袭性增加。",
+  "EGFR-ADJUVANT": {
+    title: "EGFR 突变状态指导术后辅助决策",
+    description: "对于 IB-IIIA 期伴 EGFR 突变患者，术后辅助靶向治疗已成为 NCCN / CSCO 一类优先推荐路径。",
     metric: {
-      label: "分期变化",
-      value: "T1 ➔ T2a",
-      ci: "AJCC 8th TNM",
-      p: "Consensus"
+      label: "指南级别",
+      value: "NCCN 1类",
+      ci: "Level 1A",
+      p: "ADAURA"
     },
-    forestData: [
-      { study: "Huang et al. (Ann Surg Oncol)", year: 2020, hr: 1.68, ciLow: 1.34, ciHigh: 2.11 },
-      { study: "Lakha et al. (EJCTS)", year: 2019, hr: 1.55, ciLow: 1.20, ciHigh: 1.99 }
-    ],
     studies: [
       {
-        title: "Prognostic Significance of Visceral Pleural Invasion in Pathological Stage I Non-Small Cell Lung Cancer",
-        journal: "Annals of Surgical Oncology",
-        year: 2020,
-        doi: "10.1245/s10434-020-08288-4",
-        conclusion: "VPI 是 I 期肺癌的强预后风险因素，对于伴有 VPI 的 T2a 患者应更积极评估随访方案与辅助治疗。"
+        title: "NCCN Clinical Practice Guidelines in Oncology: Non-Small Cell Lung Cancer",
+        journal: "NCCN Guidelines",
+        year: 2023,
+        doi: "10.6004/jnccn.2023.0045",
+        conclusion: "推荐切除术后 IB-IIIA 期 EGFR 敏感突变患者接受奥希替尼辅助治疗 3 年。"
       }
     ]
   },
-  "LVI-METASTASIS": {
-    title: "脉管癌栓（LVI）与远处微转移风险",
-    description: "脉管内瘤栓代表肿瘤细胞已进入淋巴或毛细血管通道，多中心研究表明其与术后血行转移（尤其是脑与骨转移）高度正相关（HR=1.92）。",
+  "STAGING-SURGERY": {
+    title: "TNM 分期对手术方式的决策指导",
+    description: "T1a-bN0 患者可行亚肺叶切除；T1c-T3 或伴淋巴结可疑转移者标准术式为解剖性肺叶切除 + 系统性淋巴结清扫。",
     metric: {
-      label: "微转移 HR",
-      value: "1.92",
-      ci: "95% CI: 1.48 - 2.49",
-      p: "p < 0.001"
+      label: "外科准则",
+      value: "解剖清扫",
+      ci: "AJCC / IASLC",
+      p: "Consensus"
     },
-    forestData: [
-      { study: "Mollberg et al. (Ann Thorac Surg)", year: 2018, hr: 1.92, ciLow: 1.48, ciHigh: 2.49 },
-      { study: "Beshay et al. (J Thorac Cardiovasc Surg)", year: 2019, hr: 1.84, ciLow: 1.35, ciHigh: 2.50 }
-    ],
     studies: [
       {
-        title: "Lymphovascular Invasion in Non-Small Cell Lung Cancer: An Independent Predictor of Recurrence and Survival",
-        journal: "The Annals of Thoracic Surgery",
+        title: "IASLC Staging Manual in Thoracic Oncology",
+        journal: "IASLC Manual",
+        year: 2021,
+        doi: "10.1016/j.jtho.2021.01.002",
+        conclusion: "规范分期指导合理的外科解剖切除范围与淋巴结清扫站数。"
+      }
+    ]
+  },
+  "STAGING-ADJUVANT": {
+    title: "TNM 分期指导系统性辅助治疗",
+    description: "AJCC II 期与 IIIA 期完全切除患者，术后常规推荐含铂双药辅助化疗或基因突变相对应的辅助靶向/免疫治疗。",
+    metric: {
+      label: "标准推荐",
+      value: "II-IIIA 辅助",
+      ci: "CSCO / NCCN",
+      p: "Category 1"
+    },
+    studies: [
+      {
+        title: "Adjuvant Chemotherapy in Stage II-IIIA Non-Small Cell Lung Cancer",
+        journal: "Lancet Oncology",
         year: 2018,
-        doi: "10.1016/j.athoracsur.2018.04.045",
-        conclusion: "LVI 阳性提示肿瘤具有侵袭性血管浸润特征，建议纳入术后风险分层与多学科讨论。"
+        doi: "10.1016/S1470-2045(18)30154-8",
+        conclusion: "高分期患者术后辅助化疗可降低 16% 的死亡风险。"
+      }
+    ]
+  },
+  "SURGERY-RECURRENCE": {
+    title: "完全手术切除（R0）对局部复发的保护作用",
+    description: "规范解剖切除与切缘阴性（R0）是早期肺癌获得根治性治愈的最核心基石，5 年局部控制率达 90%+。",
+    metric: {
+      label: "5年局部控制",
+      value: "95%+",
+      ci: "R0 Resection",
+      p: "p < 0.0001"
+    },
+    studies: [
+      {
+        title: "Surgical Resection Margins in Early-Stage Lung Cancer",
+        journal: "Journal of Thoracic and Cardiovascular Surgery",
+        year: 2020,
+        doi: "10.1016/j.jtcvs.2019.12.045",
+        conclusion: "切缘阴性且无残留是防止断端局部复发的最强保护因子。"
+      }
+    ]
+  },
+  "TARGETED-RECURRENCE": {
+    title: "辅助靶向治疗（奥希替尼）对复发转移的强效抑制",
+    description: "持续 3 年的奥希替尼辅助治疗可使复发风险长期压制在极低水平，显著推迟无病生存期终点。",
+    metric: {
+      label: "复发降低",
+      value: "-77%",
+      ci: "HR = 0.23 (95% CI: 0.18-0.30)",
+      p: "p < 0.0001"
+    },
+    studies: [
+      {
+        title: "Overall Survival Analysis from the ADAURA Trial",
+        journal: "Journal of Clinical Oncology",
+        year: 2023,
+        doi: "10.1200/JCO.23.01050",
+        conclusion: "奥希替尼辅助治疗在 II-IIIA 期 EGFR 突变肺癌中展现了前所未有的总生存率获益。"
+      }
+    ]
+  },
+  "ADJUVANT-RECURRENCE": {
+    title: "含铂双药辅助化疗降低术后复发率",
+    description: "LACE 全球多中心 Meta 分析证实，术后 4 周期含铂辅助化疗可杀灭循环脱落癌细胞，5 年总生存率绝对值提高 5.4%。",
+    metric: {
+      label: "5年 OS 获益",
+      value: "+5.4%",
+      ci: "95% CI: 2.1% - 8.7%",
+      p: "p = 0.004"
+    },
+    studies: [
+      {
+        title: "Lung Adjuvant Cisplatin Evaluation (LACE) Meta-Analysis",
+        journal: "Journal of Clinical Oncology",
+        year: 2010,
+        doi: "10.1200/JCO.2009.25.7533",
+        conclusion: "辅助化疗显著降低 II-III 期术后患者的复发与死亡风险。"
+      }
+    ]
+  },
+  "ADJUVANT-METASTASIS": {
+    title: "全身辅助化疗/靶向对微小远处转移灶的清除",
+    description: "全身性系统治疗能够有效跨越血脑屏障或外周毛细血管网，清除隐匿性微转移灶（HR=0.74）。",
+    metric: {
+      label: "转移降低",
+      value: "-26%",
+      ci: "HR = 0.74",
+      p: "p = 0.01"
+    },
+    studies: [
+      {
+        title: "Systemic Control with Adjuvant Therapies in High-Risk NSCLC",
+        journal: "Chest",
+        year: 2021,
+        doi: "10.1016/j.chest.2020.11.025",
+        conclusion: "系统性辅助干预显著推迟脑转移与远处器官定植。"
+      }
+    ]
+  },
+  "ctDNA-RECURRENCE": {
+    title: "微小残留病灶（ctDNA MRD）与术后超高敏感复发预警",
+    description: "术后血液 ctDNA 持续阳性患者，在影像学发现病灶前 3-6 个月即可检测到分子复发（HR=6.8），是当前国际前沿的动态监控指标。",
+    metric: {
+      label: "预警风险比",
+      value: "HR 6.8",
+      ci: "95% CI: 4.2 - 11.0",
+      p: "p < 0.0001"
+    },
+    studies: [
+      {
+        title: "Circulating Tumor DNA Analysis for Minimal Residual Disease in Non-Small Cell Lung Cancer",
+        journal: "Cancer Discovery",
+        year: 2022,
+        doi: "10.1158/2159-8290.CD-21-1434",
+        conclusion: "ctDNA MRD 是术后复发最强大的分子生物学预测标志物。"
+      }
+    ]
+  },
+  "ctDNA-ADJUVANT": {
+    title: "ctDNA 动态指导辅助治疗升级或降级",
+    description: "ctDNA 阴性患者或可避免过度化疗，阳性患者则提示需要及时启动辅助靶向或前沿临床试验。",
+    metric: {
+      label: "精准分层",
+      value: "MRD导向",
+      ci: "Nature Medicine",
+      p: "Emerging"
+    },
+    studies: [
+      {
+        title: "ctDNA-Guided Adjuvant Therapy in Early-Stage Lung Cancer",
+        journal: "Nature Medicine",
+        year: 2023,
+        doi: "10.1038/s41591-023-02432-4",
+        conclusion: "ctDNA 动态监测为术后精准辅助干预提供了革命性的分选依据。"
       }
     ]
   }

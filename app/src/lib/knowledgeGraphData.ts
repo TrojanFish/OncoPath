@@ -33,10 +33,10 @@ export const aiNewNode: KnowledgeNode = {
 
 
 export const typeColors: Record<string, { bg: string; border: string; text: string; dot: string }> = {
-  factor: { bg: "rgba(79,142,247,0.1)", border: "rgba(79,142,247,0.4)", text: "#4f8ef7", dot: "#4f8ef7" },
-  outcome: { bg: "rgba(239,68,68,0.1)", border: "rgba(239,68,68,0.4)", text: "#ef4444", dot: "#ef4444" },
-  evidence: { bg: "rgba(245,158,11,0.1)", border: "rgba(245,158,11,0.4)", text: "#f59e0b", dot: "#f59e0b" },
-  guideline: { bg: "rgba(0,212,170,0.1)", border: "rgba(0,212,170,0.4)", text: "#00d4aa", dot: "#00d4aa" },
+  factor: { bg: "#eff6ff", border: "#60a5fa", text: "#1d4ed8", dot: "#2563eb" },
+  outcome: { bg: "#fef2f2", border: "#f87171", text: "#b91c1c", dot: "#dc2626" },
+  evidence: { bg: "#fffbeb", border: "#fbbf24", text: "#b45309", dot: "#d97706" },
+  guideline: { bg: "#f0fdfa", border: "#2dd4bf", text: "#0f766e", dot: "#0d9488" },
 };
 
 export const typeLabels: Record<string, string> = {
