@@ -137,6 +137,7 @@ ${article.abstractText || ""}
         biomarkerDetails: extracted.biomarkerDetails || "",
         interventionArm: extracted.interventionArm || "",
         riskReduction: extracted.riskReduction || "",
+        url: article.doi ? `https://doi.org/${article.doi}` : (article.pmid ? `https://pubmed.ncbi.nlm.nih.gov/${article.pmid}/` : (extracted.url || "")),
         summary: extracted.summary || article.abstractText?.slice(0, 200) || "无摘要",
         conclusion: extracted.conclusion || "基于 PubMed 摘要提取的临床结论。",
         keywords: extracted.keywords || "lung cancer, evidence, prognosis",

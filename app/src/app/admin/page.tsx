@@ -27,6 +27,7 @@ interface IngestedStudy {
   biomarkerDetails?: string;
   interventionArm?: string;
   riskReduction?: string;
+  url?: string;
   pdfFileName?: string;
   createdAt: string;
 }
@@ -833,7 +834,14 @@ export default function AdminPage() {
                       <input 
                         type="text" 
                         value={extractedData.doi || ""} 
-                        onChange={e => setExtractedData({...extractedData, doi: e.target.value})}
+                        onChange={e => {
+                          const newDoi = e.target.value;
+                          setExtractedData({
+                            ...extractedData, 
+                            doi: newDoi,
+                            url: extractedData.url || (newDoi ? `https://doi.org/${newDoi}` : '')
+                          });
+                        }}
                         placeholder="10.1200/JCO.xxx"
                         className="w-full p-2 bg-white border border-slate-300 rounded-lg text-xs"
                       />
@@ -848,6 +856,19 @@ export default function AdminPage() {
                         className="w-full p-2 bg-white border border-slate-300 rounded-lg text-xs"
                       />
                     </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">
+                      📖 出处原文网页链接 (Source URL / Paper Link)
+                    </label>
+                    <input 
+                      type="url" 
+                      value={extractedData.url || ""} 
+                      onChange={e => setExtractedData({...extractedData, url: e.target.value})}
+                      placeholder="https://doi.org/... 或期刊原文所在页面链接"
+                      className="w-full p-2 bg-white border border-slate-300 rounded-lg text-xs text-accent-blue font-medium"
+                    />
                   </div>
                 </div>
 
@@ -1150,14 +1171,14 @@ export default function AdminPage() {
 
                       <td className="py-4 pl-3 text-right whitespace-nowrap">
                         <div className="flex items-center justify-end gap-2">
-                          {s.doi && (
+                          {(s.url || s.doi) && (
                             <a
-                              href={`https://doi.org/${s.doi}`}
+                              href={s.url || `https://doi.org/${s.doi}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="text-xs text-accent-blue hover:underline px-2 py-1 bg-blue-50 rounded"
                             >
-                              DOI ↗
+                              原文 ↗
                             </a>
                           )}
                           <button

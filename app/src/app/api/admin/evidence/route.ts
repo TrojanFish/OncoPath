@@ -78,6 +78,7 @@ export async function POST(request: Request) {
       biomarkerDetails,
       interventionArm,
       riskReduction,
+      url,
       pdfFileName,
     } = body;
 
@@ -112,6 +113,7 @@ export async function POST(request: Request) {
         biomarkerDetails: biomarkerDetails || null,
         interventionArm: interventionArm || null,
         riskReduction: riskReduction || null,
+        url: url || (doi ? `https://doi.org/${doi}` : null),
         pdfFileName: pdfFileName || null,
       },
     });

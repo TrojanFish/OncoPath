@@ -103,6 +103,7 @@ export async function POST(request: Request) {
       biomarkerDetails: extracted.biomarkerDetails || "",
       interventionArm: extracted.interventionArm || "",
       riskReduction: extracted.riskReduction || "",
+      url: extracted.url || (extracted.doi ? `https://doi.org/${extracted.doi}` : (extracted.pubmedId ? `https://pubmed.ncbi.nlm.nih.gov/${extracted.pubmedId}/` : "")),
       summary: extracted.summary || "基于上传 PDF 提取的研究背景与方法。",
       conclusion: extracted.conclusion || "基于上传 PDF 提取的临床预后结论。",
       keywords: extracted.keywords || "lung cancer, oncology, evidence",
