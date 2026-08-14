@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@google/genai": "^2.16.0",
+    "@prisma/client": "^5.22.0",
     "@tailwindcss/typography": "^0.5.20",
     "next": "16.2.12",
     "react": "19.2.4",
@@ -19,7 +20,6 @@
     "remark-gfm": "^4.0.1"
   },
   "devDependencies": {
-    "@prisma/client": "^5.22.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",

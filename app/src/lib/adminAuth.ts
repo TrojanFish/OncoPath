@@ -4,12 +4,12 @@ const ADMIN_SECRET = process.env.ADMIN_SECRET || 'oncopath_evidence_admin_secret
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'OncoPath2026!';
 
-export function validateAdminCredentials(username: string, password: string):boolean {
-  return username === ADMIN_USERNAME && password === ADMIN_PASSWORD;
+export function validateAdminCredentials(username: string, password: string): boolean {
+  return username.trim() === ADMIN_USERNAME && password.trim() === ADMIN_PASSWORD;
 }
 
 export function generateAdminToken(username: string): string {
-  const payload = `${username}:${Date.now()}`;
+  const payload = `${username.trim()}:${Date.now()}`;
   const signature = crypto.createHmac('sha256', ADMIN_SECRET).update(payload).digest('hex');
   return Buffer.from(`${payload}:${signature}`).toString('base64');
 }
@@ -19,10 +19,11 @@ export function verifyAdminToken(token: string | null | undefined): boolean {
   try {
     const decoded = Buffer.from(token, 'base64').toString('utf-8');
     const parts = decoded.split(':');
-    if (parts.length < 3) return false;
+    if (parts.length !== 3) return false;
 
     const [username, timestampStr, signature] = parts;
     const timestamp = parseInt(timestampStr, 10);
+    if (isNaN(timestamp)) return false;
 
     // Expire token after 7 days
     if (Date.now() - timestamp > 7 * 24 * 60 * 60 * 1000) {
@@ -34,8 +35,13 @@ export function verifyAdminToken(token: string | null | undefined): boolean {
     }
 
     const expectedSig = crypto.createHmac('sha256', ADMIN_SECRET).update(`${username}:${timestampStr}`).digest('hex');
-    return signature === expectedSig;
-  } catch (e) {
+    
+    const sigBuffer = Buffer.from(signature, 'hex');
+    const expectedBuffer = Buffer.from(expectedSig, 'hex');
+    if (sigBuffer.length !== expectedBuffer.length) return false;
+    
+    return crypto.timingSafeEqual(sigBuffer, expectedBuffer);
+  } catch {
     return false;
   }
 }

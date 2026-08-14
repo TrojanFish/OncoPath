@@ -24,6 +24,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"),
   title: "OncoPath — 肺癌循证知识平台",
   description:
     "帮助肺癌患者通过已发表的国际研究理解自己的病理情况。每一条结论都有来源，每一个解释都可追溯。",
