@@ -19,7 +19,6 @@ export default function AuthModal({ onClose, onSuccess }: AuthModalProps) {
 
   useEffect(() => {
     setMounted(true);
-    // Disable background scrolling when modal is open
     document.body.style.overflow = "hidden";
     return () => {
       document.body.style.overflow = "unset";
@@ -33,6 +32,28 @@ export default function AuthModal({ onClose, onSuccess }: AuthModalProps) {
 
     try {
       if (isLogin) {
+        // 1. Check if user is logging in as Admin
+        try {
+          const adminRes = await fetch("/api/admin/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username: email.trim(), password: password.trim() })
+          });
+          const adminData = await adminRes.json();
+          if (adminData.success && adminData.token) {
+            localStorage.setItem("oncopath_admin_token", adminData.token);
+            localStorage.setItem("email", adminData.admin.username);
+            localStorage.setItem("role", "admin");
+            window.dispatchEvent(new Event("auth-change"));
+            onClose();
+            window.location.href = "/admin";
+            return;
+          }
+        } catch {
+          // If admin endpoint check throws, fall through to patient login
+        }
+
+        // 2. Standard Patient Login
         const data = await login(email, password);
         onSuccess(data.access_token, email);
       } else {
@@ -92,19 +113,19 @@ export default function AuthModal({ onClose, onSuccess }: AuthModalProps) {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1.5">电子邮箱</label>
+            <label className="block text-xs font-bold text-slate-700 mb-1.5">账号 / 邮箱</label>
             <input
-              type="email"
+              type="text"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-accent-blue focus:ring-2 focus:ring-accent-blue/10 transition-all"
-              placeholder="patient@example.com"
+              placeholder="patient@example.com 或 管理员账号"
               autoFocus
             />
           </div>
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1.5">登录密码</label>
+            <label className="block text-xs font-bold text-slate-700 mb-1.5">密码</label>
             <input
               type="password"
               required
@@ -126,7 +147,7 @@ export default function AuthModal({ onClose, onSuccess }: AuthModalProps) {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                 </svg>
-                <span>正在处理...</span>
+                <span>正在验证凭据...</span>
               </>
             ) : (
               <span>{isLogin ? "安全登录 ➔" : "立即注册并登录 ➔"}</span>

@@ -159,15 +159,8 @@ export default function SubpageNavbar() {
             </div>
 
             {/* Drawer Footer */}
-            <div className="pt-6 border-t border-slate-100 text-center space-y-3">
-              <Link 
-                href="/admin" 
-                onClick={() => setMobileMenuOpen(false)}
-                className="text-xs text-slate-400 hover:text-slate-600 transition-colors inline-flex items-center gap-1"
-              >
-                <span>🔒 管理员通道</span>
-              </Link>
-              <div className="text-[10px] text-slate-400">
+            <div className="pt-6 border-t border-slate-100 text-center">
+              <div className="text-[11px] text-slate-400">
                 © 2026 OncoPath · 严格同行评审循证医学知识库
               </div>
             </div>

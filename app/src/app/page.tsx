@@ -232,15 +232,8 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="pt-6 border-t border-slate-100 text-center space-y-3">
-              <Link 
-                href="/admin" 
-                onClick={() => setMobileMenuOpen(false)}
-                className="text-xs text-slate-400 hover:text-slate-600 transition-colors inline-flex items-center gap-1"
-              >
-                <span>🔒 管理员通道</span>
-              </Link>
-              <div className="text-[10px] text-slate-400">
+            <div className="pt-6 border-t border-slate-100 text-center">
+              <div className="text-[11px] text-slate-400">
                 © 2026 OncoPath · 严格同行评审循证医学知识库
               </div>
             </div>
@@ -600,17 +593,12 @@ export default function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-slate-200 py-16 px-6">
+      <footer className="bg-white border-t border-slate-200 py-12 px-6">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <LogoMark />
-          <div className="text-xs text-slate-500 text-center md:text-left space-y-1">
+          <div className="text-xs text-slate-500 text-center md:text-right space-y-1">
             <div>© 2026 OncoPath · 严格同行评审肺癌循证知识与决策导航系统</div>
             <div>所有数据均可追溯至 JTO、Lancet、JCO、Chest 等国际顶级学术期刊。</div>
-          </div>
-          <div className="flex items-center gap-4 text-xs text-slate-400">
-            <Link href="/admin" className="hover:text-slate-600 transition-colors">
-              🔒 管理员通道
-            </Link>
           </div>
         </div>
       </footer>
