@@ -160,7 +160,7 @@ export default function EvidenceReportPage() {
         </nav>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-24 print:pt-0 print:px-0">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-28 md:pt-32 print:pt-0 print:px-0">
         
         {/* Patient Clinical Overview Hero Card */}
         {profile && (

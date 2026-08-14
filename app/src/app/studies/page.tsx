@@ -36,7 +36,7 @@ export default function StudiesPage() {
       <SubpageNavbar />
 
       {/* Header */}
-      <header className="pt-16 pb-10 px-6 max-w-7xl mx-auto text-center">
+      <header className="pt-28 md:pt-32 pb-10 px-6 max-w-7xl mx-auto text-center">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold text-accent-blue bg-blue-50 border border-blue-200 mb-3">
           <span>📚 权威循证医学库</span>
           <span className="w-1.5 h-1.5 rounded-full bg-accent-blue animate-pulse"></span>

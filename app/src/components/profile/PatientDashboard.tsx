@@ -54,7 +54,7 @@ export default function PatientDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen pt-24 px-6 flex items-center justify-center">
+      <div className="min-h-[60vh] flex items-center justify-center">
         <div className="animate-pulse flex flex-col items-center">
           <div className="w-12 h-12 border-4 border-gray-200 border-t-accent-blue rounded-full animate-spin"></div>
           <p className="mt-4 text-text-secondary font-medium">正在加载癌症档案...</p>
@@ -65,7 +65,7 @@ export default function PatientDashboard() {
 
   if (showUploader || !profile) {
     return (
-      <div className="max-w-4xl mx-auto px-6 pt-24 pb-16">
+      <div className="max-w-4xl mx-auto px-6 pb-16">
         <ConsentModal />
         <div className="text-center mb-10">
           <h1 className="display-sm text-text-primary">建立个人医学档案</h1>
@@ -77,7 +77,7 @@ export default function PatientDashboard() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-6 pt-24 pb-16">
+    <div className="max-w-4xl mx-auto px-6 pb-16">
       <ConsentModal />
       <div className="flex items-center justify-between mb-8">
         <div>

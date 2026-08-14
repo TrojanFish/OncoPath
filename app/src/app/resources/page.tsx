@@ -210,7 +210,7 @@ export default function ResourcesPage() {
       <SubpageNavbar />
 
       {/* Hero Header */}
-      <header className="pt-16 pb-10 px-6 text-center max-w-3xl mx-auto">
+      <header className="pt-28 md:pt-32 pb-10 px-6 text-center max-w-3xl mx-auto">
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm text-teal-600 mb-6 border border-teal-200 bg-teal-50 shadow-sm">
           <span className="w-1.5 h-1.5 rounded-full bg-accent-teal" />
           循证导航库 · Beta

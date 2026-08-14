@@ -392,7 +392,7 @@ export default function AdminPage() {
       <div className="min-h-screen bg-gray-50 flex flex-col justify-between text-text-primary">
         <SubpageNavbar />
 
-        <div className="flex-1 flex items-center justify-center px-4 py-12">
+        <div className="flex-1 flex items-center justify-center px-4 pt-28 pb-12">
           <div className="max-w-md w-full bg-white border border-gray-200 rounded-3xl p-8 sm:p-10 shadow-lg relative animate-fade-in">
             {/* Header */}
             <div className="text-center mb-8">
@@ -482,7 +482,7 @@ export default function AdminPage() {
       )}
 
       {/* Header */}
-      <header className="pt-16 pb-10 px-6 max-w-7xl mx-auto">
+      <header className="pt-28 md:pt-32 pb-10 px-6 max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold text-accent-blue bg-blue-50 border border-blue-200 mb-2.5">
