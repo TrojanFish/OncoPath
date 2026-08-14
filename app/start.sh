@@ -27,6 +27,7 @@ fi
 
 echo "Seeding Database..."
 npx -y tsx@4.23.9 prisma/seed_cohorts.ts
+npx -y tsx@4.23.9 prisma/seed.ts
 
 echo "Starting Next.js..."
 exec node server.js
