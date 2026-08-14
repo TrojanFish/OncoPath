@@ -140,6 +140,10 @@ model PatientProfile {
   riskLevel           String?
   nextAction          String?
   psychologicalState  String?
+
+  // Generated Evidence Report Persistence
+  reportMarkdown      String?
+  reportGeneratedAt   DateTime?
 }
 
 model ClinicalCohort {

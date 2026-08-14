@@ -10,11 +10,14 @@ import { getGuestId } from "@/lib/guest";
 export default function EvidenceReportPage() {
   const [profile, setProfile] = useState<PatientProfile | null>(null);
   const [reportMarkdown, setReportMarkdown] = useState("");
-  const [isGenerating, setIsGenerating] = useState(true);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [isLoadedFromCache, setIsLoadedFromCache] = useState(false);
+  const [cachedTime, setCachedTime] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
+  const [showRegenConfirm, setShowRegenConfirm] = useState(false);
   
-  const hasFetched = useRef(false);
+  const hasLoadedRef = useRef(false);
   const contentEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -23,58 +26,136 @@ export default function EvidenceReportPage() {
     }
   }, [reportMarkdown, isGenerating]);
 
+  // Core Function: Execute Stream Generation & Save to Both LocalStorage and Cloud Database
+  const startGeneratingReport = async (currentProfile: PatientProfile) => {
+    setIsGenerating(true);
+    setReportMarkdown("");
+    setError("");
+    setIsLoadedFromCache(false);
+
+    try {
+      const reportRes = await fetch('/api/generate-report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(currentProfile)
+      });
+
+      if (!reportRes.ok) {
+        const err = await reportRes.json();
+        throw new Error(err.error || "报告生成失败");
+      }
+
+      const reader = reportRes.body?.getReader();
+      const decoder = new TextDecoder("utf-8");
+
+      if (!reader) {
+        throw new Error("无数据流返回");
+      }
+
+      let accumulatedText = "";
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value, { stream: true });
+        accumulatedText += chunk;
+        setReportMarkdown((prev) => prev + chunk);
+      }
+
+      const nowFormatted = new Date().toLocaleString("zh-CN", {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+
+      setCachedTime(nowFormatted);
+      setIsLoadedFromCache(true);
+
+      // 1. Save to localStorage (Guest & Instant Cache)
+      if (typeof window !== "undefined") {
+        localStorage.setItem(`oncopath_report_${currentProfile.id || getGuestId()}`, accumulatedText);
+        localStorage.setItem(`oncopath_report_time_${currentProfile.id || getGuestId()}`, nowFormatted);
+      }
+
+      // 2. Persist to Cloud Database (PostgreSQL)
+      try {
+        await fetch('/api/profile', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            profileId: currentProfile.id,
+            userId: getGuestId(),
+            reportMarkdown: accumulatedText,
+          })
+        });
+      } catch (dbErr) {
+        console.warn("Cloud persistence notice (non-fatal):", dbErr);
+      }
+
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  // Initial Load: Check Local Cache & Database Persistence First (0ms Instant Load)
   useEffect(() => {
-    async function loadAndGenerate() {
-      if (hasFetched.current) return;
-      hasFetched.current = true;
+    async function loadData() {
+      if (hasLoadedRef.current) return;
+      hasLoadedRef.current = true;
 
       try {
-        // 1. Fetch Profile
+        // 1. Fetch Profile from API/DB
         const res = await fetch('/api/profile?userId=' + getGuestId());
         const data = await res.json();
         
         if (!data.profile) {
           setError("未找到患者档案，请先在档案页录入或上传病理报告。");
-          setIsGenerating(false);
           return;
         }
         
-        setProfile(data.profile);
+        const fetchedProfile = data.profile;
+        setProfile(fetchedProfile);
 
-        // 2. Stream Report from AI
-        const reportRes = await fetch('/api/generate-report', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data.profile)
-        });
-
-        if (!reportRes.ok) {
-          const err = await reportRes.json();
-          throw new Error(err.error || "报告生成失败");
+        // 2. Check Cloud Database for existing report
+        if (fetchedProfile.reportMarkdown) {
+          setReportMarkdown(fetchedProfile.reportMarkdown);
+          setIsLoadedFromCache(true);
+          const timeStr = fetchedProfile.reportGeneratedAt 
+            ? new Date(fetchedProfile.reportGeneratedAt).toLocaleString("zh-CN", {
+                year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'
+              })
+            : null;
+          setCachedTime(timeStr);
+          return;
         }
 
-        const reader = reportRes.body?.getReader();
-        const decoder = new TextDecoder("utf-8");
+        // 3. Check localStorage for guest offline cache
+        const localCached = typeof window !== "undefined" 
+          ? localStorage.getItem(`oncopath_report_${fetchedProfile.id || getGuestId()}`)
+          : null;
+        const localTime = typeof window !== "undefined"
+          ? localStorage.getItem(`oncopath_report_time_${fetchedProfile.id || getGuestId()}`)
+          : null;
 
-        if (!reader) {
-          throw new Error("无数据流返回");
+        if (localCached) {
+          setReportMarkdown(localCached);
+          setIsLoadedFromCache(true);
+          setCachedTime(localTime);
+          return;
         }
 
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          const chunk = decoder.decode(value, { stream: true });
-          setReportMarkdown((prev) => prev + chunk);
-        }
+        // 4. No cached report exists -> Trigger first-time generation
+        await startGeneratingReport(fetchedProfile);
 
       } catch (err: any) {
-        setError(err.message);
-      } finally {
-        setIsGenerating(false);
+        setError(err.message || "加载数据失败");
       }
     }
 
-    loadAndGenerate();
+    loadData();
   }, []);
 
   const handlePrint = () => {
@@ -82,7 +163,7 @@ export default function EvidenceReportPage() {
   };
 
   const handleCopyChecklist = () => {
-    // Extract Section 3 (Consultation Checklist) from the markdown text
+    // Extract Section 3 (Consultation Checklist) from markdown text
     const section3Match = reportMarkdown.match(/##?\s*3[\s\S]*?(?=##?\s*4|$)/);
     let textToCopy = "";
     if (section3Match) {
@@ -97,6 +178,13 @@ export default function EvidenceReportPage() {
     });
   };
 
+  const confirmAndRegenerate = () => {
+    setShowRegenConfirm(false);
+    if (profile) {
+      startGeneratingReport(profile);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-50/70 pb-24 print:bg-white print:pb-0 text-slate-900">
       
@@ -105,6 +193,35 @@ export default function EvidenceReportPage() {
         <div className="fixed bottom-6 right-6 z-[999] bg-slate-900 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 animate-fade-in-up border border-slate-700 text-sm">
           <span className="text-emerald-400 font-bold">✓</span>
           <span>门诊问诊清单已成功复制到剪贴板！可直接粘贴至微信或备忘录。</span>
+        </div>
+      )}
+
+      {/* Confirmation Modal for Regeneration */}
+      {showRegenConfirm && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs animate-fade-in">
+          <div className="bg-white rounded-3xl p-6 sm:p-7 max-w-md w-full shadow-2xl border border-slate-200">
+            <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-2xl mb-4 border border-amber-200">
+              🔄
+            </div>
+            <h3 className="text-lg font-bold text-slate-900 mb-2">确认重新推演生成报告？</h3>
+            <p className="text-slate-600 text-sm leading-relaxed mb-5">
+              系统将根据当前最新的病理指标重新检索前瞻性文献并调用大模型重写。<strong>当您修改了病理分期、新增了基因突变或想获取最新版解读时推荐使用</strong>。
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setShowRegenConfirm(false)}
+                className="px-4 py-2 rounded-xl text-slate-600 hover:bg-slate-100 font-medium text-sm transition-colors cursor-pointer"
+              >
+                取消
+              </button>
+              <button
+                onClick={confirmAndRegenerate}
+                className="px-5 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-sky-600 hover:from-blue-700 hover:to-sky-700 text-white font-bold text-sm shadow-md shadow-blue-500/20 transition-all cursor-pointer"
+              >
+                确认重新生成
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
@@ -123,7 +240,7 @@ export default function EvidenceReportPage() {
             </Link>
             <div className="w-px h-4 bg-slate-300"></div>
             <span className="font-bold text-slate-900 text-xs sm:text-sm flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-accent-teal animate-pulse" />
+              <span className={`w-2 h-2 rounded-full ${isGenerating ? 'bg-amber-500 animate-ping' : 'bg-accent-teal animate-pulse'}`} />
               专属深度循证解读报告
             </span>
           </div>
@@ -139,8 +256,15 @@ export default function EvidenceReportPage() {
             {!isGenerating && (
               <>
                 <button
+                  onClick={() => setShowRegenConfirm(true)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-300 transition-all cursor-pointer shadow-xs"
+                  title="当修改了分期或基因突变时重新生成"
+                >
+                  🔄 重新推演
+                </button>
+                <button
                   onClick={handleCopyChecklist}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-accent-blue bg-blue-50 hover:bg-blue-100 border border-blue-200 transition-all cursor-pointer shadow-xs"
+                  className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-accent-blue bg-blue-50 hover:bg-blue-100 border border-blue-200 transition-all cursor-pointer shadow-xs"
                   title="一键提取问诊清单"
                 >
                   📋 复制问诊单
@@ -162,6 +286,38 @@ export default function EvidenceReportPage() {
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-28 md:pt-32 print:pt-0 print:px-0">
         
+        {/* Smart Cache Notification & Regenerate Notice Banner */}
+        {isLoadedFromCache && !isGenerating && (
+          <div className="mb-5 p-4 rounded-2xl bg-gradient-to-r from-sky-50 via-blue-50 to-teal-50 border border-sky-200/90 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 print:hidden">
+            <div className="flex items-start sm:items-center gap-3">
+              <div className="w-8 h-8 rounded-xl bg-white text-sky-600 flex items-center justify-center text-base shadow-xs flex-shrink-0 border border-sky-100">
+                📋
+              </div>
+              <div>
+                <div className="text-xs font-bold text-slate-800 flex items-center gap-2">
+                  <span>已瞬间加载您的专属深度循证解读报告</span>
+                  {cachedTime && (
+                    <span className="text-[11px] font-medium text-sky-700 bg-sky-100/80 px-2 py-0.5 rounded-full">
+                      生成于 {cachedTime}
+                    </span>
+                  )}
+                </div>
+                <div className="text-[12px] text-slate-500 mt-0.5">
+                  💡 <strong>提示</strong>：当您修改了病理分期、新增了基因突变或想获取最新版解读时，可点击右侧重新推演。
+                </div>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowRegenConfirm(true)}
+              className="self-end sm:self-center flex-shrink-0 px-3.5 py-1.5 rounded-xl bg-white hover:bg-sky-50 text-sky-700 font-bold text-xs border border-sky-300 shadow-xs hover:shadow transition-all cursor-pointer flex items-center gap-1.5"
+            >
+              <span>🔄</span>
+              <span>重新推演生成</span>
+            </button>
+          </div>
+        )}
+
         {/* Patient Clinical Overview Hero Card */}
         {profile && (
           <div className="bg-white rounded-2xl p-5 md:p-6 border border-slate-200 shadow-sm mb-6 print:border-none print:shadow-none print:mb-4">
@@ -244,12 +400,12 @@ export default function EvidenceReportPage() {
           
           <div className="p-6 md:p-10 print:p-0">
             {!reportMarkdown && isGenerating && (
-              <div className="flex items-center gap-3.5 text-accent-blue font-medium py-12 justify-center animate-pulse print:hidden">
-                <svg className="animate-spin h-6 w-6 text-accent-blue" viewBox="0 0 24 24">
+              <div className="flex flex-col items-center gap-3.5 text-accent-blue font-medium py-16 justify-center animate-pulse print:hidden">
+                <svg className="animate-spin h-8 w-8 text-accent-blue" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                <span>正在为您检索海量前瞻性临床研究文献并生成个性化循证报告...</span>
+                <span className="text-sm">正在为您检索海量前瞻性临床研究文献并生成个性化循证报告...</span>
               </div>
             )}
             

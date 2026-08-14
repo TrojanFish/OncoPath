@@ -62,6 +62,10 @@ export async function POST(request: Request) {
         riskLevel: riskLevel,
         nextAction: nextAction,
         psychologicalState: psychState,
+
+        // Report persistence if provided
+        reportMarkdown: data.reportMarkdown || null,
+        reportGeneratedAt: data.reportMarkdown ? new Date() : null,
       }
     });
 
@@ -71,6 +75,45 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true, profile });
   } catch (error: any) {
     console.error('Error saving profile:', error);
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  }
+}
+
+export async function PUT(request: Request) {
+  try {
+    const { userId, profileId, reportMarkdown } = await request.json();
+
+    if (!reportMarkdown) {
+      return NextResponse.json({ success: false, error: "缺少报告内容" }, { status: 400 });
+    }
+
+    let targetProfile = null;
+    if (profileId) {
+      targetProfile = await prisma.patientProfile.findUnique({ where: { id: profileId } });
+    }
+
+    if (!targetProfile && userId) {
+      targetProfile = await prisma.patientProfile.findFirst({
+        where: { userId },
+        orderBy: { createdAt: 'desc' }
+      });
+    }
+
+    if (!targetProfile) {
+      return NextResponse.json({ success: false, error: "未找到对应患者病理档案" }, { status: 404 });
+    }
+
+    const updated = await prisma.patientProfile.update({
+      where: { id: targetProfile.id },
+      data: {
+        reportMarkdown,
+        reportGeneratedAt: new Date(),
+      }
+    });
+
+    return NextResponse.json({ success: true, profile: updated });
+  } catch (error: any) {
+    console.error('Error updating report in profile:', error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
