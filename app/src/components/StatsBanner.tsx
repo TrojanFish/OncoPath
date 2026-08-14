@@ -41,8 +41,8 @@ export default function StatsBanner() {
   }, []);
 
   return (
-    <div ref={ref} className="bg-white shadow-sm border-y border-gray-200 py-12 px-6">
-      <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6">
+    <div className="bg-white/80 backdrop-blur-sm border-y border-slate-200 py-12 px-6">
+      <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
         {stats.map((stat) => (
           <AnimatedStat key={stat.label} stat={stat} animate={animated} />
         ))}
@@ -79,15 +79,15 @@ function AnimatedStat({
   }, [animate, stat.value]);
 
   return (
-    <div className="text-center group">
+    <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs hover:shadow-sm hover:border-slate-300 transition-all text-center group">
       <div className="text-2xl mb-2 group-hover:scale-110 transition-transform duration-300">
         {stat.icon}
       </div>
-      <div className="text-3xl font-black text-gray-900 font-bold mb-1">
+      <div className="text-2xl sm:text-3xl font-black text-slate-900 mb-1 tabular-nums tracking-tight">
         {animate ? displayed.toLocaleString() : 0}
-        <span className="text-lg font-semibold text-text-secondary ml-1">{stat.suffix}</span>
+        <span className="text-sm sm:text-base font-semibold text-slate-500 ml-1">{stat.suffix}</span>
       </div>
-      <div className="text-text-muted text-sm">{stat.label}</div>
+      <div className="text-slate-500 text-xs sm:text-sm font-medium">{stat.label}</div>
     </div>
   );
 }
