@@ -1,27 +1,13 @@
 import type { KnowledgeNode, EdgeEvidence } from './knowledgeGraphData';
 
 export const DEFAULT_GRAPH_NODES: KnowledgeNode[] = [
-  {
-    id: "STAS",
-    label: "气道播散\nSTAS",
-    type: "factor",
-    x: 18,
-    y: 28,
-    connections: ["SURGERY", "RECURRENCE"],
-    connectionTypes: {
-      SURGERY: "guides",
-      RECURRENCE: "risk"
-    },
-    studies: 18,
-    evidence: 5,
-    description: "肿瘤细胞通过气道播散（Spread Through Air Spaces），是早期肺腺癌亚肺叶切除后局部复发的核心独立危险因子（HR=1.87）。"
-  },
+  // --- Column 1: Upstream Pathological & Molecular Factors (X = 15) ---
   {
     id: "CTR",
     label: "实性成分\nCTR",
     type: "factor",
-    x: 18,
-    y: 65,
+    x: 15,
+    y: 16,
     connections: ["STAGING", "SURGERY", "RECURRENCE"],
     connectionTypes: {
       STAGING: "guides",
@@ -33,11 +19,26 @@ export const DEFAULT_GRAPH_NODES: KnowledgeNode[] = [
     description: "实性成分比例（Consolidation-to-Tumor Ratio）。CTR ≤ 0.5 提示惰性微浸润（JCOG0804 5年无复发率 99.7%），CTR > 0.5 侵袭性升高。"
   },
   {
+    id: "STAS",
+    label: "气道播散\nSTAS",
+    type: "factor",
+    x: 15,
+    y: 31,
+    connections: ["SURGERY", "RECURRENCE"],
+    connectionTypes: {
+      SURGERY: "guides",
+      RECURRENCE: "risk"
+    },
+    studies: 18,
+    evidence: 5,
+    description: "肿瘤细胞通过气道播散（Spread Through Air Spaces），是早期肺腺癌亚肺叶切除后局部复发的核心独立危险因子（HR=1.87）。"
+  },
+  {
     id: "IASLC",
     label: "病理分级\nIASLC",
     type: "factor",
-    x: 42,
-    y: 18,
+    x: 15,
+    y: 46,
     connections: ["ADJUVANT", "RECURRENCE"],
     connectionTypes: {
       ADJUVANT: "guides",
@@ -51,8 +52,8 @@ export const DEFAULT_GRAPH_NODES: KnowledgeNode[] = [
     id: "VPI",
     label: "胸膜侵犯\nVPI",
     type: "factor",
-    x: 42,
-    y: 50,
+    x: 15,
+    y: 61,
     connections: ["STAGING", "ADJUVANT", "METASTASIS"],
     connectionTypes: {
       STAGING: "guides",
@@ -67,8 +68,8 @@ export const DEFAULT_GRAPH_NODES: KnowledgeNode[] = [
     id: "LVI",
     label: "脉管癌栓\nLVI",
     type: "factor",
-    x: 42,
-    y: 82,
+    x: 15,
+    y: 76,
     connections: ["METASTASIS", "RECURRENCE"],
     connectionTypes: {
       METASTASIS: "risk",
@@ -82,8 +83,8 @@ export const DEFAULT_GRAPH_NODES: KnowledgeNode[] = [
     id: "EGFR",
     label: "EGFR\n驱动基因",
     type: "factor",
-    x: 68,
-    y: 18,
+    x: 15,
+    y: 91,
     connections: ["TARGETED", "ADJUVANT"],
     connectionTypes: {
       TARGETED: "guides",
@@ -93,12 +94,14 @@ export const DEFAULT_GRAPH_NODES: KnowledgeNode[] = [
     evidence: 5,
     description: "表皮生长因子受体突变（19del / L858R）：亚裔非吸烟肺腺癌占比高达 50%+，为第三代 EGFR-TKI 靶向治疗的核心获益靶点。"
   },
+
+  // --- Column 2: Intermediary Clinical Guidelines & Treatments (X = 50) ---
   {
     id: "STAGING",
     label: "TNM 分期\n指南 (AJCC)",
     type: "guideline",
-    x: 42,
-    y: 66,
+    x: 50,
+    y: 22,
     connections: ["SURGERY", "ADJUVANT"],
     connectionTypes: {
       SURGERY: "guides",
@@ -112,8 +115,8 @@ export const DEFAULT_GRAPH_NODES: KnowledgeNode[] = [
     id: "SURGERY",
     label: "手术术式\n决策 (肺叶/段)",
     type: "guideline",
-    x: 18,
-    y: 85,
+    x: 50,
+    y: 43,
     connections: ["RECURRENCE"],
     connectionTypes: {
       RECURRENCE: "protective"
@@ -126,8 +129,8 @@ export const DEFAULT_GRAPH_NODES: KnowledgeNode[] = [
     id: "TARGETED",
     label: "靶向治疗\n(奥希替尼等)",
     type: "guideline",
-    x: 82,
-    y: 38,
+    x: 50,
+    y: 64,
     connections: ["RECURRENCE"],
     connectionTypes: {
       RECURRENCE: "protective"
@@ -140,8 +143,8 @@ export const DEFAULT_GRAPH_NODES: KnowledgeNode[] = [
     id: "ADJUVANT",
     label: "辅助治疗\n(化疗/靶向)",
     type: "guideline",
-    x: 68,
-    y: 58,
+    x: 50,
+    y: 85,
     connections: ["RECURRENCE", "METASTASIS"],
     connectionTypes: {
       RECURRENCE: "protective",
@@ -151,12 +154,14 @@ export const DEFAULT_GRAPH_NODES: KnowledgeNode[] = [
     evidence: 5,
     description: "含铂双药辅助化疗：针对 II-IIIA 期或伴有高危病理因素 (IASLC Grade 3 / VPI+) 患者杀灭循环残余微转移，提高 5 年总生存率。"
   },
+
+  // --- Column 3: Downstream Prognostic Endpoints (X = 85) ---
   {
     id: "RECURRENCE",
     label: "术后复发\n/ 局部进展",
     type: "outcome",
-    x: 75,
-    y: 88,
+    x: 85,
+    y: 36,
     connections: [],
     studies: 40,
     evidence: 5,
@@ -166,8 +171,8 @@ export const DEFAULT_GRAPH_NODES: KnowledgeNode[] = [
     id: "METASTASIS",
     label: "远处微转移\n(脑/骨/内脏)",
     type: "outcome",
-    x: 90,
-    y: 72,
+    x: 85,
+    y: 68,
     connections: [],
     studies: 32,
     evidence: 5,

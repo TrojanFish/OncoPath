@@ -47,11 +47,11 @@ export function GraphRenderer({
 
   return (
     <svg
-      viewBox="0 0 100 100"
+      viewBox="0 0 100 105"
       preserveAspectRatio="xMidYMid meet"
       className="w-full h-full relative z-10 select-none"
     >
-      {/* Arrow marker & filter definitions for Light Medical Theme */}
+      {/* Arrow marker & filter definitions for Causal DAG Standard */}
       <defs>
         <marker id="arrow-risk" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
           <path d="M0,0 L0,6 L6,3 z" fill="#ef4444" />
@@ -80,7 +80,7 @@ export function GraphRenderer({
           <feDropShadow dx="0" dy="0.5" stdDeviation="0.8" floodColor="#0f172a" floodOpacity="0.15" />
         </filter>
         <filter id="glow-active" x="-30%" y="-30%" width="160%" height="160%">
-          <feDropShadow dx="0" dy="0" stdDeviation="1.5" floodColor="#2563eb" floodOpacity="0.35" />
+          <feDropShadow dx="0" dy="1.5" stdDeviation="1.5" floodColor="#2563eb" floodOpacity="0.35" />
         </filter>
       </defs>
 
@@ -88,9 +88,30 @@ export function GraphRenderer({
       <pattern id="grid-pattern" width="10" height="10" patternUnits="userSpaceOnUse">
         <path d="M 10 0 L 0 0 0 10" fill="none" stroke="#f1f5f9" strokeWidth="0.3" />
       </pattern>
-      <rect width="100" height="100" fill="url(#grid-pattern)" />
+      <rect width="100" height="105" fill="url(#grid-pattern)" />
 
-      {/* Connection lines */}
+      {/* 3-Column Causal DAG Visual Header Banners */}
+      <g className="pointer-events-none opacity-85">
+        {/* Column 1: Upstream Pathology */}
+        <rect x="3" y="3" width="24" height="6" rx="3" fill="#eff6ff" stroke="#bfdbfe" strokeWidth="0.3" />
+        <text x="15" y="7" textAnchor="middle" fontSize="2.1" fontWeight="bold" fill="#1e40af">
+          1. 上游病理与特征
+        </text>
+
+        {/* Column 2: Intermediary Guidelines */}
+        <rect x="37" y="3" width="26" height="6" rx="3" fill="#f0fdfa" stroke="#99f6e4" strokeWidth="0.3" />
+        <text x="50" y="7" textAnchor="middle" fontSize="2.1" fontWeight="bold" fill="#0f766e">
+          2. 临床决策与指南
+        </text>
+
+        {/* Column 3: Downstream Endpoints */}
+        <rect x="73" y="3" width="24" height="6" rx="3" fill="#fef2f2" stroke="#fecaca" strokeWidth="0.3" />
+        <text x="85" y="7" textAnchor="middle" fontSize="2.1" fontWeight="bold" fill="#991b1b">
+          3. 下游预后结局
+        </text>
+      </g>
+
+      {/* Smooth Cubic Bézier Connection Lines */}
       {currentNodes.map((node) =>
         node.connections.map((targetId) => {
           const target = currentNodes.find((n) => n.id === targetId);
@@ -118,6 +139,7 @@ export function GraphRenderer({
             timeWidthAdjust = Math.max(0.4, 1 - (timeYears * 0.14));
           }
 
+          // Compute smooth Cubic Bézier Curve endpoints with node radii offsets
           const dx = target.x - node.x;
           const dy = target.y - node.y;
           const len = Math.sqrt(dx * dx + dy * dy);
@@ -127,8 +149,17 @@ export function GraphRenderer({
           const x2 = target.x - (dx / len) * offset;
           const y2 = target.y - (dy / len) * offset;
           
-          const midX = (x1 + x2) / 2;
-          const midY = (y1 + y2) / 2;
+          // Cubic Bézier Control Points for smooth S-curve flow
+          const curvature = Math.max(Math.abs(x2 - x1) * 0.5, 8);
+          const cx1 = x1 + curvature;
+          const cy1 = y1;
+          const cx2 = x2 - curvature;
+          const cy2 = y2;
+          const pathData = `M ${x1} ${y1} C ${cx1} ${cy1}, ${cx2} ${cy2}, ${x2} ${y2}`;
+
+          // Midpoint for interactive badge
+          const midX = 0.5 * (x1 + x2);
+          const midY = 0.5 * (y1 + y2);
 
           let strokeColor: string;
           let strokeWidth: string;
@@ -154,9 +185,9 @@ export function GraphRenderer({
             strokeWidth = "0.7";
             markerId = "arrow-active";
           } else {
-            strokeColor = relType === "risk" ? "#f87171" : relType === "guides" ? "#2dd4bf" : "#94a3b8";
+            strokeColor = relType === "risk" ? "#f87171" : relType === "guides" ? "#2dd4bf" : relType === "protective" ? "#4ade80" : "#94a3b8";
             strokeWidth = String(0.45 * timeWidthAdjust);
-            markerId = relType === "risk" ? "arrow-risk" : relType === "guides" ? "arrow-guides" : "arrow-default";
+            markerId = relType === "risk" ? "arrow-risk" : relType === "guides" ? "arrow-guides" : relType === "protective" ? "arrow-protect" : "arrow-default";
             strokeOpacity = String(0.85 * timeOpacityAdjust);
           }
 
@@ -171,6 +202,8 @@ export function GraphRenderer({
             badgeText = evidence.metric.value.length > 8 ? evidence.metric.value.slice(0, 7) : evidence.metric.value;
           } else if (relType === "risk") {
             badgeText = "风险";
+          } else if (relType === "protective") {
+            badgeText = "保护";
           } else if (relType === "guides") {
             badgeText = "指导";
           }
@@ -186,9 +219,10 @@ export function GraphRenderer({
               onMouseEnter={() => onEdgeHover(edgeKey)}
               onMouseLeave={() => onEdgeHover(null)}
             >
-              {/* Visible connecting line */}
-              <line
-                x1={x1} y1={y1} x2={x2} y2={y2}
+              {/* Smooth Cubic Bézier Curve */}
+              <path
+                d={pathData}
+                fill="none"
                 stroke={strokeColor}
                 strokeWidth={strokeWidth}
                 strokeOpacity={strokeOpacity}
@@ -207,7 +241,7 @@ export function GraphRenderer({
                     height="3.6"
                     rx="1.8"
                     fill={isEdgeSelected || isEdgeHovered ? "#2563eb" : "#ffffff"}
-                    stroke={isEdgeSelected || isEdgeHovered ? "#1d4ed8" : relType === "risk" ? "#fca5a5" : "#99f6e4"}
+                    stroke={isEdgeSelected || isEdgeHovered ? "#1d4ed8" : relType === "risk" ? "#fca5a5" : relType === "protective" ? "#86efac" : "#99f6e4"}
                     strokeWidth="0.3"
                     filter="url(#badge-shadow)"
                   />
@@ -216,18 +250,19 @@ export function GraphRenderer({
                     dominantBaseline="central"
                     fontSize="1.6"
                     fontWeight="bold"
-                    fill={isEdgeSelected || isEdgeHovered ? "#ffffff" : relType === "risk" ? "#dc2626" : "#0f766e"}
+                    fill={isEdgeSelected || isEdgeHovered ? "#ffffff" : relType === "risk" ? "#dc2626" : relType === "protective" ? "#16a34a" : "#0f766e"}
                   >
                     {badgeText}
                   </text>
                 </g>
               )}
 
-              {/* Generous Invisible Click/Hover Area (100% clickable) */}
-              <line
-                x1={x1} y1={y1} x2={x2} y2={y2}
+              {/* Generous Invisible Click Area along Cubic Bézier Curve */}
+              <path
+                d={pathData}
+                fill="none"
                 stroke="rgba(0,0,0,0.001)"
-                strokeWidth="7"
+                strokeWidth="8"
                 style={{ cursor: "pointer", pointerEvents: "all" }}
               />
             </g>
@@ -248,12 +283,15 @@ export function GraphRenderer({
         const y1 = fromNode.y + (dy / len) * offset;
         const x2 = toNode.x - (dx / len) * offset;
         const y2 = toNode.y - (dy / len) * offset;
+        const curvature = Math.max(Math.abs(x2 - x1) * 0.5, 8);
+        const pathData = `M ${x1} ${y1} C ${x1 + curvature} ${y1}, ${x2 - curvature} ${y2}, ${x2} ${y2}`;
         const mx = (x1 + x2) / 2;
         const my = (y1 + y2) / 2;
         return (
           <g key={`protect-${pe.from}-${pe.to}`}>
-            <line
-              x1={x1} y1={y1} x2={x2} y2={y2}
+            <path
+              d={pathData}
+              fill="none"
               stroke="#16a34a"
               strokeWidth="0.8"
               strokeDasharray="2,1"
@@ -273,9 +311,6 @@ export function GraphRenderer({
         const colors = typeColors[node.type] || typeColors.factor;
         const isActive = activeNode?.id === node.id;
         const isHovered = hoveredNode?.id === node.id;
-        const isConnected =
-          activeNode?.connections.includes(node.id) ||
-          currentNodes.find((n) => n.id === activeNode?.id)?.connections.includes(node.id);
 
         // Personal mode visual state
         const activation = personalMode && profile ? getNodeActivation(node.id, profile) : "normal";
@@ -296,7 +331,7 @@ export function GraphRenderer({
         const isSandboxOn = sandboxMode && sandboxActive.has(node.id);
         const isAiNode = node.id === "ctDNA";
 
-        // Split multi-line labels (Line 1: Chinese Title, Line 2: English Abbr/Tag)
+        // Split multi-line labels
         const labelParts = node.label.split("\n");
         const titleZh = labelParts[0];
         const titleEn = labelParts[1] || node.id;
