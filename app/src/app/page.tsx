@@ -105,33 +105,31 @@ export default function HomePage() {
   return (
     <div className="min-h-screen overflow-x-hidden">
       <ConsentModal />
-      {/* Navigation */}
-      <nav
-        className={`fixed top-0 left-0 right-0 z-50 px-6 py-4 transition-all duration-300 ${
-          scrollY > 50 ? "bg-white border-b border-gray-200 shadow-sm" : "bg-transparent border-b border-transparent"
-        }`}
-      >
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
+      {/* Floating Island Navigation Bar */}
+      <div className="fixed top-4 left-0 right-0 z-50 px-4 sm:px-6 pointer-events-none">
+        <nav
+          className="max-w-7xl mx-auto flex items-center justify-between px-5 sm:px-7 py-3 rounded-2xl sm:rounded-full bg-white/85 backdrop-blur-md border border-slate-200/80 shadow-lg shadow-slate-900/5 transition-all duration-300 pointer-events-auto hover:border-slate-300"
+        >
           <LogoMark />
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden md:flex items-center gap-7">
             <NavLink href="#features">功能</NavLink>
             <NavLink href="#evidence">证据库</NavLink>
             <NavLink href="#studies">研究</NavLink>
             <NavLink href="#knowledge">知识图谱</NavLink>
             <NavLink href="/resources">学术导航</NavLink>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <UserAvatar />
             <Link
               href="/profile"
               id="nav-start-btn"
-              className="btn-primary px-5 py-2 rounded-lg text-sm font-medium cursor-pointer"
+              className="btn-primary px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold cursor-pointer shadow-sm"
             >
-              建立癌症档案
+              建立癌症档案 ➔
             </Link>
           </div>
-        </div>
-      </nav>
+        </nav>
+      </div>
 
       {/* Hero Section (2-Column Split Layout matching Telemedicine Demo) */}
       <section
