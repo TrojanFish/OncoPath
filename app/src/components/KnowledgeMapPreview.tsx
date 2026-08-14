@@ -271,42 +271,42 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
             </TransformComponent>
           </TransformWrapper>
 
-          {/* Legend */}
-          <div className="absolute bottom-4 left-4 flex flex-wrap gap-3">
-            {[
-              { type: "factor", label: "病理因素", dot: "#4f8ef7" },
-              { type: "outcome", label: "临床结局", dot: "#ef4444" },
-              { type: "evidence", label: "证据节点", dot: "#f59e0b" },
-              { type: "guideline", label: "指南建议", dot: "#00d4aa" },
-            ].map((item) => (
-              <div key={item.type} className="flex items-center gap-1.5">
-                <div
-                  className="w-2.5 h-2.5 rounded-full"
-                  style={{ backgroundColor: item.dot, opacity: 0.8 }}
-                />
-                <span className="text-text-muted text-xs">{item.label}</span>
-              </div>
-            ))}
-            <div className="w-full mt-1 flex gap-3">
+          {/* Legend (Positioned at Bottom-Right with Frosted Glass Badge) */}
+          <div className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 z-20 bg-white/92 backdrop-blur-md p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border border-slate-200 shadow-sm max-w-[280px] sm:max-w-xs pointer-events-none">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[11px] sm:text-xs">
+              {[
+                { type: "factor", label: "病理因素", dot: "#2563eb" },
+                { type: "outcome", label: "临床结局", dot: "#dc2626" },
+                { type: "evidence", label: "证据节点", dot: "#d97706" },
+                { type: "guideline", label: "指南建议", dot: "#0d9488" },
+              ].map((item) => (
+                <div key={item.type} className="flex items-center gap-1.5">
+                  <div
+                    className="w-2 h-2 rounded-full flex-shrink-0"
+                    style={{ backgroundColor: item.dot }}
+                  />
+                  <span className="text-slate-600 font-medium">{item.label}</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="w-full mt-2 pt-1.5 border-t border-slate-100 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] sm:text-xs">
               <div className="flex items-center gap-1.5">
-                <div className="w-4 h-px" style={{ background: "rgba(239,68,68,0.7)" }} />
-                <span className="text-text-muted text-xs">风险关联</span>
+                <div className="w-3.5 h-0.5 rounded-full bg-rose-500" />
+                <span className="text-slate-600 font-medium">风险关联</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <div className="w-4 h-px border-t border-dashed" style={{ borderColor: "rgba(0,212,170,0.7)" }} />
-                <span className="text-text-muted text-xs">指南关联</span>
+                <div className="w-3.5 h-0.5 border-t border-dashed border-teal-500" />
+                <span className="text-slate-600 font-medium">指南关联</span>
               </div>
               {personalMode && (
                 <div className="flex items-center gap-1.5">
-                  <div className="w-2 h-2 rounded-full bg-accent-teal animate-pulse" />
-                  <span className="text-accent-teal text-xs">您的专属路径</span>
+                  <div className="w-2 h-2 rounded-full bg-teal-500 animate-pulse" />
+                  <span className="text-teal-700 font-semibold">您的专属路径</span>
                 </div>
               )}
-              <div className="flex items-center gap-1.5">
-                <svg width="12" height="12" viewBox="0 0 12 12" className="text-text-muted">
-                  <circle cx="6" cy="6" r="4" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="2,1"/>
-                </svg>
-                <span className="text-text-muted text-xs">点击连线查看文献</span>
+              <div className="flex items-center gap-1 text-slate-400 text-[10px] w-full mt-0.5">
+                <span>💡 点击任意连线/药丸徽章查看文献</span>
               </div>
             </div>
           </div>
