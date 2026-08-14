@@ -82,61 +82,142 @@ export async function POST(request: Request) {
       pdfFileName,
     } = body;
 
-    if (!title) {
+    if (!title || !title.trim()) {
       return NextResponse.json({ success: false, error: "论文标题不能为空" }, { status: 400 });
     }
+
+    const cleanTitle = title.trim();
+    const cleanDoi = doi ? doi.trim() : null;
+    const cleanPmid = pubmedId ? pubmedId.trim() : null;
 
     const stagesStr = Array.isArray(applicableStages) ? JSON.stringify(applicableStages) : applicableStages || "[]";
     const factorsStr = Array.isArray(relevantFactors) ? JSON.stringify(relevantFactors) : relevantFactors || "[]";
 
-    // Save to IngestedStudy in DB
-    const savedStudy = await prisma.ingestedStudy.create({
-      data: {
-        title,
-        journal: journal || null,
-        year: year ? parseInt(year) : null,
-        authors: authors || null,
-        studyType: studyType || "retrospective",
-        evidenceLevel: evidenceLevel ? parseInt(evidenceLevel) : 4,
-        patientN: patientN ? parseInt(patientN) : null,
-        doi: doi || null,
-        pubmedId: pubmedId || null,
-        applicableStages: stagesStr,
-        relevantFactors: factorsStr,
-        summary: summary || null,
-        conclusion: conclusion || null,
-        keywords: keywords || null,
-        hr: hr ? parseFloat(hr) : null,
-        ciLow: ciLow ? parseFloat(ciLow) : null,
-        ciHigh: ciHigh ? parseFloat(ciHigh) : null,
-        rfs5Year: rfs5Year || null,
-        biomarkerDetails: biomarkerDetails || null,
-        interventionArm: interventionArm || null,
-        riskReduction: riskReduction || null,
-        url: url || (doi ? `https://doi.org/${doi}` : null),
-        pdfFileName: pdfFileName || null,
-      },
-    });
+    // -------------------------------------------------------------
+    // 3-Tier Intelligent Deduplication:
+    // 1. Check by DOI (Global Unique Identifier)
+    // 2. Check by PubMed ID
+    // 3. Check by Normalized Title
+    // -------------------------------------------------------------
+    let existingStudy = null;
+
+    if (cleanDoi) {
+      existingStudy = await prisma.ingestedStudy.findFirst({
+        where: { doi: { equals: cleanDoi, mode: 'insensitive' } }
+      });
+    }
+
+    if (!existingStudy && cleanPmid) {
+      existingStudy = await prisma.ingestedStudy.findFirst({
+        where: { pubmedId: { equals: cleanPmid, mode: 'insensitive' } }
+      });
+    }
+
+    if (!existingStudy && cleanTitle) {
+      existingStudy = await prisma.ingestedStudy.findFirst({
+        where: { title: { equals: cleanTitle, mode: 'insensitive' } }
+      });
+    }
+
+    let savedStudy;
+    let isUpdate = false;
+
+    if (existingStudy) {
+      // Automatic Deduplication: Update & enrich existing study in-place
+      isUpdate = true;
+      savedStudy = await prisma.ingestedStudy.update({
+        where: { id: existingStudy.id },
+        data: {
+          title: cleanTitle,
+          journal: journal || existingStudy.journal,
+          year: year ? parseInt(year) : existingStudy.year,
+          authors: authors || existingStudy.authors,
+          studyType: studyType || existingStudy.studyType,
+          evidenceLevel: evidenceLevel ? parseInt(evidenceLevel) : existingStudy.evidenceLevel,
+          patientN: patientN ? parseInt(patientN) : existingStudy.patientN,
+          doi: cleanDoi || existingStudy.doi,
+          pubmedId: cleanPmid || existingStudy.pubmedId,
+          applicableStages: stagesStr,
+          relevantFactors: factorsStr,
+          summary: summary || existingStudy.summary,
+          conclusion: conclusion || existingStudy.conclusion,
+          keywords: keywords || existingStudy.keywords,
+          hr: hr !== undefined && hr !== null && hr !== "" ? parseFloat(hr) : existingStudy.hr,
+          ciLow: ciLow !== undefined && ciLow !== null && ciLow !== "" ? parseFloat(ciLow) : existingStudy.ciLow,
+          ciHigh: ciHigh !== undefined && ciHigh !== null && ciHigh !== "" ? parseFloat(ciHigh) : existingStudy.ciHigh,
+          rfs5Year: rfs5Year || existingStudy.rfs5Year,
+          biomarkerDetails: biomarkerDetails || existingStudy.biomarkerDetails,
+          interventionArm: interventionArm || existingStudy.interventionArm,
+          riskReduction: riskReduction || existingStudy.riskReduction,
+          url: url || (cleanDoi ? `https://doi.org/${cleanDoi}` : existingStudy.url),
+          pdfFileName: pdfFileName || existingStudy.pdfFileName,
+        }
+      });
+    } else {
+      // Create new study
+      savedStudy = await prisma.ingestedStudy.create({
+        data: {
+          title: cleanTitle,
+          journal: journal || null,
+          year: year ? parseInt(year) : null,
+          authors: authors || null,
+          studyType: studyType || "retrospective",
+          evidenceLevel: evidenceLevel ? parseInt(evidenceLevel) : 4,
+          patientN: patientN ? parseInt(patientN) : null,
+          doi: cleanDoi || null,
+          pubmedId: cleanPmid || null,
+          applicableStages: stagesStr,
+          relevantFactors: factorsStr,
+          summary: summary || null,
+          conclusion: conclusion || null,
+          keywords: keywords || null,
+          hr: hr !== undefined && hr !== null && hr !== "" ? parseFloat(hr) : null,
+          ciLow: ciLow !== undefined && ciLow !== null && ciLow !== "" ? parseFloat(ciLow) : null,
+          ciHigh: ciHigh !== undefined && ciHigh !== null && ciHigh !== "" ? parseFloat(ciHigh) : null,
+          rfs5Year: rfs5Year || null,
+          biomarkerDetails: biomarkerDetails || null,
+          interventionArm: interventionArm || null,
+          riskReduction: riskReduction || null,
+          url: url || (cleanDoi ? `https://doi.org/${cleanDoi}` : null),
+          pdfFileName: pdfFileName || null,
+        },
+      });
+    }
 
     // Also sync to standard Study model for Knowledge Graph linkage if DOI present
-    if (doi) {
-      const existingStudy = await prisma.study.findUnique({
-        where: { doi }
+    if (cleanDoi) {
+      const existingGraphStudy = await prisma.study.findUnique({
+        where: { doi: cleanDoi }
       });
-      if (!existingStudy) {
+      if (!existingGraphStudy) {
         await prisma.study.create({
           data: {
-            doi,
-            title,
+            doi: cleanDoi,
+            title: cleanTitle,
             journal: journal || null,
             publishedYear: year ? parseInt(year) : null,
             conclusion: conclusion || summary || "",
           }
         });
+      } else {
+        await prisma.study.update({
+          where: { doi: cleanDoi },
+          data: {
+            title: cleanTitle,
+            journal: journal || existingGraphStudy.journal,
+            publishedYear: year ? parseInt(year) : existingGraphStudy.publishedYear,
+            conclusion: conclusion || summary || existingGraphStudy.conclusion,
+          }
+        });
       }
     }
 
-    return NextResponse.json({ success: true, data: savedStudy });
+    return NextResponse.json({ 
+      success: true, 
+      isUpdate, 
+      message: isUpdate ? "检测到已收录文献，已自动去重并更新" : "新文献入库成功", 
+      data: savedStudy 
+    });
   } catch (error: any) {
     console.error('Error saving admin evidence:', error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });

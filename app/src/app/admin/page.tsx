@@ -338,7 +338,7 @@ export default function AdminPage() {
       });
       const data = await res.json();
       if (data.success) {
-        showToast("✅ 文献已成功入库并生成向量索引！");
+        showToast(data.message || (data.isUpdate ? "✅ 检测到已收录文献，已自动去重并更新！" : "✅ 文献已成功入库并生成向量索引！"));
         setExtractedData(null);
         setPdfFile(null);
         if (fileInputRef.current) fileInputRef.current.value = "";
