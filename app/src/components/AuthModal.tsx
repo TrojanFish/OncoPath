@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { login, register } from "@/lib/api";
 
 interface AuthModalProps {
@@ -9,11 +10,21 @@ interface AuthModalProps {
 }
 
 export default function AuthModal({ onClose, onSuccess }: AuthModalProps) {
+  const [mounted, setMounted] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    // Disable background scrolling when modal is open
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,54 +42,75 @@ export default function AuthModal({ onClose, onSuccess }: AuthModalProps) {
         onSuccess(data.access_token, email);
       }
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || "登录或注册失败，请检查网络或凭据");
     } finally {
       setLoading(false);
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div className="bg-white w-full max-w-md rounded-2xl p-8 border border-gray-200 shadow-sm animate-fade-in-up relative">
+  if (!mounted) return null;
+
+  const modalContent = (
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 animate-fade-in">
+      {/* Backdrop */}
+      <div 
+        className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm transition-opacity"
+        onClick={onClose}
+      />
+
+      {/* Modal Card */}
+      <div className="bg-white w-full max-w-md rounded-3xl p-8 sm:p-10 border border-slate-200/90 shadow-2xl relative z-10 animate-fade-in-up text-slate-900">
         <button 
           onClick={onClose}
-          className="absolute top-4 right-4 text-text-muted hover:text-text-primary"
+          className="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-900 transition-colors flex items-center justify-center cursor-pointer"
+          aria-label="关闭窗口"
         >
-          <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+          <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/>
           </svg>
         </button>
 
-        <h2 className="text-2xl font-semibold text-text-primary mb-6 text-center">
-          {isLogin ? "登录 OncoPath" : "注册新账号"}
-        </h2>
+        {/* Brand Header */}
+        <div className="text-center mb-6">
+          <div className="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-100 text-accent-blue flex items-center justify-center text-xl mx-auto mb-3 shadow-xs">
+            👤
+          </div>
+          <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
+            {isLogin ? "登录 OncoPath" : "注册新账号"}
+          </h2>
+          <p className="text-xs text-slate-500 mt-1">
+            {isLogin ? "安全同步您的个人癌症档案与随访记录" : "免费创建个人循证档案库"}
+          </p>
+        </div>
 
         {error && (
-          <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-sm p-3 rounded-lg mb-6">
-            {error}
+          <div className="bg-rose-50 border border-rose-200 text-rose-700 text-xs p-3.5 rounded-xl mb-5 flex items-center gap-2">
+            <span>⚠️</span>
+            <span>{error}</span>
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-text-secondary mb-1">邮箱</label>
+            <label className="block text-xs font-bold text-slate-700 mb-1.5">电子邮箱</label>
             <input
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full input-field p-3 rounded-xl text-text-primary"
-              placeholder="your@email.com"
+              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-accent-blue focus:ring-2 focus:ring-accent-blue/10 transition-all"
+              placeholder="patient@example.com"
+              autoFocus
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-text-secondary mb-1">密码</label>
+            <label className="block text-xs font-bold text-slate-700 mb-1.5">登录密码</label>
             <input
               type="password"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full input-field p-3 rounded-xl text-text-primary"
+              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-accent-blue focus:ring-2 focus:ring-accent-blue/10 transition-all"
               placeholder="••••••••"
             />
           </div>
@@ -86,21 +118,34 @@ export default function AuthModal({ onClose, onSuccess }: AuthModalProps) {
           <button
             type="submit"
             disabled={loading}
-            className="w-full btn-primary py-3 rounded-xl font-medium mt-2 disabled:opacity-50"
+            className="w-full btn-primary py-3.5 rounded-xl font-bold text-sm shadow-md mt-2 disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
           >
-            {loading ? "处理中..." : (isLogin ? "登录" : "注册")}
+            {loading ? (
+              <>
+                <svg className="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+                <span>正在处理...</span>
+              </>
+            ) : (
+              <span>{isLogin ? "安全登录 ➔" : "立即注册并登录 ➔"}</span>
+            )}
           </button>
         </form>
 
-        <div className="mt-6 text-center">
+        <div className="mt-6 pt-5 border-t border-slate-100 text-center">
           <button 
+            type="button"
             onClick={() => { setIsLogin(!isLogin); setError(""); }}
-            className="text-accent-blue hover:text-accent-blue-light text-sm transition-colors"
+            className="text-accent-blue hover:text-accent-blue-dark text-xs font-semibold transition-colors cursor-pointer"
           >
-            {isLogin ? "没有账号？点击注册" : "已有账号？点击登录"}
+            {isLogin ? "没有账号？点击快速注册" : "已有账号？点击直接登录"}
           </button>
         </div>
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 }
