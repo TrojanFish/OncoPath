@@ -29,13 +29,14 @@ export async function login(email: string, password: string) {
 }
 
 export async function generateReport(profile: any) {
-  const token = localStorage.getItem("token"); // Optional for this endpoint right now, but good practice
+  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  const hasValidToken = token && token !== "null" && token !== "undefined" && token.trim() !== "";
   
   const response = await fetch(`${API_BASE_URL}/analysis/generate`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      ...(token ? { "Authorization": `Bearer ${token}` } : {})
+      ...(hasValidToken ? { "Authorization": `Bearer ${token}` } : {})
     },
     body: JSON.stringify(profile)
   });

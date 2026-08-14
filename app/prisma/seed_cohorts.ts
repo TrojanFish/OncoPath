@@ -5,9 +5,6 @@ const prisma = new PrismaClient();
 async function main() {
   console.log("Start seeding clinical cohorts...");
 
-  // Clear existing cohorts
-  await prisma.clinicalCohort.deleteMany({});
-
   const cohorts = [
     {
       name: "JCOG0804_LowRisk",
@@ -45,12 +42,23 @@ async function main() {
   ];
 
   for (const c of cohorts) {
-    await prisma.clinicalCohort.create({
-      data: c
+    const existing = await prisma.clinicalCohort.findFirst({
+      where: { name: c.name }
     });
+
+    if (existing) {
+      await prisma.clinicalCohort.update({
+        where: { id: existing.id },
+        data: c
+      });
+    } else {
+      await prisma.clinicalCohort.create({
+        data: c
+      });
+    }
   }
 
-  console.log("Seeding cohorts finished.");
+  console.log("Seeding cohorts finished idempotently.");
 }
 
 main()

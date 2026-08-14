@@ -6,6 +6,7 @@ import ProfileForm from "@/components/ProfileForm";
 import EvidenceReport from "@/components/EvidenceReport";
 import KnowledgeMapPreview from "@/components/KnowledgeMapPreview";
 import AuthModal from "@/components/AuthModal";
+import ConsentModal from "@/components/ConsentModal";
 import StatsBanner from "@/components/StatsBanner";
 import StudyCard from "@/components/StudyCard";
 import DashboardView from "@/components/DashboardView";
@@ -103,6 +104,7 @@ export default function HomePage() {
   // Landing page
   return (
     <div className="min-h-screen overflow-x-hidden">
+      <ConsentModal />
       {/* Navigation */}
       <nav
         className={`fixed top-0 left-0 right-0 z-50 px-6 py-4 transition-all duration-300 ${

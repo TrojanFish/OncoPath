@@ -65,12 +65,18 @@ export async function POST(request: Request) {
       }
     });
 
-    const rawJson = response.text;
-    if (!rawJson) {
+    let cleanedJson = (response.text || "").trim();
+    if (!cleanedJson) {
       throw new Error("模型返回为空");
     }
 
-    const extractedData = JSON.parse(rawJson);
+    // Strip markdown code fences or extract { ... } object if present
+    const jsonMatch = cleanedJson.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      cleanedJson = jsonMatch[0];
+    }
+
+    const extractedData = JSON.parse(cleanedJson);
 
     // Provide default safe fallbacks for missing critical fields
     const safeData = {
@@ -95,7 +101,8 @@ export async function POST(request: Request) {
     };
 
     // State Engine: Rule-based inference (Do not let AI hallucinate medical decisions!)
-    if (safeData.tStage || safeData.nStage || reportText.includes("切除")) {
+    const hasSurgeryEvidence = Boolean(reportText?.includes("切除")) || Boolean(safeData.surgeryType && safeData.surgeryType !== "unknown");
+    if (safeData.tStage || safeData.nStage || hasSurgeryEvidence) {
       safeData.currentStage = 'post_op';
       
       const isEarlyStage = safeData.tStage === "T1a" || safeData.tStage === "T1b" || safeData.tStage === "T1c";

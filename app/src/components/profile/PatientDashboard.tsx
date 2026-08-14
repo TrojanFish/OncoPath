@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import JourneyMap from "./JourneyMap";
 import ReportUploader from "./ReportUploader";
 import SimilarCasesCard from "./SimilarCasesCard";
+import ConsentModal from "@/components/ConsentModal";
 import type { PatientProfile } from "@/lib/types";
 import { getGuestId } from "@/lib/guest";
 
@@ -65,6 +66,7 @@ export default function PatientDashboard() {
   if (showUploader || !profile) {
     return (
       <div className="max-w-4xl mx-auto px-6 pt-24 pb-16">
+        <ConsentModal />
         <div className="text-center mb-10">
           <h1 className="display-sm text-text-primary">建立个人医学档案</h1>
           <p className="text-text-secondary mt-2">将您的病理报告交给 AI，自动建立结构化循证模型</p>
@@ -76,6 +78,7 @@ export default function PatientDashboard() {
 
   return (
     <div className="max-w-4xl mx-auto px-6 pt-24 pb-16">
+      <ConsentModal />
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="display-sm text-text-primary">患者医疗档案 (Patient Profile)</h1>

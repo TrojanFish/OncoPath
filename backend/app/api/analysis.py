@@ -12,7 +12,7 @@ from app.models.user import User
 from app.services.agent import AnalysisAgent
 from app.services.rules import MedicalRulesEngine
 from app.services.vector_search import VectorSearchService
-from app.api.deps import get_current_user
+from app.api.deps import get_current_user, get_optional_current_user
 
 router = APIRouter()
 agent = AnalysisAgent()
@@ -38,7 +38,7 @@ class PatientProfileInput(BaseModel):
 async def generate_analysis(
     profile: PatientProfileInput, 
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: Optional[User] = Depends(get_optional_current_user)
 ):
     try:
         # Step 1: Medical Rules Engine override
@@ -97,42 +97,43 @@ async def generate_analysis(
                 
             report_json = json.loads(cleaned)
             
-            # Save Patient Case Hierarchically
-            new_case = PatientCase(
-                user_id=current_user.id,
-                age=profile.age,
-                gender=profile.gender,
-                surgery_type=profile.surgeryType,
-                report_json=report_json
-            )
-            db.add(new_case)
-            await db.flush() # get new_case.id
-            
-            new_tumor = Tumor(
-                case_id=new_case.id,
-                stage=profile.stage,
-                location="Lung", # MVP default
-                tumor_size_mm=profile.tumorSize,
-                solid_size_mm=profile.solidSize,
-                ctr=profile.ctr,
-                morphology=profile.morphology
-            )
-            db.add(new_tumor)
-            await db.flush()
-            
-            new_path = PathologyFeature(
-                tumor_id=new_tumor.id,
-                stas=profile.stas,
-                vpi=profile.vpi,
-                lvi=profile.lvi,
-                iaslc_grade=profile.iaslcGrade,
-                margin=profile.margin,
-                lymph_nodes=profile.lymphNodes,
-                egfr=profile.egfr
-            )
-            db.add(new_path)
-            
-            await db.commit()
+            # Save Patient Case Hierarchically if user is authenticated
+            if current_user:
+                new_case = PatientCase(
+                    user_id=current_user.id,
+                    age=profile.age,
+                    gender=profile.gender,
+                    surgery_type=profile.surgeryType,
+                    report_json=report_json
+                )
+                db.add(new_case)
+                await db.flush() # get new_case.id
+                
+                new_tumor = Tumor(
+                    case_id=new_case.id,
+                    stage=profile.stage,
+                    location="Lung", # MVP default
+                    tumor_size_mm=profile.tumorSize,
+                    solid_size_mm=profile.solidSize,
+                    ctr=profile.ctr,
+                    morphology=profile.morphology
+                )
+                db.add(new_tumor)
+                await db.flush()
+                
+                new_path = PathologyFeature(
+                    tumor_id=new_tumor.id,
+                    stas=profile.stas,
+                    vpi=profile.vpi,
+                    lvi=profile.lvi,
+                    iaslc_grade=profile.iaslcGrade,
+                    margin=profile.margin,
+                    lymph_nodes=profile.lymphNodes,
+                    egfr=profile.egfr
+                )
+                db.add(new_path)
+                
+                await db.commit()
             
             return report_json
         except json.JSONDecodeError:
