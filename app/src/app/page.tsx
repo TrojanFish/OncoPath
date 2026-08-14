@@ -133,87 +133,160 @@ export default function HomePage() {
         </div>
       </nav>
 
-      {/* Hero Section */}
+      {/* Hero Section (2-Column Split Layout matching Telemedicine Demo) */}
       <section
         ref={heroRef}
-        className="relative min-h-screen flex items-center justify-center bg-gray-50 overflow-hidden pt-24 pb-12"
+        className="relative min-h-[85vh] flex items-center bg-gradient-to-b from-blue-50/40 via-slate-50 to-white overflow-hidden pt-28 pb-16"
       >
-        {/* Background orbs */}
+        {/* Ambient background glow orbs */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div
-            className="absolute -top-40 -right-40 w-96 h-96 rounded-full opacity-10"
+            className="absolute top-10 left-1/4 w-[500px] h-[500px] rounded-full opacity-20 blur-3xl"
             style={{
-              background: "radial-gradient(circle, #4f8ef7 0%, transparent 70%)",
-              transform: `translateY(${scrollY * 0.1}px)`,
+              background: "radial-gradient(circle, #38bdf8 0%, #0d9488 40%, transparent 70%)",
+              transform: `translateY(${scrollY * 0.08}px)`,
             }}
           />
           <div
-            className="absolute -bottom-40 -left-40 w-80 h-80 rounded-full opacity-8"
+            className="absolute bottom-10 right-10 w-[400px] h-[400px] rounded-full opacity-15 blur-3xl"
             style={{
-              background: "radial-gradient(circle, #00d4aa 0%, transparent 70%)",
-              transform: `translateY(${scrollY * -0.05}px)`,
+              background: "radial-gradient(circle, #0284c7 0%, transparent 70%)",
+              transform: `translateY(${scrollY * -0.04}px)`,
             }}
           />
           <FloatingParticles />
         </div>
 
-        <div className="relative z-10 max-w-5xl mx-auto px-6 text-center">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 bg-white px-4 py-2 rounded-full text-sm text-gray-500 mb-8 border border-gray-200 shadow-sm animate-fade-in-up">
-            <span className="w-2 h-2 rounded-full bg-accent-teal animate-pulse" />
-            <span>循证医学知识平台 · 每条结论均有来源</span>
+        <div className="relative z-10 max-w-7xl mx-auto px-6 w-full">
+          <div className="grid lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+            
+            {/* Left Column: Headline, Trust Badge & CTAs */}
+            <div className="lg:col-span-7 text-left space-y-6">
+              
+              {/* Trust Badge */}
+              <div className="inline-flex items-center gap-2 bg-white px-3.5 py-1.5 rounded-full text-xs font-bold text-sky-700 border border-sky-200/80 shadow-xs animate-fade-in-up">
+                <span className="w-4 h-4 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center text-[10px]">✓</span>
+                <span>已收录 500,000+ 例临床病例 · 100% 顶刊出处可溯</span>
+              </div>
+
+              {/* Main Headline */}
+              <h1 className="text-4xl sm:text-5xl lg:text-[3.25rem] font-extrabold text-slate-900 leading-[1.15] tracking-tight animate-fade-in-up stagger-1">
+                循证医学，让病理报告
+                <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-600 via-blue-600 to-teal-500">
+                  清晰透彻 · 触手可及
+                </span>
+              </h1>
+
+              {/* Description */}
+              <p className="text-base sm:text-lg text-slate-600 leading-relaxed max-w-xl animate-fade-in-up stagger-2">
+                不再面对晦涩冰冷的医学术语盲目焦虑。AI 自动结构化提取 TNM 分期、STAS 与分子靶点，无缝匹配 JTO、Lancet、JCO 顶级期刊真实患者队列与生存数据。
+              </p>
+
+              {/* CTA Action Buttons */}
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 pt-2 animate-fade-in-up stagger-3">
+                <Link
+                  href="/profile"
+                  id="hero-start-btn"
+                  className="btn-primary px-7 py-3.5 rounded-2xl text-base font-bold shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  <span>立即建立专属档案</span>
+                </Link>
+                <Link
+                  href="/studies"
+                  id="hero-learn-btn"
+                  className="btn-secondary px-6 py-3.5 rounded-2xl text-base font-semibold border-slate-200 text-slate-700 hover:bg-slate-50 transition-all flex items-center justify-center gap-2"
+                >
+                  <span>📖 浏览国际研究库</span>
+                </Link>
+              </div>
+
+              {/* Quick Trust Highlights */}
+              <div className="pt-6 border-t border-slate-200/60 grid grid-cols-3 gap-4 max-w-lg animate-fade-in-up stagger-4">
+                <div>
+                  <div className="text-xl sm:text-2xl font-extrabold text-slate-900 tabular-nums">500,000+</div>
+                  <div className="text-xs text-slate-500 font-medium mt-0.5">循证病例队列</div>
+                </div>
+                <div>
+                  <div className="text-xl sm:text-2xl font-extrabold text-sky-600 tabular-nums">3,000+</div>
+                  <div className="text-xs text-slate-500 font-medium mt-0.5">同行评审文献</div>
+                </div>
+                <div>
+                  <div className="text-xl sm:text-2xl font-extrabold text-teal-600 tabular-nums">100%</div>
+                  <div className="text-xs text-slate-500 font-medium mt-0.5">DOI 全溯源</div>
+                </div>
+              </div>
+
+            </div>
+
+            {/* Right Column: High-Impact Telemedicine Clinical Mockup */}
+            <div className="lg:col-span-5 relative animate-fade-in-up stagger-2">
+              <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-slate-200/90 bg-white group">
+                
+                {/* Hero Consultation Image */}
+                <div className="relative aspect-[4/3] w-full overflow-hidden bg-slate-100">
+                  <img
+                    src="/hero-consultation.jpg"
+                    alt="OncoPath 肿瘤循证推演平台"
+                    className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-700"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent pointer-events-none" />
+                </div>
+
+                {/* Floating Top-Right Patient Badge */}
+                <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-md px-3.5 py-2 rounded-2xl border border-slate-200/80 shadow-lg flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <div className="text-[11px] font-bold text-slate-800">
+                    IA1 期 · STAS 阴性 · 低风险
+                  </div>
+                </div>
+
+                {/* Floating Bottom-Left Doctor Consultation Card */}
+                <div className="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur-md p-3.5 rounded-2xl border border-slate-200/80 shadow-lg flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <img
+                      src="/doctor-avatar.jpg"
+                      alt="林美 教授"
+                      className="w-11 h-11 rounded-full object-cover border-2 border-white shadow-sm shrink-0"
+                    />
+                    <div>
+                      <div className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                        <span>林美 教授</span>
+                        <span className="text-[10px] text-slate-500 font-normal">主任医师 / 肿瘤病理专家</span>
+                      </div>
+                      <div className="text-[11px] text-slate-500 mt-0.5">
+                        正在基于 JCOG0804 队列进行循证推演
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="shrink-0">
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      Live 推演中
+                    </span>
+                  </div>
+                </div>
+
+              </div>
+
+              {/* Secondary Floating Mini Metric Card */}
+              <div className="hidden sm:flex absolute -bottom-6 -left-6 bg-white p-3.5 rounded-2xl border border-slate-200 shadow-xl items-center gap-3 z-20">
+                <div className="w-10 h-10 rounded-xl bg-blue-50 text-accent-blue flex items-center justify-center text-xl shrink-0">
+                  📊
+                </div>
+                <div>
+                  <div className="text-[10px] font-bold text-slate-400 uppercase">JCOG0804 5年无复发率</div>
+                  <div className="text-sm font-extrabold text-slate-900 tabular-nums">99.7% (RFS) · 亚肺叶切除获益</div>
+                </div>
+              </div>
+
+            </div>
+
           </div>
-
-          {/* Main headline */}
-          <h1 className="display-xl mb-6 animate-fade-in-up stagger-1" style={{ opacity: 0 }}>
-            理解你的{" "}
-            <span className="text-gray-900 font-bold">病理报告</span>
-            <br />
-            通过已发表的国际研究
-          </h1>
-
-          <p className="text-xl text-text-secondary mb-4 max-w-2xl mx-auto animate-fade-in-up stagger-2" style={{ opacity: 0 }}>
-            不是 AI 算命。而是把患者放到已经发表的研究里面。
-          </p>
-
-          <p className="text-base text-text-muted mb-12 max-w-xl mx-auto animate-fade-in-up stagger-3" style={{ opacity: 0 }}>
-            输入你的病理资料，看看国际研究如何评价你的情况。
-            每一句解释，都能点进去看论文。
-          </p>
-
-          {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16 animate-fade-in-up stagger-4" style={{ opacity: 0 }}>
-            <Link
-              href="/profile"
-              id="hero-start-btn"
-              className="btn-primary px-8 py-4 rounded-xl text-base font-semibold cursor-pointer flex items-center gap-2 animate-pulse-glow"
-            >
-              <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-              建立专属癌症档案
-            </Link>
-            <a
-              href="#features"
-              id="hero-learn-btn"
-              className="btn-secondary px-8 py-4 rounded-xl text-base font-semibold flex items-center gap-2"
-            >
-              了解更多
-              <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path d="M19 9l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </a>
-          </div>
-
-          {/* Evidence preview card */}
-          <EvidencePreviewCard />
-        </div>
-
-        {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-          <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24" className="text-text-muted">
-            <path d="M19 9l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
         </div>
       </section>
 
