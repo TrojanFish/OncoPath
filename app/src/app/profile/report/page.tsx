@@ -409,39 +409,87 @@ export default function EvidenceReportPage() {
               </div>
             )}
             
-            {/* Custom Enhanced ReactMarkdown Rendering */}
+            {/* Custom Enhanced Medical ReactMarkdown Rendering Engine */}
             <div className="prose prose-slate max-w-none 
               prose-headings:font-bold prose-headings:text-slate-900
-              prose-h2:text-lg md:prose-h2:text-xl prose-h2:pb-2.5 prose-h2:border-b prose-h2:border-slate-100 prose-h2:mt-8 prose-h2:mb-4
-              prose-h3:text-base md:prose-h3:text-lg prose-h3:text-slate-800 prose-h3:mt-6 prose-h3:mb-2
               prose-p:text-slate-700 prose-p:leading-relaxed prose-p:text-sm md:prose-p:text-[15px]
-              prose-li:text-slate-700 prose-li:text-sm md:prose-li:text-[15px] prose-li:leading-relaxed
-              prose-strong:text-slate-900 prose-strong:font-semibold
-              prose-blockquote:bg-blue-50/50 prose-blockquote:border-l-4 prose-blockquote:border-accent-blue prose-blockquote:rounded-r-xl prose-blockquote:p-4 prose-blockquote:text-slate-800 prose-blockquote:not-italic prose-blockquote:my-4
+              prose-strong:text-slate-900 prose-strong:font-bold
               print:prose-p:text-black print:prose-headings:text-black print:text-sm"
             >
               <ReactMarkdown 
                 remarkPlugins={[remarkGfm]}
                 components={{
                   h2: ({ node, ...props }) => (
-                    <h2 className="flex items-center gap-2 text-slate-900 border-b border-slate-100 pb-2.5 mt-8 mb-4 font-bold text-lg md:text-xl" {...props} />
+                    <div className="mt-8 mb-4 pt-3 border-t border-slate-100 first:border-none first:pt-0">
+                      <h2 className="flex items-center gap-2 text-slate-900 font-extrabold text-lg md:text-xl tracking-tight bg-slate-50/80 p-3 rounded-xl border border-slate-200/80" {...props} />
+                    </div>
                   ),
-                  blockquote: ({ node, ...props }) => (
-                    <blockquote className="bg-slate-50 border-l-4 border-accent-blue rounded-r-xl p-4 my-4 text-slate-800 not-italic shadow-sm text-sm" {...props} />
+                  h3: ({ node, ...props }) => (
+                    <h3 className="text-base md:text-lg font-bold text-slate-800 mt-6 mb-2 flex items-center gap-1.5" {...props} />
                   ),
+                  blockquote: ({ node, children, ...props }) => {
+                    const contentStr = String(children || "");
+                    const isSummary = contentStr.includes("核心研判") || contentStr.includes("🌟");
+                    const isDisclaimer = contentStr.includes("免责声明") || contentStr.includes("🛡️");
+
+                    if (isSummary) {
+                      return (
+                        <div className="my-6 p-5 md:p-6 rounded-2xl bg-gradient-to-br from-emerald-50 via-teal-50/80 to-sky-50 border-2 border-teal-300 shadow-sm text-slate-900">
+                          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-teal-800 mb-2">
+                            <span className="text-base">🌟</span>
+                            <span>专家组核心研判 · 一句话全景省流</span>
+                          </div>
+                          <div className="text-sm md:text-[15px] font-medium leading-relaxed text-slate-800">
+                            {children}
+                          </div>
+                        </div>
+                      );
+                    }
+
+                    if (isDisclaimer) {
+                      return (
+                        <div className="my-6 p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 leading-relaxed">
+                          {children}
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <blockquote className="bg-blue-50/70 border-l-4 border-blue-500 rounded-r-xl p-4 my-4 text-slate-800 not-italic shadow-xs text-sm" {...props}>
+                        {children}
+                      </blockquote>
+                    );
+                  },
                   ul: ({ node, ...props }) => (
-                    <ul className="space-y-1.5 my-3 pl-5 list-disc" {...props} />
+                    <ul className="space-y-2 my-3 pl-2 list-none" {...props} />
                   ),
+                  li: ({ node, children, ...props }) => {
+                    return (
+                      <li className="flex items-start gap-2.5 text-sm md:text-[15px] text-slate-700 leading-relaxed my-1.5" {...props}>
+                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-2 flex-shrink-0" />
+                        <div className="flex-1">{children}</div>
+                      </li>
+                    );
+                  },
                   table: ({ node, ...props }) => (
-                    <div className="overflow-x-auto my-4 rounded-xl border border-slate-200">
+                    <div className="overflow-x-auto my-5 rounded-2xl border border-slate-200 shadow-xs">
                       <table className="min-w-full divide-y divide-slate-200 text-sm" {...props} />
                     </div>
                   ),
+                  thead: ({ node, ...props }) => (
+                    <thead className="bg-slate-100/80" {...props} />
+                  ),
                   th: ({ node, ...props }) => (
-                    <th className="bg-slate-50 px-4 py-2.5 text-left font-semibold text-slate-700" {...props} />
+                    <th className="px-4 py-3 text-left font-bold text-slate-700 text-xs uppercase tracking-wider" {...props} />
                   ),
                   td: ({ node, ...props }) => (
-                    <td className="px-4 py-2.5 border-t border-slate-100 text-slate-600" {...props} />
+                    <td className="px-4 py-3 border-t border-slate-100 text-slate-700" {...props} />
+                  ),
+                  hr: ({ node, ...props }) => (
+                    <hr className="my-6 border-slate-200" {...props} />
+                  ),
+                  strong: ({ node, ...props }) => (
+                    <strong className="font-bold text-slate-900 bg-amber-50/90 text-amber-950 px-1 py-0.5 rounded" {...props} />
                   )
                 }}
               >
