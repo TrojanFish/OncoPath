@@ -53,10 +53,10 @@ export default function SubpageNavbar() {
         <div className="flex items-center gap-4">
           <UserAvatar />
           <Link
-            href="/"
+            href="/profile"
             className="btn-primary px-5 py-2 rounded-xl text-sm font-medium transition-all"
           >
-            开始分析
+            建立档案 / 分析
           </Link>
         </div>
       </div>
