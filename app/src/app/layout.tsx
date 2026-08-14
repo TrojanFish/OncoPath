@@ -69,6 +69,8 @@ export default function RootLayout({
   return (
     <html lang="zh-CN" className={`${inter.variable} ${notoSansSC.variable}`}>
       <head>
+        <link rel="icon" href="/logo.png" type="image/png" sizes="any" />
+        <link rel="apple-touch-icon" href="/logo.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="mobile-web-app-capable" content="yes" />
       </head>
