@@ -119,6 +119,7 @@ export default function HomePage() {
             <NavLink href="#studies">研究</NavLink>
             <NavLink href="#knowledge">知识图谱</NavLink>
             <NavLink href="/resources">学术导航</NavLink>
+            <NavLink href="/admin">证据中台</NavLink>
           </div>
           <div className="flex items-center gap-4">
             <UserAvatar />

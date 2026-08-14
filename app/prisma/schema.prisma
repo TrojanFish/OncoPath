@@ -155,3 +155,28 @@ model ClinicalCohort {
   matchCriteria    String   
   createdAt        DateTime @default(now())
 }
+
+model IngestedStudy {
+  id               String   @id @default(uuid())
+  title            String
+  journal          String?
+  year             Int?
+  authors          String?
+  studyType        String?  // "rct" | "meta_analysis" | "prospective_multicenter" | "retrospective"
+  evidenceLevel    Int?     @default(4)
+  patientN         Int?
+  doi              String?
+  pubmedId         String?
+  applicableStages String?  // JSON string e.g. ["IA", "IB", "IIIA"]
+  relevantFactors  String?  // JSON string e.g. ["STAS", "EGFR"]
+  summary          String?
+  conclusion       String?
+  keywords         String?
+  hr               Float?
+  ciLow            Float?
+  ciHigh           Float?
+  rfs5Year         String?
+  pdfFileName      String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
