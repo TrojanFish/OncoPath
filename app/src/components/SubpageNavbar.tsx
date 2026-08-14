@@ -22,7 +22,6 @@ const NAV_LINKS = [
   { label: "知识图谱", href: "/knowledge" },
   { label: "国际研究库", href: "/studies" },
   { label: "学术导航", href: "/resources" },
-  { label: "后台证据中台", href: "/admin" },
 ];
 
 export default function SubpageNavbar() {

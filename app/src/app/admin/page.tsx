@@ -50,10 +50,19 @@ interface OnlineSearchResult {
 }
 
 export default function AdminPage() {
+  // Authentication states
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [loginError, setLoginError] = useState("");
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+
+  // Studio tabs and data states
   const [activeTab, setActiveTab] = useState<"pdf" | "pubmed">("pdf");
   const [studies, setStudies] = useState<IngestedStudy[]>([]);
   const [metrics, setMetrics] = useState<EvidenceMetrics>({ totalStudies: 0, totalPatients: 0, rctMetaCount: 0 });
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   
   // PDF Upload & Parsing States
@@ -76,19 +85,107 @@ export default function AdminPage() {
   
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const getAdminToken = () => {
+    if (typeof window !== "undefined") {
+      return sessionStorage.getItem("oncopath_admin_token");
+    }
+    return null;
+  };
+
+  const getAuthHeaders = () => {
+    const token = getAdminToken();
+    return {
+      "Content-Type": "application/json",
+      ...(token ? { "Authorization": `Bearer ${token}` } : {})
+    };
+  };
+
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(""), 3500);
   };
 
+  // Check auth on mount
+  useEffect(() => {
+    const token = getAdminToken();
+    if (token) {
+      // Verify token
+      fetch('/api/admin/login', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      }).then(res => {
+        if (res.ok) {
+          setIsAuthenticated(true);
+        } else {
+          sessionStorage.removeItem("oncopath_admin_token");
+          setIsAuthenticated(false);
+        }
+      }).catch(() => {
+        setIsAuthenticated(false);
+      }).finally(() => {
+        setCheckingAuth(false);
+      });
+    } else {
+      setCheckingAuth(false);
+    }
+  }, []);
+
+  // Handle Login Submission
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!username.trim() || !password.trim()) {
+      setLoginError("请输入管理员账号与密码");
+      return;
+    }
+
+    setIsLoggingIn(true);
+    setLoginError("");
+
+    try {
+      const res = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: username.trim(),
+          password: password.trim()
+        })
+      });
+
+      const data = await res.json();
+      if (data.success && data.token) {
+        sessionStorage.setItem("oncopath_admin_token", data.token);
+        setIsAuthenticated(true);
+        showToast("🎉 管理员身份验证成功，欢迎进入证据中台！");
+      } else {
+        setLoginError(data.error || "登录失败，请检查账号密码。");
+      }
+    } catch (err: any) {
+      setLoginError("网络异常: " + err.message);
+    } finally {
+      setIsLoggingIn(false);
+    }
+  };
+
+  // Handle Logout
+  const handleLogout = () => {
+    sessionStorage.removeItem("oncopath_admin_token");
+    setIsAuthenticated(false);
+    showToast("已安全退出管理员账号");
+  };
+
   // Load existing studies from DB
   const loadStudies = async () => {
+    if (!isAuthenticated) return;
+    setLoading(true);
     try {
-      const res = await fetch(`/api/admin/evidence?q=${encodeURIComponent(searchQuery)}`);
+      const res = await fetch(`/api/admin/evidence?q=${encodeURIComponent(searchQuery)}`, {
+        headers: getAuthHeaders()
+      });
       const data = await res.json();
       if (data.success) {
         setStudies(data.studies);
         setMetrics(data.metrics);
+      } else if (res.status === 401) {
+        handleLogout();
       }
     } catch (err) {
       console.error("Failed to load studies", err);
@@ -98,8 +195,10 @@ export default function AdminPage() {
   };
 
   useEffect(() => {
-    loadStudies();
-  }, [searchQuery]);
+    if (isAuthenticated) {
+      loadStudies();
+    }
+  }, [isAuthenticated, searchQuery]);
 
   // Handle PDF File selection
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -133,7 +232,7 @@ export default function AdminPage() {
 
           const res = await fetch('/api/admin/parse-pdf', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: getAuthHeaders(),
             body: JSON.stringify({
               pdfBase64: base64Data,
               fileName: pdfFile.name
@@ -173,7 +272,7 @@ export default function AdminPage() {
     try {
       const res = await fetch('/api/admin/fetch-pubmed', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         body: JSON.stringify({
           action: 'search',
           query: onlineQuery.trim()
@@ -205,7 +304,7 @@ export default function AdminPage() {
     try {
       const res = await fetch('/api/admin/fetch-pubmed', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         body: JSON.stringify({
           action: 'extract',
           article: article
@@ -233,7 +332,7 @@ export default function AdminPage() {
     try {
       const res = await fetch('/api/admin/evidence', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         body: JSON.stringify(extractedData)
       });
       const data = await res.json();
@@ -258,7 +357,8 @@ export default function AdminPage() {
     if (!confirm(`确定要从数据库中删除文献《${title}》吗？`)) return;
     try {
       const res = await fetch(`/api/admin/evidence?id=${id}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: getAuthHeaders()
       });
       const data = await res.json();
       if (data.success) {
@@ -270,6 +370,105 @@ export default function AdminPage() {
     }
   };
 
+  // Loading Screen while verifying session
+  if (checkingAuth) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="flex items-center gap-3 text-slate-500 text-sm">
+          <svg className="animate-spin h-5 w-5 text-accent-blue" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+          </svg>
+          <span>正在校验管理员安全凭证...</span>
+        </div>
+      </div>
+    );
+  }
+
+  // Admin Login Screen (If not authenticated)
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-slate-900 flex flex-col justify-between text-slate-100">
+        <SubpageNavbar />
+
+        <div className="flex-1 flex items-center justify-center px-4 py-12">
+          <div className="max-w-md w-full bg-slate-800/90 border border-slate-700/80 rounded-3xl p-8 shadow-2xl backdrop-blur-xl animate-fade-in">
+            {/* Header */}
+            <div className="text-center mb-8">
+              <div className="w-16 h-16 rounded-2xl bg-blue-500/10 border border-blue-500/20 text-accent-blue flex items-center justify-center text-3xl mx-auto mb-4">
+                🛡️
+              </div>
+              <h1 className="text-xl font-bold text-white tracking-tight">OncoPath 证据中台</h1>
+              <p className="text-xs text-slate-400 mt-1">管理员安全访问受控系统 · Medical Evidence CMS</p>
+            </div>
+
+            {/* Login Form */}
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1.5">管理员账号 (Username)</label>
+                <input
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="admin"
+                  className="w-full px-4 py-3 bg-slate-900/80 border border-slate-700 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-accent-blue focus:ring-1 focus:ring-accent-blue transition-colors"
+                  autoFocus
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1.5">访问密码 (Password)</label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full px-4 py-3 bg-slate-900/80 border border-slate-700 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-accent-blue focus:ring-1 focus:ring-accent-blue transition-colors"
+                />
+              </div>
+
+              {loginError && (
+                <div className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-xs text-rose-300 flex items-center gap-2">
+                  <span>⚠️</span>
+                  <span>{loginError}</span>
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={isLoggingIn}
+                className="w-full py-3 bg-gradient-to-r from-blue-600 to-teal-600 hover:from-blue-500 hover:to-teal-500 text-white font-semibold text-sm rounded-xl shadow-lg transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-2"
+              >
+                {isLoggingIn ? (
+                  <>
+                    <svg className="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                    <span>正在验证...</span>
+                  </>
+                ) : (
+                  <span>安全登录进入证据中台 ➔</span>
+                )}
+              </button>
+            </form>
+
+            <div className="mt-6 pt-6 border-t border-slate-700/60 text-center">
+              <Link href="/" className="text-xs text-slate-400 hover:text-white transition-colors">
+                ← 返回 OncoPath 患者主页
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        <div className="text-center pb-6 text-xs text-slate-500">
+          © 2026 OncoPath · 严格受控医学数据治理平台
+        </div>
+      </div>
+    );
+  }
+
+  // Authenticated Admin Dashboard View
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 pb-24">
       <SubpageNavbar />
@@ -288,7 +487,7 @@ export default function AdminPage() {
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold text-accent-blue bg-blue-50 border border-blue-200 mb-2">
               <span>🛠️ OncoPath 证据中台</span>
               <span className="w-1.5 h-1.5 rounded-full bg-accent-blue animate-pulse"></span>
-              <span>Admin Evidence Studio</span>
+              <span>Admin Evidence Studio (已鉴权)</span>
             </div>
             <h1 className="text-2xl md:text-3xl font-bold text-slate-900">
               医学文献管理与智能录入工作台
@@ -303,14 +502,14 @@ export default function AdminPage() {
               href="/studies"
               className="px-4 py-2 text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl transition-all shadow-xs"
             >
-              📖 前台证据库预览
+              📖 前台证据库
             </Link>
-            <Link
-              href="/knowledge"
-              className="px-4 py-2 text-xs font-semibold text-teal-700 bg-teal-50 hover:bg-teal-100 border border-teal-200 rounded-xl transition-all shadow-xs"
+            <button
+              onClick={handleLogout}
+              className="px-4 py-2 text-xs font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-xl transition-all shadow-xs cursor-pointer"
             >
-              🗺️ 4D 知识图谱联动
-            </Link>
+              🔒 退出登录
+            </button>
           </div>
         </div>
 
@@ -748,7 +947,7 @@ export default function AdminPage() {
                 </div>
               </div>
 
-              {/* 3 Advanced Frontier Oncology Fields (新增三项前沿进阶字段) */}
+              {/* 3 Advanced Frontier Oncology Fields */}
               <div className="bg-gradient-to-r from-blue-50/70 via-teal-50/70 to-emerald-50/70 p-5 rounded-2xl border border-blue-200/80 space-y-4">
                 <div className="flex items-center gap-2">
                   <span className="text-base">🧬</span>
@@ -963,7 +1162,7 @@ export default function AdminPage() {
                           )}
                           <button
                             onClick={() => handleDelete(s.id, s.title)}
-                            className="text-xs text-rose-500 hover:text-rose-700 px-2 py-1 hover:bg-rose-50 rounded transition-colors"
+                            className="text-xs text-rose-500 hover:text-rose-700 px-2 py-1 hover:bg-rose-50 rounded transition-colors cursor-pointer"
                           >
                             删除
                           </button>

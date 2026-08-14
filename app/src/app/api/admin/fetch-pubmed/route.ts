@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { ai } from '@/lib/gemini';
+import { verifyAdminRequest } from '@/lib/adminAuth';
 
 const CLINICAL_EXTRACTION_PROMPT = `
 你是一位资深的肿瘤学医学信息学专家与生物统计学家。你的任务是从提供的医学学术论文摘要或详情（来自 PubMed / Europe PMC）中，精确提取结构化的临床证据指标，并严格输出为 JSON 格式。
@@ -32,6 +33,10 @@ const CLINICAL_EXTRACTION_PROMPT = `
 
 export async function POST(request: Request) {
   try {
+    if (!verifyAdminRequest(request)) {
+      return NextResponse.json({ success: false, error: "未授权的访问：请先登录管理员账户" }, { status: 401 });
+    }
+
     const body = await request.json();
     const { action = "search", query, pmid, doi, article } = body;
 

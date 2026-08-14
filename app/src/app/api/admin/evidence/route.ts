@@ -1,8 +1,13 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { verifyAdminRequest } from '@/lib/adminAuth';
 
 export async function GET(request: Request) {
   try {
+    if (!verifyAdminRequest(request)) {
+      return NextResponse.json({ success: false, error: "未授权的访问：请先登录管理员账户" }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
     const q = searchParams.get('q')?.toLowerCase() || '';
 
@@ -45,6 +50,10 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
+    if (!verifyAdminRequest(request)) {
+      return NextResponse.json({ success: false, error: "未授权的访问：请先登录管理员账户" }, { status: 401 });
+    }
+
     const body = await request.json();
 
     const {
@@ -134,6 +143,10 @@ export async function POST(request: Request) {
 
 export async function DELETE(request: Request) {
   try {
+    if (!verifyAdminRequest(request)) {
+      return NextResponse.json({ success: false, error: "未授权的访问：请先登录管理员账户" }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
 

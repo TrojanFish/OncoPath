@@ -119,7 +119,6 @@ export default function HomePage() {
             <NavLink href="#studies">研究</NavLink>
             <NavLink href="#knowledge">知识图谱</NavLink>
             <NavLink href="/resources">学术导航</NavLink>
-            <NavLink href="/admin">证据中台</NavLink>
           </div>
           <div className="flex items-center gap-4">
             <UserAvatar />
@@ -499,7 +498,13 @@ export default function HomePage() {
           </div>
           <div className="evidence-divider mb-6" />
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-text-muted text-xs">
-            <p>© 2026 OncoPath. All rights reserved.</p>
+            <div className="flex items-center gap-3">
+              <p>© 2026 OncoPath. All rights reserved.</p>
+              <span>·</span>
+              <a href="/admin" className="hover:text-text-secondary transition-colors text-[11px] opacity-70">
+                🔒 管理员通道
+              </a>
+            </div>
             <p className="text-center max-w-lg">
               ⚠️ 重要声明：本平台提供的信息仅供教育参考，不构成医疗诊断或治疗建议。所有医疗决策请咨询您的主治医生。
             </p>
