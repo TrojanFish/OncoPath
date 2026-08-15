@@ -231,14 +231,11 @@ export default function EvidenceReportPage() {
           <div className="flex items-center gap-3">
             <Link 
               href="/profile" 
-              className="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-slate-600 hover:text-accent-blue transition-colors px-2.5 py-1.5 rounded-xl hover:bg-slate-100"
+              className="text-xs sm:text-sm font-semibold text-slate-600 hover:text-accent-blue transition-colors px-2.5 py-1.5 rounded-xl hover:bg-slate-100"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
               返回档案
             </Link>
-            <div className="w-px h-4 bg-slate-300"></div>
+            <div className="w-px h-4 bg-slate-200"></div>
             <span className="font-bold text-slate-900 text-xs sm:text-sm flex items-center gap-2">
               <span className={`w-2 h-2 rounded-full ${isGenerating ? 'bg-amber-500 animate-ping' : 'bg-accent-teal animate-pulse'}`} />
               专属深度循证解读报告
@@ -248,35 +245,47 @@ export default function EvidenceReportPage() {
           <div className="flex items-center gap-2">
             <Link
               href="/knowledge"
-              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-teal-700 bg-teal-50 hover:bg-teal-100 border border-teal-200 transition-all shadow-xs"
+              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-teal-700 bg-teal-50 hover:bg-teal-100 border border-teal-200 transition-all shadow-2xs"
             >
-              🗺️ 4D图谱
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+                <circle cx="6" cy="6" r="2.5" />
+                <circle cx="18" cy="18" r="2.5" />
+                <circle cx="18" cy="6" r="2.5" />
+                <path d="M8.5 7h7M18 8.5v7M8.5 7.5l7 7" strokeLinecap="round" />
+              </svg>
+              <span>4D图谱</span>
             </Link>
 
             {!isGenerating && (
               <>
                 <button
                   onClick={() => setShowRegenConfirm(true)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-300 transition-all cursor-pointer shadow-xs"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-300 transition-all cursor-pointer shadow-2xs"
                   title="当修改了分期或基因突变时重新生成"
                 >
-                  🔄 重新推演
+                  <svg className="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  <span>重新推演</span>
                 </button>
                 <button
                   onClick={handleCopyChecklist}
-                  className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-accent-blue bg-blue-50 hover:bg-blue-100 border border-blue-200 transition-all cursor-pointer shadow-xs"
+                  className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 transition-all cursor-pointer shadow-2xs"
                   title="一键提取问诊清单"
                 >
-                  📋 复制问诊单
+                  <svg className="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                  </svg>
+                  <span>复制问诊单</span>
                 </button>
                 <button 
                   onClick={handlePrint}
-                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-sky-600 hover:bg-sky-700 text-white transition-all shadow-xs cursor-pointer"
+                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white transition-all shadow-xs cursor-pointer"
                 >
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                   </svg>
-                  打印 / PDF
+                  <span>导出 / 打印PDF</span>
                 </button>
               </>
             )}
@@ -290,8 +299,10 @@ export default function EvidenceReportPage() {
         {isLoadedFromCache && !isGenerating && (
           <div className="mb-5 p-4 rounded-2xl bg-gradient-to-r from-sky-50 via-blue-50 to-teal-50 border border-sky-200/90 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 print:hidden">
             <div className="flex items-start sm:items-center gap-3">
-              <div className="w-8 h-8 rounded-xl bg-white text-sky-600 flex items-center justify-center text-base shadow-xs flex-shrink-0 border border-sky-100">
-                📋
+              <div className="w-8 h-8 rounded-xl bg-white text-sky-600 flex items-center justify-center shadow-xs flex-shrink-0 border border-sky-100">
+                <svg className="w-4 h-4 text-sky-600" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                </svg>
               </div>
               <div>
                 <div className="text-xs font-bold text-slate-800 flex items-center gap-2">
@@ -312,7 +323,9 @@ export default function EvidenceReportPage() {
               onClick={() => setShowRegenConfirm(true)}
               className="self-end sm:self-center flex-shrink-0 px-3.5 py-1.5 rounded-xl bg-white hover:bg-sky-50 text-sky-700 font-bold text-xs border border-sky-300 shadow-xs hover:shadow transition-all cursor-pointer flex items-center gap-1.5"
             >
-              <span>🔄</span>
+              <svg className="w-3.5 h-3.5 text-sky-600" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
               <span>重新推演生成</span>
             </button>
           </div>

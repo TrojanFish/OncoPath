@@ -106,7 +106,9 @@ export default function PatientDashboard() {
           onClick={() => setShowUploader(true)}
           className="self-start sm:self-center px-4 py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs border border-slate-300 shadow-xs transition-all cursor-pointer flex items-center gap-1.5"
         >
-          <span>✏️</span>
+          <svg className="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
+          </svg>
           <span>修改/更新档案</span>
         </button>
       </div>
