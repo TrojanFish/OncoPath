@@ -321,25 +321,29 @@ export default function EvidenceReportPage() {
         {/* Patient Clinical Overview Hero Card */}
         {profile && (
           <div className="bg-white rounded-2xl p-5 md:p-6 border border-slate-200 shadow-sm mb-6 print:border-none print:shadow-none print:mb-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
-                <div className="text-[11px] font-bold tracking-wider text-slate-400 uppercase mb-1 flex items-center gap-2">
-                  <span>PATIENT CLINICAL PROFILE · 临床数字档案</span>
-                  {profile.noduleType && (
-                    <span className="text-[10px] text-teal-700 bg-teal-50 px-2 py-0.5 rounded-full border border-teal-200 normal-case">
-                      {profile.noduleType === 'pure_ggo' ? '纯磨玻璃 (pGGO)' : profile.noduleType === 'pure_solid' ? '纯实性 (Solid)' : '混合磨玻璃 (mGGO)'}
-                    </span>
-                  )}
+                <div className="flex items-center gap-2 mb-1">
+                  <h2 className="text-lg sm:text-xl font-black text-slate-900">
+                    {profile.currentStage === 'evaluation' || profile.currentStage === 'discovery' || profile.reportType === 'ct_imaging'
+                      ? (profile.stage ? `c${profile.stage} 期肺结节 (CT 影像初估)` : '早期肺结节 (待病理确诊)')
+                      : (profile.stage ? `${profile.stage} 期原发性肺腺癌` : '早期原发性肺腺癌')
+                    }
+                  </h2>
+                  <span className="px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 text-xs font-black">
+                    {profile.tStage || "T1a"}{profile.nStage || "N0"}{profile.mStage || "M0"}
+                  </span>
                 </div>
-                <div className="flex items-center gap-3">
-                  <h1 className="text-xl md:text-2xl font-bold text-slate-900">
-                    {profile.age}岁 · {profile.gender === 'male' || profile.sex === 'male' ? '男性' : '女性'}
-                  </h1>
-                  <span className="px-2.5 py-0.5 rounded-md bg-blue-50 text-accent-blue border border-blue-200 font-bold text-xs md:text-sm">
-                    {profile.tStage || "T1a"}{profile.nStage || "N0"}{profile.mStage || "M0"} · {profile.stage || "IA1"}期
+
+                <div className="flex flex-wrap items-center gap-2 text-xs text-slate-600">
+                  <span className="px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700 text-xs font-medium">
+                    {profile.age || 55} 岁 · {profile.sex === 'female' ? '女性' : '男性'}
                   </span>
                   <span className="px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700 text-xs font-medium">
-                    {profile.surgeryType === 'lobectomy' ? '标准肺叶切除' : profile.surgeryType === 'segmentectomy' ? '解剖性肺段切除' : profile.surgeryType || '手术切除'}
+                    {profile.currentStage === 'evaluation' || profile.currentStage === 'discovery' || profile.reportType === 'ct_imaging'
+                      ? `结节部位: ${profile.noduleLocation || '肺部结节'} (尚未手术)`
+                      : (profile.surgeryType === 'lobectomy' ? '标准肺叶切除' : profile.surgeryType === 'segmentectomy' ? '解剖性肺段切除' : profile.surgeryType || '手术切除')
+                    }
                   </span>
                 </div>
                 {profile.solidSize != null && (
@@ -350,46 +354,84 @@ export default function EvidenceReportPage() {
               </div>
 
               <div className="flex items-center gap-2">
-                <span className="text-xs text-slate-500 font-medium hidden md:inline">风险评级:</span>
+                <span className="text-xs text-slate-500 font-medium hidden md:inline">
+                  {profile.currentStage === 'evaluation' || profile.currentStage === 'discovery' || profile.reportType === 'ct_imaging' ? '恶性风险:' : '风险评级:'}
+                </span>
                 <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                  profile.nStage === 'N2' || profile.stas === 'positive' || (profile.stas as any) === true
-                    ? 'bg-amber-50 text-amber-800 border border-amber-200' 
-                    : 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                  profile.currentStage === 'evaluation' || profile.currentStage === 'discovery' || profile.reportType === 'ct_imaging'
+                    ? (profile.riskLevel === 'high' ? 'bg-amber-50 text-amber-800 border border-amber-200' : 'bg-emerald-50 text-emerald-800 border border-emerald-200')
+                    : (profile.nStage === 'N2' || profile.stas === 'positive' || (profile.stas as any) === true
+                        ? 'bg-amber-50 text-amber-800 border border-amber-200' 
+                        : 'bg-emerald-50 text-emerald-800 border border-emerald-200')
                 }`}>
-                  {profile.nStage === 'N2' || profile.stas === 'positive' || (profile.stas as any) === true ? '⚡ 需积极辅助治疗' : '🌱 早期低风险随访'}
+                  {profile.currentStage === 'evaluation' || profile.currentStage === 'discovery' || profile.reportType === 'ct_imaging'
+                    ? (profile.riskLevel === 'high' ? '⚡ 需胸外科微创评估' : '🌱 早期随访观察')
+                    : (profile.nStage === 'N2' || profile.stas === 'positive' || (profile.stas as any) === true ? '⚡ 需积极辅助治疗' : '🌱 早期低风险随访')
+                  }
                 </span>
               </div>
             </div>
 
-            {/* 4-Factor Traffic Light Matrix (四维红绿灯风险矩阵) */}
-            <div className="mt-4 pt-1">
-              <div className="text-xs font-semibold text-slate-500 mb-2.5 flex items-center gap-1.5">
-                <span>🚦 关键病理红绿灯矩阵</span>
-                <span className="text-slate-400 font-normal text-[11px]">(决定预后与辅助治疗的核心指标)</span>
+            {/* CT Matrix vs Pathology Matrix */}
+            {profile.currentStage === 'evaluation' || profile.currentStage === 'discovery' || profile.reportType === 'ct_imaging' ? (
+              <div className="mt-4 pt-1">
+                <div className="text-xs font-semibold text-slate-500 mb-2.5 flex items-center gap-1.5">
+                  <span>🩻 关键影像学评估矩阵</span>
+                  <span className="text-slate-400 font-normal text-[11px]">(基于薄层 CT 恶性征象与实性占比)</span>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                  <MatrixBadge 
+                    label="结节形态" 
+                    value={profile.noduleType === 'pure_ggo' ? '纯磨玻璃(pGGO)' : profile.noduleType === 'pure_solid' ? '纯实性结节' : '混合磨玻璃(mGGO)'} 
+                    type={profile.noduleType === 'pure_solid' ? 'warning' : 'safe'}
+                  />
+                  <MatrixBadge 
+                    label="实性占比 (CTR)" 
+                    value={profile.solidSize != null ? `实性 ${profile.solidSize}cm (${Math.round((profile.ctr ?? 0.53)*100)}%)` : '微量实性'} 
+                    type={(profile.solidSize ?? 0) >= 0.5 ? 'warning' : 'safe'}
+                  />
+                  <MatrixBadge 
+                    label="恶性影像征象" 
+                    value={profile.imagingFeatures && profile.imagingFeatures.length > 0 ? profile.imagingFeatures.slice(0, 2).join(' / ') : '边缘光滑'} 
+                    type={profile.imagingFeatures && profile.imagingFeatures.length > 0 ? 'warning' : 'safe'}
+                  />
+                  <MatrixBadge 
+                    label="Lung-RADS 分级" 
+                    value={profile.lungRads ? `${profile.lungRads} 类` : '4A 恶性可疑'} 
+                    type={profile.lungRads === '4B' || profile.lungRads === '4X' ? 'danger' : 'safe'}
+                  />
+                </div>
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                <MatrixBadge 
-                  label="切缘状态" 
-                  value={profile.margin === 'positive' || profile.marginStatus === 'positive' || (profile.margin as any) === true ? '阳性(有残留)' : '阴性(R0安全)'} 
-                  type={profile.margin === 'positive' || profile.marginStatus === 'positive' || (profile.margin as any) === true ? 'danger' : 'safe'}
-                />
-                <MatrixBadge 
-                  label="淋巴结状态" 
-                  value={profile.nStage === 'N0' ? 'N0 (无转移)' : profile.nStage === 'N1' ? 'N1 (肺门累及)' : profile.nStage === 'N2' ? 'N2 (纵隔转移)' : profile.nStage || 'N0 (无转移)'} 
-                  type={profile.nStage === 'N0' || !profile.nStage ? 'safe' : profile.nStage === 'N1' ? 'warning' : 'danger'}
-                />
-                <MatrixBadge 
-                  label="气道播散 (STAS)" 
-                  value={profile.stas === 'positive' || (profile.stas as any) === true ? '阳性 (高危)' : '阴性 (安全)'} 
-                  type={profile.stas === 'positive' || (profile.stas as any) === true ? 'warning' : 'safe'}
-                />
-                <MatrixBadge 
-                  label="脉管癌栓 (LVI)" 
-                  value={profile.lvi === 'positive' || (profile.lvi as any) === true ? '阳性 (高危)' : '阴性 (安全)'} 
-                  type={profile.lvi === 'positive' || (profile.lvi as any) === true ? 'warning' : 'safe'}
-                />
+            ) : (
+              <div className="mt-4 pt-1">
+                <div className="text-xs font-semibold text-slate-500 mb-2.5 flex items-center gap-1.5">
+                  <span>🚦 关键病理红绿灯矩阵</span>
+                  <span className="text-slate-400 font-normal text-[11px]">(决定预后与辅助治疗的核心指标)</span>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                  <MatrixBadge 
+                    label="切缘状态" 
+                    value={profile.margin === 'positive' || profile.marginStatus === 'positive' || (profile.margin as any) === true ? '阳性(有残留)' : '阴性(R0安全)'} 
+                    type={profile.margin === 'positive' || profile.marginStatus === 'positive' || (profile.margin as any) === true ? 'danger' : 'safe'}
+                  />
+                  <MatrixBadge 
+                    label="淋巴结状态" 
+                    value={profile.nStage === 'N0' ? 'N0 (无转移)' : profile.nStage === 'N1' ? 'N1 (肺门累及)' : profile.nStage === 'N2' ? 'N2 (纵隔转移)' : profile.nStage || 'N0 (无转移)'} 
+                    type={profile.nStage === 'N0' || !profile.nStage ? 'safe' : profile.nStage === 'N1' ? 'warning' : 'danger'}
+                  />
+                  <MatrixBadge 
+                    label="气道播散 (STAS)" 
+                    value={profile.stas === 'positive' || (profile.stas as any) === true ? '阳性 (高危)' : '阴性 (安全)'} 
+                    type={profile.stas === 'positive' || (profile.stas as any) === true ? 'warning' : 'safe'}
+                  />
+                  <MatrixBadge 
+                    label="脉管癌栓 (LVI)" 
+                    value={profile.lvi === 'positive' || (profile.lvi as any) === true ? '阳性 (高危)' : '阴性 (安全)'} 
+                    type={profile.lvi === 'positive' || (profile.lvi as any) === true ? 'warning' : 'safe'}
+                  />
+                </div>
               </div>
-            </div>
+            )}
           </div>
         )}
 

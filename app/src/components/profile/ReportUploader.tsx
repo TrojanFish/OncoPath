@@ -296,80 +296,162 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
             </div>
           </div>
 
-          {/* Section 2: Pathological High-Risk Factors (Red / Green) */}
-          <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
-            <div className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3 flex items-center gap-1.5">
-              <span>🔬 关键病理红绿灯因子</span>
+          {/* Section 2: CT Specific Features (If CT) OR Pathology Red/Green Matrix (If Pathology) */}
+          {parsedData.reportType === 'ct_imaging' ? (
+            <div className="p-4 rounded-2xl bg-sky-50/60 border border-sky-200">
+              <div className="text-xs font-bold text-sky-900 uppercase tracking-wider mb-3 flex items-center justify-between">
+                <span>🩻 CT 影像恶性特征与解剖部位 (术前关键指标)</span>
+                <span className="text-[11px] text-sky-700 font-semibold bg-sky-100 px-2 py-0.5 rounded-full border border-sky-200">
+                  尚未手术 · 暂无病理切片
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-600 mb-1">结节所在部位</label>
+                  <input 
+                    type="text" 
+                    value={parsedData.noduleLocation || ""} 
+                    onChange={e => setParsedData({...parsedData, noduleLocation: e.target.value})}
+                    className="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-blue-500 outline-none"
+                    placeholder="如 右肺上叶尖段"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-600 mb-1">Lung-RADS 影像分级</label>
+                  <select 
+                    value={parsedData.lungRads || "4A"} 
+                    onChange={e => setParsedData({...parsedData, lungRads: e.target.value})}
+                    className="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="3">3 类 (良性可能，建议半年复查)</option>
+                    <option value="4A">4A 类 (低度恶性可疑，建议3个月复查/会诊)</option>
+                    <option value="4B">4B 类 (中度恶性可疑，建议胸外科评估)</option>
+                    <option value="4X">4X 类 (伴显著恶性征象，高度怀疑)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-600 mb-1">恶性风险预估</label>
+                  <select 
+                    value={parsedData.malignancyRisk || "moderate"} 
+                    onChange={e => setParsedData({...parsedData, malignancyRisk: e.target.value})}
+                    className="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="low">🟢 低度风险 (以随访观察为主)</option>
+                    <option value="moderate">🟡 中度风险 (动态薄层CT监测)</option>
+                    <option value="high">🔴 高度疑似 (建议胸外科微创会诊)</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Toggleable CT Imaging Signs */}
+              <div className="pt-2">
+                <div className="text-[11px] font-semibold text-slate-600 mb-1.5">伴随影像特征（点击可勾选修改）：</div>
+                <div className="flex flex-wrap gap-2">
+                  {["毛刺征", "分叶征", "胸膜牵拉征", "血管穿行集束征", "空泡征", "磨玻璃晕征", "支气管充气征"].map(feat => {
+                    const currentFeats: string[] = parsedData.imagingFeatures || [];
+                    const isChecked = currentFeats.includes(feat);
+                    return (
+                      <button
+                        key={feat}
+                        type="button"
+                        onClick={() => {
+                          const updated = isChecked
+                            ? currentFeats.filter(f => f !== feat)
+                            : [...currentFeats, feat];
+                          setParsedData({...parsedData, imagingFeatures: updated});
+                        }}
+                        className={`px-3 py-1 rounded-lg text-xs font-medium transition-all cursor-pointer border ${
+                          isChecked 
+                            ? "bg-amber-100/90 text-amber-900 border-amber-300 shadow-2xs font-bold" 
+                            : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"
+                        }`}
+                      >
+                        {isChecked ? `⚠️ ${feat}` : `+ ${feat}`}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1">气道播散 (STAS)</label>
-                <select 
-                  value={parsedData.stas || "negative"} 
-                  onChange={e => setParsedData({...parsedData, stas: e.target.value})}
-                  className={`w-full p-2.5 rounded-xl text-xs sm:text-sm font-bold border ${
-                    parsedData.stas === 'positive' 
-                      ? 'bg-rose-50 text-rose-800 border-rose-300' 
-                      : 'bg-emerald-50 text-emerald-800 border-emerald-300'
-                  }`}
-                >
-                  <option value="negative">🟢 无 / 阴性</option>
-                  <option value="positive">🔴 有 / 阳性 (高危)</option>
-                </select>
+          ) : (
+            /* Standard Pathology Section */
+            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+              <div className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                <span>🔬 关键病理红绿灯因子 (决定辅助治疗与复发风险)</span>
               </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1">脉管癌栓 (LVI)</label>
-                <select 
-                  value={parsedData.lvi || "negative"} 
-                  onChange={e => setParsedData({...parsedData, lvi: e.target.value})}
-                  className={`w-full p-2.5 rounded-xl text-xs sm:text-sm font-bold border ${
-                    parsedData.lvi === 'positive' 
-                      ? 'bg-rose-50 text-rose-800 border-rose-300' 
-                      : 'bg-emerald-50 text-emerald-800 border-emerald-300'
-                  }`}
-                >
-                  <option value="negative">🟢 无 / 阴性</option>
-                  <option value="positive">🔴 有 / 阳性 (高危)</option>
-                </select>
-              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-600 mb-1">气道播散 (STAS)</label>
+                  <select 
+                    value={parsedData.stas || "negative"} 
+                    onChange={e => setParsedData({...parsedData, stas: e.target.value})}
+                    className={`w-full p-2.5 rounded-xl text-xs sm:text-sm font-bold border ${
+                      parsedData.stas === 'positive' 
+                        ? 'bg-rose-50 text-rose-800 border-rose-300' 
+                        : 'bg-emerald-50 text-emerald-800 border-emerald-300'
+                    }`}
+                  >
+                    <option value="negative">🟢 无 / 阴性</option>
+                    <option value="positive">🔴 有 / 阳性 (高危)</option>
+                  </select>
+                </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1">胸膜侵犯 (VPI)</label>
-                <select 
-                  value={parsedData.vpi || "negative"} 
-                  onChange={e => setParsedData({...parsedData, vpi: e.target.value})}
-                  className={`w-full p-2.5 rounded-xl text-xs sm:text-sm font-bold border ${
-                    parsedData.vpi === 'positive' 
-                      ? 'bg-amber-50 text-amber-800 border-amber-300' 
-                      : 'bg-emerald-50 text-emerald-800 border-emerald-300'
-                  }`}
-                >
-                  <option value="negative">🟢 无 / 阴性</option>
-                  <option value="positive">🟡 有 / 阳性 (升至T2a)</option>
-                </select>
-              </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-600 mb-1">脉管癌栓 (LVI)</label>
+                  <select 
+                    value={parsedData.lvi || "negative"} 
+                    onChange={e => setParsedData({...parsedData, lvi: e.target.value})}
+                    className={`w-full p-2.5 rounded-xl text-xs sm:text-sm font-bold border ${
+                      parsedData.lvi === 'positive' 
+                        ? 'bg-rose-50 text-rose-800 border-rose-300' 
+                        : 'bg-emerald-50 text-emerald-800 border-emerald-300'
+                    }`}
+                  >
+                    <option value="negative">🟢 无 / 阴性</option>
+                    <option value="positive">🔴 有 / 阳性 (高危)</option>
+                  </select>
+                </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1">切缘状态</label>
-                <select 
-                  value={parsedData.marginStatus || "negative"} 
-                  onChange={e => setParsedData({...parsedData, marginStatus: e.target.value, margin: e.target.value})}
-                  className={`w-full p-2.5 rounded-xl text-xs sm:text-sm font-bold border ${
-                    parsedData.marginStatus === 'positive' 
-                      ? 'bg-rose-50 text-rose-800 border-rose-300' 
-                      : 'bg-emerald-50 text-emerald-800 border-emerald-300'
-                  }`}
-                >
-                  <option value="negative">🟢 阴性 (R0 根治)</option>
-                  <option value="positive">🔴 阳性 (残留)</option>
-                </select>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-600 mb-1">胸膜侵犯 (VPI)</label>
+                  <select 
+                    value={parsedData.vpi || "negative"} 
+                    onChange={e => setParsedData({...parsedData, vpi: e.target.value})}
+                    className={`w-full p-2.5 rounded-xl text-xs sm:text-sm font-bold border ${
+                      parsedData.vpi === 'positive' 
+                        ? 'bg-amber-50 text-amber-800 border-amber-300' 
+                        : 'bg-emerald-50 text-emerald-800 border-emerald-300'
+                    }`}
+                  >
+                    <option value="negative">🟢 无 / 阴性</option>
+                    <option value="positive">🟡 有 / 阳性 (升至T2a)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-600 mb-1">切缘状态</label>
+                  <select 
+                    value={parsedData.marginStatus || "negative"} 
+                    onChange={e => setParsedData({...parsedData, marginStatus: e.target.value, margin: e.target.value})}
+                    className={`w-full p-2.5 rounded-xl text-xs sm:text-sm font-bold border ${
+                      parsedData.marginStatus === 'positive' 
+                        ? 'bg-rose-50 text-rose-800 border-rose-300' 
+                        : 'bg-emerald-50 text-emerald-800 border-emerald-300'
+                    }`}
+                  >
+                    <option value="negative">🟢 阴性 (R0 根治)</option>
+                    <option value="positive">🔴 阳性 (残留)</option>
+                  </select>
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
-          {/* Section 3: Demographic & Surgery Info */}
+          {/* Section 3: Demographic & Diagnostic Stage Info */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div>
               <label className="block text-xs font-semibold text-slate-600 mb-1">患者年龄</label>
@@ -396,29 +478,40 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-600 mb-1">淋巴结分期 (N)</label>
+              <label className="block text-xs font-semibold text-slate-600 mb-1">
+                {parsedData.reportType === 'ct_imaging' ? '淋巴结初评 (CT)' : '淋巴结分期 (N)'}
+              </label>
               <select 
                 value={parsedData.nStage || "N0"} 
                 onChange={e => setParsedData({...parsedData, nStage: e.target.value})}
                 className="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm font-medium"
               >
-                <option value="N0">N0 (无淋巴结转移)</option>
-                <option value="N1">N1 (肺门淋巴结受累)</option>
+                <option value="N0">N0 (未见明显淋巴结肿大)</option>
+                <option value="N1">N1 (肺门淋巴结肿大/受累)</option>
                 <option value="N2">N2 (纵隔淋巴结转移)</option>
               </select>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-600 mb-1">手术切除方式</label>
-              <select 
-                value={parsedData.surgeryType || "segmentectomy"} 
-                onChange={e => setParsedData({...parsedData, surgeryType: e.target.value})}
-                className="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm font-medium"
-              >
-                <option value="segmentectomy">解剖性肺段切除</option>
-                <option value="lobectomy">标准肺叶切除</option>
-                <option value="wedge">肺楔形切除</option>
-              </select>
+              <label className="block text-xs font-semibold text-slate-600 mb-1">
+                {parsedData.reportType === 'ct_imaging' ? '手术诊疗状态' : '手术切除术式'}
+              </label>
+              {parsedData.reportType === 'ct_imaging' ? (
+                <div className="p-2.5 bg-slate-100 border border-slate-200 rounded-xl text-xs font-semibold text-slate-600">
+                  尚未手术 (待随访/微创评估)
+                </div>
+              ) : (
+                <select 
+                  value={parsedData.surgeryType || "segmentectomy"} 
+                  onChange={e => setParsedData({...parsedData, surgeryType: e.target.value})}
+                  className="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm font-medium"
+                >
+                  <option value="segmentectomy">解剖性肺段切除</option>
+                  <option value="lobectomy">标准肺叶切除</option>
+                  <option value="wedge">肺楔形切除</option>
+                  <option value="unknown">尚未手术 / 不确定</option>
+                </select>
+              )}
             </div>
           </div>
 

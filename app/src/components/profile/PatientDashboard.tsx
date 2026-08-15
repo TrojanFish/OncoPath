@@ -238,27 +238,45 @@ export default function PatientDashboard() {
         <div className="bg-gradient-to-b from-blue-50/80 via-white to-white rounded-3xl p-6 sm:p-7 border border-blue-100 shadow-sm flex flex-col justify-between">
           <div>
             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">
-              DECISION ENGINE · 决策引擎
+              DECISION ENGINE · {profile.currentStage === 'evaluation' || profile.currentStage === 'discovery' ? '术前决策引擎' : '术后决策引擎'}
             </h3>
             
             <div className="flex items-center gap-2 mb-2">
-              <span className={`w-3 h-3 rounded-full ${isStasSafe && isLviSafe && isN0Safe ? 'bg-emerald-500' : 'bg-amber-500'} animate-pulse`} />
+              <span className={`w-3 h-3 rounded-full ${
+                profile.currentStage === 'evaluation' || profile.currentStage === 'discovery'
+                  ? (profile.riskLevel === 'high' ? 'bg-amber-500' : 'bg-emerald-500')
+                  : (isStasSafe && isLviSafe && isN0Safe ? 'bg-emerald-500' : 'bg-amber-500')
+              } animate-pulse`} />
               <span className="font-bold text-slate-900 text-base">
-                {isStasSafe && isLviSafe && isN0Safe ? '🌱 早期低复发风险组' : '⚡ 需积极辅助随访组'}
+                {profile.currentStage === 'evaluation' || profile.currentStage === 'discovery'
+                  ? (profile.riskLevel === 'high' ? '⚡ 建议胸外科微创评估' : '🌱 建议 3~6 个月随访观察')
+                  : (isStasSafe && isLviSafe && isN0Safe ? '🌱 早期低复发风险组' : '⚡ 需积极辅助随访组')
+                }
               </span>
             </div>
 
             <p className="text-xs text-slate-600 leading-relaxed mb-4">
-              {isStasSafe && isLviSafe && isN0Safe 
-                ? '您的关键优势因素（R0切除、N0淋巴结阴性、无 STAS/LVI）显著降低了术后复发概率。' 
-                : '存在局部高危病理因素，建议密切关注局部影像与长程管理计划。'}
+              {profile.currentStage === 'evaluation' || profile.currentStage === 'discovery'
+                ? (profile.riskLevel === 'high' 
+                    ? 'CT 影像提示伴有实性浸润或分叶毛刺征象，建议携带影像 DICOM 光盘至三甲胸外科门诊进行多学科会诊。'
+                    : '目前结节以磨玻璃成分为主，生长极其缓慢，恶性危险度较低，首选遵循国际指南进行动态薄层 CT 随访。')
+                : (isStasSafe && isLviSafe && isN0Safe 
+                    ? '您的关键优势因素（R0切除、N0淋巴结阴性、无 STAS/LVI）显著降低了术后复发概率。' 
+                    : '存在局部高危病理因素，建议密切关注局部影像与长程管理计划。')
+              }
             </p>
             
             <div className="bg-white rounded-2xl p-4 border border-blue-200 shadow-xs relative overflow-hidden">
               <div className="absolute top-0 left-0 w-1.5 h-full bg-accent-blue" />
-              <div className="text-[11px] text-accent-blue font-bold mb-1">下一步建议</div>
+              <div className="text-[11px] text-accent-blue font-bold mb-1">
+                {profile.currentStage === 'evaluation' || profile.currentStage === 'discovery' ? '术前行动建议' : '下一步建议'}
+              </div>
               <div className="text-xs sm:text-sm text-slate-800 font-medium leading-relaxed">
-                {profile.nextAction || '遵医嘱术后 6 个月复查胸部 CT，无需过度化疗。'}
+                {profile.nextAction || profile.clinicalRecommendation || (
+                  profile.currentStage === 'evaluation' || profile.currentStage === 'discovery'
+                    ? '遵医嘱于 3~6 个月后复查胸部薄层 CT（层厚 ≤1mm），对比结节大小与密度。'
+                    : '遵医嘱术后 6 个月规律复查胸部 CT 即可，无需过度化疗。'
+                )}
               </div>
             </div>
           </div>
