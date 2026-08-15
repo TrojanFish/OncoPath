@@ -49,7 +49,7 @@ export function GraphRenderer({
 
   return (
     <svg
-      viewBox="0 0 100 120"
+      viewBox="0 0 100 140"
       preserveAspectRatio="xMidYMid meet"
       className="w-full h-full relative z-10 select-none"
     >
@@ -92,7 +92,7 @@ export function GraphRenderer({
       </pattern>
       <rect 
         width="100" 
-        height="120" 
+        height="140" 
         fill="url(#grid-pattern)" 
         onClick={() => onBackgroundClick?.()}
         onTouchEnd={(e) => { e.stopPropagation(); onBackgroundClick?.(); }}

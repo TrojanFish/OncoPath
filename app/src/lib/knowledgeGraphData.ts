@@ -23,7 +23,7 @@ export interface EdgeEvidence {
 
 export const aiNewNode: KnowledgeNode = {
   id: "ctDNA", label: "ctDNA\nMRD", type: "factor",
-  x: 50, y: 96,
+  x: 15, y: 125,
   connections: ["RECURRENCE", "ADJUVANT"],
   connectionTypes: { RECURRENCE: "risk", ADJUVANT: "guides" },
   studies: 42, evidence: 5,
