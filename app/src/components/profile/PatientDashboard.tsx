@@ -81,6 +81,8 @@ export default function PatientDashboard() {
   const isVpiSafe = profile.vpi === 'negative' || (profile.vpi as any) === false;
   const isMarginSafe = profile.margin === 'negative' || profile.marginStatus === 'negative' || (profile.margin as any) === false;
   const isN0Safe = profile.nStage === 'N0' || !profile.nStage || profile.nStage === 'N?';
+  const isFemale = (profile.gender as string) === 'female' || (profile.sex as string) === 'female' || (profile.gender as string) === '女' || (profile.sex as string) === '女';
+  const genderText = isFemale ? '女性' : '男性';
 
   const noduleLabel = profile.noduleType === 'pure_ggo' 
     ? '纯磨玻璃结节 (pGGO)' 
@@ -133,9 +135,13 @@ export default function PatientDashboard() {
           </div>
 
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50 flex flex-col items-center justify-center text-slate-900 border border-blue-100 flex-shrink-0 shadow-xs">
-              <span className="text-[10px] font-bold text-slate-400">年龄</span>
-              <span className="text-xl font-extrabold text-blue-900">{profile.age || 55}</span>
+            <div className="w-20 h-16 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50 flex flex-col items-center justify-center text-slate-900 border border-blue-100 flex-shrink-0 shadow-xs">
+              <span className="text-[11px] font-bold text-slate-500">
+                {isFemale ? "♀ 女性" : "♂ 男性"}
+              </span>
+              <span className="text-xl font-black text-blue-900 leading-tight">
+                {profile.age || 55}<span className="text-xs font-semibold text-slate-500 ml-0.5">岁</span>
+              </span>
             </div>
 
             <div className="flex-1">
@@ -148,6 +154,9 @@ export default function PatientDashboard() {
                 </h2>
                 <span className="px-2.5 py-1 rounded-lg bg-blue-50 text-accent-blue border border-blue-200 text-xs font-extrabold">
                   {profile.tStage || "T1a"}{profile.nStage || "N0"}{profile.mStage || "M0"}
+                </span>
+                <span className="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 border border-slate-200 text-xs font-bold">
+                  {genderText} · {profile.age || 55}岁
                 </span>
                 {profile.lungRads && (
                   <span className="px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 text-xs font-bold">
