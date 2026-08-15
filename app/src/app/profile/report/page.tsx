@@ -308,7 +308,7 @@ export default function EvidenceReportPage() {
                 </div>
                 {profile.solidSize != null && (
                   <div className="text-[12px] text-slate-500 mt-1">
-                    📏 肿瘤总径: {profile.tumorSize || 1.5} cm · CT 实性浸润: <strong className="text-teal-700">{profile.solidSize} cm</strong> (AJCC 8th 实性定期)
+                    📏 磨玻璃最大径: {profile.tumorSize || 1.5} cm · CT 实性成分: <strong className="text-teal-700">{profile.solidSize} cm</strong> (CTR: {profile.ctr ?? (profile.solidSize && profile.tumorSize ? Math.round((profile.solidSize / profile.tumorSize) * 100) / 100 : 0.53)})
                   </div>
                 )}
               </div>

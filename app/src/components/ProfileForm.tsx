@@ -464,7 +464,7 @@ function Step3({ form, updateForm }: StepProps) {
       </FormField>
 
       <div className="grid grid-cols-2 gap-4">
-        <FormField label="CT影像结节总大小（mm）">
+        <FormField label="CT 磨玻璃最大径（mm）">
           <input
             id="input-tumor-size"
             type="number"
@@ -484,7 +484,7 @@ function Step3({ form, updateForm }: StepProps) {
             className="input-artifact w-full px-4 py-3 rounded-lg"
           />
         </FormField>
-        <FormField label="CT影像实性成分大小（mm）">
+        <FormField label="CT 实性成分最大径（mm）">
           <input
             id="input-solid-size"
             type="number"
@@ -510,7 +510,9 @@ function Step3({ form, updateForm }: StepProps) {
       {form.tumorSize && form.solidSize && (
         <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-text-secondary text-sm">计算得出 CTR（实性成分比例）</span>
+            <span className="text-text-secondary text-sm">
+              CTR（实性成分比例 = 实性成分最大径 ÷ 磨玻璃最大径）
+            </span>
           <div className="text-2xl font-bold text-gray-900">{computedCTR}</div>
           </div>
           <div className="progress-bar">

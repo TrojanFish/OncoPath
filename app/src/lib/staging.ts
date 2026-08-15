@@ -60,34 +60,34 @@ export function computeClinicalTnmStage(input: StagingInput): StagingResult {
   // 1. AJCC 8th/9th T-Staging Rules
   if (noduleType === "pure_ggo" || solidSize === 0) {
     effectiveT = "Tis";
-    explanation = `纯磨玻璃结节 (实性成分=0cm) ➔ 判定为原位/微浸润 Tis/T1mi (0期/IA1期)`;
+    explanation = `纯磨玻璃结节 (实性成分=0cm, CTR=0) ➔ 判定为原位/微浸润 Tis/T1mi (0期/IA1期)`;
     isSubsolidAdjusted = true;
   } else if (noduleType === "mixed_ggo" || (ctr > 0 && ctr < 1)) {
     isSubsolidAdjusted = true;
     if (solidSize <= 0.5) {
       effectiveT = "T1mi";
-      explanation = `混合磨玻璃结节 (总径 ${tumorSize}cm，CT实性浸润 ≤0.5cm) ➔ 依据 AJCC 8th 实性成分判定为 T1mi (IA1期)`;
+      explanation = `混合磨玻璃结节 (磨玻璃最大径 ${tumorSize}cm，CT实性成分 ${solidSize}cm, CTR=${ctr}) ➔ 依据 AJCC 8th/9th 规则以实性成分判定为 T1mi (IA1期)`;
     } else if (solidSize <= 1.0) {
       effectiveT = "T1a";
-      explanation = `混合磨玻璃结节 (总径 ${tumorSize}cm，CT实性浸润 ${solidSize}cm ≤1.0cm) ➔ 依据 AJCC 8th 实性成分判定为 T1a (IA1期)，非大体总径对应的 IA2期`;
+      explanation = `混合磨玻璃结节 (磨玻璃最大径 ${tumorSize}cm，CT实性成分 ${solidSize}cm, CTR=${ctr}) ➔ 依据 AJCC 8th/9th 规则以实性成分判定为 T1a (IA1期)，非磨玻璃全径对应的更高分期`;
     } else if (solidSize <= 2.0) {
       effectiveT = "T1b";
-      explanation = `混合磨玻璃结节 (实性浸润 ${solidSize}cm ≤2.0cm) ➔ 判定为 T1b (IA2期)`;
+      explanation = `混合磨玻璃结节 (CT实性成分 ${solidSize}cm ≤2.0cm, CTR=${ctr}) ➔ 判定为 T1b (IA2期)`;
     } else if (solidSize <= 3.0) {
       effectiveT = "T1c";
-      explanation = `混合磨玻璃结节 (实性浸润 ${solidSize}cm ≤3.0cm) ➔ 判定为 T1c (IA3期)`;
+      explanation = `混合磨玻璃结节 (CT实性成分 ${solidSize}cm ≤3.0cm, CTR=${ctr}) ➔ 判定为 T1c (IA3期)`;
     } else if (solidSize <= 4.0) {
       effectiveT = "T2a";
-      explanation = `混合磨玻璃结节 (实性浸润 ${solidSize}cm ≤4.0cm) ➔ 判定为 T2a (IB期)`;
+      explanation = `混合磨玻璃结节 (CT实性成分 ${solidSize}cm ≤4.0cm, CTR=${ctr}) ➔ 判定为 T2a (IB期)`;
     } else if (solidSize <= 5.0) {
       effectiveT = "T2b";
-      explanation = `混合磨玻璃结节 (实性浸润 ${solidSize}cm ≤5.0cm) ➔ 判定为 T2b (IIA期)`;
+      explanation = `混合磨玻璃结节 (CT实性成分 ${solidSize}cm ≤5.0cm, CTR=${ctr}) ➔ 判定为 T2b (IIA期)`;
     } else if (solidSize <= 7.0) {
       effectiveT = "T3";
-      explanation = `混合磨玻璃结节 (实性浸润 ${solidSize}cm >5.0cm) ➔ 判定为 T3 (IIB期)`;
+      explanation = `混合磨玻璃结节 (CT实性成分 ${solidSize}cm >5.0cm, CTR=${ctr}) ➔ 判定为 T3 (IIB期)`;
     } else {
       effectiveT = "T4";
-      explanation = `混合磨玻璃结节 (实性浸润 >7.0cm) ➔ 判定为 T4 (IIIA期)`;
+      explanation = `混合磨玻璃结节 (CT实性成分 >7.0cm) ➔ 判定为 T4 (IIIA期)`;
     }
   } else {
     // Pure Solid

@@ -8,13 +8,20 @@ interface ReportUploaderProps {
   onParsed: (data: any) => void;
 }
 
+interface UploadedReportImage {
+  id: string;
+  name: string;
+  base64: string;
+  mimeType: string;
+  previewUrl: string;
+}
+
 export default function ReportUploader({ onParsed }: ReportUploaderProps) {
   const [reportText, setReportText] = useState("");
   const [isParsing, setIsParsing] = useState(false);
   const [error, setError] = useState("");
   const [parsedData, setParsedData] = useState<any | null>(null);
-  const [imageBase64, setImageBase64] = useState<string>("");
-  const [imageMimeType, setImageMimeType] = useState<string>("");
+  const [images, setImages] = useState<UploadedReportImage[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Dynamic staging calculation result for human-in-the-loop preview
@@ -28,7 +35,7 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
         noduleType: parsedData.noduleType || "mixed_ggo",
         tumorSize: isNaN(tumorVal) ? 1.5 : tumorVal,
         solidSize: isNaN(solidVal) ? 0.8 : solidVal,
-        ctr: parsedData.ctr ? parseFloat(String(parsedData.ctr)) : null,
+        ctr: parsedData.ctr ? parseFloat(String(parsedData.ctr)) : (tumorVal > 0 ? Math.min(1, Math.round((solidVal / tumorVal) * 100) / 100) : null),
         nStage: parsedData.nStage || "N0",
         vpi: parsedData.vpi,
         stas: parsedData.stas,
@@ -50,8 +57,10 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
   ]);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    Array.from(files).forEach((file) => {
       const reader = new FileReader();
       reader.onloadend = () => {
         const result = reader.result as string;
@@ -81,29 +90,52 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
             ctx.drawImage(img, 0, 0, width, height);
             const compressedDataUrl = canvas.toDataURL("image/jpeg", 0.88);
             const base64 = compressedDataUrl.split(',')[1];
-            setImageBase64(base64);
-            setImageMimeType("image/jpeg");
+            setImages((prev) => [
+              ...prev,
+              {
+                id: Math.random().toString(36).substring(2, 9),
+                name: file.name,
+                base64: base64,
+                mimeType: "image/jpeg",
+                previewUrl: compressedDataUrl,
+              },
+            ]);
           } else {
             const [prefix, base64] = result.split(',');
             const mimeType = prefix.match(/:(.*?);/)?.[1] || "image/jpeg";
-            setImageBase64(base64);
-            setImageMimeType(mimeType);
+            setImages((prev) => [
+              ...prev,
+              {
+                id: Math.random().toString(36).substring(2, 9),
+                name: file.name,
+                base64: base64,
+                mimeType: mimeType,
+                previewUrl: result,
+              },
+            ]);
           }
         };
         img.src = result;
       };
       reader.readAsDataURL(file);
+    });
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
     }
   };
 
-  const clearImage = () => {
-    setImageBase64("");
-    setImageMimeType("");
+  const removeImage = (id: string) => {
+    setImages((prev) => prev.filter((img) => img.id !== id));
+  };
+
+  const clearAllImages = () => {
+    setImages([]);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const handleParse = async () => {
-    if (!reportText.trim() && !imageBase64) return;
+    if (!reportText.trim() && images.length === 0) return;
     setIsParsing(true);
     setError("");
 
@@ -111,7 +143,12 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
       const res = await fetch("/api/parse-report", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ reportText, imageBase64, imageMimeType }),
+        body: JSON.stringify({ 
+          reportText, 
+          images: images.map((img) => ({ base64: img.base64, mimeType: img.mimeType })),
+          imageBase64: images[0]?.base64, 
+          imageMimeType: images[0]?.mimeType 
+        }),
       });
       
       const data = await res.json();
@@ -129,74 +166,97 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
 
   const handleConfirm = () => {
     if (parsedData) {
+      const tumorVal = parsedData.tumorSize !== "" && parsedData.tumorSize != null ? parseFloat(String(parsedData.tumorSize)) || 1.5 : 1.5;
+      const solidVal = parsedData.solidSize !== "" && parsedData.solidSize != null ? parseFloat(String(parsedData.solidSize)) || 0.8 : 0.8;
+      const calculatedCtr = tumorVal > 0 ? Math.min(1, Math.round((solidVal / tumorVal) * 100) / 100) : 0;
+
       const finalData = {
         ...parsedData,
         age: parsedData.age !== "" && parsedData.age != null ? parseInt(String(parsedData.age)) || 55 : 55,
-        tumorSize: stagingPreview?.tumorSize || (parsedData.tumorSize !== "" && parsedData.tumorSize != null ? parseFloat(String(parsedData.tumorSize)) || 1.5 : 1.5),
-        solidSize: stagingPreview?.solidSize || (parsedData.solidSize !== "" && parsedData.solidSize != null ? parseFloat(String(parsedData.solidSize)) || 0.8 : 0.8),
-        ctr: stagingPreview?.ctr || parsedData.ctr || 0.53,
+        tumorSize: stagingPreview?.tumorSize || tumorVal,
+        solidSize: stagingPreview?.solidSize || solidVal,
+        ctr: stagingPreview?.ctr ?? calculatedCtr,
         stage: stagingPreview?.stage || parsedData.stage || "IA1",
         tStage: stagingPreview?.tStage || parsedData.tStage || "T1a",
         noduleType: parsedData.noduleType || "mixed_ggo",
+        nStage: parsedData.nStage || "N0",
+        stas: parsedData.stas || "negative",
+        vpi: parsedData.vpi || "negative",
+        lvi: parsedData.lvi || "negative",
+        marginStatus: parsedData.marginStatus || "negative",
+        surgeryType: parsedData.surgeryType || "segmentectomy",
+        iaslcGrade: parsedData.grade || "2",
+        sex: parsedData.sex || "female",
+        histology: parsedData.histology || "adenocarcinoma",
+        reportType: parsedData.reportType || "pathology",
+        currentStage: (parsedData.reportType === 'ct_imaging' || parsedData.surgeryType === 'unknown') ? 'evaluation' : 'decision',
+        imagingFeatures: parsedData.imagingFeatures || [],
+        noduleLocation: parsedData.noduleLocation || "右肺上叶尖段",
+        lungRads: parsedData.lungRads || null,
+        malignancyRisk: parsedData.malignancyRisk || "moderate",
+        clinicalRecommendation: parsedData.clinicalRecommendation || null,
       };
+
       onParsed(finalData);
     }
   };
 
   if (parsedData) {
+    const tumorVal = parsedData.tumorSize !== "" && parsedData.tumorSize != null ? parseFloat(String(parsedData.tumorSize)) : 1.5;
+    const solidVal = parsedData.solidSize !== "" && parsedData.solidSize != null ? parseFloat(String(parsedData.solidSize)) : 0.8;
+    const currentCtr = tumorVal > 0 ? Math.min(1, Math.round((solidVal / tumorVal) * 100) / 100) : 0;
+
     return (
-      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xl max-w-4xl mx-auto w-full">
+      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm max-w-4xl mx-auto w-full animate-fade-in">
         
-        {/* Modality Type Header Badge */}
-        <div className="flex items-center justify-between gap-3 mb-6 pb-4 border-b border-slate-100">
-          <div className="flex items-center gap-3">
-            <div className={`w-10 h-10 rounded-2xl flex items-center justify-center text-xl font-bold flex-shrink-0 ${
-              parsedData.reportType === 'ct_imaging' 
-                ? 'bg-sky-50 text-sky-700 border border-sky-200' 
-                : 'bg-teal-50 text-teal-700 border border-teal-200'
-            }`}>
-              {parsedData.reportType === 'ct_imaging' ? '🖼️' : '🔬'}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-100">
+          <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold mb-1.5">
+              <span>✓ 结构化提取就绪</span>
+              <span className="text-slate-400">·</span>
+              <span>
+                {parsedData.reportType === 'ct_imaging' 
+                  ? '🩻 放射科胸部 CT 报告' 
+                  : parsedData.reportType === 'comprehensive'
+                  ? '📑 CT 影像 + 术后病理 联合报告'
+                  : '🔬 术后组织病理报告'}
+              </span>
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">智能识别报告类型</span>
-                <span className={`px-2.5 py-0.5 rounded-full text-xs font-extrabold border ${
-                  parsedData.reportType === 'ct_imaging'
-                    ? 'bg-sky-100/70 text-sky-800 border-sky-300'
-                    : 'bg-teal-100/70 text-teal-800 border-teal-300'
-                }`}>
-                  {parsedData.reportType === 'ct_imaging' ? '胸部 CT 影像学报告 (术前/评估期)' : '术后病理组织确诊报告 (治疗期)'}
-                </span>
-              </div>
-              <p className="text-slate-500 text-xs mt-0.5">
-                AI 已自动提取关键指标，请确认以下特征以生成最精准的循证推演
-              </p>
-            </div>
+            <h2 className="text-xl font-extrabold text-slate-900">请核对并确认您的医疗特征指标</h2>
+            <p className="text-xs text-slate-500 mt-0.5">AI 已自动计算实性成分比例 (CTR) 并校准分期，您可以按实际报告进行微调</p>
           </div>
+          <button 
+            onClick={() => setParsedData(null)}
+            className="text-xs text-slate-500 hover:text-slate-800 font-semibold px-3 py-1.5 rounded-xl border border-slate-200 hover:bg-slate-50 transition-colors self-start sm:self-auto cursor-pointer"
+          >
+            ← 重新上传
+          </button>
         </div>
 
-        {/* CT Imaging Specific Feature Banner (If CT Report) */}
-        {parsedData.reportType === 'ct_imaging' && (
-          <div className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-sky-50 via-indigo-50/50 to-blue-50 border border-sky-200 shadow-2xs space-y-3">
+        {/* CT Features Highlight if CT imaging */}
+        {(parsedData.reportType === 'ct_imaging' || parsedData.reportType === 'comprehensive') && (
+          <div className="mb-6 p-4 rounded-2xl bg-sky-50/80 border border-sky-200 space-y-3">
             <div className="flex items-center justify-between">
-              <div className="text-xs font-bold text-sky-900 flex items-center gap-1.5">
-                <span>🩻 放射科 CT 影像学征象</span>
-                {parsedData.noduleLocation && (
-                  <span className="bg-white text-sky-800 px-2 py-0.5 rounded-md border border-sky-200 text-[11px] font-semibold">
-                    📍 {parsedData.noduleLocation}
+              <div className="text-xs font-bold text-sky-900 flex items-center gap-2">
+                <span>🩻 放射科 CT 影像关键发现</span>
+                {parsedData.lungRads && (
+                  <span className="px-2 py-0.5 bg-sky-200/80 text-sky-900 rounded-md font-extrabold text-[11px]">
+                    Lung-RADS: {parsedData.lungRads}
                   </span>
                 )}
               </div>
-              {parsedData.lungRads && (
-                <span className="px-2.5 py-0.5 rounded-full bg-indigo-600 text-white font-bold text-xs">
-                  Lung-RADS: {parsedData.lungRads}
-                </span>
-              )}
+              <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full ${
+                parsedData.malignancyRisk === 'high' ? 'bg-rose-100 text-rose-800 border border-rose-200' :
+                parsedData.malignancyRisk === 'low' ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' :
+                'bg-amber-100 text-amber-800 border border-amber-200'
+              }`}>
+                恶性风险：{parsedData.malignancyRisk === 'high' ? '高度可疑' : parsedData.malignancyRisk === 'low' ? '低度风险' : '中度可疑'}
+              </span>
             </div>
 
             {parsedData.imagingFeatures && parsedData.imagingFeatures.length > 0 && (
               <div>
-                <div className="text-[11px] text-slate-500 font-semibold mb-1.5">检出影像恶性/浸润特征：</div>
+                <div className="text-[11px] font-bold text-sky-800 mb-1.5">已识别恶性征象：</div>
                 <div className="flex flex-wrap gap-1.5">
                   {parsedData.imagingFeatures.map((feat: string, idx: number) => (
                     <span key={idx} className="bg-white text-slate-700 px-2.5 py-1 rounded-lg border border-slate-200 text-xs font-medium shadow-2xs flex items-center gap-1">
@@ -205,13 +265,6 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
                     </span>
                   ))}
                 </div>
-              </div>
-            )}
-
-            {parsedData.clinicalRecommendation && (
-              <div className="pt-2 border-t border-sky-200/60 text-xs text-sky-950 flex items-start gap-2">
-                <span className="text-sm">💡</span>
-                <span><strong>放射科/临床建议</strong>：{parsedData.clinicalRecommendation}</span>
               </div>
             )}
           </div>
@@ -239,10 +292,13 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
 
         <div className="space-y-6">
           
-          {/* Section 1: Nodule Morphology & Solid Size (Core Feature) */}
+          {/* Section 1: Nodule Morphology & Solid Size & Accurate CTR */}
           <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
-            <div className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3 flex items-center gap-1.5">
-              <span>🫁 结节类型与 CT 实性成分 (核心分期依据)</span>
+            <div className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3 flex items-center justify-between">
+              <span>🫁 结节形态与 CT 实性成分 (CTR 核心分期依据)</span>
+              <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-teal-100 text-teal-800 border border-teal-200">
+                当前 CTR: {currentCtr}
+              </span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 mb-3">
@@ -254,14 +310,14 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
                   className="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="mixed_ggo">混合磨玻璃结节 (mGGO 部分实性)</option>
-                  <option value="pure_ggo">纯磨玻璃结节 (pGGO 实性=0)</option>
-                  <option value="pure_solid">纯实性结节 (Pure Solid)</option>
+                  <option value="pure_ggo">纯磨玻璃结节 (pGGO 实性=0, CTR=0)</option>
+                  <option value="pure_solid">纯实性结节 (Pure Solid, CTR=1.0)</option>
                 </select>
               </div>
 
               <div>
                 <label className="block text-xs font-semibold text-slate-600 mb-1">
-                  肿瘤总径 (cm)
+                  磨玻璃最大径 (cm)
                 </label>
                 <input 
                   type="text" 
@@ -275,7 +331,7 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
 
               <div>
                 <label className="block text-xs font-semibold text-slate-600 mb-1">
-                  CT 实性/浸润大小 (cm)
+                  CT 实性成分最大径 (cm)
                 </label>
                 <input 
                   type="text" 
@@ -288,10 +344,15 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
               </div>
             </div>
 
-            <div className="text-[11px] text-slate-500 flex items-center gap-1.5">
-              <span>💡</span>
-              <span>
-                <strong>医学小知识</strong>：混合磨玻璃结节依据 CT <strong>实性成分大小 (≤1cm 为 T1a/IA1期)</strong> 定期，而非根据包含毛玻璃的总大小定 T1b。
+            <div className="text-[11px] text-slate-600 bg-white p-2.5 rounded-xl border border-slate-200 flex items-center justify-between flex-wrap gap-2">
+              <span className="flex items-center gap-1.5">
+                <span>💡</span>
+                <span>
+                  <strong>CTR 计算公式</strong>：<strong>CT 实性成分最大径 ({solidVal}cm) ÷ 磨玻璃最大径 ({tumorVal}cm) = {currentCtr}</strong>
+                </span>
+              </span>
+              <span className="text-teal-700 font-semibold">
+                {currentCtr <= 0.5 ? "✓ CTR ≤ 0.5 (惰性浸润，5年无复发率高达99.7%)" : "⚠️ CTR > 0.5 (浸润成分较高，需重点评估切缘)"}
               </span>
             </div>
           </div>
@@ -300,13 +361,9 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
           {parsedData.reportType === 'ct_imaging' ? (
             <div className="p-4 rounded-2xl bg-sky-50/60 border border-sky-200">
               <div className="text-xs font-bold text-sky-900 uppercase tracking-wider mb-3 flex items-center justify-between">
-                <span>🩻 CT 影像恶性特征与解剖部位 (术前关键指标)</span>
-                <span className="text-[11px] text-sky-700 font-semibold bg-sky-100 px-2 py-0.5 rounded-full border border-sky-200">
-                  尚未手术 · 暂无病理切片
-                </span>
+                <span>🩻 CT 影像恶性特征与解剖部位</span>
               </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
                 <div>
                   <label className="block text-xs font-semibold text-slate-600 mb-1">结节所在部位</label>
                   <input 
@@ -314,10 +371,8 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
                     value={parsedData.noduleLocation || ""} 
                     onChange={e => setParsedData({...parsedData, noduleLocation: e.target.value})}
                     className="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-blue-500 outline-none"
-                    placeholder="如 右肺上叶尖段"
                   />
                 </div>
-
                 <div>
                   <label className="block text-xs font-semibold text-slate-600 mb-1">Lung-RADS 影像分级</label>
                   <select 
@@ -325,51 +380,39 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
                     onChange={e => setParsedData({...parsedData, lungRads: e.target.value})}
                     className="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-blue-500"
                   >
-                    <option value="3">3 类 (良性可能，建议半年复查)</option>
-                    <option value="4A">4A 类 (低度恶性可疑，建议3个月复查/会诊)</option>
-                    <option value="4B">4B 类 (中度恶性可疑，建议胸外科评估)</option>
-                    <option value="4X">4X 类 (伴显著恶性征象，高度怀疑)</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1">恶性风险预估</label>
-                  <select 
-                    value={parsedData.malignancyRisk || "moderate"} 
-                    onChange={e => setParsedData({...parsedData, malignancyRisk: e.target.value})}
-                    className="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="low">🟢 低度风险 (以随访观察为主)</option>
-                    <option value="moderate">🟡 中度风险 (动态薄层CT监测)</option>
-                    <option value="high">🔴 高度疑似 (建议胸外科微创会诊)</option>
+                    <option value="3">3 类 (良性可能)</option>
+                    <option value="4A">4A 类 (低度可疑)</option>
+                    <option value="4B">4B 类 (中度可疑)</option>
+                    <option value="4X">4X 类 (高度可疑)</option>
                   </select>
                 </div>
               </div>
 
               {/* Toggleable CT Imaging Signs */}
               <div className="pt-2">
-                <div className="text-[11px] font-semibold text-slate-600 mb-1.5">伴随影像特征（点击可勾选修改）：</div>
+                <label className="block text-xs font-semibold text-slate-600 mb-2">已发现的 CT 恶性征象（点击切换）</label>
                 <div className="flex flex-wrap gap-2">
-                  {["毛刺征", "分叶征", "胸膜牵拉征", "血管穿行集束征", "空泡征", "磨玻璃晕征", "支气管充气征"].map(feat => {
-                    const currentFeats: string[] = parsedData.imagingFeatures || [];
-                    const isChecked = currentFeats.includes(feat);
+                  {["分叶征", "毛刺征", "胸膜牵拉征", "血管穿行集束征", "空泡征", "磨玻璃晕征", "支气管充气征"].map(sign => {
+                    const isSelected = (parsedData.imagingFeatures || []).includes(sign);
                     return (
                       <button
-                        key={feat}
+                        key={sign}
                         type="button"
                         onClick={() => {
-                          const updated = isChecked
-                            ? currentFeats.filter(f => f !== feat)
-                            : [...currentFeats, feat];
-                          setParsedData({...parsedData, imagingFeatures: updated});
+                          const current = parsedData.imagingFeatures || [];
+                          if (isSelected) {
+                            setParsedData({...parsedData, imagingFeatures: current.filter((f: string) => f !== sign)});
+                          } else {
+                            setParsedData({...parsedData, imagingFeatures: [...current, sign]});
+                          }
                         }}
-                        className={`px-3 py-1 rounded-lg text-xs font-medium transition-all cursor-pointer border ${
-                          isChecked 
-                            ? "bg-amber-100/90 text-amber-900 border-amber-300 shadow-2xs font-bold" 
-                            : "bg-white text-slate-500 border-slate-200 hover:bg-slate-50"
+                        className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
+                          isSelected 
+                            ? 'bg-amber-100 border-amber-300 text-amber-900 shadow-2xs font-bold' 
+                            : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'
                         }`}
                       >
-                        {isChecked ? `⚠️ ${feat}` : `+ ${feat}`}
+                        {isSelected ? '✓ ' : '+ '}{sign}
                       </button>
                     );
                   })}
@@ -377,125 +420,77 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
               </div>
             </div>
           ) : (
-            /* Standard Pathology Section */
+            /* Pathology High-Risk Red/Green Factors */
             <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
-              <div className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3 flex items-center gap-1.5">
-                <span>🔬 关键病理红绿灯因子 (决定辅助治疗与复发风险)</span>
+              <div className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3">
+                🚦 术后高危病理特征 (红绿灯指标)
               </div>
-
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1">气道播散 (STAS)</label>
-                  <select 
-                    value={parsedData.stas || "negative"} 
-                    onChange={e => setParsedData({...parsedData, stas: e.target.value})}
-                    className={`w-full p-2.5 rounded-xl text-xs sm:text-sm font-bold border ${
-                      parsedData.stas === 'positive' 
-                        ? 'bg-rose-50 text-rose-800 border-rose-300' 
-                        : 'bg-emerald-50 text-emerald-800 border-emerald-300'
-                    }`}
-                  >
-                    <option value="negative">🟢 无 / 阴性</option>
-                    <option value="positive">🔴 有 / 阳性 (高危)</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1">脉管癌栓 (LVI)</label>
-                  <select 
-                    value={parsedData.lvi || "negative"} 
-                    onChange={e => setParsedData({...parsedData, lvi: e.target.value})}
-                    className={`w-full p-2.5 rounded-xl text-xs sm:text-sm font-bold border ${
-                      parsedData.lvi === 'positive' 
-                        ? 'bg-rose-50 text-rose-800 border-rose-300' 
-                        : 'bg-emerald-50 text-emerald-800 border-emerald-300'
-                    }`}
-                  >
-                    <option value="negative">🟢 无 / 阴性</option>
-                    <option value="positive">🔴 有 / 阳性 (高危)</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1">胸膜侵犯 (VPI)</label>
-                  <select 
-                    value={parsedData.vpi || "negative"} 
-                    onChange={e => setParsedData({...parsedData, vpi: e.target.value})}
-                    className={`w-full p-2.5 rounded-xl text-xs sm:text-sm font-bold border ${
-                      parsedData.vpi === 'positive' 
-                        ? 'bg-amber-50 text-amber-800 border-amber-300' 
-                        : 'bg-emerald-50 text-emerald-800 border-emerald-300'
-                    }`}
-                  >
-                    <option value="negative">🟢 无 / 阴性</option>
-                    <option value="positive">🟡 有 / 阳性 (升至T2a)</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1">切缘状态</label>
-                  <select 
-                    value={parsedData.marginStatus || "negative"} 
-                    onChange={e => setParsedData({...parsedData, marginStatus: e.target.value, margin: e.target.value})}
-                    className={`w-full p-2.5 rounded-xl text-xs sm:text-sm font-bold border ${
-                      parsedData.marginStatus === 'positive' 
-                        ? 'bg-rose-50 text-rose-800 border-rose-300' 
-                        : 'bg-emerald-50 text-emerald-800 border-emerald-300'
-                    }`}
-                  >
-                    <option value="negative">🟢 阴性 (R0 根治)</option>
-                    <option value="positive">🔴 阳性 (残留)</option>
-                  </select>
-                </div>
+                {[
+                  { key: "stas", label: "气道播散 (STAS)", desc: "标本边缘游离癌细胞" },
+                  { key: "vpi", label: "胸膜侵犯 (VPI)", desc: "突破肺脏层胸膜(PL1/2)" },
+                  { key: "lvi", label: "脉管瘤栓 (LVI)", desc: "微血管或淋巴管内癌栓" },
+                  { key: "marginStatus", label: "切缘状态 (Margin)", desc: "手术边缘切缘干净度" }
+                ].map(({ key, label, desc }) => {
+                  const isPos = parsedData[key] === "positive";
+                  return (
+                    <div key={key} className="bg-white p-3 rounded-xl border border-slate-200 space-y-2">
+                      <div>
+                        <div className="text-xs font-bold text-slate-800">{label}</div>
+                        <div className="text-[10px] text-slate-400 leading-tight">{desc}</div>
+                      </div>
+                      <div className="flex gap-1">
+                        <button
+                          type="button"
+                          onClick={() => setParsedData({ ...parsedData, [key]: "negative" })}
+                          className={`flex-1 py-1 text-xs rounded-lg font-bold transition-all cursor-pointer ${
+                            !isPos ? "bg-emerald-500 text-white shadow-2xs" : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                          }`}
+                        >
+                          阴性 (-)
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setParsedData({ ...parsedData, [key]: "positive" })}
+                          className={`flex-1 py-1 text-xs rounded-lg font-bold transition-all cursor-pointer ${
+                            isPos ? "bg-rose-500 text-white shadow-2xs" : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                          }`}
+                        >
+                          阳性 (+)
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
 
-          {/* Section 3: Demographic & Diagnostic Stage Info */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {/* Section 3: Patient Demographics & Surgery */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
             <div>
               <label className="block text-xs font-semibold text-slate-600 mb-1">患者年龄</label>
               <input 
-                type="text" 
-                inputMode="numeric"
-                value={parsedData.age !== undefined && parsedData.age !== null ? parsedData.age : ""} 
+                type="number" 
+                value={parsedData.age || ""} 
                 onChange={e => setParsedData({...parsedData, age: e.target.value})}
-                className="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm font-medium outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="如 55"
+                className="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm font-medium"
+                placeholder="55"
               />
             </div>
-
             <div>
-              <label className="block text-xs font-semibold text-slate-600 mb-1">患者性别</label>
+              <label className="block text-xs font-semibold text-slate-600 mb-1">生物学性别</label>
               <select 
-                value={parsedData.sex || parsedData.gender || "male"} 
-                onChange={e => setParsedData({...parsedData, sex: e.target.value, gender: e.target.value})}
+                value={parsedData.sex || "female"} 
+                onChange={e => setParsedData({...parsedData, sex: e.target.value})}
                 className="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm font-medium"
               >
-                <option value="male">男性</option>
                 <option value="female">女性</option>
+                <option value="male">男性</option>
               </select>
             </div>
-
             <div>
-              <label className="block text-xs font-semibold text-slate-600 mb-1">
-                {parsedData.reportType === 'ct_imaging' ? '淋巴结初评 (CT)' : '淋巴结分期 (N)'}
-              </label>
-              <select 
-                value={parsedData.nStage || "N0"} 
-                onChange={e => setParsedData({...parsedData, nStage: e.target.value})}
-                className="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm font-medium"
-              >
-                <option value="N0">N0 (未见明显淋巴结肿大)</option>
-                <option value="N1">N1 (肺门淋巴结肿大/受累)</option>
-                <option value="N2">N2 (纵隔淋巴结转移)</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-slate-600 mb-1">
-                {parsedData.reportType === 'ct_imaging' ? '手术诊疗状态' : '手术切除术式'}
-              </label>
+              <label className="block text-xs font-semibold text-slate-600 mb-1">手术术式</label>
               {parsedData.reportType === 'ct_imaging' ? (
                 <div className="p-2.5 bg-slate-100 border border-slate-200 rounded-xl text-xs font-semibold text-slate-600">
                   尚未手术 (待随访/微创评估)
@@ -514,7 +509,6 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
               )}
             </div>
           </div>
-
         </div>
 
         <div className="flex gap-3 justify-end mt-8 pt-4 border-t border-slate-100">
@@ -522,7 +516,7 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
             onClick={() => setParsedData(null)}
             className="px-5 py-2.5 rounded-xl text-sm font-semibold border border-slate-300 text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
           >
-            重新上传
+            返回
           </button>
           <button 
             onClick={handleConfirm}
@@ -543,36 +537,78 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
         </div>
         <div>
           <h2 className="text-lg font-bold text-slate-900">AI 报告智能提取与实性成分校准</h2>
-          <p className="text-slate-500 text-xs sm:text-sm mt-0.5">粘贴您的病理/影像报告文本，或直接拍照上传纸质报告，AI 自动提取并计算实性浸润分期</p>
+          <p className="text-slate-500 text-xs sm:text-sm mt-0.5">支持同时上传多张图片（如 CT 报告 + 病理报告 + 基因检测），AI 交叉融合提取关键指标</p>
         </div>
       </div>
 
       <div className="mt-6 space-y-4">
-        {/* Image Upload Area */}
-        <div className="border-2 border-dashed border-slate-200 hover:border-blue-400 rounded-2xl p-5 flex flex-col items-center justify-center bg-slate-50/50 hover:bg-blue-50/20 transition-all relative cursor-pointer">
-          <input 
-            type="file" 
-            accept="image/jpeg,image/png,image/webp,image/jpg,image/heic,image/heif,image/*" 
-            onChange={handleImageUpload} 
-            ref={fileInputRef}
-            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-            disabled={isParsing}
-          />
-          {imageBase64 ? (
-            <div className="relative w-full flex flex-col items-center">
-              <img src={`data:${imageMimeType};base64,${imageBase64}`} alt="Uploaded Report" className="max-h-48 rounded-xl shadow-md object-contain" />
-              <button 
-                onClick={(e) => { e.preventDefault(); clearImage(); }} 
-                className="mt-3 px-3 py-1 bg-rose-100 text-rose-700 text-xs font-semibold rounded-full hover:bg-rose-200 z-10 relative cursor-pointer shadow-xs"
-              >
-                移除图片
-              </button>
+        {/* Multi-Image Upload & Preview Area */}
+        <div className="space-y-3">
+          {images.length > 0 ? (
+            <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                  <span>📑 已添加 {images.length} 张医疗报告</span>
+                  <span className="text-[11px] text-slate-400 font-normal">（如 CT 影像报告 + 术后病理报告）</span>
+                </span>
+                <button
+                  onClick={clearAllImages}
+                  className="text-xs text-rose-600 hover:underline font-semibold cursor-pointer"
+                >
+                  清空全部
+                </button>
+              </div>
+
+              {/* Thumbnails Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {images.map((img, idx) => (
+                  <div key={img.id} className="relative group rounded-xl overflow-hidden border border-slate-200 bg-white aspect-[4/3] shadow-xs">
+                    <img src={img.previewUrl} alt={img.name} className="w-full h-full object-cover" />
+                    <div className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-md bg-slate-900/75 text-white text-[10px] font-bold backdrop-blur-xs">
+                      报告 #{idx + 1}
+                    </div>
+                    <button
+                      onClick={() => removeImage(img.id)}
+                      className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-rose-600 text-white flex items-center justify-center text-xs font-bold shadow-md hover:bg-rose-700 transition-colors cursor-pointer"
+                      title="移除此图片"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+
+                {/* Add More Button */}
+                <div className="relative rounded-xl border-2 border-dashed border-slate-300 hover:border-blue-500 bg-white hover:bg-blue-50/30 transition-all flex flex-col items-center justify-center aspect-[4/3] cursor-pointer">
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/jpeg,image/png,image/webp,image/jpg,image/heic,image/heif,image/*"
+                    onChange={handleImageUpload}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    disabled={isParsing}
+                  />
+                  <span className="text-xl text-blue-600 mb-1">+</span>
+                  <span className="text-xs font-bold text-slate-600">添加更多图片</span>
+                  <span className="text-[10px] text-slate-400 mt-0.5">CT / 病理 / 基因</span>
+                </div>
+              </div>
             </div>
           ) : (
-            <div className="text-center py-5 pointer-events-none">
-              <div className="text-3xl mb-2">📷</div>
-              <div className="text-sm font-bold text-slate-700">点击从相册选择或拍照上传病理报告</div>
-              <div className="text-xs text-slate-400 mt-1">支持手机相册图片、JPG、PNG、WebP、HEIC 格式</div>
+            <div className="border-2 border-dashed border-slate-200 hover:border-blue-400 rounded-2xl p-6 flex flex-col items-center justify-center bg-slate-50/50 hover:bg-blue-50/20 transition-all relative cursor-pointer">
+              <input 
+                type="file" 
+                multiple
+                accept="image/jpeg,image/png,image/webp,image/jpg,image/heic,image/heif,image/*" 
+                onChange={handleImageUpload} 
+                ref={fileInputRef}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                disabled={isParsing}
+              />
+              <div className="text-center py-3 pointer-events-none">
+                <div className="text-3xl mb-2">📷</div>
+                <div className="text-sm font-bold text-slate-700">点击从相册多选或拍照上传（支持多张报告）</div>
+                <div className="text-xs text-slate-400 mt-1">可同时选择【胸部 CT 报告】与【术后病理报告】，AI 将自动联合交叉解析</div>
+              </div>
             </div>
           )}
         </div>
@@ -586,7 +622,7 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
         <textarea
           value={reportText}
           onChange={(e) => setReportText(e.target.value)}
-          placeholder="例如：右肺下叶切除标本：浸润性腺癌（腺泡型 80%，贴壁型 20%）。肿瘤最大径 1.5cm，CT 实性成分 0.8cm。切缘未见癌，未见脉管侵犯及气道播散(STAS)..."
+          placeholder="例如：【CT影像】右肺上叶见磨玻璃结节，磨玻璃最大径 1.5cm，CT 实性成分 0.8cm (CTR 0.53)... &#10;【术后病理】浸润性腺癌（腺泡型 80%，贴壁型 20%），切缘未见癌，未见脉管侵犯及气道播散(STAS)..."
           className="w-full h-36 p-4 rounded-2xl border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 resize-none text-xs sm:text-sm leading-relaxed outline-none transition-all"
           disabled={isParsing}
         />
@@ -603,7 +639,7 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
           </div>
           <button
             onClick={handleParse}
-            disabled={(!reportText.trim() && !imageBase64) || isParsing}
+            disabled={(!reportText.trim() && images.length === 0) || isParsing}
             className={`w-full sm:w-auto px-7 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-sky-600 hover:from-blue-700 hover:to-sky-700 text-white font-bold text-sm shadow-md shadow-blue-500/20 transition-all cursor-pointer ${isParsing ? 'opacity-75 cursor-not-allowed' : ''}`}
           >
             {isParsing ? (

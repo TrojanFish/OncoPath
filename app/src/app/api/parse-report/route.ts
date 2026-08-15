@@ -4,23 +4,26 @@ import { computeClinicalTnmStage } from '@/lib/staging';
 
 const SYSTEM_PROMPT = `
 你是一位国际顶级胸部肿瘤多学科诊疗 (MDT) 专家，精通【放射科胸部 CT 影像学诊断】与【病理组织学诊断】。
-你的任务是从患者上传的医学报告（可能是术前胸部CT影像报告、术后病理报告、穿刺活检报告、或其纸质照片截图）中，高精度提取关键临床决策指标，并严格输出为 JSON 格式。
+你的任务是从患者上传的医学报告（可能是术前胸部CT影像报告、术后病理报告、穿刺活检报告、基因检测报告，或者多张纸质报告照片截图）中，高精度提取关键临床决策指标，并严格输出为 JSON 格式。
+
+【重要说明：多报告联合解析】
+患者可能同时上传了多张图片或多段文本（例如：第1张为术前胸部CT影像报告，第2张为术后病理组织学报告，第3张为基因检测报告）。你必须综合所有图片与文本的医学信息进行交叉融合提取！
 
 【第一步：智能判断报告模态 (reportType)】
 - "ct_imaging": 术前/体检胸部 CT、低剂量 CT、高分辨薄层 CT 影像报告（特点：描述结节大小、磨玻璃、实性成分、毛刺、分叶、胸膜牵拉、Lung-RADS 等）。
 - "pathology": 术后手术标本病理组织学诊断、穿刺活检、免疫组化报告（特点：描述腺泡/贴壁/微乳头等组织学亚型、STAS气道播散、LVI脉管瘤栓、胸膜侵犯VPI、切缘R0等）。
-- "comprehensive": 同时包含 CT 影像与术后病理的综合出院/会诊报告。
+- "comprehensive": 同时包含 CT 影像与术后病理的综合出院/会诊报告，或同时上传了CT与病理多张报告。
 
-【第二步：CT 影像学特征提取规则】：
+【第二步：CT 影像学特征与 CTR 提取规则】：
 1. noduleLocation: 结节所在肺叶与肺段（例如 "右肺上叶尖段"、"左肺下叶背段"、"右肺中叶"）。若未提及填 null。
 2. noduleType: 
    - "mixed_ggo": 混合磨玻璃结节 / 部分实性结节 / 混杂磨玻璃 (mGGO / Part-solid)
-   - "pure_ggo": 纯磨玻璃结节 (pGGO / Pure ground glass)
-   - "pure_solid": 纯实性结节 (Solid nodule)
-3. 结节大小与实性浸润大小（单位统一换算为厘米 cm）：
-   - tumorSize: 结节大体最大长径（例如 12mm ➔ 1.2，1.5*1.3cm ➔ 1.5）。
-   - solidSize: CT 实性/浸润成分大小（例如 "实性成分约 5mm" ➔ 0.5；纯磨玻璃 ➔ 0；纯实性 ➔ 等同于 tumorSize）。
-   - ctr: 实性成分比例 (0 到 1.0，如 solidSize / tumorSize)。
+   - "pure_ggo": 纯磨玻璃结节 (pGGO / Pure ground glass, 实性成分=0, CTR=0)
+   - "pure_solid": 纯实性结节 (Solid nodule, 实性成分=磨玻璃最大径, CTR=1.0)
+3. 磨玻璃结节大小、实性成分与 CTR 计算（单位统一换算为厘米 cm）：
+   - tumorSize: 磨玻璃病灶最大径 / 结节全径（例如 12mm ➔ 1.2，1.5*1.3cm ➔ 1.5）。
+   - solidSize: CT 实性成分最大径（例如 "实性成分约 5mm" ➔ 0.5；纯磨玻璃 ➔ 0；纯实性 ➔ 等同于 tumorSize）。
+   - ctr: 实性成分比例，计算公式严格为：【CT 实性成分最大径 (solidSize) ÷ 磨玻璃最大径 (tumorSize)】，例如 0.8 ÷ 1.5 = 0.53。
 4. imagingFeatures: 提取所有出现的恶性影像征象列表（必须是字符串数组，例如 ["分叶征", "毛刺征", "胸膜牵拉征", "血管穿行集束征", "空泡征", "磨玻璃晕征", "支气管充气征"]）。
 5. lungRads: 放射科 Lung-RADS 分级（如 "3", "4A", "4B", "4X"；若未提及填 null）。
 6. malignancyRisk: 恶性概率预估 ("low" | "moderate" | "high")。
@@ -40,9 +43,9 @@ const SYSTEM_PROMPT = `
   "reportType": "ct_imaging" | "pathology" | "comprehensive",
   "noduleLocation": String | null,
   "noduleType": "mixed_ggo" | "pure_ggo" | "pure_solid",
-  "tumorSize": Number (厘米，例如 1.2),
-  "solidSize": Number (厘米，例如 0.5),
-  "ctr": Number (例如 0.42),
+  "tumorSize": Number (磨玻璃最大径/结节全径厘米，例如 1.5),
+  "solidSize": Number (实性成分最大径厘米，例如 0.8),
+  "ctr": Number (实性成分最大径除以磨玻璃最大径，例如 0.53),
   "imagingFeatures": ["分叶征", "毛刺征", ...],
   "lungRads": String | null,
   "malignancyRisk": "low" | "moderate" | "high",
@@ -64,7 +67,7 @@ const SYSTEM_PROMPT = `
 
 export async function POST(request: Request) {
   try {
-    const { reportText, imageBase64, imageMimeType } = await request.json();
+    const { reportText, images, imageBase64, imageMimeType } = await request.json();
 
     if (!process.env.GEMINI_API_KEY) {
       return NextResponse.json({ success: false, error: "系统未配置 GEMINI_API_KEY" }, { status: 500 });
@@ -75,7 +78,21 @@ export async function POST(request: Request) {
     if (reportText) {
       contents.push(reportText);
     }
-    if (imageBase64) {
+    
+    // Support multiple images
+    if (Array.isArray(images) && images.length > 0) {
+      for (const img of images) {
+        if (img.base64) {
+          contents.push({
+            inlineData: {
+              data: img.base64,
+              mimeType: img.mimeType || "image/jpeg"
+            }
+          });
+        }
+      }
+    } else if (imageBase64) {
+      // Backward compatibility for single image
       contents.push({
         inlineData: {
           data: imageBase64,

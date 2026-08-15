@@ -173,8 +173,16 @@ export default function PatientDashboard() {
                 </div>
                 
                 {profile.solidSize != null && (
-                  <div className="text-teal-800 text-xs font-medium bg-teal-50/80 p-2 rounded-xl border border-teal-200 mt-2">
-                    📏 <strong>CT 实性浸润大小</strong>: {profile.solidSize} cm (总径 {profile.tumorSize || 1.5} cm, CTR {profile.ctr ?? 0.53}) ➔ 依据 AJCC 8th 规则校准为 {profile.stage || 'IA1'} 期
+                  <div className="text-teal-900 text-xs font-medium bg-teal-50/90 p-2.5 rounded-xl border border-teal-200 mt-2 flex items-center justify-between flex-wrap gap-2">
+                    <span>
+                      📏 <strong>CT 实性成分最大径</strong>: {profile.solidSize} cm ÷ <strong>磨玻璃最大径</strong>: {profile.tumorSize || 1.5} cm
+                      <span className="ml-1.5 px-2 py-0.5 rounded-md bg-teal-100 font-bold text-teal-900">
+                        CTR: {profile.ctr != null ? profile.ctr : (profile.solidSize && profile.tumorSize ? Math.round((profile.solidSize / profile.tumorSize) * 100) / 100 : 0.53)}
+                      </span>
+                    </span>
+                    <span className="text-[11px] text-teal-700">
+                      依据 AJCC 8th/9th 规则以实性成分精准校准为 <strong>{profile.stage || 'IA1'} 期</strong>
+                    </span>
                   </div>
                 )}
               </div>
