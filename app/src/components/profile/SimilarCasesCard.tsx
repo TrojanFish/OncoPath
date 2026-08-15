@@ -169,46 +169,51 @@ export default function SimilarCasesCard({ profile }: SimilarCasesCardProps) {
       </div>
 
       {/* Warm Compassionate & Empowerment Banner (暖心抗癌赋能与心理支持) */}
-      <div className="mt-6 p-5 sm:p-6 rounded-2xl bg-gradient-to-br from-amber-50/90 via-orange-50/40 to-teal-50/60 border border-amber-200/80 shadow-xs relative z-10">
-        <div className="flex items-start gap-3.5">
-          <div className="w-10 h-10 rounded-2xl bg-white text-amber-600 flex items-center justify-center text-xl shadow-xs flex-shrink-0 border border-amber-200">
+      <div className="mt-6 p-4 sm:p-6 rounded-2xl bg-gradient-to-br from-amber-50/90 via-orange-50/40 to-teal-50/60 border border-amber-200/80 shadow-xs relative z-10">
+        {/* Title Row with Compact Inline Sun Badge */}
+        <div className="flex items-center gap-2.5 mb-2.5">
+          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-amber-100/90 text-amber-600 flex items-center justify-center text-sm sm:text-base shadow-2xs flex-shrink-0 border border-amber-300/70">
             ☀️
           </div>
-          <div className="flex-1">
-            <h4 className="text-sm font-extrabold text-slate-900 flex items-center gap-2 mb-1.5">
-              <span>给每一位勇敢抗癌伙伴的温暖寄语：数据是群体的历史，而奇迹由您亲自书写</span>
-            </h4>
-            <p className="text-xs text-slate-700 leading-relaxed mb-3">
-              医学文献中的生存率是基于成千上万名患者大样本的历史统计概率，但<strong>落到您身上只有 0% 和 100%</strong>。现代肺癌已进入规范化精准诊疗时代，把专业治疗交给医生，把信心与热爱留给生活：
-            </p>
+          <h4 className="text-xs sm:text-sm font-extrabold text-slate-900 leading-snug">
+            给每一位勇敢抗癌伙伴的温暖寄语：数据是群体的历史，而奇迹由您亲自书写
+          </h4>
+        </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
-              <div className="bg-white/90 p-2.5 rounded-xl border border-amber-200/70 shadow-2xs">
-                <div className="text-[11px] font-bold text-amber-900 mb-0.5 flex items-center gap-1">
-                  <span>🥦 营养与强健体魄</span>
-                </div>
-                <div className="text-[11px] text-slate-600 leading-snug">
-                  保证优质蛋白摄入，温和散步或太极八段锦，激活机体杀伤性 T 细胞活力。
-                </div>
-              </div>
+        {/* 100% Full-Width Description Paragraph */}
+        <p className="text-xs sm:text-sm text-slate-700 leading-relaxed mb-3.5">
+          医学文献中的生存率是基于成千上万名患者大样本的历史统计概率，但<strong>落到您身上只有 0% 和 100%</strong>。现代肺癌已进入规范化精准诊疗时代，把专业治疗交给医生，把信心与热爱留给生活：
+        </p>
 
-              <div className="bg-white/90 p-2.5 rounded-xl border border-teal-200/70 shadow-2xs">
-                <div className="text-[11px] font-bold text-teal-900 mb-0.5 flex items-center gap-1">
-                  <span>🌈 乐观心境与神经免疫</span>
-                </div>
-                <div className="text-[11px] text-slate-600 leading-snug">
-                  研究证实良好情绪能显著降低皮质醇压力激素，为机体细胞修复创造最佳微环境。
-                </div>
-              </div>
+        {/* 3 Full-Width Pillars Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+          <div className="bg-white/90 p-3 rounded-xl border border-amber-200/70 shadow-2xs">
+            <div className="text-[12px] font-bold text-amber-900 mb-1 flex items-center gap-1.5">
+              <span>🥦</span>
+              <span>营养与强健体魄</span>
+            </div>
+            <div className="text-[11px] text-slate-600 leading-relaxed">
+              保证优质蛋白摄入，温和散步或太极八段锦，激活机体杀伤性 T 细胞活力。
+            </div>
+          </div>
 
-              <div className="bg-white/90 p-2.5 rounded-xl border border-blue-200/70 shadow-2xs">
-                <div className="text-[11px] font-bold text-blue-900 mb-0.5 flex items-center gap-1">
-                  <span>🕊️ 规律随访，坦然从容</span>
-                </div>
-                <div className="text-[11px] text-slate-600 leading-snug">
-                  按时完成胸部 CT 复查，把担忧托付给科学规律，每一天都充满生机与希望。
-                </div>
-              </div>
+          <div className="bg-white/90 p-3 rounded-xl border border-teal-200/70 shadow-2xs">
+            <div className="text-[12px] font-bold text-teal-900 mb-1 flex items-center gap-1.5">
+              <span>🌈</span>
+              <span>乐观心境与神经免疫</span>
+            </div>
+            <div className="text-[11px] text-slate-600 leading-relaxed">
+              研究证实良好情绪能显著降低皮质醇压力激素，为机体细胞修复创造最佳微环境。
+            </div>
+          </div>
+
+          <div className="bg-white/90 p-3 rounded-xl border border-blue-200/70 shadow-2xs">
+            <div className="text-[12px] font-bold text-blue-900 mb-1 flex items-center gap-1.5">
+              <span>🕊️</span>
+              <span>规律随访，坦然从容</span>
+            </div>
+            <div className="text-[11px] text-slate-600 leading-relaxed">
+              按时完成胸部 CT 复查，把担忧托付给科学规律，每一天都充满生机与希望。
             </div>
           </div>
         </div>
