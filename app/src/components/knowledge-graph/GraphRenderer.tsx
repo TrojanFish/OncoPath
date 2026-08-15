@@ -363,7 +363,6 @@ export function GraphRenderer({
             key={node.id}
             transform={`translate(${node.x}, ${node.y})`}
             className="cursor-pointer select-none"
-            onPointerDown={(e) => e.stopPropagation()}
             onClick={(e) => { 
               e.stopPropagation(); 
               onNodeClick(node); 

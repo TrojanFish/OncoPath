@@ -107,14 +107,14 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
     }
     setSelectedEdge(null);
     setHoveredNode(null);
-    setSelectedNode(selectedNode?.id === node.id ? null : node);
+    setSelectedNode(node);
   };
 
   const handleEdgeClick = (edgeKey: string, e: React.MouseEvent) => {
     e.stopPropagation();
     setHoveredNode(null);
     setSelectedNode(null);
-    setSelectedEdge(selectedEdge === edgeKey ? null : edgeKey);
+    setSelectedEdge(edgeKey);
   };
 
   const enterSandbox = () => {
@@ -250,6 +250,7 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
             maxScale={4}
             centerOnInit={true}
             wheel={{ step: 0.1 }}
+            doubleClick={{ disabled: true }}
           >
             <ZoomControls />
             <TransformComponent wrapperStyle={{ width: "100%", height: "100%", flex: 1 }} contentStyle={{ width: "100%", height: "100%" }}>
