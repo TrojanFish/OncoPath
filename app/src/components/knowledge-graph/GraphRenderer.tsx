@@ -95,6 +95,7 @@ export function GraphRenderer({
         height="120" 
         fill="url(#grid-pattern)" 
         onClick={() => onBackgroundClick?.()}
+        onTouchEnd={(e) => { e.stopPropagation(); onBackgroundClick?.(); }}
         style={{ cursor: "default" }}
       />
 
@@ -366,6 +367,13 @@ export function GraphRenderer({
             onClick={(e) => { 
               e.stopPropagation(); 
               onNodeClick(node); 
+            }}
+            onTouchEnd={(e) => {
+              // bypass react-zoom-pan-pinch touch interception on mobile
+              e.stopPropagation();
+              e.preventDefault();
+              onNodeHover(null);
+              onNodeClick(node);
             }}
             onMouseEnter={() => onNodeHover(node)}
             onMouseLeave={() => onNodeHover(null)}
