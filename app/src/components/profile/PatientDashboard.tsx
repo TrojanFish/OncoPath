@@ -118,11 +118,11 @@ export default function PatientDashboard() {
 
       <div className="grid md:grid-cols-3 gap-6 mb-6">
         
-        {/* Core Clinical Profile Card */}
+        {/* Core Clinical Profile Card (Adaptive CT & Pathology) */}
         <div className="md:col-span-2 bg-white rounded-3xl p-6 sm:p-7 border border-slate-200 shadow-sm">
           <div className="flex items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100">
-            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-              CLINICAL DIAGNOSIS · 当前诊断画像
+            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+              <span>{profile.currentStage === 'evaluation' || profile.currentStage === 'discovery' ? '🩻 CT IMAGING DIAGNOSIS · 影像诊断画像' : '🔬 CLINICAL DIAGNOSIS · 术后病理画像'}</span>
             </h3>
             <span className="text-xs font-semibold text-teal-700 bg-teal-50 px-2.5 py-0.5 rounded-full border border-teal-200">
               {noduleLabel}
@@ -138,63 +138,100 @@ export default function PatientDashboard() {
             <div className="flex-1">
               <div className="flex flex-wrap items-center gap-2 mb-1.5">
                 <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900">
-                  {profile.stage ? `${profile.stage} 期原发性肺腺癌` : '早期原发性肺腺癌'}
+                  {profile.currentStage === 'evaluation' || profile.currentStage === 'discovery'
+                    ? (profile.stage ? `c${profile.stage} 期肺结节 (影像拟定)` : '早期肺结节 (待病理确诊)')
+                    : (profile.stage ? `${profile.stage} 期原发性肺腺癌` : '早期原发性肺腺癌')
+                  }
                 </h2>
                 <span className="px-2.5 py-1 rounded-lg bg-blue-50 text-accent-blue border border-blue-200 text-xs font-extrabold">
                   {profile.tStage || "T1a"}{profile.nStage || "N0"}{profile.mStage || "M0"}
                 </span>
+                {profile.lungRads && (
+                  <span className="px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 text-xs font-bold">
+                    Lung-RADS {profile.lungRads}
+                  </span>
+                )}
               </div>
 
               <div className="text-xs sm:text-sm text-slate-600 space-y-1">
                 <div>
-                  <strong>手术术式</strong>: {
-                    profile.surgeryType === 'segmentectomy' ? '解剖性肺段切除' :
-                    profile.surgeryType === 'lobectomy' ? '标准肺叶切除' :
-                    profile.surgeryType === 'wedge' ? '肺楔形切除' :
-                    profile.surgeryType || '根治性切除'
-                  } · <strong>病理分级</strong>: {profile.iaslcGrade === '1' ? '高分化 (Grade 1)' : profile.iaslcGrade === '3' ? '低分化 (Grade 3)' : '中分化 (Grade 2)'}
+                  {profile.currentStage === 'evaluation' || profile.currentStage === 'discovery' ? (
+                    <span><strong>结节部位</strong>: {profile.noduleLocation || '肺部结节'} · <strong>诊疗阶段</strong>: 术前影像评估 / 定期随访</span>
+                  ) : (
+                    <span>
+                      <strong>手术术式</strong>: {
+                        profile.surgeryType === 'segmentectomy' ? '解剖性肺段切除' :
+                        profile.surgeryType === 'lobectomy' ? '标准肺叶切除' :
+                        profile.surgeryType === 'wedge' ? '肺楔形切除' :
+                        profile.surgeryType || '根治性切除'
+                      } · <strong>病理分级</strong>: {profile.iaslcGrade === '1' ? '高分化 (Grade 1)' : profile.iaslcGrade === '3' ? '低分化 (Grade 3)' : '中分化 (Grade 2)'}
+                    </span>
+                  )}
                 </div>
                 
                 {profile.solidSize != null && (
                   <div className="text-teal-800 text-xs font-medium bg-teal-50/80 p-2 rounded-xl border border-teal-200 mt-2">
-                    📏 <strong>实性浸润大小</strong>: {profile.solidSize} cm (总径 {profile.tumorSize || 1.5} cm, CTR {profile.ctr ?? 0.53}) ➔ 依据 AJCC 8th 规则校准为 {profile.stage || 'IA1'} 期
+                    📏 <strong>CT 实性浸润大小</strong>: {profile.solidSize} cm (总径 {profile.tumorSize || 1.5} cm, CTR {profile.ctr ?? 0.53}) ➔ 依据 AJCC 8th 规则校准为 {profile.stage || 'IA1'} 期
                   </div>
                 )}
               </div>
             </div>
           </div>
           
-          {/* 4-Factor Traffic Light Matrix (Red / Green) */}
-          <div className="mt-6 pt-5 border-t border-slate-100">
-            <div className="flex items-center justify-between mb-3">
-              <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                🚦 关键病理红绿灯矩阵 (决定辅助治疗与复发风险)
-              </h4>
+          {/* CT Imaging Features Or Pathology Matrix */}
+          {profile.currentStage === 'evaluation' || profile.currentStage === 'discovery' ? (
+            <div className="mt-6 pt-5 border-t border-slate-100">
+              <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2.5 flex items-center justify-between">
+                <span>🩻 放射科 CT 恶性风险征象</span>
+                <span className="text-sky-600 font-semibold text-[11px]">基于 Fleischner / CSCO 早期结节指南</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {profile.imagingFeatures && profile.imagingFeatures.length > 0 ? (
+                  profile.imagingFeatures.map((feat, i) => (
+                    <span key={i} className="px-3 py-1 bg-amber-50 text-amber-800 border border-amber-200 rounded-xl text-xs font-semibold flex items-center gap-1">
+                      <span>⚠️</span>
+                      <span>{feat}</span>
+                    </span>
+                  ))
+                ) : (
+                  <span className="px-3 py-1 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-xl text-xs font-semibold">
+                    🟢 结节边缘光滑，未见明显毛刺或胸膜牵拉征
+                  </span>
+                )}
+              </div>
             </div>
+          ) : (
+            <div className="mt-6 pt-5 border-t border-slate-100">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  🚦 关键病理红绿灯矩阵 (决定辅助治疗与复发风险)
+                </h4>
+              </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <RiskBadge 
-                label="切缘状态" 
-                status={isMarginSafe ? 'good' : 'danger'} 
-                text={isMarginSafe ? '阴性 (R0安全)' : '阳性 (有残留)'} 
-              />
-              <RiskBadge 
-                label="气道播散 (STAS)" 
-                status={isStasSafe ? 'good' : 'warning'} 
-                text={isStasSafe ? '无 / 阴性' : '阳性 (高危)'} 
-              />
-              <RiskBadge 
-                label="脉管癌栓 (LVI)" 
-                status={isLviSafe ? 'good' : 'warning'} 
-                text={isLviSafe ? '无 / 阴性' : '阳性 (高危)'} 
-              />
-              <RiskBadge 
-                label="淋巴结分期" 
-                status={isN0Safe ? 'good' : 'danger'} 
-                text={profile.nStage === 'N0' ? 'N0 (无转移)' : profile.nStage === 'N1' ? 'N1 (肺门累及)' : profile.nStage === 'N2' ? 'N2 (纵隔转移)' : profile.nStage || 'N0'} 
-              />
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <RiskBadge 
+                  label="切缘状态" 
+                  status={isMarginSafe ? 'good' : 'danger'} 
+                  text={isMarginSafe ? '阴性 (R0安全)' : '阳性 (有残留)'} 
+                />
+                <RiskBadge 
+                  label="气道播散 (STAS)" 
+                  status={isStasSafe ? 'good' : 'warning'} 
+                  text={isStasSafe ? '无 / 阴性' : '阳性 (高危)'} 
+                />
+                <RiskBadge 
+                  label="脉管癌栓 (LVI)" 
+                  status={isLviSafe ? 'good' : 'warning'} 
+                  text={isLviSafe ? '无 / 阴性' : '阳性 (高危)'} 
+                />
+                <RiskBadge 
+                  label="淋巴结分期" 
+                  status={isN0Safe ? 'good' : 'danger'} 
+                  text={profile.nStage === 'N0' ? 'N0 (无转移)' : profile.nStage === 'N1' ? 'N1 (肺门累及)' : profile.nStage === 'N2' ? 'N2 (纵隔转移)' : profile.nStage || 'N0'} 
+                />
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Decision Engine Recommendation Card */}

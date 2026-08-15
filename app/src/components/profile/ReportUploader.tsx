@@ -147,20 +147,75 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
     return (
       <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xl max-w-3xl mx-auto w-full">
         
-        {/* Verification Header */}
-        <div className="flex items-start gap-3.5 mb-6 pb-5 border-b border-slate-100">
-          <div className="w-11 h-11 rounded-2xl bg-teal-50 text-teal-700 flex items-center justify-center text-2xl flex-shrink-0 border border-teal-200">
-            🛡️
-          </div>
-          <div>
-            <h2 className="text-lg sm:text-xl font-bold text-slate-900">
-              病理特征核对 (Human-in-the-loop)
-            </h2>
-            <p className="text-slate-500 text-xs sm:text-sm mt-0.5 leading-relaxed">
-              AI 已为您自动提取关键指标。请确认病理与结节实性成分特征，确保后续循证推演绝对精准。
-            </p>
+        {/* Modality Type Header Badge */}
+        <div className="flex items-center justify-between gap-3 mb-6 pb-4 border-b border-slate-100">
+          <div className="flex items-center gap-3">
+            <div className={`w-10 h-10 rounded-2xl flex items-center justify-center text-xl font-bold flex-shrink-0 ${
+              parsedData.reportType === 'ct_imaging' 
+                ? 'bg-sky-50 text-sky-700 border border-sky-200' 
+                : 'bg-teal-50 text-teal-700 border border-teal-200'
+            }`}>
+              {parsedData.reportType === 'ct_imaging' ? '🖼️' : '🔬'}
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">智能识别报告类型</span>
+                <span className={`px-2.5 py-0.5 rounded-full text-xs font-extrabold border ${
+                  parsedData.reportType === 'ct_imaging'
+                    ? 'bg-sky-100/70 text-sky-800 border-sky-300'
+                    : 'bg-teal-100/70 text-teal-800 border-teal-300'
+                }`}>
+                  {parsedData.reportType === 'ct_imaging' ? '胸部 CT 影像学报告 (术前/评估期)' : '术后病理组织确诊报告 (治疗期)'}
+                </span>
+              </div>
+              <p className="text-slate-500 text-xs mt-0.5">
+                AI 已自动提取关键指标，请确认以下特征以生成最精准的循证推演
+              </p>
+            </div>
           </div>
         </div>
+
+        {/* CT Imaging Specific Feature Banner (If CT Report) */}
+        {parsedData.reportType === 'ct_imaging' && (
+          <div className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-sky-50 via-indigo-50/50 to-blue-50 border border-sky-200 shadow-2xs space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="text-xs font-bold text-sky-900 flex items-center gap-1.5">
+                <span>🩻 放射科 CT 影像学征象</span>
+                {parsedData.noduleLocation && (
+                  <span className="bg-white text-sky-800 px-2 py-0.5 rounded-md border border-sky-200 text-[11px] font-semibold">
+                    📍 {parsedData.noduleLocation}
+                  </span>
+                )}
+              </div>
+              {parsedData.lungRads && (
+                <span className="px-2.5 py-0.5 rounded-full bg-indigo-600 text-white font-bold text-xs">
+                  Lung-RADS: {parsedData.lungRads}
+                </span>
+              )}
+            </div>
+
+            {parsedData.imagingFeatures && parsedData.imagingFeatures.length > 0 && (
+              <div>
+                <div className="text-[11px] text-slate-500 font-semibold mb-1.5">检出影像恶性/浸润特征：</div>
+                <div className="flex flex-wrap gap-1.5">
+                  {parsedData.imagingFeatures.map((feat: string, idx: number) => (
+                    <span key={idx} className="bg-white text-slate-700 px-2.5 py-1 rounded-lg border border-slate-200 text-xs font-medium shadow-2xs flex items-center gap-1">
+                      <span className="text-amber-500 text-xs">⚠️</span>
+                      <span>{feat}</span>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {parsedData.clinicalRecommendation && (
+              <div className="pt-2 border-t border-sky-200/60 text-xs text-sky-950 flex items-start gap-2">
+                <span className="text-sm">💡</span>
+                <span><strong>放射科/临床建议</strong>：{parsedData.clinicalRecommendation}</span>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* AJCC 8th/9th Solid Component Intelligence Banner */}
         {stagingPreview && (
@@ -173,7 +228,7 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
                 </span>
               </div>
               <span className="px-3 py-1 rounded-full bg-emerald-600 text-white font-extrabold text-xs shadow-xs">
-                实际分期：{stagingPreview.stage} 期 ({stagingPreview.tStage}{stagingPreview.nStage}{stagingPreview.mStage})
+                {parsedData.reportType === 'ct_imaging' ? '影像临床拟定' : '实际病理'}：{stagingPreview.stage} 期 ({stagingPreview.tStage}{stagingPreview.nStage}{stagingPreview.mStage})
               </span>
             </div>
             <p className="text-xs text-slate-700 leading-relaxed font-medium">

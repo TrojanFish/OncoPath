@@ -12,6 +12,14 @@ export interface PatientProfile {
   stage: string;
   organ?: string;
   
+  // Report Modality & Detection
+  reportType?: "ct_imaging" | "pathology" | "comprehensive" | string;
+  noduleLocation?: string;       // e.g. "右肺上叶尖后段"
+  imagingFeatures?: string[];    // e.g. ["分叶征", "毛刺征", "胸膜牵拉", "血管集束征", "空泡征"]
+  lungRads?: string;             // e.g. "3", "4A", "4B", "4X"
+  malignancyRisk?: "low" | "moderate" | "high" | string;
+  clinicalRecommendation?: string; // e.g. "建议3个月薄层CT随访" 或 "建议胸外科微创手术评估"
+
   // Imaging & Morphology (AJCC 8th/9th Solid Component Support)
   noduleType?: "mixed_ggo" | "pure_ggo" | "pure_solid" | string;
   morphology?: "pure_ggo" | "mixed_ggo" | "pure_solid" | string;

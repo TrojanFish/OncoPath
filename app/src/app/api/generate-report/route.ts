@@ -1,22 +1,16 @@
 import { NextResponse } from 'next/server';
 import { ai } from '@/lib/gemini';
-import { SANDBOX_NODES } from '@/lib/knowledgeGraphData';
 
-const REPORT_PROMPT = `
-你是一位顶级的肿瘤学教授与病理学专家。你的任务是根据提供的患者癌症病理档案特征，以及后台知识图谱提供的循证文献，为患者撰写一份极其详尽、排版极其优美、结构极清晰、充满人文关怀的【个人专属深度循证解读报告】。
+const POST_OP_PROMPT = `
+你是一位国际顶级胸部肿瘤专科主治医生与循证医学专家。
+请根据该患者的【术后病理组织学数字档案】与【系统检索到的前瞻性临床研究队列证据】，为患者生成一份极具专业权威性、温情同理心、排版现代优雅的《深度专属临床循证分析报告》。
 
-【严格医学安全与合规规则】：
-1. 严禁生存期预测：严禁对患者寿命作确定性预言（例如绝不可说"你还有X年寿命"）。仅可引用公开发表的临床队列统计数据（例如"在针对相似人群的 JCOG0804 研究中，5年无复发生存率达到98.2%"）。
-2. 严禁越权处方：严禁直接下达具体用药剂量或处方指令。所有治疗建议应表述为"建议与主治医生重点沟通的决策方向与问诊清单"。
-3. 严格循证溯源：所有风险因子与预后判断必须基于现代病理学指南（AJCC 8th/9th、IASLC）及下方提供的研究文献，尽可能引用文献的具体数据（如 Hazard Ratio HR 风险比、5年生存率等）。
-4. 语言风格：专业、严谨、温暖且富有建设性，消除未知恐惧，给予明确的随访行动路径。
+请严格按照以下 4 大核心板块输出（请使用标准 Markdown 格式）：
 
-【排版美学与结构规范】：
-使用标准 Markdown 格式输出。严禁生成全篇代码块包裹符 (即不用 \`\`\`markdown 包裹全文)。
-请严格按照以下结构组织内容，善用加粗、分点列表与引用块（>），使重点一目了然：
-
-> 🌟 **【专家组核心研判·一句话全景省流】**
-> 用最温暖、最权威的1-2句话给出定性结论（明确说明期别、根治性切除状态、当前危险层级与核心建议，让患者第一秒心里有数）。
+> 💡 **【核心执行摘要 · Executive Summary】**
+> - **诊断与分期结论**：以温和肯定的语气说明患者目前的病理确诊结论与 AJCC 8th/9th 实际分期。
+> - **核心预后定心丸**：清晰告知患者 5 年无复发生存率与整体治愈预期，彻底消除未知恐惧。
+> - **核心行动指引**：提炼最关键的一条医疗建议（如按时随访或多学科会诊）。
 
 ---
 
@@ -51,6 +45,45 @@ const REPORT_PROMPT = `
 {EVIDENCE_BASE}
 `;
 
+const PRE_OP_CT_PROMPT = `
+你是一位国际顶级胸部影像学专家与胸外科临床专家。
+请根据该患者的【胸部 CT 影像学诊断档案】（包括结节部位、大小、CT实性成分CTR、恶性影像征象毛刺/分叶/胸膜牵拉等）与【系统检索到的前瞻性临床研究证据（Fleischner指南 / JCOG0804 / JCOG0802等）】，为患者生成一份极具专业权威性、温情同理心、排版清晰优雅的《肺结节深度影像循证与良恶性决策报告》。
+
+请严格按照以下 4 大核心板块输出（请使用标准 Markdown 格式）：
+
+> 💡 **【核心执行摘要 · Executive Summary】**
+> - **影像诊断与恶性风险评估**：客观说明结节形态（纯磨玻璃/部分实性/实性）与良恶性风险评级（低危/中危/高危）。
+> - **核心定心丸**：清晰解释肺部磨玻璃结节普遍进展极慢的生物学特性，避免患者过度恐慌与盲目焦虑。
+> - **核心行动策略**：提炼最关键的一步决策（如 3-6 个月薄层 CT 随访 vs 评估胸腔镜微创肺段切除）。
+
+---
+
+## 1. 🩻【影像定性：您的肺结节全景与解剖定位】
+- **结节解剖与大小拆解**：解读结节所在肺叶肺段，分析大体总径与 CT 实性浸润成分（CTR）的关键意义。
+- **恶性影像征象分析**：通俗解释报告中检出的分叶、毛刺、胸膜牵拉、血管集束等征象的临床含义。
+
+## 2. 🔬【良恶性概率与自然病程：国际前瞻性研究证据】
+- **Fleischner 学会 / CSCO 早期肺结节临床指南**：基于结节形态和大小，匹配权威指南的推荐干预路径。
+- **JCOG0804 / JCOG0802 等磨玻璃结节前瞻性队列**：解释早期磨玻璃结节的惰性生长特点与极高治愈率。
+
+## 3. 📋【向胸外科/呼吸科医生的门诊问诊清单（就医便签）】
+请使用复选框清单格式 \`- [ ] **【关注点】**：具体问询问题\` 呈现 3-4 个高价值问题：
+- [ ] **【动态变化评估】**：对比以往体检 CT，该结节的大小、密度或实性成分是否有明显增大？
+- [ ] **【随访周期规划】**：根据我的结节特征，建议在几月份进行下一次高分辨薄层 CT (HRCT) 复查？
+- [ ] **【微创手术指征】**：若实性成分增大，是否满足单孔胸腔镜解剖性肺段切除的手术指征？
+
+## 4. 📅【肺结节全周期科学随访与观察日历】
+- 🟢 **【动态监测期】**：薄层 CT 扫描参数要求（层厚 ≤1mm、靶扫描），结节体积倍增时间 (VDT) 观察。
+- 🟡 **【生活与体质调理】**：远离二手烟、增强呼吸道免疫力、保持良好心态。
+- 🚨 **【需提前就诊的影像或身体信号】**：实性成分明显增多、结节长径增加超过 2mm 或出现伴随症状。
+
+以下是该患者的数字档案：
+{PROFILE_JSON}
+
+以下是系统匹配到的针对该患者的顶级临床研究证据库：
+{EVIDENCE_BASE}
+`;
+
 export async function POST(request: Request) {
   try {
     const profile = await request.json();
@@ -59,49 +92,49 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: "系统未配置 GEMINI_API_KEY" }, { status: 500 });
     }
 
+    const isCtReport = profile.reportType === "ct_imaging" || profile.currentStage === "evaluation" || profile.currentStage === "discovery";
+
     // Prepare Evidence Base (Accurate Stage & Factor Aware Semantic Matching)
     const evidenceItems: string[] = [];
 
-    // Stage III / N2 Advanced Stage Guidelines
-    const isStage3 = profile.stage?.includes("III") || profile.nStage === "N2" || profile.nStage === "N3";
-    if (isStage3) {
-      evidenceItems.push("【NCCN/CSCO 非小细胞肺癌指南 (IIIA/N2期)】：完全切除的 IIIA 期 (N2) 患者，术后推荐含铂双药辅助化疗；鉴于中枢神经系统转移风险，建议术后第一年行脑部增强 MRI 筛查。");
-      evidenceItems.push("【ADAURA III期前瞻性临床研究 (NEJM/JCO 2020-2023)】：对于 IB-IIIA 期伴有 EGFR 敏感突变 (19del/L858R) 的完全切除肺癌患者，术后奥希替尼辅助靶向治疗可使 IIIA 期无病生存期 (DFS) 显著获益，疾病复发或死亡风险降低超过 70% (HR=0.23)。");
-    }
-
-    // STAS Spread Through Air Spaces Evidence
-    if (profile.stas === "positive") {
-      evidenceItems.push("【Wang et al. Chest 2021 Meta分析 (n=25,467)】：STAS (气道播散) 是早期肺腺癌术后复发的独立危险因素 (HR=1.87, 95% CI: 1.52-2.29)，存在 STAS 提示需更积极评估全身辅助治疗或加密局部影像随访。");
-    }
-
-    // Visceral Pleural Invasion (VPI) Evidence
-    if (profile.vpi === "positive") {
-      evidenceItems.push("【IASLC 8th/9th TNM 胸膜侵犯专病研究】：脏层胸膜侵犯 (VPI) 突破弹性层使 T1 期自动升期为 T2a，是局部微转移的独立预后风险指标。");
-    }
-
-    // EGFR Positive Evidence
-    if (profile.egfr === "positive" && !isStage3) {
-      evidenceItems.push("【ADAURA 临床研究】：对于完全切除的 EGFR 突变患者，第三代 EGFR-TKI 靶向辅助治疗可显著降低中枢神经系统转移与术后复发风险。");
-    }
-
-    // Early Stage T1a/T1b N0 Low Risk Evidence
-    const isEarlyLowRisk = (profile.tStage === "T1a" || profile.tStage === "T1b" || profile.stage === "IA1" || profile.stage === "IA2") && profile.nStage === "N0" && profile.stas !== "positive";
-    if (isEarlyLowRisk) {
-      evidenceItems.push("【JCOG0804 / JCOG0802 多中心前瞻性研究 (JTO/Lancet)】：切缘阴性且无高危病理因素的早期磨玻璃 (CTR≤0.25) 及小结节患者，亚肺叶/解剖性肺段切除 5 年 RFS 超 98.2%，术后以规律随访为主，无需过度化疗。");
-    }
-
-    // Stage-aware fallback if no specific study matched
-    if (evidenceItems.length === 0) {
+    if (isCtReport) {
+      evidenceItems.push("【Fleischner Society 2017/2023 肺结节管理指南】：对于部分实性结节 (mGGO) 实性成分 <6mm，建议 3~6 个月后复查薄层 CT；若实性成分持续存在且 ≥6mm，应高度警惕浸润性病变，建议考虑多学科会诊评估手术。");
+      evidenceItems.push("【JCOG0804 多中心前瞻性临床研究 (JTO)】：针对 CTR ≤0.25 且肿瘤径 ≤2cm 的早期磨玻璃肺腺癌，亚肺叶切除 5 年无复发生存率 (RFS) 达到 99.7%，病理多为原位腺癌 (AIS) 或微浸润腺癌 (MIA)。");
+      evidenceItems.push("【JCOG0802 / WJOG4607L 随机对照 III 期研究 (Lancet 2022)】：对于实性成分比例为主的 ≤2cm 早期肺癌，解剖性肺段切除在保留肺功能的同时，总生存率 (OS) 显著优于传统肺叶切除。");
+    } else {
+      // Stage III / N2 Advanced Stage Guidelines
+      const isStage3 = profile.stage?.includes("III") || profile.nStage === "N2" || profile.nStage === "N3";
       if (isStage3) {
-        evidenceItems.push("【NCCN/CSCO 指南】：IIIA期术后建议开展多学科综合评估 (MDT)，评估辅助化疗、靶向药物及基因突变检测方案。");
-      } else {
-        evidenceItems.push("【NCCN/CSCO 早期肺癌指南】：切缘阴性无高危特征的低风险组，术后规范随访即可达到理想长期生存。");
+        evidenceItems.push("【NCCN/CSCO 非小细胞肺癌指南 (IIIA/N2期)】：完全切除的 IIIA 期 (N2) 患者，术后推荐含铂双药辅助化疗；鉴于中枢神经系统转移风险，建议术后第一年行脑部增强 MRI 筛查。");
+        evidenceItems.push("【ADAURA III期前瞻性临床研究 (NEJM/JCO 2020-2023)】：对于 IB-IIIA 期伴有 EGFR 敏感突变 (19del/L858R) 的完全切除肺癌患者，术后奥希替尼辅助靶向治疗可使 IIIA 期无病生存期 (DFS) 显著获益，疾病复发或死亡风险降低超过 70% (HR=0.23)。");
+      }
+
+      // STAS Spread Through Air Spaces Evidence
+      if (profile.stas === "positive") {
+        evidenceItems.push("【Wang et al. Chest 2021 Meta分析 (n=25,467)】：STAS (气道播散) 是早期肺腺癌术后复发的独立危险因素 (HR=1.87, 95% CI: 1.52-2.29)，存在 STAS 提示需更积极评估全身辅助治疗或加密局部影像随访。");
+      }
+
+      // Visceral Pleural Invasion (VPI) Evidence
+      if (profile.vpi === "positive") {
+        evidenceItems.push("【IASLC 8th/9th TNM 胸膜侵犯专病研究】：脏层胸膜侵犯 (VPI) 突破弹性层使 T1 期自动升期为 T2a，是局部微转移的独立预后风险指标。");
+      }
+
+      // EGFR Positive Evidence
+      if (profile.egfr === "positive" && !isStage3) {
+        evidenceItems.push("【ADAURA 临床研究】：对于完全切除的 EGFR 突变患者，第三代 EGFR-TKI 靶向辅助治疗可显著降低中枢神经系统转移与术后复发风险。");
+      }
+
+      // Early Stage T1a/T1b N0 Low Risk Evidence
+      const isEarlyLowRisk = (profile.tStage === "T1a" || profile.tStage === "T1b" || profile.stage === "IA1" || profile.stage === "IA2") && profile.nStage === "N0" && profile.stas !== "positive";
+      if (isEarlyLowRisk) {
+        evidenceItems.push("【JCOG0804 / JCOG0802 多中心前瞻性研究 (JTO/Lancet)】：切缘阴性且无高危病理因素的早期磨玻璃 (CTR≤0.25) 及小结节患者，亚肺叶/解剖性肺段切除 5 年 RFS 超 98.2%，术后以规律随访为主，无需过度化疗。");
       }
     }
 
     const evidence = evidenceItems.join("\n\n");
+    const templatePrompt = isCtReport ? PRE_OP_CT_PROMPT : POST_OP_PROMPT;
 
-    const finalPrompt = REPORT_PROMPT
+    const finalPrompt = templatePrompt
       .replace("{PROFILE_JSON}", JSON.stringify(profile, null, 2))
       .replace("{EVIDENCE_BASE}", evidence);
 
@@ -123,7 +156,7 @@ export async function POST(request: Request) {
           }
 
           // Safety Appendix
-          const safetyFooter = `\n\n---\n\n> 🛡️ **OncoPath 循证医学与安全免责声明**：\n> 本报告由 OncoPath 循证 AI 引擎根据您提供的病理档案特征与国际已发表临床研究文献（NCCN/CSCO 指南、IASLC、JCOG 系列研究等）汇总生成，仅供患者健康科普与就医参考，**绝不构成任何个性化临床诊断结论或处方指令**。具体的随访检查安排及辅助治疗方案，请务必携带完整纸质病理报告以主管医师或多学科会诊 (MDT) 团队的综合意见为准。\n`;
+          const safetyFooter = `\n\n---\n\n> 🛡️ **OncoPath 循证医学与安全免责声明**：\n> 本报告由 OncoPath 循证 AI 引擎根据您提供的病理/影像档案特征与国际已发表临床研究文献（NCCN/CSCO 指南、Fleischner 学会指南、IASLC、JCOG 系列研究等）汇总生成，仅供患者健康科普与就医参考，**绝不构成任何个性化临床诊断结论或处方指令**。具体的随访检查安排及辅助治疗方案，请务必携带完整影像/病理报告以主管医师或多学科会诊 (MDT) 团队的综合意见为准。\n`;
           controller.enqueue(new TextEncoder().encode(safetyFooter));
 
           controller.close();

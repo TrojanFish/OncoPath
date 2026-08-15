@@ -26,12 +26,18 @@ export async function POST(request: Request) {
       marginStatus: marginStatus,
     });
 
-    let currentStage = data.currentStage || 'post_op';
-    let riskLevel = (isStas || isVpi || isLvi || stagingResult.nStage !== 'N0') ? 'moderate' : 'low';
-    let nextAction = riskLevel === 'low' 
-      ? '属于早期低复发风险组。遵医嘱术后 6 个月规律复查胸部 CT 即可，无需过度化疗。'
-      : '存在局部病理高危因素，建议咨询肿瘤内科进一步评估辅助治疗方案。';
-    let psychState = isStas || isVpi ? 'decision' : 'understanding';
+    let currentStage = data.currentStage || (data.reportType === 'ct_imaging' ? 'evaluation' : 'post_op');
+    let riskLevel = data.riskLevel || ((isStas || isVpi || isLvi || stagingResult.nStage !== 'N0') ? 'moderate' : 'low');
+    let nextAction = data.nextAction || (
+      data.reportType === 'ct_imaging'
+        ? (riskLevel === 'high' 
+            ? 'CT 显示结节具有浸润恶性征象，建议尽早至胸外科门诊进行多学科会诊评估手术。' 
+            : '当前结节处于早期随访范围。建议遵照 Fleischner 指南于 3~6 个月后复查薄层胸部 CT。')
+        : (riskLevel === 'low' 
+            ? '属于早期低复发风险组。遵医嘱术后 6 个月规律复查胸部 CT 即可，无需过度化疗。'
+            : '存在局部病理高危因素，建议咨询肿瘤内科进一步评估辅助治疗方案。')
+    );
+    let psychState = data.psychologicalState || (isStas || isVpi ? 'decision' : 'understanding');
 
     // Save to DB
     const profile = await prisma.patientProfile.create({
@@ -52,7 +58,7 @@ export async function POST(request: Request) {
         stas: isStas,
         vpi: isVpi,
         lvi: isLvi,
-        surgeryType: data.surgeryType || 'segmentectomy',
+        surgeryType: data.surgeryType || (data.reportType === 'ct_imaging' ? 'unknown' : 'segmentectomy'),
         marginStatus: marginStatus,
         
         // State Engine
@@ -70,6 +76,12 @@ export async function POST(request: Request) {
     // Return enriched profile object with normalized strings for UI
     const enriched = {
       ...profile,
+      reportType: data.reportType || (currentStage === 'evaluation' || currentStage === 'discovery' ? 'ct_imaging' : 'pathology'),
+      noduleLocation: data.noduleLocation || '肺部结节',
+      imagingFeatures: data.imagingFeatures || [],
+      lungRads: data.lungRads || null,
+      malignancyRisk: data.malignancyRisk || riskLevel,
+      clinicalRecommendation: data.clinicalRecommendation || nextAction,
       gender: profile.sex,
       stas: profile.stas ? 'positive' : 'negative',
       vpi: profile.vpi ? 'positive' : 'negative',
