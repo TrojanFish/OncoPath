@@ -20,6 +20,7 @@ interface GraphRendererProps {
   onNodeHover: (node: KnowledgeNode | null) => void;
   onEdgeClick: (edgeKey: string, e: React.MouseEvent) => void;
   onEdgeHover: (edgeKey: string | null) => void;
+  onBackgroundClick?: () => void;
 }
 
 export function GraphRenderer({
@@ -37,7 +38,8 @@ export function GraphRenderer({
   onNodeClick,
   onNodeHover,
   onEdgeClick,
-  onEdgeHover
+  onEdgeHover,
+  onBackgroundClick
 }: GraphRendererProps) {
 
   // Sandbox Protective Edges
@@ -88,7 +90,13 @@ export function GraphRenderer({
       <pattern id="grid-pattern" width="10" height="10" patternUnits="userSpaceOnUse">
         <path d="M 10 0 L 0 0 0 10" fill="none" stroke="#f1f5f9" strokeWidth="0.3" />
       </pattern>
-      <rect width="100" height="120" fill="url(#grid-pattern)" />
+      <rect 
+        width="100" 
+        height="120" 
+        fill="url(#grid-pattern)" 
+        onClick={() => onBackgroundClick?.()}
+        style={{ cursor: "default" }}
+      />
 
       {/* 3-Column Causal DAG Visual Header Banners */}
       <g className="pointer-events-none opacity-85">

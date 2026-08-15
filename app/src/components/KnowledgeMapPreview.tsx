@@ -241,7 +241,6 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
               : "border-gray-200"
           }`}
           style={{ minHeight: 450 }}
-          onClick={() => { setSelectedNode(null); setSelectedEdge(null); }}
         >
           <div className="absolute inset-0 bg-gray-50 opacity-50 pointer-events-none" />
           
@@ -270,6 +269,11 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
                 onNodeHover={setHoveredNode}
                 onEdgeClick={handleEdgeClick}
                 onEdgeHover={setHoveredEdge}
+                onBackgroundClick={() => {
+                  setSelectedNode(null);
+                  setSelectedEdge(null);
+                  setHoveredNode(null);
+                }}
               />
             </TransformComponent>
           </TransformWrapper>
