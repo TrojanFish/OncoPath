@@ -39,6 +39,7 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
   const [personalMode, setPersonalMode] = useState<boolean>(!!profile);
   const [sandboxMode, setSandboxMode] = useState<boolean>(false);
   const [sandboxActive, setSandboxActive] = useState<Set<string>>(new Set());
+  const [showMobileLegend, setShowMobileLegend] = useState<boolean>(false);
   
   // 4D Time Slider & AI Growth State
   const [timeYears, setTimeYears] = useState<number>(0);
@@ -271,8 +272,62 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
             </TransformComponent>
           </TransformWrapper>
 
-          {/* Legend (Positioned at Bottom-Right with Frosted Glass Badge) */}
-          <div className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 z-20 bg-white/92 backdrop-blur-md p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border border-slate-200 shadow-sm max-w-[280px] sm:max-w-xs pointer-events-none">
+          {/* Mobile Collapsible Legend Toggle Pill (< sm) */}
+          <div className="sm:hidden absolute bottom-3 right-3 z-20">
+            {!showMobileLegend ? (
+              <button
+                onClick={() => setShowMobileLegend(true)}
+                className="px-2.5 py-1.5 rounded-xl bg-white/95 backdrop-blur-md border border-slate-200 shadow-md text-[11px] font-bold text-slate-700 flex items-center gap-1.5 active:scale-95 transition-all cursor-pointer"
+              >
+                <span className="w-2 h-2 rounded-full bg-accent-blue" />
+                <span>图例注解</span>
+              </button>
+            ) : (
+              <div className="bg-white/95 backdrop-blur-md p-3 rounded-2xl border border-slate-200 shadow-xl max-w-[260px] animate-fade-in text-[11px]">
+                <div className="flex items-center justify-between gap-2 mb-2 pb-1.5 border-b border-slate-100 font-bold text-slate-800">
+                  <span>图谱图例说明</span>
+                  <button 
+                    onClick={() => setShowMobileLegend(false)}
+                    className="w-5 h-5 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-xs hover:bg-slate-200 cursor-pointer"
+                  >
+                    ✕
+                  </button>
+                </div>
+                <div className="grid grid-cols-2 gap-1.5">
+                  {[
+                    { type: "factor", label: "病理因素", dot: "#2563eb" },
+                    { type: "outcome", label: "临床结局", dot: "#dc2626" },
+                    { type: "evidence", label: "证据节点", dot: "#d97706" },
+                    { type: "guideline", label: "指南建议", dot: "#0d9488" },
+                  ].map((item) => (
+                    <div key={item.type} className="flex items-center gap-1.5">
+                      <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: item.dot }} />
+                      <span className="text-slate-600 font-medium">{item.label}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-2 pt-1.5 border-t border-slate-100 space-y-1">
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-3.5 h-0.5 rounded-full bg-rose-500" />
+                    <span className="text-slate-600 font-medium">风险关联</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-3.5 h-0.5 border-t border-dashed border-teal-500" />
+                    <span className="text-slate-600 font-medium">指南关联</span>
+                  </div>
+                  {personalMode && (
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-2 h-2 rounded-full bg-teal-500 animate-pulse" />
+                      <span className="text-teal-700 font-semibold">您的专属路径</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Desktop Static Legend (Positioned at Bottom-Right with Frosted Glass Badge, hidden on mobile) */}
+          <div className="hidden sm:block absolute bottom-3 right-3 sm:bottom-4 sm:right-4 z-20 bg-white/92 backdrop-blur-md p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border border-slate-200 shadow-sm max-w-[280px] sm:max-w-xs pointer-events-none">
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[11px] sm:text-xs">
               {[
                 { type: "factor", label: "病理因素", dot: "#2563eb" },

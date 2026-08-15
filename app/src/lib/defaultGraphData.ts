@@ -7,7 +7,7 @@ export const DEFAULT_GRAPH_NODES: KnowledgeNode[] = [
     label: "实性成分\nCTR",
     type: "factor",
     x: 15,
-    y: 16,
+    y: 17,
     connections: ["STAGING", "SURGERY", "RECURRENCE"],
     connectionTypes: {
       STAGING: "guides",
@@ -23,7 +23,7 @@ export const DEFAULT_GRAPH_NODES: KnowledgeNode[] = [
     label: "气道播散\nSTAS",
     type: "factor",
     x: 15,
-    y: 31,
+    y: 35,
     connections: ["SURGERY", "RECURRENCE"],
     connectionTypes: {
       SURGERY: "guides",
@@ -38,7 +38,7 @@ export const DEFAULT_GRAPH_NODES: KnowledgeNode[] = [
     label: "病理分级\nIASLC",
     type: "factor",
     x: 15,
-    y: 46,
+    y: 53,
     connections: ["ADJUVANT", "RECURRENCE"],
     connectionTypes: {
       ADJUVANT: "guides",
@@ -53,7 +53,7 @@ export const DEFAULT_GRAPH_NODES: KnowledgeNode[] = [
     label: "胸膜侵犯\nVPI",
     type: "factor",
     x: 15,
-    y: 61,
+    y: 71,
     connections: ["STAGING", "ADJUVANT", "METASTASIS"],
     connectionTypes: {
       STAGING: "guides",
@@ -69,7 +69,7 @@ export const DEFAULT_GRAPH_NODES: KnowledgeNode[] = [
     label: "脉管癌栓\nLVI",
     type: "factor",
     x: 15,
-    y: 76,
+    y: 89,
     connections: ["METASTASIS", "RECURRENCE"],
     connectionTypes: {
       METASTASIS: "risk",
@@ -84,7 +84,7 @@ export const DEFAULT_GRAPH_NODES: KnowledgeNode[] = [
     label: "EGFR\n驱动基因",
     type: "factor",
     x: 15,
-    y: 91,
+    y: 107,
     connections: ["TARGETED", "ADJUVANT"],
     connectionTypes: {
       TARGETED: "guides",
@@ -101,7 +101,7 @@ export const DEFAULT_GRAPH_NODES: KnowledgeNode[] = [
     label: "TNM 分期\n指南 (AJCC)",
     type: "guideline",
     x: 50,
-    y: 22,
+    y: 20,
     connections: ["SURGERY", "ADJUVANT"],
     connectionTypes: {
       SURGERY: "guides",
@@ -116,7 +116,7 @@ export const DEFAULT_GRAPH_NODES: KnowledgeNode[] = [
     label: "手术术式\n决策 (肺叶/段)",
     type: "guideline",
     x: 50,
-    y: 43,
+    y: 49,
     connections: ["RECURRENCE"],
     connectionTypes: {
       RECURRENCE: "protective"
@@ -130,7 +130,7 @@ export const DEFAULT_GRAPH_NODES: KnowledgeNode[] = [
     label: "靶向治疗\n(奥希替尼等)",
     type: "guideline",
     x: 50,
-    y: 64,
+    y: 78,
     connections: ["RECURRENCE"],
     connectionTypes: {
       RECURRENCE: "protective"
@@ -144,7 +144,7 @@ export const DEFAULT_GRAPH_NODES: KnowledgeNode[] = [
     label: "辅助治疗\n(化疗/靶向)",
     type: "guideline",
     x: 50,
-    y: 85,
+    y: 106,
     connections: ["RECURRENCE", "METASTASIS"],
     connectionTypes: {
       RECURRENCE: "protective",
@@ -161,7 +161,7 @@ export const DEFAULT_GRAPH_NODES: KnowledgeNode[] = [
     label: "术后复发\n/ 局部进展",
     type: "outcome",
     x: 85,
-    y: 36,
+    y: 42,
     connections: [],
     studies: 40,
     evidence: 5,
@@ -172,7 +172,7 @@ export const DEFAULT_GRAPH_NODES: KnowledgeNode[] = [
     label: "远处微转移\n(脑/骨/内脏)",
     type: "outcome",
     x: 85,
-    y: 68,
+    y: 84,
     connections: [],
     studies: 32,
     evidence: 5,

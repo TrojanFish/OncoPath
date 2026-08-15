@@ -47,7 +47,7 @@ export function GraphRenderer({
 
   return (
     <svg
-      viewBox="0 0 100 105"
+      viewBox="0 0 100 120"
       preserveAspectRatio="xMidYMid meet"
       className="w-full h-full relative z-10 select-none"
     >
@@ -88,7 +88,7 @@ export function GraphRenderer({
       <pattern id="grid-pattern" width="10" height="10" patternUnits="userSpaceOnUse">
         <path d="M 10 0 L 0 0 0 10" fill="none" stroke="#f1f5f9" strokeWidth="0.3" />
       </pattern>
-      <rect width="100" height="105" fill="url(#grid-pattern)" />
+      <rect width="100" height="120" fill="url(#grid-pattern)" />
 
       {/* 3-Column Causal DAG Visual Header Banners */}
       <g className="pointer-events-none opacity-85">
@@ -149,17 +149,31 @@ export function GraphRenderer({
           const x2 = target.x - (dx / len) * offset;
           const y2 = target.y - (dy / len) * offset;
           
-          // Cubic Bézier Control Points for smooth S-curve flow
-          const curvature = Math.max(Math.abs(x2 - x1) * 0.5, 8);
-          const cx1 = x1 + curvature;
-          const cy1 = y1;
-          const cx2 = x2 - curvature;
-          const cy2 = y2;
-          const pathData = `M ${x1} ${y1} C ${cx1} ${cy1}, ${cx2} ${cy2}, ${x2} ${y2}`;
+          // Cubic Bézier Control Points for smooth S-curve flow & vertical collision avoidance
+          const isSameColumn = Math.abs(dx) < 4;
+          let cx1: number, cy1: number, cx2: number, cy2: number;
+          let midX: number, midY: number;
 
-          // Midpoint for interactive badge
-          const midX = 0.5 * (x1 + x2);
-          const midY = 0.5 * (y1 + y2);
+          if (isSameColumn) {
+            // Gracefully curve out to the right for vertical connections (e.g. STAGING -> SURGERY)
+            const curveOffset = 9;
+            cx1 = x1 + curveOffset;
+            cy1 = y1 + (y2 - y1) * 0.25;
+            cx2 = x2 + curveOffset;
+            cy2 = y2 - (y2 - y1) * 0.25;
+            midX = node.x + curveOffset * 0.72;
+            midY = 0.5 * (y1 + y2);
+          } else {
+            const curvature = Math.max(Math.abs(x2 - x1) * 0.5, 8);
+            cx1 = x1 + curvature;
+            cy1 = y1;
+            cx2 = x2 - curvature;
+            cy2 = y2;
+            midX = 0.5 * (x1 + x2);
+            midY = 0.5 * (y1 + y2);
+          }
+
+          const pathData = `M ${x1} ${y1} C ${cx1} ${cy1}, ${cx2} ${cy2}, ${x2} ${y2}`;
 
           let strokeColor: string;
           let strokeWidth: string;
@@ -235,11 +249,11 @@ export function GraphRenderer({
               {badgeText && (
                 <g transform={`translate(${midX}, ${midY})`} className="cursor-pointer">
                   <rect
-                    x="-4.5"
-                    y="-1.8"
-                    width="9"
-                    height="3.6"
-                    rx="1.8"
+                    x="-4"
+                    y="-1.6"
+                    width="8"
+                    height="3.2"
+                    rx="1.6"
                     fill={isEdgeSelected || isEdgeHovered ? "#2563eb" : "#ffffff"}
                     stroke={isEdgeSelected || isEdgeHovered ? "#1d4ed8" : relType === "risk" ? "#fca5a5" : relType === "protective" ? "#86efac" : "#99f6e4"}
                     strokeWidth="0.3"
@@ -248,7 +262,7 @@ export function GraphRenderer({
                   <text
                     textAnchor="middle"
                     dominantBaseline="central"
-                    fontSize="1.6"
+                    fontSize="1.5"
                     fontWeight="bold"
                     fill={isEdgeSelected || isEdgeHovered ? "#ffffff" : relType === "risk" ? "#dc2626" : relType === "protective" ? "#16a34a" : "#0f766e"}
                   >
