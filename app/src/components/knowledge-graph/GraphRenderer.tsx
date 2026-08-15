@@ -355,6 +355,7 @@ export function GraphRenderer({
             key={node.id}
             transform={`translate(${node.x}, ${node.y})`}
             className="cursor-pointer select-none"
+            onPointerDown={(e) => e.stopPropagation()}
             onClick={(e) => { 
               e.stopPropagation(); 
               onNodeClick(node); 
@@ -364,6 +365,9 @@ export function GraphRenderer({
             opacity={nodeOpacity}
             style={{ transition: "opacity 0.3s, transform 0.2s" }}
           >
+            {/* Generous Hit Area for Mobile Touch Reliability */}
+            <rect x="-8" y="-6" width="16" height="18" fill="rgba(0,0,0,0.001)" style={{ pointerEvents: "all" }} />
+
             {/* AI Node Pulse Indicator */}
             {isAiNode && (
               <circle r="7.5" fill="none" stroke="#0d9488" strokeWidth="0.4" strokeDasharray="2,1" className="animate-spin" />

@@ -71,7 +71,7 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
   }, []);
 
   const currentNodes = aiNodeVisible ? [...nodes, aiNewNode] : nodes;
-  const activeNode = hoveredNode || selectedNode;
+  const activeNode = selectedNode || hoveredNode;
   const isPanelActive = sandboxMode || selectedEdge || activeNode;
 
   // Directions 1 calculation for highlights
@@ -106,11 +106,13 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
       return;
     }
     setSelectedEdge(null);
+    setHoveredNode(null);
     setSelectedNode(selectedNode?.id === node.id ? null : node);
   };
 
   const handleEdgeClick = (edgeKey: string, e: React.MouseEvent) => {
     e.stopPropagation();
+    setHoveredNode(null);
     setSelectedNode(null);
     setSelectedEdge(selectedEdge === edgeKey ? null : edgeKey);
   };
@@ -373,7 +375,7 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
           {/* Mobile Overlay Background (only visible when active) */}
           <div 
             className={`lg:hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-40 transition-opacity duration-300 ${isPanelActive ? 'opacity-100 visible' : 'opacity-0 invisible'}`}
-            onClick={() => { setSelectedNode(null); setSelectedEdge(null); if(sandboxMode) exitSandbox(); }}
+            onClick={() => { setSelectedNode(null); setHoveredNode(null); setSelectedEdge(null); if(sandboxMode) exitSandbox(); }}
           />
 
           {/* Drawer / Side Panel */}
@@ -400,7 +402,13 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
                 onClose={() => setSelectedEdge(null)}
               />
             ) : activeNode ? (
-              <NodeInfoPanel node={activeNode} />
+              <NodeInfoPanel 
+                node={activeNode} 
+                onClose={() => {
+                  setSelectedNode(null);
+                  setHoveredNode(null);
+                }}
+              />
             ) : (
               <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200 flex-col items-center justify-center text-center flex-1 hidden lg:flex">
                 <div className="text-4xl mb-3 opacity-50">🕸️</div>

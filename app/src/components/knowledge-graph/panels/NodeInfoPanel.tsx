@@ -2,24 +2,36 @@ import React from 'react';
 import type { KnowledgeNode } from '@/lib/knowledgeGraphData';
 import { typeColors, typeLabels } from '@/lib/knowledgeGraphData';
 
-export function NodeInfoPanel({ node }: { node: KnowledgeNode }) {
+export function NodeInfoPanel({ node, onClose }: { node: KnowledgeNode; onClose?: () => void }) {
   const colors = typeColors[node.type] || typeColors.factor;
 
   return (
-    <div className="bg-white rounded-2xl shadow-md p-5 border flex-1" style={{ borderColor: colors.border }}>
-      <div className="flex items-center gap-3 mb-4">
-        <div
-          className="w-10 h-10 rounded-xl flex items-center justify-center shadow-xs"
-          style={{ background: colors.bg, border: `1px solid ${colors.border}` }}
-        >
-          <div className="w-3.5 h-3.5 rounded-full" style={{ backgroundColor: colors.dot }} />
+    <div className="bg-white rounded-2xl shadow-md p-5 border flex-1 relative" style={{ borderColor: colors.border }}>
+      <div className="flex items-start justify-between mb-4">
+        <div className="flex items-center gap-3">
+          <div
+            className="w-10 h-10 rounded-xl flex items-center justify-center shadow-xs flex-shrink-0"
+            style={{ background: colors.bg, border: `1px solid ${colors.border}` }}
+          >
+            <div className="w-3.5 h-3.5 rounded-full" style={{ backgroundColor: colors.dot }} />
+          </div>
+          <div>
+            <h3 className="font-bold text-slate-900 text-base">{node.label.replace("\n", " ")}</h3>
+            <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ color: colors.text, backgroundColor: colors.bg }}>
+              {typeLabels[node.type]}
+            </span>
+          </div>
         </div>
-        <div>
-          <h3 className="font-bold text-slate-900 text-base">{node.label.replace("\n", " ")}</h3>
-          <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ color: colors.text, backgroundColor: colors.bg }}>
-            {typeLabels[node.type]}
-          </span>
-        </div>
+
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="text-slate-400 hover:text-slate-700 hover:bg-slate-100 w-7 h-7 rounded-full flex items-center justify-center transition-colors text-lg leading-none cursor-pointer flex-shrink-0"
+            title="关闭"
+          >
+            ×
+          </button>
+        )}
       </div>
 
       <p className="text-slate-600 text-xs leading-relaxed mb-4">{node.description}</p>
