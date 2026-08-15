@@ -46,7 +46,13 @@ export interface WikiTopic {
     | "VascularConvergenceVisual"
     | "IplnLymphVisual"
     | "IhcKi67Visual"
-    | "CalcificationVisual";
+    | "CalcificationVisual"
+    | "AdjuvantDecisionTreeVisual"
+    | "MediastinalLNMapVisual"
+    | "EgfrMutationMapVisual"
+    | "PleuralLayersVisual"
+    | "LungRadsScaleVisual"
+    | "PdL1ImmuneMechanismVisual";
   
   // 关联知识图谱节点 ID
   graphNodeId?: string;
@@ -223,6 +229,7 @@ export const WIKI_TOPICS: WikiTopic[] = [
         answer: "现代胸外科有成熟的胸壁重建材料与微创技术，术后胸廓形态和呼吸功能可得到极佳的保护与代偿，绝大多数患者术后能恢复正常日常活动。"
       }
     ],
+    visualComponent: "PleuralLayersVisual",
     searchKeywords: ["PL3", "胸壁侵犯", "壁层胸膜", "T3期", "xiongbaiqinfan", "En-bloc切除", "胸壁切除"],
   },
   {
@@ -317,6 +324,7 @@ export const WIKI_TOPICS: WikiTopic[] = [
         answer: "这代表外科纵隔清扫非常彻底规范！阴性淋巴结越多，说明周边其他防线没有被突破。清扫总数 >12 枚且切缘阴性是高质量根治手术的金标准，为术后辅助治疗奠定了坚实基础。"
       }
     ],
+    visualComponent: "MediastinalLNMapVisual",
     graphNodeId: "METASTASIS",
     searchKeywords: ["N2", "纵隔淋巴结", "zonggelinbajie", "淋巴结转移", "IIIA期", "IIIB期", "淋巴清扫", "第7组淋巴结", "第4组淋巴结"],
   },
@@ -330,7 +338,7 @@ export const WIKI_TOPICS: WikiTopic[] = [
     riskLevel: "moderate",
     priorityOrder: 85,
     metaphor: "TTF-1、CK7 阳性是肿瘤的'户口本与身份证'（证明它属于哪一种细胞宗族）；而 Ki-67 是细胞发动机的'实时转速表'——转速高代表踩了油门，但同时也更容易被靶向药和化疗药物精准锁定！",
-    clinicalTruth: "免疫组织化学（IHC）利用抗体特异性结合原理，检测肿瘤细胞表达的特异性蛋白质，是确诊组织学分型的金标准：\n• 肺腺癌特异性标志物：TTF-1(+)、Napsin A(+)、CK7(+)，同时 P40(-)、P63(-)，用于精确排除肺鳞癌或胃肠转移癌（CDX2/CK20）；\n• Ki-67 增殖指数：反映处于细胞分裂活跃周期的比例。在原位/微浸润腺癌中通常极低（<3%~5%）；在常规浸润性腺癌中多在 10%~30%；在高级别神经内分泌癌/小细胞肺癌中常 >50%~80%+。Ki-67 是肿瘤代谢活性的转速表，绝不是患者的'复发转移概率'！",
+    clinicalTruth: "免疫组织化学（IHC）利用抗体特异性结合原理，检测肿瘤细胞表达的特异性蛋白质，是确诊组织学分型的金标准：\n• 肺腺癌特异性标志物：TTF-1(+)、Napsin A(+)、CK7(+)，同时 P40(-)、P63(-)，用于精确排除肺鳞癌或胃肠转移癌（CDX2/CK20）；\n• Ki-67 增殖指数：反映处于细胞分裂活跃周期的比例。在原位/微浸润腺癌中通常极低（<3%~5%）；在常规浸润性腺癌中通常在 10%~40%，分化越低（如实体型/微乳头型）数值越高；在高级别神经内分泌癌/小细胞肺癌中常 >50%~80%+。Ki-67 是肿瘤代谢活性的转速表，绝不是患者的'复发转移概率'！",
     tactics: [
       "若 TTF-1 阳性确诊为肺腺癌，应常规进行驱动基因（EGFR/ALK/ROS1等）NGS 大 Panel 检测以锁定靶向药",
       "若 Ki-67 较高（>30%），提示肿瘤细胞分裂增殖活跃，在需要术后辅助治疗时对含铂化疗与靶向药物更敏感、响应更佳",
@@ -466,7 +474,7 @@ export const WIKI_TOPICS: WikiTopic[] = [
     riskLevel: "moderate",
     priorityOrder: 49,
     metaphor: "像板栗外壳上的细密小刺，或者结节收缩时周围纤维组织拉伸出的小细丝。长粗毛刺多为以前肺炎留下的瘢痕，短细密集毛刺才需要关注。",
-    clinicalTruth: "毛刺征（Spiculation）是指从结节边缘向周围肺实质呈放射状伸出的小线条，病理学机制截然不同：\n• 短细放射状毛刺（长度 <3mm，密集纤细）：多因肿瘤细胞沿小叶间隔浸润生长并诱导间质促纤维组织增生（Desmoplasia）收缩牵拉所致，需警惕浸润性活性；\n• 粗长条索状毛刺（长度 >5mm，稀疏僵直）：多为既往肺炎、肺结核痊愈后遗留的机化纤维条索瘢痕，属于良性病变。单凭毛刺不能直接定性为恶性，需结合实性成分（CTR）和三维体积倍增时间（VDT）综合评估。",
+    clinicalTruth: "毛刺征（Spiculation）是指从结节边缘向周围肺实质呈放射状伸出的小线条，病理学机制截然不同：\n• 短细放射状毛刺（CT 影像上 <1cm，密集纤细）：多因肿瘤细胞沿小叶间隔浸润生长并诱导间质促纤维组织增生（Desmoplasia）收缩牵拉所致，需警惕浸润性活性；\n• 粗长条索状毛刺（CT 影像上 >1cm，稀疏僵直）：多为既往肺炎、肺结核痊愈后遗留的机化纤维条索瘢痕，属于良性病变。单凭毛刺不能直接定性为恶性，需结合实性成分（CTR）和三维体积倍增时间（VDT）综合评估。",
     tactics: [
       "请放射科医生在薄层高分辨率 CT（HRCT）上精准鉴别是'粗长炎性条索'还是'短细放射毛刺'",
       "若为首次发现且伴有长粗毛刺，通常建议 3~6 个月复查薄层 CT 观察是否为陈旧炎性机化灶",
@@ -475,7 +483,7 @@ export const WIKI_TOPICS: WikiTopic[] = [
     reassurance: "看到报告写'见毛刺'千万不要吓慌！我国成年人体检中有相当高比例的人因为以前得过支气管炎、肺炎或隐匿性结核感染，肺部留下了类似'伤疤拉扯'的长粗毛刺，只要长期随访形态稳定，就完全属于无害良性瘢痕！",
     keyMetric: {
       label: "长毛刺与短毛刺鉴别",
-      value: "粗长毛刺 (>5mm) 绝大多数为良性机化瘢痕",
+      value: "粗长毛刺 (>1cm) 绝大多数为良性机化瘢痕",
       source: "Chinese Expert Consensus on Lung Nodule Evaluation 2024",
     },
     faq: [
@@ -707,6 +715,7 @@ export const WIKI_TOPICS: WikiTopic[] = [
         answer: "术后辅助治疗的目的是杀灭术后残留的微小细胞以实现根治，与晚期带瘤吃药的耐药机制不同。在完全切除状态下，体内肿瘤负荷极低，发生耐药突变的概率大幅降低。"
       }
     ],
+    visualComponent: "EgfrMutationMapVisual",
     graphNodeId: "TARGETED",
     searchKeywords: ["EGFR", "奥希替尼", "靶向药", "aoxitini", "19del", "L858R", "20ins", "舒沃替尼", "阿美替尼", "伏美替尼", "基因检测"],
   },
@@ -723,7 +732,7 @@ export const WIKI_TOPICS: WikiTopic[] = [
     clinicalTruth: "PD-L1（程序性死亡受体-配体 1）是评估非小细胞肺癌对免疫治疗敏感性的核心生物标志物，病理报告常用肿瘤细胞阳性比例评分（TPS）表示：<1% 为阴性，1%~49% 为低表达，≥50% 为高表达。对于驱动基因全阴性（EGFR/ALK 等野生型）的 II~IIIA 期完全切除术后患者，国际顶级临床试验（IMpower010 / KEYNOTE-091）证实，含铂化疗后序贯 PD-L1 抑制剂（阿替利珠单抗）或 PD-1 抑制剂（帕博利珠单抗）辅助治疗，可显著降低复发风险。",
     tactics: [
       "术后病理标本若驱动基因为野生型（阴性），必须常规加做 PD-L1 免疫组化（22C3 或 SP263 平台）",
-      "对于 II~IIIA 期且 PD-L1 TPS ≥1% 的术后患者，指南推荐在辅助化疗后序贯使用 1 年免疫辅助治疗",
+      "对于 II~IIIA 期且 PD-L1 TPS ≥1% 的术后患者，指南推荐在辅助化疗后序贯使用 1 年免疫辅助治疗（依据中国 NMPA 最新获批适应症与多学科 MDT 综合讨论决定）",
       "对于 PD-L1 TPS ≥50% 的高表达患者，免疫治疗获益幅度最大，复发风险可降低 57%（IMpower010 数据）",
     ],
     reassurance: "如果您的基因检测没有查出 EGFR 或 ALK 等突变，千万不要沮丧！因为这意味着您可能是'免疫治疗的黄金获益人群'！免疫治疗利用的是人体自身强大的免疫杀伤力，一旦起效具有持久的'长尾效应'，同样能够构建牢不可破的抗复发防线！",
@@ -742,6 +751,7 @@ export const WIKI_TOPICS: WikiTopic[] = [
         answer: "通常不推荐同时联用。EGFR 或 ALK 突变阳性患者首选靶向药物，若盲目联合免疫药不仅疗效不佳，反而容易增加间质性肺炎和肝损伤毒性。严格遵循指南用药最安全！"
       }
     ],
+    visualComponent: "PdL1ImmuneMechanismVisual",
     searchKeywords: ["PD-L1", "免疫治疗", "mianyizhiliaol", "阿替利珠单抗", "帕博利珠单抗", "TPS", "IMpower010", "KEYNOTE-091", "免疫检查点"],
   },
   {
@@ -834,6 +844,7 @@ export const WIKI_TOPICS: WikiTopic[] = [
         answer: "这恰恰是天大的好消息！说明您的病理分期处于极早期（如 IA 期），肿瘤已被手术彻底根治。国际指南数万例临床数据显示，极早期患者单纯规律随访的效果与用药一样完美，不吃药可以完全避免药物副作用与经济负担！"
       }
     ],
+    visualComponent: "AdjuvantDecisionTreeVisual",
     searchKeywords: ["辅助治疗", "术后化疗", "术后靶向", "fuzhuzhiliao", "IA期用药", "IB期高危", "ADAURA", "辅助免疫", "术后吃药"],
   },
   {
@@ -864,6 +875,7 @@ export const WIKI_TOPICS: WikiTopic[] = [
         answer: "完全不是！4A 类代表结节有一定形态特征需要更密切的关注（如 3 个月后复查），在 4A 类人群中，最终证实为良性感染、机化或陈旧病灶的比例仍高达 85%~90% 以上！"
       }
     ],
+    visualComponent: "LungRadsScaleVisual",
     searchKeywords: ["Lung-RADS", "肺结节分级", "LungRADS", "4A类结节", "3类结节", "2类结节", "ACR", "低剂量CT筛查"],
   },
   {
@@ -933,5 +945,180 @@ export const WIKI_TOPICS: WikiTopic[] = [
       }
     ],
     searchKeywords: ["术后咳嗽", "胸闷", "伤口疼", "shuhoukesou", "肋间神经痛", "吹气球", "肺功能恢复", "肺代偿"],
+  },
+  {
+    id: "surgical-approaches",
+    category: "pathology",
+    subcategory: "手术方式与肺功能",
+    title: "肺部微创手术方式解密 (楔形 vs 肺段 vs 肺叶 vs 袖状切除)",
+    subtitle: "Surgical Resections: Wedge, Segmentectomy, Lobectomy & Sleeve",
+    icon: "🔪",
+    riskLevel: "safe",
+    priorityOrder: 75,
+    metaphor: "像果树修剪——发现一个小斑点（微小纯磨玻璃），只需轻轻摘掉一两片病叶（楔形或肺段切除），保留整根大树枝的生机；若病灶较深或实性较多，则规范切除整根树枝（肺叶切除），彻底杜绝后患。",
+    clinicalTruth: "现代胸外科严格依据结节大小、位置与实性成分（CTR）量体裁衣选择术式：\n• 楔形切除（Wedge）：非解剖性局部切除，仅适用于肺外周 1/3 的微小纯磨玻璃结节（AIS/MIA）或高龄心肺功能极差者；\n• 解剖性肺段切除（Segmentectomy）：JCOG0802 与 CALGB 140503 国际顶级多中心 RCT 证实，对于外周 ≤2cm 且 CTR ≤0.5 的早期肺癌，肺段切除总生存率甚至略优于肺叶切除（5年 OS 94.3% vs 91.1%），并能保留 90%+ 的健康肺功能；\n• 标准肺叶切除（Lobectomy）：实性成分 >2cm 或 CTR >0.5 的浸润性肺癌标准根治金标准；\n• 袖状成形切除（Sleeve）：对于侵犯主支气管或肺动脉干的中央型肺癌，通过袖状吻合成形切除病变，成功避免'全肺切除'，最大化拯救患者心肺功能。",
+    tactics: [
+      "术前通过三维 CT 支气管血管重建（3D-CTBA）精准规划肺段亚段切除靶区与切缘距离（确保切缘 ≥2cm 或 ≥肿瘤直径）",
+      "CTR ≤0.5 的早期结节优先与胸外科专家沟通评估能否行保留更多肺功能的肺段微创切除",
+      "术中常规送快速冰冻病理，若证实为微浸润（MIA）或原位癌（AIS），完成亚肺叶切除即达根治",
+    ],
+    reassurance: "现代胸外科早已告别'一刀切全叶'的粗放时代，进入'毫米级精准保肺'时代！在确保 100% 根治切除的前提下，主刀医生会像雕刻艺术品一样为您尽可能多地挽救每一片健康的肺组织！",
+    keyMetric: {
+      label: "≤2cm 早期肺癌肺段切除 5 年生存率",
+      value: "5年 OS 94.3% (JCOG0802 柳叶刀重磅数据)",
+      source: "Asamura et al., Lancet 2022 (JCOG0802/WJOG4607L)",
+    },
+    faq: [
+      {
+        question: "肺段切除和肺叶切除相比，会不会切不干净容易复发？",
+        answer: "JCOG0802 国际顶级研究历时十余年随访证实：对于 ≤2cm 且 CTR ≤0.5 的外周早期肺癌，肺段切除的局部复发率完全可控，且由于保留了更多肺功能，患者长期总生存率甚至略高于肺叶切除！"
+      },
+      {
+        question: "切除了一个肺叶，以后还会再长出来新的肺叶吗？",
+        answer: "切除的肺组织不会再生出新的肺叶，但是剩余的健康肺组织会像海绵一样自然代偿性膨胀，肺泡通气储备能力大幅增强，完全能满足日常工作和运动需求。"
+      }
+    ],
+    graphNodeId: "SURGERY",
+    searchKeywords: ["肺段切除", "楔形切除", "肺叶切除", "袖状切除", "JCOG0802", "shoushufangshi", "亚肺叶切除", "保肺手术", "微创手术"],
+  },
+  {
+    id: "vats-robotic-surgery",
+    category: "pathology",
+    subcategory: "现代外科技术",
+    title: "单孔胸腔镜 (VATS) 与达芬奇机器人手术原理",
+    subtitle: "Uniportal VATS & Da Vinci Robotic Thoracic Surgery",
+    icon: "🤖",
+    riskLevel: "safe",
+    priorityOrder: 72,
+    metaphor: "像在胸壁上开了一扇仅 2~3 厘米的'微型钥匙孔'，医生通过高清晰度的'电子鹰眼'将胸腔放大 10~15 倍，再通过比人手还灵活的机械微型巧手进行毫米级精细分离，既不切断肋骨也不大动干戈。",
+    clinicalTruth: "现代胸部微创外科已全面普及单孔/多孔胸腔镜（VATS）及达芬奇机器人辅助手术（RATS）：\n• 单孔胸腔镜（Uniportal VATS）：仅通过腋下一个 2.5~3.5cm 单一微小切口，利用交叉力线技术完成解剖性切除与淋巴结清扫，不切断肋骨、不撑开肋骨，极大减轻术后神经压迫疼痛；\n• 达芬奇机器人（RATS）：拥有裸眼 3D 超高清双目视野（放大 15 倍）及具有 7 个自由度、540° 旋转能力的 EndoWrist 仿真机械手，完全滤除人手生理震颤，在狭窄深邃的纵隔深处清扫淋巴结时出血量极少、游离极精细；\n• 肿瘤安全保障：切除的肺标本均严格装入特制无菌医用标本袋内完整取出，全程零接触切口，彻底杜绝切口种植转移风险。",
+    tactics: [
+      "微创手术创伤小，术后 6 小时即可在护士协助下适度下床活动，促进血液循环与胃肠复苏",
+      "术后配合多模式镇痛方案（肋间神经阻滞等），无需强忍切口疼痛，保障有效咳嗽排痰",
+      "绝大多数规范微创手术患者术后 2~4 天即可达到拔管出院标准（加速康复 ERAS 标准流程）",
+    ],
+    reassurance: "不用担心切口小会'看不清'或'切不干净'！微创胸腔镜和机器人的高清摄像头能把毛细血管和神经放大数十倍，视野远比几十年前的大开胸肉眼更加清晰逼真！小切口，大根治！",
+    keyMetric: {
+      label: "微创胸腔镜术后快速康复出院率",
+      value: "术后 2~4 天出院率 >90%",
+      source: "ERAS Society Guidelines for Thoracic Surgery 2023",
+    },
+    faq: [
+      {
+        question: "微创手术会不会因为切口小，肿瘤拿出来的时候被挤破？",
+        answer: "绝对不会！切除标本后，主刀医生会先将标本完全套入高强度的医用标本袋并拉紧封口，在完全密封状态下通过微创切口移出体外，标本完全不接触切口周围组织，安全性极高。"
+      },
+      {
+        question: "达芬奇机器人手术是机器自己做，还是医生在操作？",
+        answer: "完全是由主刀专家亲自实时操控！医生坐在高精度的操控台前，机器人机械臂精确同步复制医生双手的每一个微动作，并实时过滤手部抖动，本质是顶尖专家的'超级机械神手'。"
+      }
+    ],
+    graphNodeId: "SURGERY",
+    searchKeywords: ["胸腔镜", "单孔胸腔镜", "VATS", "达芬奇机器人", "RATS", "weichuang", "小切口", "标本袋", "加速康复"],
+  },
+  {
+    id: "multiple-primary-lung-cancer",
+    category: "nodule",
+    subcategory: "多发结节管理",
+    title: "双肺多发结节与第二原发肺癌 (MPLC vs 转移)",
+    subtitle: "Multiple Primary Lung Cancer (MPLC) vs Metastasis",
+    icon: "🌱",
+    riskLevel: "moderate",
+    priorityOrder: 42,
+    metaphor: "像一棵苹果树上不同枝头各自长出了几颗小苹果（多发原发），而不是这颗苹果掉下来砸到了另一根树枝（转移扩散）。它们各有各的生长节奏，各自处于极早期，互不相干。",
+    clinicalTruth: "体检筛查中约 20%~30% 的磨玻璃结节表现为双肺多发（Multiple GGO）。临床病理学与基因测序已彻底证实：多发 GGO 绝大多数属于**同步多原发肺癌（MPLC）**，即双肺不同部位在致癌微环境下各自独立发生的早期病变，而非'肺内转移'！\n• 鉴别金标准（Martini-Melamed 标准 / 分子克隆检测）：若各结节具有不同的病理组织亚型（如一处为贴壁型，另一处为腺泡型）或不同的驱动基因突变（如一处为 EGFR 19del，另一处为 L858R 或野生型），即可 100% 确诊为各自独立的原发病灶；\n• 临床处理核心原则：'抓大放小、主次分明、保护肺功能'——优先切除或干预实性成分显著的主病灶（CTR > 0.5），对其他微小纯磨玻璃结节长期随访观察，切忌一次性做大范围切除导致肺功能严重受损。",
+    tactics: [
+      "双肺多发 GGO 首次发现切忌恐慌盲目做'双侧大范围切除'，必须经历 3~6 个月系统随访摸清各结节生长速度",
+      "由多学科 MDT 团队制定'主病灶微创局部切除 + 次要病灶继续安全随访'的梯度管理方案",
+      "术后次要结节若长期稳定（VDT > 600天），终身可能无需任何手术干预",
+    ],
+    reassurance: "查出多发磨玻璃结节千万不要以为是'癌细胞播散全身了'！多发 GGO 在我国非常普遍，尤其是非吸烟女性群体。它们只是双肺土壤中同时长出的几颗微小幼苗，只要按照指南科学管理，完全可以实现长期的健康与长寿！",
+    keyMetric: {
+      label: "多发 GGO 同步多原发占比",
+      value: "> 95% (各病灶均为独立早期原发，非转移)",
+      source: "IASLC / ACCP Guidelines on Multiple Pulmonary Nodules",
+    },
+    faq: [
+      {
+        question: "我左肺切除了一颗 8mm 早期腺癌，右肺还有两颗 4mm 纯磨玻璃结节，必须接着做手术吗？",
+        answer: "完全不需要立即开刀！右肺 4mm 纯磨玻璃结节属于极惰性的微小原发病灶，恶性度极低。继续规律随访薄层 CT 即可，绝大多数数年甚至终身都不会长大，盲目急于开刀反而白白损伤右肺功能。"
+      },
+      {
+        question: "多发结节是不是代表我体内的基因有'易感体质'？",
+        answer: "在亚裔人群中，由于特定微环境和遗传多态性，呼吸道上皮确实可能存在局部的'区域化效应'（Field Cancerization），但只要定期随访，把控住高危主病灶，就不会对寿命造成任何实质威胁。"
+      }
+    ],
+    graphNodeId: "CTR",
+    searchKeywords: ["多发结节", "多发GGO", "MPLC", "多原发肺癌", "duofajiejie", "双肺结节", "第二原发", "肺内转移鉴别", "区域化"],
+  },
+  {
+    id: "followup-schedule",
+    category: "recovery",
+    subcategory: "随访规划",
+    title: "术后科学复查全周期时间表与检查清单",
+    subtitle: "Postoperative Surveillance Schedule: When & What to Check?",
+    icon: "📅",
+    riskLevel: "safe",
+    priorityOrder: 28,
+    metaphor: "像新车出厂后的定期保养手册——前 2 年新车磨合期保养稍微密集一点（每半年一次），3~5 年后平稳期每年体检一次。每一次规律盖章打卡，都是为健康长治久安设立的科学安全阀门。",
+    clinicalTruth: "依据国际 NCCN / CSCO 非小细胞肺癌术后随访指南，规范的复查时间表与核心检查项目清单如下：\n• 术后第 1~2 年（复发监测黄金期）：每 3~6 个月复查一次胸部薄层 CT 平扫（推荐低剂量 HRCT）、腹部超声/CT 及 5 项肺癌肿瘤标志物；对于 II~IIIA 期高危患者，每年复查一次头部增强磁共振（MRI）；\n• 术后第 3~5 年（平稳巩固期）：每 6~12 个月复查一次胸部薄层 CT 与肿瘤标志物；\n• 术后 5 年以上（临床治愈长青期）：每年进行一次常规胸部低剂量 CT 筛查（同正常人群年度体检）；\n• 循证避坑提醒：无任何临床症状时，**指南不推荐常规做全身 PET-CT 或骨扫描**（避免无谓的巨额花费与超高剂量辐射），CT 发现可疑病变时才按需使用。",
+    tactics: [
+      "尽量固定在同一家三甲医院的同一台薄层 CT 机器上复查，确保前后影像层厚与密度测量具有最高精度的可比性",
+      "建立自己的专属复查电子档案，妥善保存每次出院小结、病理报告与 CT 电子胶片二维码",
+      "若术后出现持续性骨痛、剧烈头痛或咯血等新发症状，无需等到既定复查日，应及时返院就诊",
+    ],
+    reassurance: "只要平稳度过术后前 2 年，复发风险就会呈断崖式下降！满 5 年未见复发在医学上即定义为'临床治愈'！遵从指南的节奏去复查，把每一次复查当作给身体做一次安心的年度保养！",
+    keyMetric: {
+      label: "术后满 5 年无复发临床治愈率",
+      value: "早期患者 > 90% (5年即达临床治愈标准)",
+      source: "NCCN Post-treatment Surveillance / IASLC Database",
+    },
+    faq: [
+      {
+        question: "每次复查做 CT 辐射大不大？会不会致癌？",
+        answer: "现代低剂量薄层 CT（LDCT）的单次辐射剂量仅为约 1~1.5 mSv（相当于自然界半年的天然背景辐射），远远低于国家辐射安全警戒线。半年或一年做一次低剂量 CT 极其安全，完全无需担心辐射致病。"
+      },
+      {
+        question: "为什么医生每次只给我开胸部 CT，不开全身 PET-CT？",
+        answer: "因为胸部薄层 CT 对肺部微米级结构的显示分辨率远高于 PET-CT（CT 能看清 1mm 结节，PET-CT 对 <8mm 结节假阴性率极高），且没有放射性同位素注射。薄层 CT 才是肺部复查无可争议的第一金标准！"
+      }
+    ],
+    graphNodeId: "RECOVERY",
+    searchKeywords: ["复查时间表", "术后复查", "随访清单", "shouhoufucha", "复查项目", "PET-CT必要性", "CT辐射", "5年治愈"],
+  },
+  {
+    id: "postop-nutrition-lifestyle",
+    category: "recovery",
+    subcategory: "生活重塑",
+    title: "术后康复营养与健康生活方式重塑 (破除发物误区)",
+    subtitle: "Nutrition, Rehabilitation & Lifestyle Rebuilding",
+    icon: "🥗",
+    riskLevel: "safe",
+    priorityOrder: 18,
+    metaphor: "刚修整好的房屋需要优质的钢筋和水泥（充足蛋白质与维生素）来加固地基。盲目忌口只会让身体营养不良、免疫军团断粮，科学均衡地吃好每一顿饭才是抗癌最强大的内生力量。",
+    clinicalTruth: "肿瘤营养学与术后加速康复（ERAS）循证指南明确指导：\n• 蛋白质是伤口愈合与残肺代偿的基石：术后建议每日摄入优质蛋白质 1.2~1.5 g/kg 体重（如鸡蛋每日 1~2 个、鱼虾海鲜、去皮禽肉、瘦牛肉、豆制品及优质乳清蛋白粉）；\n• 彻底破除民间'发物'伪科学：现代医学证实牛羊肉、海鲜鸡肉中富含人体必需氨基酸与铁锌微量元素，盲目禁食所谓的'发物'会导致严重的低蛋白血症、切口愈合迟缓和免疫力断崖式暴跌；\n• 远离真正的明确致癌物：严格戒烟、拒吸二手烟、避免厨房高温重油烟（烹饪时保持油烟机开启）、减少腌制熏制及加工肉制品；\n• 运动康复处方：术后循序渐进进行散步、吹气球（呼吸训练器）、八段锦或太极，促进胸腔积液吸收与残肺复张。",
+    tactics: [
+      "每日保持彩虹饮食：摄入新鲜深色蔬菜与低糖水果（蓝莓、西红柿、西兰花等），补充天然抗氧化植化素",
+      "术后 3 个月内避免提举重物（>5kg）或剧烈扩胸冲撞运动，防止肋间神经与伤口深层筋膜过度牵拉",
+      "保持每晚 7~8 小时高质量睡眠，良好的生物节律是机体自然杀伤细胞（NK 细胞）维持活性的关键保障",
+    ],
+    reassurance: "世界上没有单一的'抗癌神药'，最好的抗癌武器就是您自己健康强大的免疫系统！吃得好、睡得香、心情好、多散步，用阳光科学的生活方式拥抱充满希望的崭新生活！",
+    keyMetric: {
+      label: "充足蛋白质营养对术后并发症影响",
+      value: "伤口愈合加速 / 感染风险 ↓45%",
+      source: "ESPEN Guidelines on Clinical Nutrition in Surgery 2023",
+    },
+    faq: [
+      {
+        question: "听说吃牛肉、海鲜是'发物'会促进肿瘤复发，是真的吗？",
+        answer: "毫无科学依据！'发物'是民间伪科学传言。肿瘤细胞生长依赖异常基因突变信号，而不是正常食物。相反，牛羊肉和海鲜富含优质蛋白和血红素铁，是人体免疫 T 细胞和红细胞必不可少的原料，必须保证摄入！"
+      },
+      {
+        question: "术后需要吃灵芝孢子粉、人参、海参等贵重补品吗？",
+        answer: "日常平价的鸡蛋、鱼肉、瘦肉和新鲜蔬菜所提供的均衡营养，效果远超任何昂贵保健品。保健品不能替代正餐，且部分成分不明的补品还可能增加肝肾代谢负担。均衡饮食最健康！"
+      }
+    ],
+    graphNodeId: "RECOVERY",
+    searchKeywords: ["术后饮食", "发物误区", "蛋白质补充", "shouhouyinshi", "灵芝孢子粉", "戒烟", "海鲜能不能吃", "营养康复", "运动处方"],
   },
 ];

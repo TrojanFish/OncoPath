@@ -18,6 +18,12 @@ import { VascularConvergenceVisual } from "./visuals/VascularConvergenceVisual";
 import { IplnLymphVisual } from "./visuals/IplnLymphVisual";
 import { IhcKi67Visual } from "./visuals/IhcKi67Visual";
 import { CalcificationVisual } from "./visuals/CalcificationVisual";
+import { AdjuvantDecisionTreeVisual } from "./visuals/AdjuvantDecisionTreeVisual";
+import { MediastinalLNMapVisual } from "./visuals/MediastinalLNMapVisual";
+import { EgfrMutationMapVisual } from "./visuals/EgfrMutationMapVisual";
+import { PleuralLayersVisual } from "./visuals/PleuralLayersVisual";
+import { LungRadsScaleVisual } from "./visuals/LungRadsScaleVisual";
+import { PdL1ImmuneMechanismVisual } from "./visuals/PdL1ImmuneMechanismVisual";
 
 interface WikiTopicCardProps {
   topic: WikiTopic;
@@ -199,6 +205,12 @@ export function WikiTopicCard({ topic, isMatchedProfile, isHighlighted }: WikiTo
                 {topic.visualComponent === "IplnLymphVisual" && <IplnLymphVisual />}
                 {topic.visualComponent === "IhcKi67Visual" && <IhcKi67Visual />}
                 {topic.visualComponent === "CalcificationVisual" && <CalcificationVisual />}
+                {topic.visualComponent === "AdjuvantDecisionTreeVisual" && <AdjuvantDecisionTreeVisual />}
+                {topic.visualComponent === "MediastinalLNMapVisual" && <MediastinalLNMapVisual />}
+                {topic.visualComponent === "EgfrMutationMapVisual" && <EgfrMutationMapVisual />}
+                {topic.visualComponent === "PleuralLayersVisual" && <PleuralLayersVisual />}
+                {topic.visualComponent === "LungRadsScaleVisual" && <LungRadsScaleVisual />}
+                {topic.visualComponent === "PdL1ImmuneMechanismVisual" && <PdL1ImmuneMechanismVisual />}
               </div>
             )}
           </div>
