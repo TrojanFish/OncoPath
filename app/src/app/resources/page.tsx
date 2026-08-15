@@ -206,27 +206,36 @@ export default function ResourcesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-24">
+    <div className="min-h-screen bg-slate-50 text-slate-900 pb-24 selection:bg-blue-500 selection:text-white">
       <SubpageNavbar />
 
       {/* Hero Header */}
-      <header className="pt-28 md:pt-32 pb-10 px-6 text-center max-w-3xl mx-auto">
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm text-teal-600 mb-6 border border-teal-200 bg-teal-50 shadow-sm">
-          <span className="w-1.5 h-1.5 rounded-full bg-accent-teal" />
-          循证导航库 · Beta
+      <header className="pt-28 md:pt-32 pb-8 px-4 sm:px-6 max-w-4xl mx-auto text-center space-y-4">
+        {/* Unified Top Pill Badge */}
+        <div className="inline-flex items-center gap-2 bg-white px-4 py-1.5 rounded-full text-xs font-bold text-sky-700 border border-sky-200/80 shadow-xs">
+          <span>📖 全球权威临床指南库</span>
+          <span className="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse" />
+          <span>专业医学循证导航</span>
         </div>
-        <h1 className="display-md mb-4">学术资源导航</h1>
-        <p className="text-text-secondary text-lg">
-          OncoPath 的数据来源于这些国际权威机构。我们整理了一份「防坑指南」，
-          帮助你在正确的地方查到真正可靠的循证医学信息。
+
+        {/* Unified H1 */}
+        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+          权威临床指南 · <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 via-emerald-600 to-cyan-600">专业医学循证导航</span>
+        </h1>
+
+        {/* Unified Subtitle */}
+        <p className="max-w-3xl mx-auto text-sm sm:text-base text-slate-600 leading-relaxed font-normal">
+          系统甄选 <strong>CSCO、NCCN、ASCO、IASLC</strong> 等全球权威学术组织官方指南与专业数据库。为您提供直达源头的<strong>防坑查阅指南与患者友好通道</strong>。
         </p>
 
         {/* Big Disclaimer */}
-        <div className="mt-8 p-4 rounded-2xl border border-amber-200 bg-amber-50 text-left shadow-sm">
-          <p className="text-accent-amber font-semibold text-sm mb-1">📌 在你开始查阅之前，请阅读这段话</p>
-          <p className="text-text-secondary text-sm leading-relaxed">
-            医学论文是写给专业医生的，其中充满了统计学术语和置信区间。<strong className="text-text-primary">同一数字对不同患者的意义可能天壤之别。</strong>
-            我们在每个资源旁标注了「适合谁阅读」和「注意事项」，请务必先阅读提示，再深入查阅。如有任何疑问，请以你的主治医生的意见为准。
+        <div className="mt-4 p-4 rounded-2xl border border-amber-200 bg-amber-50 text-left shadow-xs">
+          <p className="text-amber-800 font-bold text-xs mb-1 flex items-center gap-1.5">
+            <span>📌 在您开始查阅之前，请阅读这段话</span>
+          </p>
+          <p className="text-slate-700 text-xs leading-relaxed">
+            医学论文与指南是写给专业医生的，其中充满了统计学术语和置信区间。<strong className="text-slate-900">同一数字对不同患者的临床意义可能天壤之别。</strong>
+            我们在每个资源旁标注了「适合谁阅读」和「注意事项」，请务必先阅读提示，再深入查阅。如有任何疑问，请以您的主治医生的综合意见为准。
           </p>
         </div>
       </header>

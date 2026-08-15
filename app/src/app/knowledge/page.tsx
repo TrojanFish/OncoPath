@@ -27,28 +27,40 @@ export default function KnowledgePage() {
   }, []);
 
   return (
-    <div className="min-h-screen pb-24">
+    <div className="min-h-screen bg-slate-50 text-slate-900 pb-24 selection:bg-blue-500 selection:text-white">
       <SubpageNavbar />
 
-      {/* Header */}
-      <header className="pt-28 md:pt-32 pb-12 px-6 max-w-7xl mx-auto text-center">
-        <h1 className="display-md mb-4">知识图谱</h1>
-        <p className="text-text-secondary max-w-2xl mx-auto text-lg">
-          {profile
-            ? "根据您的病理特征，图谱已高亮显示与您直接相关的风险路径。"
-            : "探索肺癌病理特征与临床研究证据之间的复杂网络关系。"}
+      {/* Hero Header */}
+      <header className="pt-28 md:pt-32 pb-8 px-4 sm:px-6 max-w-4xl mx-auto text-center space-y-4">
+        {/* Unified Top Pill Badge */}
+        <div className="inline-flex items-center gap-2 bg-white px-4 py-1.5 rounded-full text-xs font-bold text-sky-700 border border-sky-200/80 shadow-xs">
+          <span>🗺️ 4D 动态因果推演引擎</span>
+          <span className="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse" />
+          <span>交互式多维网络分析</span>
+        </div>
+
+        {/* Unified H1 */}
+        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+          推演病理因果 · <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-500">洞悉 4D 证据网络</span>
+        </h1>
+
+        {/* Unified Subtitle */}
+        <p className="max-w-3xl mx-auto text-sm sm:text-base text-slate-600 leading-relaxed font-normal">
+          基于全球顶刊队列与临床指南构建的<strong>结构化知识图谱</strong>。动态推演上游浸润特征（CTR / STAS / 分期）到下游预后结局与辅助治疗方案的<strong>完整因果链条</strong>。
         </p>
+
+        {/* Profile Matched Notification Bar if profile exists */}
         {profile && (
-          <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent-teal/10 border border-accent-teal/30">
-            <div className="w-1.5 h-1.5 rounded-full bg-accent-teal animate-pulse" />
-            <span className="text-accent-teal text-sm">专属路径模式已激活</span>
+          <div className="mt-2 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-teal-50 border border-teal-300 text-teal-950 text-xs font-bold shadow-xs">
+            <span className="w-2 h-2 rounded-full bg-teal-500 animate-pulse" />
+            <span>已识别到您的个人数字档案（{profile.stage}期 · {profile.age}岁）· 专属因果推演路径已高亮激活</span>
           </div>
         )}
       </header>
 
       {/* Knowledge Map */}
-      <main className="max-w-7xl mx-auto px-6">
-        <div className="bg-white rounded-2xl shadow-sm p-2 border border-border-color shadow-xl shadow-sm">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="bg-white rounded-3xl p-2 border border-slate-200/90 shadow-xl shadow-slate-900/5">
           {profileLoaded && <KnowledgeMapPreview profile={profile} />}
         </div>
       </main>

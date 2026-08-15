@@ -32,22 +32,26 @@ export default function StudiesPage() {
   }, [searchQuery, selectedLevel]);
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 pb-24">
+    <div className="min-h-screen bg-slate-50 text-slate-900 pb-24 selection:bg-blue-500 selection:text-white">
       <SubpageNavbar />
 
-      {/* Header */}
-      <header className="pt-28 md:pt-32 pb-10 px-6 max-w-7xl mx-auto text-center">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold text-accent-blue bg-blue-50 border border-blue-200 mb-3">
-          <span>📚 权威循证医学库</span>
-          <span className="w-1.5 h-1.5 rounded-full bg-accent-blue animate-pulse"></span>
-          <span>Peer-Reviewed Evidence</span>
+      {/* Hero Header */}
+      <header className="pt-28 md:pt-32 pb-8 px-4 sm:px-6 max-w-4xl mx-auto text-center space-y-4">
+        {/* Unified Top Pill Badge */}
+        <div className="inline-flex items-center gap-2 bg-white px-4 py-1.5 rounded-full text-xs font-bold text-sky-700 border border-sky-200/80 shadow-xs">
+          <span>📚 国际顶刊同行评审文献库</span>
+          <span className="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse" />
+          <span>100% DOI 原始出处可溯</span>
         </div>
-        <h1 className="text-2xl md:text-3xl font-bold text-slate-900 mb-2">
-          全部已收录国际研究库
+
+        {/* Unified H1 */}
+        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+          汇聚全球顶刊 · <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-sky-600 to-teal-600">严谨循证文献矩阵</span>
         </h1>
-        <p className="text-slate-500 max-w-2xl mx-auto text-sm leading-relaxed">
-          OncoPath 严格收录所有支撑临床分期、预后评估与辅助治疗决策的同行评审顶级期刊论文。
-          所有结论均可直接溯源至原始研究原文。
+
+        {/* Unified Subtitle */}
+        <p className="max-w-3xl mx-auto text-sm sm:text-base text-slate-600 leading-relaxed font-normal">
+          严格收录 <strong>Lancet、JCO、JTO</strong> 等顶级期刊发表的多中心 RCT 与 Meta 分析。为每一项临床分期、术后辅助治疗与随访决策提供<strong>可验证、可溯源的坚实数据支撑</strong>。
         </p>
       </header>
 
