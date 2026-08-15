@@ -64,7 +64,7 @@ export default function PatientDashboard() {
 
   if (showUploader || !profile) {
     return (
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 pb-16">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
         <ConsentModal />
         <div className="text-center mb-8">
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">建立个人医学档案</h1>
@@ -89,7 +89,7 @@ export default function PatientDashboard() {
     : '混合磨玻璃结节 (mGGO)';
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 pb-16">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
       <ConsentModal />
       
       {/* Header */}

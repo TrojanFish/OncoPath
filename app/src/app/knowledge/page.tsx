@@ -31,7 +31,7 @@ export default function KnowledgePage() {
       <SubpageNavbar />
 
       {/* Header */}
-      <header className="pt-28 md:pt-32 pb-12 px-6 text-center">
+      <header className="pt-28 md:pt-32 pb-12 px-6 max-w-7xl mx-auto text-center">
         <h1 className="display-md mb-4">知识图谱</h1>
         <p className="text-text-secondary max-w-2xl mx-auto text-lg">
           {profile

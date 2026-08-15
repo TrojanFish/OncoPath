@@ -145,7 +145,7 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
 
   if (parsedData) {
     return (
-      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xl max-w-3xl mx-auto w-full">
+      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xl max-w-4xl mx-auto w-full">
         
         {/* Modality Type Header Badge */}
         <div className="flex items-center justify-between gap-3 mb-6 pb-4 border-b border-slate-100">
@@ -536,7 +536,7 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
   }
 
   return (
-    <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm max-w-2xl mx-auto w-full">
+    <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm max-w-3xl mx-auto w-full">
       <div className="flex items-center gap-3.5 mb-4">
         <div className="w-11 h-11 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-2xl border border-blue-100 flex-shrink-0">
           🤖
