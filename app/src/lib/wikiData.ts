@@ -32,7 +32,18 @@ export interface WikiTopic {
   }>;
   
   // 视觉组件标识
-  visualComponent?: "GgoEvolutionSimulator" | "FleischnerDecisionTree" | "StasAirwayVisual" | "VpiPleuraVisual" | "LviVesselVisual" | "IaslcSubtypeVisual";
+  visualComponent?:
+    | "GgoEvolutionSimulator"
+    | "FleischnerDecisionTree"
+    | "StasAirwayVisual"
+    | "VpiPleuraVisual"
+    | "LviVesselVisual"
+    | "IaslcSubtypeVisual"
+    | "LobulationVisual"
+    | "SpiculationVisual"
+    | "PleuralIndentationVisual"
+    | "VacuoleSignVisual"
+    | "VascularConvergenceVisual";
   
   // 关联知识图谱节点 ID
   graphNodeId?: string;
@@ -373,34 +384,159 @@ export const WIKI_TOPICS: WikiTopic[] = [
     searchKeywords: ["Fleischner", "随访指南", "suifang", "结节复查时间", "结节随访", "6mm结节", "8mm结节"],
   },
   {
-    id: "nodule-signs",
+    id: "sign-spiculation",
     category: "nodule",
-    subcategory: "影像特征破译",
-    title: "CT 报告上的征象词解密 (毛刺/分叶/胸膜牵拉/空泡)",
-    subtitle: "CT Imaging Signs Decryption",
-    icon: "🔍",
+    subcategory: "CT 影像征象破译",
+    title: "短细毛刺征 (Spiculation)",
+    subtitle: "Short Fine Radiating Spicules",
+    icon: "🦔",
     riskLevel: "moderate",
-    priorityOrder: 45,
-    metaphor: "像侦探看脚印——分叶是肿瘤各部分生长速度不一留下的波浪边；毛刺是周边微小纤维牵拉的细线；胸膜牵拉是结节收缩时把附近的胸膜拉了一个小凹陷。它们是综合判断的参考，不是恶性的绝对铁证。",
-    clinicalTruth: "CT 报告中常出现的恶性概率征象包括：分叶征（Lobulation）、短细毛刺征（Spiculation）、胸膜凹陷征（Pleural Indentation）、空泡征/支气管充气征。但部分慢性炎症、结核球、炎性假瘤同样可以出现毛刺和胸膜牵拉征象，必须由胸外科或放射科医生结合动态随访综合评定。",
+    priorityOrder: 49,
+    metaphor: "像板栗外壳上的细密小刺，或者结节收缩时周围纤维组织拉伸出的小细丝。长粗毛刺多为以前肺炎留下的瘢痕，短细密集毛刺才需要关注。",
+    clinicalTruth: "毛刺征（Spiculation）是指从结节边缘向周围肺实质呈放射状伸出的小线条。临床上严格区分'长粗毛刺（>5mm，多见于陈旧性结核、慢性炎症机化瘢痕）'与'短细毛刺（<3mm，可能提示微血管牵拉或微浸润）'。单凭毛刺不能直接定性为恶性，需结合 CTR 和体积动态对比。",
     tactics: [
-      "单看某一个征象不能断定良恶性，需结合结节密度（CTR）、边缘清晰度及倍增时间综合评分",
-      "对于伴有多项可疑恶性征象且直径 >8mm 的部分实性结节，可考虑行增强 CT、PET-CT 或多学科会诊（MDT）",
-      "若评估手术，早中期胸腔镜微创手术创伤小、恢复快（通常术后 3~5 天出院）",
+      "请放射科医生在薄层 CT 上鉴别是'长索条状瘢痕'还是'短细放射状毛刺'",
+      "若为首次发现且伴有长粗毛刺，通常建议 3~6 个月复查观察是否为陈旧炎性病灶",
+      "若伴随实性成分增大（CTR升高），由胸外科专家评估是否需行微创手术",
     ],
-    reassurance: "看到报告上写了'分叶'或'牵拉'不要惊慌失措。很多陈旧性肺结核灶或纤维化瘢痕在修复过程中也会牵拉胸膜产生毛刺。找经验丰富的胸外科专家阅片，他们一眼就能分辨是'炎症瘢痕'还是'活跃病灶'！",
+    reassurance: "看到报告写'见毛刺'千万不要吓慌！我国成年人体检中有相当高比例的人因为以前得过支气管炎、肺炎或隐匿性结核感染，肺部留下了类似'伤疤拉扯'的长粗毛刺，只要长期随访形态稳定，就完全属于无害良性瘢痕！",
     keyMetric: {
-      label: "微创胸腔镜手术平均住院日",
-      value: "3 ~ 5 天 (快速康复 ERAS)",
-      source: "Chinese Thoracic Surgery Expert Consensus 2024",
+      label: "长毛刺与短毛刺鉴别",
+      value: "长粗毛刺 (>5mm) 多为炎性瘢痕",
+      source: "Chinese Expert Consensus on Lung Nodule Evaluation 2024",
     },
     faq: [
       {
-        question: "CT 报告写了'不除外早期浸润可能'，是不是意味着已经是恶性了？",
-        answer: "放射科报告的'不除外'属于描述性防御性用词，意为不能 100% 排除，提示需要临床医生关注。这绝不等于最终确诊，最终定性必须依赖病理活检或长期随访对比。"
+        question: "毛刺会不会自己慢慢消失？",
+        answer: "如果是急性炎症吸收期的纤维充血毛刺，经过充分休息或抗炎后可能会变淡甚至消失；如果是陈旧性纤维瘢痕，通常会长期稳定存在，只要体积不增大就无需治疗。"
       }
     ],
-    searchKeywords: ["毛刺征", "分叶征", "胸膜牵拉", "空泡征", "maoci", "fenye", "CT征象", "结节恶性征象"],
+    visualComponent: "SpiculationVisual",
+    searchKeywords: ["毛刺征", "短细毛刺", "长毛刺", "maoci", "Spiculation", "放射状毛刺", "毛刺状边缘"],
+  },
+  {
+    id: "sign-lobulation",
+    category: "nodule",
+    subcategory: "CT 影像征象破译",
+    title: "分叶征 (Lobulation / 浅分叶与深分叶)",
+    subtitle: "Scalloped & Lobulated Margins",
+    icon: "🌊",
+    riskLevel: "moderate",
+    priorityOrder: 48,
+    metaphor: "像生面团在烤箱里不同角落膨胀速度不一样，边缘形成了起伏的波浪小山丘。浅浅的波浪在良性错构瘤中非常多见，深切迹分叶才需要重点随访。",
+    clinicalTruth: "分叶征（Lobulation）是指结节轮廓呈现凹凸不平的波浪状或花瓣状弧形边缘。其形成原因是结节不同方向的细胞增殖速率存在差异，或受到周围肺血管、小叶间隔阻力的挤压所致。浅分叶（弧度平缓）常见于良性病变如错构瘤、炎性假瘤；深分叶（切迹明显）多见于浸润性病变。",
+    tactics: [
+      "CT 报告若提示分叶，重点查看是'浅分叶'还是'深分叶'，并结合内部密度（纯磨玻璃 vs 混合磨玻璃）",
+      "结合三维重建（3D-VR）测量体积倍增时间（VDT），若 1 年以上无体积倍增，倾向良性或极惰性",
+      "必要时行薄层增强 CT 查看强化幅度（良性错构瘤强化多不明显或含爆米花样钙化）",
+    ],
+    reassurance: "良性肺错构瘤由于含有软骨和脂肪等不同组织，天生就长得像一颗'小花卷'（浅分叶状）。因此报告上出现分叶两个字绝不等于恶性，放平心态找专科医生综合阅片即可！",
+    keyMetric: {
+      label: "浅分叶在良性病变中占比",
+      value: "良性错构瘤/假瘤发生率可达 30%+",
+      source: "Radiology & Chest Imaging Diagnostics 2023",
+    },
+    faq: [
+      {
+        question: "分叶和毛刺同时出现是不是就很危险？",
+        answer: "不一定。这代表结节生长受到解剖微结构的塑形影响。如果是微小结节（<6mm）或纯磨玻璃结节，哪怕形态不规则，其本质依然处于早期惰性阶段，遵从 Fleischner 指南定期随访是绝对安全的。"
+      }
+    ],
+    visualComponent: "LobulationVisual",
+    searchKeywords: ["分叶征", "浅分叶", "深分叶", "fenye", "Lobulation", "花瓣状", "波浪边缘"],
+  },
+  {
+    id: "sign-pleural-indentation",
+    category: "nodule",
+    subcategory: "CT 影像征象破译",
+    title: "胸膜凹陷与牵拉征 (Pleural Indentation)",
+    subtitle: "Traction & Pleural Tagging",
+    icon: "⛺",
+    riskLevel: "moderate",
+    priorityOrder: 47,
+    metaphor: "像衣服口袋被往里拽了一下，是结节内部纤维瘢痕收缩把旁边的薄膜拉了个三角形小凹坑。这是单纯的物理机械拉扯，绝不代表癌细胞长到了胸壁上。",
+    clinicalTruth: "胸膜凹陷征（Pleural Indentation）是指靠近肺表面胸膜的结节，因内部纤维化瘢痕收缩，通过纤维结缔组织束将邻近的脏层胸膜向病灶方向牵拉，在 CT 上呈现类似'小帐篷'状的三角形凹陷。结核球、慢性肺炎瘢痕同样由于纤维组织收缩极易引起胸膜凹陷。",
+    tactics: [
+      "严格区分'物理力学牵拉凹陷（Pleural Tagging）'与'真正的病理胸膜侵犯（VPI）'，前者仅为收缩力线，不等于侵犯",
+      "若为近胸膜结节且计划手术，微创胸腔镜可极为方便地进行局部切除，手术视野好、恢复快",
+      "对比既往老片，若牵拉形态多年无变化，多为既往炎症愈合留下的陈旧索条",
+    ],
+    reassurance: "很多患者看到'胸膜'两个字就以为是晚期胸膜转移，这是极大的误解！胸膜牵拉就像皮肤伤口愈合结痂时把周围皮肤拉紧了一样，是一种常见的物理收缩力学反应。只要没有胸水，胸膜腔结构完好无损！",
+    keyMetric: {
+      label: "陈旧炎性瘢痕胸膜牵拉率",
+      value: "结核/炎症瘢痕中高达 40%+",
+      source: "European Respiratory Journal 2023",
+    },
+    faq: [
+      {
+        question: "胸膜牵拉会导致我经常胸口疼吗？",
+        answer: "肺脏表面脏层胸膜没有痛觉神经，微小的胸膜牵拉通常没有任何感觉。大多数患者的'胸痛'是因为看到体检报告后精神过度焦虑紧张，导致的肋间神经敏感或心理性放大。"
+      }
+    ],
+    visualComponent: "PleuralIndentationVisual",
+    searchKeywords: ["胸膜牵拉", "胸膜凹陷征", "xiongmoqianla", "Pleural Indentation", "胸膜凹陷", "胸膜受拉"],
+  },
+  {
+    id: "sign-vacuole",
+    category: "nodule",
+    subcategory: "CT 影像征象破译",
+    title: "空泡征与支气管充气征 (Vacuole / Air Bronchogram)",
+    subtitle: "Patent Air Spaces in Ground-Glass Nodules",
+    icon: "🧀",
+    riskLevel: "low",
+    priorityOrder: 44,
+    metaphor: "像瑞士奶酪里留着的透光小气孔，或者正常的小呼吸管道还没被肿瘤填死。它恰恰说明肿瘤细胞保留了原有的肺泡骨架，多见于极早期贴壁生长的惰性阶段。",
+    clinicalTruth: "空泡征是指结节内部直径 <5mm 的微小圆形透亮含气低密度区；支气管充气征则是指细支气管在结节内部自然穿行通畅。在磨玻璃结节中，空泡征的存在多表明肿瘤细胞仅仅沿着肺泡壁单层爬行（贴壁生长方式），并未破坏肺泡固有骨架，是早期微浸润或原位阶段的典型特征。",
+    tactics: [
+      "若结节为纯磨玻璃且伴有小空泡征，提示极大概率属于早期贴壁型生长，预后极佳",
+      "定期随访主要观察空泡是否闭合消失或实性结节化（若长期保持空泡透亮，提示生长极惰性）",
+      "无需因为'空泡'二字恐慌，定期低剂量薄层 CT 复查即可",
+    ],
+    reassurance: "空泡征其实是一个'良善信号'！因为如果肿瘤侵袭性很强，很快就会把肺泡组织完全破坏填平（变成纯实性白点）。内部有空泡和通畅的呼吸细支气管，恰恰证明它处于非常早、非常惰性的初始阶段！",
+    keyMetric: {
+      label: "伴空泡征 GGO 5年根治率",
+      value: "贴壁为主型 5yr RFS ≈ 100%",
+      source: "Travis et al., WHO Classification of Thoracic Tumours",
+    },
+    faq: [
+      {
+        question: "空泡征是不是肺里烂了一个洞（空洞）？",
+        answer: "完全不是！'空洞'是指结节内部坏死排出形成的大空腔（通常 >5mm，伴厚壁）；而'空泡'是 <5mm 的正常未充盈小肺泡气隙，两者在病理学上截然不同，空泡征预后远好于空洞。"
+      }
+    ],
+    visualComponent: "VacuoleSignVisual",
+    searchKeywords: ["空泡征", "支气管充气征", "kongpaozheng", "Vacuole", "Air Bronchogram", "支气管穿行", "肺泡未闭"],
+  },
+  {
+    id: "sign-vascular-convergence",
+    category: "nodule",
+    subcategory: "CT 影像征象破译",
+    title: "血管集束征 (Vascular Convergence)",
+    subtitle: "Vessel Gathering & Convergence",
+    icon: "🌿",
+    riskLevel: "moderate",
+    priorityOrder: 43,
+    metaphor: "像附近的小水渠被引流汇聚到了病变田地中央。不仅肿瘤需要供血，局部急慢性炎症充血时周边血管也会出现牵拉增粗，抗炎随访往往会自然退缩。",
+    clinicalTruth: "血管集束征（Vascular Convergence）是指一支或多支肺血管（肺动静脉分支）到达结节边缘或穿入结节内部，在病灶周围呈现聚集分布的现象。其机制一方面是病灶释放促血管生成因子引起血管增生，另一方面是病灶纤维化收缩将邻近血管牵引拉直。急慢性炎症充血期同样可见血管集束征。",
+    tactics: [
+      "高分辨率薄层 CT 靶扫描观察血管是穿行完好还是受浸润截断（管壁完整者良性可能大）",
+      "首次发现伴有血管聚集的结节，可遵医嘱规范抗炎 2 周后，间隔 1~3 个月复查对比血管有无改善",
+      "若血管周围伴随实性成分进行性增多，建议胸外科门诊评估微创手术指征",
+    ],
+    reassurance: "看到'血管集束'不要慌以为血管被肿瘤占领了。肺部血管网极其密集，结节在生长或炎症水肿时轻微牵扯邻近小血管是非常自然的解剖现象。规范随访对比是鉴别血管状态最科学的法宝！",
+    keyMetric: {
+      label: "急性炎症随访血管吸收改善率",
+      value: "约 20 ~ 35% (首次随访部分吸收)",
+      source: "AJR American Journal of Roentgenology 2023",
+    },
+    faq: [
+      {
+        question: "血管穿过结节会不会把癌细胞带走？",
+        answer: "肺血管有完整的管壁屏障。在早期磨玻璃阶段，血管只是穿行经过为肺组织供血，肿瘤细胞并没有穿透血管内皮层，不代表发生血液扩散。"
+      }
+    ],
+    visualComponent: "VascularConvergenceVisual",
+    searchKeywords: ["血管集束征", "血管增粗", "xueguanjishu", "Vascular Convergence", "血管聚集", "血管穿行"],
   },
 
   // ==================== 3. 驱动基因与靶向治疗 (按风险高低排序) ====================

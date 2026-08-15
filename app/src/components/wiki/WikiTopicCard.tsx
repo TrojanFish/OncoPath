@@ -10,6 +10,11 @@ import { LviVesselVisual } from "./visuals/LviVesselVisual";
 import { IaslcSubtypeVisual } from "./visuals/IaslcSubtypeVisual";
 import { GgoEvolutionSimulator } from "./visuals/GgoEvolutionSimulator";
 import { FleischnerDecisionTree } from "./visuals/FleischnerDecisionTree";
+import { LobulationVisual } from "./visuals/LobulationVisual";
+import { SpiculationVisual } from "./visuals/SpiculationVisual";
+import { PleuralIndentationVisual } from "./visuals/PleuralIndentationVisual";
+import { VacuoleSignVisual } from "./visuals/VacuoleSignVisual";
+import { VascularConvergenceVisual } from "./visuals/VascularConvergenceVisual";
 
 interface WikiTopicCardProps {
   topic: WikiTopic;
@@ -98,6 +103,11 @@ export function WikiTopicCard({ topic, isMatchedProfile }: WikiTopicCardProps) {
                 {topic.visualComponent === "VpiPleuraVisual" && <VpiPleuraVisual />}
                 {topic.visualComponent === "LviVesselVisual" && <LviVesselVisual />}
                 {topic.visualComponent === "IaslcSubtypeVisual" && <IaslcSubtypeVisual />}
+                {topic.visualComponent === "LobulationVisual" && <LobulationVisual />}
+                {topic.visualComponent === "SpiculationVisual" && <SpiculationVisual />}
+                {topic.visualComponent === "PleuralIndentationVisual" && <PleuralIndentationVisual />}
+                {topic.visualComponent === "VacuoleSignVisual" && <VacuoleSignVisual />}
+                {topic.visualComponent === "VascularConvergenceVisual" && <VascularConvergenceVisual />}
               </div>
             )}
           </div>
