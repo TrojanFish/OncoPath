@@ -25,38 +25,12 @@ interface WikiTopicCardProps {
   isHighlighted?: boolean;
 }
 
-export function WikiTopicCard({ topic, isMatchedProfile, isHighlighted }: WikiTopicCardProps) {
-  const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
-  const [showVisual, setShowVisual] = useState<boolean>(true);
-  const [copied, setCopied] = useState<boolean>(false);
-  const [copiedLink, setCopiedLink] = useState<boolean>(false);
-
-  const riskCfg = RISK_LEVEL_CONFIG[topic.riskLevel];
-  const catCfg = WIKI_CATEGORIES[topic.category];
-
-  const handleCopyLink = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (typeof window !== "undefined") {
-      const directUrl = `${window.location.origin}${window.location.pathname}#topic-${topic.id}`;
-      window.history.replaceState(null, "", `#topic-${topic.id}`);
-      navigator.clipboard?.writeText(directUrl).then(() => {
-        setCopiedLink(true);
-        setTimeout(() => setCopiedLink(false), 2000);
-      });
-    }
-  };
-
-  const handleCopyReassurance = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    const textToCopy = `【${topic.title} · 暖心定心丸】\n🌰 比喻：${topic.metaphor}\n💚 定心丸：${topic.reassurance}\n— 来源：肺结节与肺癌循证视觉百科`;
-
-    const fallbackCopy = () => {
+function copyTextSafe(text: string): Promise<boolean> {
+  return new Promise((resolve) => {
+    const fallback = () => {
       try {
         const textArea = document.createElement("textarea");
-        textArea.value = textToCopy;
+        textArea.value = text;
         textArea.style.position = "fixed";
         textArea.style.left = "-9999px";
         textArea.style.top = "-9999px";
@@ -66,27 +40,55 @@ export function WikiTopicCard({ topic, isMatchedProfile, isHighlighted }: WikiTo
         textArea.setSelectionRange(0, 99999);
         const success = document.execCommand("copy");
         document.body.removeChild(textArea);
-        if (success) {
-          setCopied(true);
-          setTimeout(() => setCopied(false), 2000);
-        }
+        resolve(success);
       } catch (err) {
         console.error("Fallback copy failed:", err);
+        resolve(false);
       }
     };
 
     if (typeof navigator !== "undefined" && navigator.clipboard && window.isSecureContext) {
       navigator.clipboard
-        .writeText(textToCopy)
-        .then(() => {
-          setCopied(true);
-          setTimeout(() => setCopied(false), 2000);
-        })
-        .catch(() => {
-          fallbackCopy();
-        });
+        .writeText(text)
+        .then(() => resolve(true))
+        .catch(() => fallback());
     } else {
-      fallbackCopy();
+      fallback();
+    }
+  });
+}
+
+export function WikiTopicCard({ topic, isMatchedProfile, isHighlighted }: WikiTopicCardProps) {
+  const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
+  const [showVisual, setShowVisual] = useState<boolean>(true);
+  const [copied, setCopied] = useState<boolean>(false);
+  const [copiedLink, setCopiedLink] = useState<boolean>(false);
+
+  const riskCfg = RISK_LEVEL_CONFIG[topic.riskLevel];
+  const catCfg = WIKI_CATEGORIES[topic.category];
+
+  const handleCopyLink = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (typeof window !== "undefined") {
+      const directUrl = `${window.location.origin}${window.location.pathname}#topic-${topic.id}`;
+      window.history.replaceState(null, "", `#topic-${topic.id}`);
+      const ok = await copyTextSafe(directUrl);
+      if (ok) {
+        setCopiedLink(true);
+        setTimeout(() => setCopiedLink(false), 2000);
+      }
+    }
+  };
+
+  const handleCopyReassurance = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const textToCopy = `【${topic.title} · 暖心定心丸】\n🌰 比喻：${topic.metaphor}\n💚 定心丸：${topic.reassurance}\n— 来源：肺结节与肺癌循证视觉百科`;
+    const ok = await copyTextSafe(textToCopy);
+    if (ok) {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     }
   };
 
@@ -125,11 +127,15 @@ export function WikiTopicCard({ topic, isMatchedProfile, isHighlighted }: WikiTo
             <button
               type="button"
               onClick={handleCopyLink}
-              title={copiedLink ? "已复制直达链接" : "复制此词条直达分享链接"}
-              className="text-[11px] text-slate-400 hover:text-blue-600 px-1.5 py-0.5 rounded-md hover:bg-slate-100 transition-colors cursor-pointer flex items-center gap-1"
+              title={copiedLink ? "已复制直达链接" : "复制此词条专属直达分享链接"}
+              className={`text-[11px] px-2 py-0.5 rounded-full border transition-all cursor-pointer flex items-center gap-1 shadow-2xs ${
+                copiedLink
+                  ? "bg-emerald-100/90 border-emerald-400 text-emerald-800 font-bold scale-105"
+                  : "bg-slate-100/80 border-slate-200 text-slate-500 hover:bg-slate-200/80 hover:text-slate-800"
+              }`}
             >
-              <span>🔗</span>
-              <span className="text-[10px] hidden sm:inline">{copiedLink ? "已复制链接" : "分享"}</span>
+              <span>{copiedLink ? "✓" : "🔗"}</span>
+              <span className="text-[10px]">{copiedLink ? "已复制直达链接" : "分享"}</span>
             </button>
           </div>
 
