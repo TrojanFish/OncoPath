@@ -165,7 +165,7 @@ export default function SubpageNavbar() {
                   onClick={() => setMobileMenuOpen(false)}
                   className="w-full btn-primary py-3.5 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 shadow-md"
                 >
-                  <span>🔬 立即解析病理报告</span>
+                  <span>🔬 建立癌症档案</span>
                 </Link>
               </div>
             </div>

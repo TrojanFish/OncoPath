@@ -157,23 +157,14 @@ export default function HomePage() {
                   <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                     <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
-                  <span>立即建立专属档案</span>
+                  <span>建立癌症档案</span>
                 </Link>
-                <a
-                  href="#workflow"
-                  id="hero-workflow-btn"
-                  className="btn-secondary px-5 py-3.5 rounded-2xl text-sm font-semibold border-slate-200 text-slate-700 hover:bg-slate-50 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-                >
-                  <span>⚡ 了解 3 步工作流</span>
-                  <span className="text-xs text-slate-400">↓</span>
-                </a>
                 <Link
                   href="/wiki"
                   id="hero-wiki-btn"
-                  className="px-5 py-3.5 rounded-2xl text-sm font-semibold bg-white border border-slate-200 text-sky-700 hover:bg-sky-50 transition-all flex items-center justify-center gap-1.5 shadow-2xs"
+                  className="btn-secondary px-6 py-3.5 rounded-2xl text-base font-semibold border-slate-200 text-slate-700 hover:bg-slate-50 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-2xs"
                 >
-                  <span>💡 循证百科</span>
-                  <span>➔</span>
+                  <span>💡 探索循证百科</span>
                 </Link>
               </div>
 
@@ -390,9 +381,9 @@ export default function HomePage() {
             <Link
               href="/studies"
               id="view-all-studies-btn"
-              className="btn-primary px-8 py-3.5 rounded-2xl text-sm font-bold inline-flex items-center gap-2 shadow-md"
+              className="btn-primary px-8 py-3.5 rounded-2xl text-sm font-bold inline-flex items-center gap-2 shadow-md cursor-pointer"
             >
-              <span>查看全部已收录国际研究库 ({FEATURED_STUDIES.length}篇+)</span>
+              <span>查看国际研究库</span>
             </Link>
           </div>
         </div>
@@ -447,9 +438,8 @@ export default function HomePage() {
                   </p>
                 </div>
               </div>
-              <div className="pt-4 border-t border-slate-100 mt-4 flex items-center justify-between text-xs font-bold text-emerald-700">
-                <span>进入结节专区</span>
-                <span className="group-hover:translate-x-1 transition-transform">➔</span>
+              <div className="pt-4 border-t border-slate-100 mt-4 text-xs font-bold text-emerald-700">
+                进入结节专区
               </div>
             </Link>
 
@@ -476,9 +466,8 @@ export default function HomePage() {
                   </p>
                 </div>
               </div>
-              <div className="pt-4 border-t border-slate-100 mt-4 flex items-center justify-between text-xs font-bold text-blue-700">
-                <span>进入病理专区</span>
-                <span className="group-hover:translate-x-1 transition-transform">➔</span>
+              <div className="pt-4 border-t border-slate-100 mt-4 text-xs font-bold text-blue-700">
+                进入病理专区
               </div>
             </Link>
 
@@ -505,9 +494,8 @@ export default function HomePage() {
                   </p>
                 </div>
               </div>
-              <div className="pt-4 border-t border-slate-100 mt-4 flex items-center justify-between text-xs font-bold text-purple-700">
-                <span>进入基因专区</span>
-                <span className="group-hover:translate-x-1 transition-transform">➔</span>
+              <div className="pt-4 border-t border-slate-100 mt-4 text-xs font-bold text-purple-700">
+                进入基因专区
               </div>
             </Link>
 
@@ -534,9 +522,8 @@ export default function HomePage() {
                   </p>
                 </div>
               </div>
-              <div className="pt-4 border-t border-slate-100 mt-4 flex items-center justify-between text-xs font-bold text-amber-700">
-                <span>进入康复专区</span>
-                <span className="group-hover:translate-x-1 transition-transform">➔</span>
+              <div className="pt-4 border-t border-slate-100 mt-4 text-xs font-bold text-amber-700">
+                进入康复专区
               </div>
             </Link>
           </div>
@@ -547,14 +534,13 @@ export default function HomePage() {
               href="/wiki"
               className="btn-primary px-8 py-3.5 rounded-2xl text-sm font-bold shadow-md hover:shadow-lg transition-all inline-flex items-center gap-2 cursor-pointer"
             >
-              <span>💡 立即探索 OncoWiki 循证视觉百科全库 (20+精解词条)</span>
-              <span>➔</span>
+              <span>💡 探索循证百科</span>
             </Link>
             <Link
               href="/resources"
-              className="px-6 py-3.5 rounded-2xl text-sm font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition-all inline-flex items-center gap-2 shadow-2xs"
+              className="px-6 py-3.5 rounded-2xl text-sm font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition-all inline-flex items-center gap-2 shadow-2xs cursor-pointer"
             >
-              <span>📖 查阅医生专业指南 (学术导航) ➔</span>
+              <span>📖 查阅学术导航</span>
             </Link>
           </div>
         </div>
@@ -595,9 +581,9 @@ export default function HomePage() {
             <div>
               <Link
                 href="/profile"
-                className="inline-flex items-center gap-2 bg-white text-blue-700 hover:bg-blue-50 px-8 py-4 rounded-2xl font-extrabold text-base shadow-lg transition-all transform hover:-translate-y-0.5"
+                className="inline-flex items-center gap-2 bg-white text-blue-700 hover:bg-blue-50 px-8 py-4 rounded-2xl font-extrabold text-base shadow-lg transition-all transform hover:-translate-y-0.5 cursor-pointer"
               >
-                <span>🔬 立即免费建立专属癌症档案</span>
+                <span>🔬 建立癌症档案</span>
               </Link>
             </div>
           </div>

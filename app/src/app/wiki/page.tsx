@@ -178,10 +178,9 @@ export default function WikiPage() {
           </div>
           <Link
             href="/resources"
-            className="flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-blue-200 text-blue-700 font-bold hover:bg-blue-50 transition-colors cursor-pointer"
+            className="flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-blue-200 text-blue-700 font-bold hover:bg-blue-50 transition-colors cursor-pointer text-xs"
           >
-            <span>📖 需要查阅临床医生专业指南？前往【学术导航】</span>
-            <span>➔</span>
+            <span>📖 查阅医生临床指南</span>
           </Link>
         </div>
 
@@ -189,7 +188,7 @@ export default function WikiPage() {
         <section className="text-center space-y-4 pt-2 pb-4">
           <div className="inline-flex items-center gap-2 bg-white px-4 py-1.5 rounded-full text-xs font-bold text-sky-700 border border-sky-200 shadow-xs">
             <span>📚 肺结节与肺癌全景循证视觉百科</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-sky-500" />
+            <span className="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse" />
             <span>按风险优先级排序</span>
           </div>
 
@@ -211,7 +210,7 @@ export default function WikiPage() {
                 </span>
               </div>
               <Link href="/profile" className="flex-shrink-0 font-bold text-teal-700 hover:underline">
-                管理档案 ➔
+                管理档案
               </Link>
             </div>
           )}
