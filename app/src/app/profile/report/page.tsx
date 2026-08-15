@@ -500,8 +500,9 @@ export default function EvidenceReportPage() {
                   ),
                   blockquote: ({ node, children, ...props }) => {
                     const contentStr = String(children || "");
-                    const isSummary = contentStr.includes("核心研判") || contentStr.includes("🌟");
+                    const isSummary = contentStr.includes("核心研判") || contentStr.includes("🌟") || contentStr.includes("Executive Summary");
                     const isDisclaimer = contentStr.includes("免责声明") || contentStr.includes("🛡️");
+                    const isWarning = contentStr.includes("警示信号") || contentStr.includes("🚨") || contentStr.includes("提前返院");
 
                     if (isSummary) {
                       return (
@@ -517,9 +518,23 @@ export default function EvidenceReportPage() {
                       );
                     }
 
+                    if (isWarning) {
+                      return (
+                        <div className="my-6 p-4 md:p-5 rounded-2xl bg-rose-50 border border-rose-200 shadow-xs text-rose-950">
+                          <div className="flex items-center gap-2 text-xs font-bold text-rose-800 uppercase tracking-wider mb-1.5">
+                            <span>🚨</span>
+                            <span>需提前返院检查的警示信号</span>
+                          </div>
+                          <div className="text-sm leading-relaxed text-rose-900 font-medium">
+                            {children}
+                          </div>
+                        </div>
+                      );
+                    }
+
                     if (isDisclaimer) {
                       return (
-                        <div className="my-6 p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 leading-relaxed">
+                        <div className="my-6 p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-600 leading-relaxed shadow-2xs">
                           {children}
                         </div>
                       );
@@ -532,15 +547,35 @@ export default function EvidenceReportPage() {
                     );
                   },
                   ul: ({ node, ...props }) => (
-                    <ul className="space-y-2 my-3 pl-2 list-none" {...props} />
+                    <ul className="space-y-2 my-3 pl-1 list-none" {...props} />
                   ),
-                  li: ({ node, children, ...props }) => {
+                  li: ({ node, children, className, ...props }) => {
+                    const isTaskListItem = className?.includes('task-list-item') || Boolean(node?.children?.some((c: any) => c.tagName === 'input'));
+                    if (isTaskListItem) {
+                      return (
+                        <li className="flex items-start gap-3 p-3.5 rounded-2xl bg-slate-50/80 hover:bg-blue-50/70 border border-slate-200 hover:border-blue-300 transition-all my-2.5 shadow-2xs group" {...props}>
+                          <div className="flex-1 text-sm md:text-[15px] text-slate-800 leading-relaxed font-medium">{children}</div>
+                        </li>
+                      );
+                    }
                     return (
                       <li className="flex items-start gap-2.5 text-sm md:text-[15px] text-slate-700 leading-relaxed my-1.5" {...props}>
                         <span className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-2 flex-shrink-0" />
                         <div className="flex-1">{children}</div>
                       </li>
                     );
+                  },
+                  input: ({ node, ...props }) => {
+                    if (props.type === 'checkbox') {
+                      return (
+                        <input 
+                          type="checkbox" 
+                          defaultChecked={props.checked}
+                          className="w-4 h-4 rounded-md text-blue-600 border-slate-300 focus:ring-blue-500 cursor-pointer accent-blue-600 mt-1 flex-shrink-0" 
+                        />
+                      );
+                    }
+                    return <input {...props} />;
                   },
                   table: ({ node, ...props }) => (
                     <div className="overflow-x-auto my-5 rounded-2xl border border-slate-200 shadow-xs">
