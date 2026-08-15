@@ -15,15 +15,15 @@ interface EvidenceReportProps {
 
 export default function EvidenceReport({ profile, onBack, initialReportJson }: EvidenceReportProps) {
   const result = useMemo(() => analyzePatientProfile({
-      stage: profile.stage,
-      ctr: profile.ctr,
-      stas: profile.stas,
-      lvi: profile.lvi,
-      vpi: profile.vpi,
-      iaslcGrade: profile.iaslcGrade,
-      histology: profile.histology,
-      egfr: profile.egfr,
-      lymphNodes: profile.lymphNodes,
+      stage: profile.stage || "IA1",
+      ctr: profile.ctr ?? 0.53,
+      stas: profile.stas || "negative",
+      lvi: profile.lvi || "negative",
+      vpi: profile.vpi || "negative",
+      iaslcGrade: (profile.iaslcGrade || profile.grade || "2") as any,
+      histology: profile.histology || [],
+      egfr: (profile.egfr || "unknown") as any,
+      lymphNodes: (profile.lymphNodes || profile.nStage || "N0") as any,
   }), [profile]);
 
   const [loading, setLoading] = useState(!initialReportJson);

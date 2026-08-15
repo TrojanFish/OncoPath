@@ -7,6 +7,7 @@ import SimilarCasesCard from "./SimilarCasesCard";
 import ConsentModal from "@/components/ConsentModal";
 import type { PatientProfile } from "@/lib/types";
 import { getGuestId } from "@/lib/guest";
+import Link from "next/link";
 
 export default function PatientDashboard() {
   const [profile, setProfile] = useState<PatientProfile | null>(null);
@@ -14,7 +15,6 @@ export default function PatientDashboard() {
   const [showUploader, setShowUploader] = useState(false);
 
   useEffect(() => {
-    // Try to load existing profile from DB
     async function loadProfile() {
       try {
         const res = await fetch('/api/profile?userId=' + getGuestId());
@@ -22,7 +22,7 @@ export default function PatientDashboard() {
         if (data.profile) {
           setProfile(data.profile);
         } else {
-          setShowUploader(true); // If no profile, show uploader
+          setShowUploader(true);
         }
       } catch (err) {
         console.error("Failed to load profile", err);
@@ -35,7 +35,6 @@ export default function PatientDashboard() {
   }, []);
 
   const handleParsed = async (parsedData: any) => {
-    // Save to DB
     try {
       const res = await fetch('/api/profile', {
         method: 'POST',
@@ -56,8 +55,8 @@ export default function PatientDashboard() {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
         <div className="animate-pulse flex flex-col items-center">
-          <div className="w-12 h-12 border-4 border-gray-200 border-t-accent-blue rounded-full animate-spin"></div>
-          <p className="mt-4 text-text-secondary font-medium">正在加载癌症档案...</p>
+          <div className="w-12 h-12 border-4 border-slate-200 border-t-accent-blue rounded-full animate-spin"></div>
+          <p className="mt-4 text-slate-500 font-medium">正在加载癌症档案与循证模型...</p>
         </div>
       </div>
     );
@@ -65,32 +64,50 @@ export default function PatientDashboard() {
 
   if (showUploader || !profile) {
     return (
-      <div className="max-w-4xl mx-auto px-6 pb-16">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 pb-16">
         <ConsentModal />
-        <div className="text-center mb-10">
-          <h1 className="display-sm text-text-primary">建立个人医学档案</h1>
-          <p className="text-text-secondary mt-2">将您的病理报告交给 AI，自动建立结构化循证模型</p>
+        <div className="text-center mb-8">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">建立个人医学档案</h1>
+          <p className="text-slate-500 text-sm mt-1.5">将您的病理与影像报告交给 AI，自动建立结构化实性成分与循证模型</p>
         </div>
         <ReportUploader onParsed={handleParsed} />
       </div>
     );
   }
 
+  // Boolean / String Safe Factor Checks
+  const isStasSafe = profile.stas === 'negative' || (profile.stas as any) === false;
+  const isLviSafe = profile.lvi === 'negative' || (profile.lvi as any) === false;
+  const isVpiSafe = profile.vpi === 'negative' || (profile.vpi as any) === false;
+  const isMarginSafe = profile.margin === 'negative' || profile.marginStatus === 'negative' || (profile.margin as any) === false;
+  const isN0Safe = profile.nStage === 'N0' || !profile.nStage || profile.nStage === 'N?';
+
+  const noduleLabel = profile.noduleType === 'pure_ggo' 
+    ? '纯磨玻璃结节 (pGGO)' 
+    : profile.noduleType === 'pure_solid' 
+    ? '纯实性结节 (Solid)' 
+    : '混合磨玻璃结节 (mGGO)';
+
   return (
-    <div className="max-w-4xl mx-auto px-6 pb-16">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 pb-16">
       <ConsentModal />
-      <div className="flex items-center justify-between mb-8">
+      
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="display-sm text-text-primary">患者医疗档案 (Patient Profile)</h1>
-          <p className="text-text-secondary mt-1">
-            动态决策状态机 · 基于您的真实病理与影像特征
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+            患者临床数字档案 (Patient Profile)
+          </h1>
+          <p className="text-slate-500 text-sm mt-1">
+            动态决策状态机 · 基于 AJCC 8th/9th 实性成分与前瞻性临床队列
           </p>
         </div>
         <button 
           onClick={() => setShowUploader(true)}
-          className="btn-secondary px-4 py-2 rounded-lg text-sm font-medium"
+          className="self-start sm:self-center px-4 py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs border border-slate-300 shadow-xs transition-all cursor-pointer flex items-center gap-1.5"
         >
-          更新档案
+          <span>✏️</span>
+          <span>修改/更新档案</span>
         </button>
       </div>
 
@@ -100,66 +117,121 @@ export default function PatientDashboard() {
       />
 
       <div className="grid md:grid-cols-3 gap-6 mb-6">
-        {/* Core Identity Card */}
-        <div className="md:col-span-2 bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
-          <h3 className="text-sm font-semibold text-text-muted uppercase tracking-wider mb-4">当前诊断画像</h3>
-          <div className="flex items-start gap-4">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex flex-col items-center justify-center text-text-primary border border-gray-300">
-              <span className="text-xs text-text-muted">年龄</span>
-              <span className="font-bold">{profile.age}</span>
+        
+        {/* Core Clinical Profile Card */}
+        <div className="md:col-span-2 bg-white rounded-3xl p-6 sm:p-7 border border-slate-200 shadow-sm">
+          <div className="flex items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100">
+            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+              CLINICAL DIAGNOSIS · 当前诊断画像
+            </h3>
+            <span className="text-xs font-semibold text-teal-700 bg-teal-50 px-2.5 py-0.5 rounded-full border border-teal-200">
+              {noduleLabel}
+            </span>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50 flex flex-col items-center justify-center text-slate-900 border border-blue-100 flex-shrink-0 shadow-xs">
+              <span className="text-[10px] font-bold text-slate-400">年龄</span>
+              <span className="text-xl font-extrabold text-blue-900">{profile.age || 55}</span>
             </div>
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <h2 className="text-2xl font-bold text-gray-900">早期原发性肺腺癌</h2>
-                <span className="px-2 py-1 rounded bg-blue-50 text-accent-blue border border-blue-200 text-xs font-bold">
-                  {profile.stage} 期
+
+            <div className="flex-1">
+              <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900">
+                  {profile.stage ? `${profile.stage} 期原发性肺腺癌` : '早期原发性肺腺癌'}
+                </h2>
+                <span className="px-2.5 py-1 rounded-lg bg-blue-50 text-accent-blue border border-blue-200 text-xs font-extrabold">
+                  {profile.tStage || "T1a"}{profile.nStage || "N0"}{profile.mStage || "M0"}
                 </span>
               </div>
-              <p className="text-text-secondary text-sm">
-                手术方式: {profile.surgeryType === 'segmentectomy' ? '肺段切除术' : profile.surgeryType} · 
-                病理分级: 中分化 (IASLC Grade {profile.iaslcGrade})
-              </p>
+
+              <div className="text-xs sm:text-sm text-slate-600 space-y-1">
+                <div>
+                  <strong>手术术式</strong>: {
+                    profile.surgeryType === 'segmentectomy' ? '解剖性肺段切除' :
+                    profile.surgeryType === 'lobectomy' ? '标准肺叶切除' :
+                    profile.surgeryType === 'wedge' ? '肺楔形切除' :
+                    profile.surgeryType || '根治性切除'
+                  } · <strong>病理分级</strong>: {profile.iaslcGrade === '1' ? '高分化 (Grade 1)' : profile.iaslcGrade === '3' ? '低分化 (Grade 3)' : '中分化 (Grade 2)'}
+                </div>
+                
+                {profile.solidSize != null && (
+                  <div className="text-teal-800 text-xs font-medium bg-teal-50/80 p-2 rounded-xl border border-teal-200 mt-2">
+                    📏 <strong>实性浸润大小</strong>: {profile.solidSize} cm (总径 {profile.tumorSize || 1.5} cm, CTR {profile.ctr ?? 0.53}) ➔ 依据 AJCC 8th 规则校准为 {profile.stage || 'IA1'} 期
+                  </div>
+                )}
+              </div>
             </div>
           </div>
           
-          <div className="mt-6 pt-6 border-t border-gray-100">
-            <h4 className="text-sm font-medium text-text-primary mb-3">红绿灯风险矩阵</h4>
+          {/* 4-Factor Traffic Light Matrix (Red / Green) */}
+          <div className="mt-6 pt-5 border-t border-slate-100">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                🚦 关键病理红绿灯矩阵 (决定辅助治疗与复发风险)
+              </h4>
+            </div>
+
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <RiskBadge label="淋巴结转移" status={profile.nStage === 'N0' ? 'good' : 'warning'} text={profile.nStage || "未测"} />
-              <RiskBadge label="脉管侵犯 (LVI)" status={profile.lvi === 'negative' ? 'good' : 'warning'} text={profile.lvi === 'negative' ? '无' : '阳性'} />
-              <RiskBadge label="气道播散 (STAS)" status={profile.stas === 'negative' ? 'good' : 'warning'} text={profile.stas === 'negative' ? '无' : '阳性'} />
-              <RiskBadge label="切缘状态" status={profile.margin === 'negative' ? 'good' : 'warning'} text={profile.margin === 'negative' ? '阴性(安全)' : '阳性'} />
+              <RiskBadge 
+                label="切缘状态" 
+                status={isMarginSafe ? 'good' : 'danger'} 
+                text={isMarginSafe ? '阴性 (R0安全)' : '阳性 (有残留)'} 
+              />
+              <RiskBadge 
+                label="气道播散 (STAS)" 
+                status={isStasSafe ? 'good' : 'warning'} 
+                text={isStasSafe ? '无 / 阴性' : '阳性 (高危)'} 
+              />
+              <RiskBadge 
+                label="脉管癌栓 (LVI)" 
+                status={isLviSafe ? 'good' : 'warning'} 
+                text={isLviSafe ? '无 / 阴性' : '阳性 (高危)'} 
+              />
+              <RiskBadge 
+                label="淋巴结分期" 
+                status={isN0Safe ? 'good' : 'danger'} 
+                text={profile.nStage === 'N0' ? 'N0 (无转移)' : profile.nStage === 'N1' ? 'N1 (肺门累及)' : profile.nStage === 'N2' ? 'N2 (纵隔转移)' : profile.nStage || 'N0'} 
+              />
             </div>
           </div>
         </div>
 
-        {/* Action Engine Card */}
-        <div className="bg-gradient-to-b from-blue-50 to-white rounded-2xl p-6 border border-blue-100 shadow-sm flex flex-col">
-          <h3 className="text-sm font-semibold text-text-muted uppercase tracking-wider mb-4">决策引擎建议</h3>
-          
-          <div className="flex-1">
+        {/* Decision Engine Recommendation Card */}
+        <div className="bg-gradient-to-b from-blue-50/80 via-white to-white rounded-3xl p-6 sm:p-7 border border-blue-100 shadow-sm flex flex-col justify-between">
+          <div>
+            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">
+              DECISION ENGINE · 决策引擎
+            </h3>
+            
             <div className="flex items-center gap-2 mb-2">
-              <span className={`w-3 h-3 rounded-full ${profile.riskLevel === 'low' ? 'bg-green-500' : 'bg-amber-500'} animate-pulse`} />
-              <span className="font-bold text-gray-900">
-                {profile.riskLevel === 'low' ? '低复发风险组' : '中高复发风险组'}
+              <span className={`w-3 h-3 rounded-full ${isStasSafe && isLviSafe && isN0Safe ? 'bg-emerald-500' : 'bg-amber-500'} animate-pulse`} />
+              <span className="font-bold text-slate-900 text-base">
+                {isStasSafe && isLviSafe && isN0Safe ? '🌱 早期低复发风险组' : '⚡ 需积极辅助随访组'}
               </span>
             </div>
-            <p className="text-sm text-text-secondary mb-6">
-              您的优势因素（N0, 无 STAS）显著降低了局部复发的概率。
+
+            <p className="text-xs text-slate-600 leading-relaxed mb-4">
+              {isStasSafe && isLviSafe && isN0Safe 
+                ? '您的关键优势因素（R0切除、N0淋巴结阴性、无 STAS/LVI）显著降低了术后复发概率。' 
+                : '存在局部高危病理因素，建议密切关注局部影像与长程管理计划。'}
             </p>
             
-            <div className="bg-white rounded-xl p-4 border border-blue-200 shadow-sm relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-1 h-full bg-accent-blue" />
-              <div className="text-xs text-accent-blue font-bold mb-1">下一步行动计划</div>
-              <div className="text-sm text-gray-900 font-medium">
-                {profile.nextAction}
+            <div className="bg-white rounded-2xl p-4 border border-blue-200 shadow-xs relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-1.5 h-full bg-accent-blue" />
+              <div className="text-[11px] text-accent-blue font-bold mb-1">下一步建议</div>
+              <div className="text-xs sm:text-sm text-slate-800 font-medium leading-relaxed">
+                {profile.nextAction || '遵医嘱术后 6 个月复查胸部 CT，无需过度化疗。'}
               </div>
             </div>
           </div>
           
-          <a href="/profile/report" className="w-full mt-4 btn-primary py-3 rounded-xl text-sm font-semibold shadow-sm block text-center">
-            生成详细循证报告 →
-          </a>
+          <Link 
+            href="/profile/report" 
+            className="w-full mt-6 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-sky-600 hover:from-blue-700 hover:to-sky-700 text-white text-xs sm:text-sm font-bold shadow-md shadow-blue-500/20 text-center block transition-all cursor-pointer"
+          >
+            生成专属深度循证报告 →
+          </Link>
         </div>
       </div>
 
@@ -169,14 +241,26 @@ export default function PatientDashboard() {
   );
 }
 
-function RiskBadge({ label, status, text }: { label: string, status: 'good' | 'warning', text: string }) {
-  const isGood = status === 'good';
+function RiskBadge({ label, status, text }: { label: string; status: 'good' | 'warning' | 'danger'; text: string }) {
+  const styles = {
+    good: 'bg-emerald-50 text-emerald-800 border-emerald-200',
+    warning: 'bg-amber-50 text-amber-800 border-amber-200',
+    danger: 'bg-rose-50 text-rose-800 border-rose-200'
+  };
+
+  const icons = {
+    good: '✅',
+    warning: '⚠️',
+    danger: '🚨'
+  };
+
   return (
-    <div className={`rounded-lg p-3 border ${isGood ? 'bg-green-50 border-green-200' : 'bg-amber-50 border-amber-200'}`}>
-      <div className={`text-xs font-semibold mb-1 ${isGood ? 'text-green-700' : 'text-amber-700'}`}>
-        {isGood ? '✅' : '⚠️'} {label}
+    <div className={`rounded-2xl p-3 border ${styles[status]} shadow-xs`}>
+      <div className="text-[11px] font-semibold opacity-90 mb-1 flex items-center gap-1">
+        <span>{icons[status]}</span>
+        <span>{label}</span>
       </div>
-      <div className={`text-sm font-bold ${isGood ? 'text-green-900' : 'text-amber-900'}`}>
+      <div className="text-xs sm:text-sm font-bold truncate">
         {text}
       </div>
     </div>

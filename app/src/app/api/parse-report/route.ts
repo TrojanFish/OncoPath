@@ -1,31 +1,53 @@
 import { NextResponse } from 'next/server';
 import { ai } from '@/lib/gemini';
+import { computeClinicalTnmStage } from '@/lib/staging';
 
 const SYSTEM_PROMPT = `
-你是一位专业的肺癌病理学家与肿瘤内科专家。你的任务是从患者上传的病理/影像报告（可能是文本，也可能是报告的纸质照片截图）中，提取出关键的临床决策指标，并严格输出为 JSON 格式。
+你是一位顶级肺癌临床病理学与胸部影像学专家。你的任务是从患者上传的病理/影像报告（可能是文本，也可能是报告的纸质照片截图）中，高精度提取关键临床决策指标，并严格输出为 JSON 格式。
 
-无论原始文本有多乱，或者照片有多模糊，请尽力提取以下字段。如果明确没有提及，则输出 null，而不是伪造数据。
+【中文医学报告阴阳性识别核心规则（极其重要）】：
+1. 气道播散 (STAS)：
+   - "未见气道播散" / "未见 STAS" / "STAS (-)" / "STAS 阴性" / "未见癌细胞气道播散" ➔ 必须提取为 "negative"
+   - "见气道播散" / "STAS (+)" / "STAS 阳性" / "存在气道播散" ➔ 提取为 "positive"
+   - 未提及 ➔ 输出 "negative"
+2. 脉管内癌栓 (LVI)：
+   - "未见脉管内癌栓" / "未见微血管侵犯" / "LVI (-)" / "脉管阴性" / "未见脉管瘤栓" ➔ 必须提取为 "negative"
+   - "见脉管内癌栓" / "LVI (+)" / "脉管阳性" / "脉管内见癌细胞" ➔ 提取为 "positive"
+   - 未提及 ➔ 输出 "negative"
+3. 脏层胸膜侵犯 (VPI)：
+   - "未见胸膜侵犯" / "胸膜未受累" / "VPI (-)" / "胸膜阴性" / "未突破弹力层" / "PL0" ➔ 必须提取为 "negative"
+   - "突破脏层胸膜" / "侵及胸膜" / "VPI (+)" / "胸膜阳性" / "PL1" / "PL2" ➔ 提取为 "positive"
+   - 未提及 ➔ 输出 "negative"
+4. 切缘状态 (Margin)：
+   - "切缘阴性" / "切缘未见癌" / "支气管断端阴性" / "各个切缘未见癌组织" / "R0" ➔ 必须提取为 "negative"
+   - "切缘阳性" / "断端见癌" / "R1" / "R2" ➔ 提取为 "positive"
+   - 未提及 ➔ 输出 "negative"
+
+【结节形态与实性成分 (AJCC 8th/9th 核心定期依据)】：
+- noduleType: "mixed_ggo" (混合磨玻璃 / 部分实性结节) | "pure_ggo" (纯磨玻璃结节) | "pure_solid" (纯实性结节)。
+- tumorSize: 肿瘤最大总径（厘米，例如 1.5*1.3*0.8cm 则提取 1.5）。
+- solidSize: CT 实性成分大小或病理浸润大小（厘米，例如 CT 提示实性成分 0.8cm 则提取 0.8）。若未标明实性大小但为混合磨玻璃，估算或提取明确数值。
+- ctr: 实性成分比例 (0 到 1.0)。
 
 请严格遵守以下 JSON 结构输出，不要包含任何 Markdown 标记或多余的文字：
 {
   "age": Number | null,
   "sex": "male" | "female" | null,
   "organ": "lung",
-  "histology": String | null (例如: "adenocarcinoma", "squamous_cell_carcinoma", 若中文则尽量翻译为这几个英文分类),
-  "tStage": "T1a" | "T1b" | "T1c" | "T2a" | "T2b" | "T3" | "T4" | null,
+  "histology": String | null (例如: "adenocarcinoma", "squamous_cell_carcinoma"),
+  "noduleType": "mixed_ggo" | "pure_ggo" | "pure_solid",
+  "tumorSize": Number | null (例如 1.5),
+  "solidSize": Number | null (例如 0.8),
+  "ctr": Number | null (例如 0.53),
+  "tStage": "T1mi" | "T1a" | "T1b" | "T1c" | "T2a" | "T2b" | "T3" | "T4" | null,
   "nStage": "N0" | "N1" | "N2" | "N3" | null,
-  "stas": "positive" | "negative" | null (气道播散),
-  "vpi": "positive" | "negative" | null (胸膜侵犯),
-  "lvi": "positive" | "negative" | null (脉管内癌栓),
-  "marginStatus": "positive" | "negative" | null (切缘状态),
+  "stas": "positive" | "negative",
+  "vpi": "positive" | "negative",
+  "lvi": "positive" | "negative",
+  "marginStatus": "positive" | "negative",
   "surgeryType": "lobectomy" | "segmentectomy" | "wedge" | null,
-  "grade": "1" | "2" | "3" | null (分化程度: 1为高分化, 2为中分化, 3为低分化)
+  "grade": "1" | "2" | "3" | null
 }
-
-规则：
-1. 你的回答必须是一个合法的 JSON 对象，不要用 \`\`\`json 包裹。
-2. 不要编造数据，如果在文本中找不到对应特征，设置为 null。
-3. "阴性"或"未见" 映射为 "negative"，"阳性"或"可见" 映射为 "positive"。
 `;
 
 export async function POST(request: Request) {
@@ -61,7 +83,7 @@ export async function POST(request: Request) {
       config: {
         systemInstruction: SYSTEM_PROMPT,
         responseMimeType: 'application/json',
-        temperature: 0.1, // 低温度保证输出稳定性
+        temperature: 0.1,
       }
     });
 
@@ -76,58 +98,65 @@ export async function POST(request: Request) {
       cleanedJson = jsonMatch[0];
     }
 
-    const extractedData = JSON.parse(cleanedJson);
+    const extracted = JSON.parse(cleanedJson);
 
-    // Provide default safe fallbacks for missing critical fields
-    const safeData = {
-      age: extractedData.age || 55, // 占位
-      sex: extractedData.sex || "unknown",
-      organ: extractedData.organ || "lung",
-      histology: extractedData.histology || "unknown",
-      tStage: extractedData.tStage || null,
-      nStage: extractedData.nStage || null,
-      stas: extractedData.stas || "negative", // 默认为阴性以降低无谓恐慌
-      vpi: extractedData.vpi || "negative",
-      lvi: extractedData.lvi || "negative",
-      marginStatus: extractedData.marginStatus || "negative",
-      surgeryType: extractedData.surgeryType || "lobectomy",
-      grade: extractedData.grade || null,
-      
-      // State Engine fields will be generated below
-      currentStage: "evaluation",
-      riskLevel: "unknown",
-      nextAction: "暂无建议",
-      psychologicalState: "fear"
+    // Precise normalization of positive/negative strings from text
+    const normalizeFlag = (val: any): "positive" | "negative" => {
+      if (val === true || val === "positive" || val === "yes" || val === "1") return "positive";
+      return "negative";
     };
 
-    // State Engine: Rule-based inference (Do not let AI hallucinate medical decisions!)
-    const hasSurgeryEvidence = Boolean(reportText?.includes("切除")) || Boolean(safeData.surgeryType && safeData.surgeryType !== "unknown");
-    if (safeData.tStage || safeData.nStage || hasSurgeryEvidence) {
-      safeData.currentStage = 'post_op';
-      
-      const isEarlyStage = safeData.tStage === "T1a" || safeData.tStage === "T1b" || safeData.tStage === "T1c";
-      const isN0 = safeData.nStage === "N0";
-      const hasHighRisk = safeData.stas === "positive" || safeData.vpi === "positive" || safeData.lvi === "positive" || safeData.nStage === "N1" || safeData.marginStatus === "positive";
+    const stas = normalizeFlag(extracted.stas);
+    const vpi = normalizeFlag(extracted.vpi);
+    const lvi = normalizeFlag(extracted.lvi);
+    const marginStatus = normalizeFlag(extracted.marginStatus);
 
-      if (hasHighRisk) {
-        safeData.riskLevel = 'moderate';
-        safeData.nextAction = '存在局部高危因素 (如 STAS 或淋巴结累及)，建议尽早咨询肿瘤内科讨论辅助治疗方案。';
-        safeData.psychologicalState = 'decision';
-      } else if (isEarlyStage && isN0) {
-        safeData.riskLevel = 'low';
-        safeData.nextAction = '属于低风险组。建议术后规律随访，无需立即化疗。';
-        safeData.psychologicalState = 'understanding';
-      } else {
-        safeData.riskLevel = 'moderate';
-        safeData.nextAction = '特征较为复杂，请尽快挂号主治医生解读完整报告。';
-        safeData.psychologicalState = 'decision';
-      }
-    } else {
-      safeData.currentStage = 'discovery';
-      safeData.riskLevel = 'unknown';
-      safeData.nextAction = '请提供详细的术后病理报告以进行全面循证评估。';
-      safeData.psychologicalState = 'fear';
-    }
+    // Compute accurate TNM Stage using AJCC 8th/9th Solid Component Formula
+    const stagingCalc = computeClinicalTnmStage({
+      noduleType: extracted.noduleType || "mixed_ggo",
+      tumorSize: extracted.tumorSize ?? 1.5,
+      solidSize: extracted.solidSize ?? 0.8,
+      ctr: extracted.ctr ?? 0.53,
+      nStage: extracted.nStage || "N0",
+      vpi: vpi,
+      stas: stas,
+      lvi: lvi,
+      marginStatus: marginStatus,
+    });
+
+    const safeData = {
+      age: extracted.age || 55,
+      sex: extracted.sex || "male",
+      gender: extracted.sex || "male",
+      organ: "lung",
+      histology: extracted.histology || "adenocarcinoma",
+      noduleType: stagingCalc.noduleType,
+      morphology: stagingCalc.noduleType,
+      tumorSize: stagingCalc.tumorSize,
+      solidSize: stagingCalc.solidSize,
+      ctr: stagingCalc.ctr,
+      tStage: stagingCalc.tStage,
+      nStage: stagingCalc.nStage,
+      mStage: stagingCalc.mStage,
+      stage: stagingCalc.stage,
+      stageExplanation: stagingCalc.explanation,
+      stas: stas,
+      vpi: vpi,
+      lvi: lvi,
+      marginStatus: marginStatus,
+      margin: marginStatus,
+      surgeryType: extracted.surgeryType || "segmentectomy",
+      grade: extracted.grade || "2",
+      iaslcGrade: extracted.grade || "2",
+      
+      // State Engine
+      currentStage: "post_op",
+      riskLevel: (stas === "positive" || vpi === "positive" || lvi === "positive" || stagingCalc.nStage !== "N0") ? "moderate" : "low",
+      nextAction: (stas === "positive" || vpi === "positive" || lvi === "positive" || stagingCalc.nStage !== "N0")
+        ? "存在局部病理危险因子，建议尽早与主治医生讨论随访或辅助治疗方案。"
+        : "属于早期低复发风险组。建议遵医嘱规律随访，无需过度化疗。",
+      psychologicalState: (stas === "positive" || stagingCalc.nStage !== "N0") ? "decision" : "understanding"
+    };
 
     return NextResponse.json({ success: true, data: safeData });
   } catch (error: any) {

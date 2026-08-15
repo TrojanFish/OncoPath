@@ -269,9 +269,9 @@ function Step2({ form, updateForm }: StepProps) {
 
   const toggleHistology = (val: string) => {
     const current = form.histology || [];
-    const exists = current.some((h) => h.type === val);
+    const exists = current.some((h: any) => h.type === val);
     if (exists) {
-      updateForm("histology", current.filter((h) => h.type !== val));
+      updateForm("histology", current.filter((h: any) => h.type !== val));
     } else {
       updateForm("histology", [...current, { type: val }]);
     }
@@ -281,7 +281,7 @@ function Step2({ form, updateForm }: StepProps) {
     const current = form.histology || [];
     const num = parseInt(percentage);
     const validNum = isNaN(num) ? undefined : num;
-    updateForm("histology", current.map(h => h.type === val ? { ...h, percentage: validNum } : h));
+    updateForm("histology", current.map((h: any) => h.type === val ? { ...h, percentage: validNum } : h));
   };
 
   return (
@@ -370,7 +370,7 @@ function Step2({ form, updateForm }: StepProps) {
       <FormField label="病理亚型（可多选）" tooltip="如果病理报告中写了各亚型的百分比，可以在选中后填写。如果没有写，留空即可。微乳头型和实体型属于容易复发的不良亚型">
         <div className="grid grid-cols-2 gap-2">
           {Object.entries(pathologyOptions).map(([val, label]) => {
-            const histItem = (form.histology || []).find((h) => h.type === val);
+            const histItem = (form.histology || []).find((h: any) => h.type === val);
             const isSelected = !!histItem;
             return (
               <div

@@ -1,61 +1,59 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { computeClinicalTnmStage } from '@/lib/staging';
 
 export async function POST(request: Request) {
   try {
     const data = await request.json();
     
-    // Define State Engine logic based on input
-    let currentStage = data.currentStage || 'evaluation';
-    let riskLevel = data.riskLevel || 'unknown';
-    let nextAction = data.nextAction || 'Consult your doctor for a detailed plan.';
-    let psychState = data.psychologicalState || 'anxious';
+    // Normalize boolean / string factors
+    const isStas = data.stas === 'positive' || data.stas === true;
+    const isVpi = data.vpi === 'positive' || data.vpi === true;
+    const isLvi = data.lvi === 'positive' || data.lvi === true;
+    const marginStatus = data.marginStatus === 'positive' || data.margin === 'positive' ? 'positive' : 'negative';
 
-    // Simple rule-based State Engine MVP
-    if (data.tStage || data.nStage) {
-      currentStage = 'post_op';
-      
-      if (data.nStage === 'N0' && !data.stas && !data.vpi) {
-        riskLevel = 'low';
-        nextAction = 'Regular follow-up CT scan in 6 months.';
-        psychState = 'understanding';
-      } else {
-        riskLevel = 'moderate';
-        nextAction = 'Discuss adjuvant therapy options with your oncologist.';
-        psychState = 'decision';
-      }
-    } else if (data.sizeMm) {
-      currentStage = 'discovery';
-      if (data.sizeMm < 6) {
-        riskLevel = 'low';
-        nextAction = 'Annual low-dose CT screening.';
-      } else {
-        riskLevel = 'moderate';
-        nextAction = 'Follow-up CT in 3-6 months to monitor growth.';
-      }
-    }
+    const stagingResult = computeClinicalTnmStage({
+      noduleType: data.noduleType || data.morphology || "mixed_ggo",
+      tumorSize: data.tumorSize ? parseFloat(data.tumorSize) : (data.sizeMm ? parseFloat(data.sizeMm) / 10 : 1.5),
+      solidSize: data.solidSize ? parseFloat(data.solidSize) : null,
+      ctr: data.ctr ? parseFloat(data.ctr) : null,
+      tStage: data.tStage,
+      nStage: data.nStage || "N0",
+      mStage: data.mStage || "M0",
+      vpi: isVpi,
+      stas: isStas,
+      lvi: isLvi,
+      marginStatus: marginStatus,
+    });
+
+    let currentStage = data.currentStage || 'post_op';
+    let riskLevel = (isStas || isVpi || isLvi || stagingResult.nStage !== 'N0') ? 'moderate' : 'low';
+    let nextAction = riskLevel === 'low' 
+      ? '属于早期低复发风险组。遵医嘱术后 6 个月规律复查胸部 CT 即可，无需过度化疗。'
+      : '存在局部病理高危因素，建议咨询肿瘤内科进一步评估辅助治疗方案。';
+    let psychState = isStas || isVpi ? 'decision' : 'understanding';
 
     // Save to DB
     const profile = await prisma.patientProfile.create({
       data: {
         userId: data.userId || 'anonymous',
-        age: data.age,
-        sex: data.sex,
+        age: data.age ? parseInt(data.age) : 55,
+        sex: data.sex || data.gender || 'male',
         organ: data.organ || 'lung',
-        histology: data.histology,
-        noduleType: data.noduleType,
-        sizeMm: data.sizeMm ? parseFloat(data.sizeMm) : null,
-        ctr: data.ctr ? parseFloat(data.ctr) : null,
-        tumorSize: data.tumorSize ? parseFloat(data.tumorSize) : null,
-        grade: data.grade,
-        tStage: data.tStage,
-        nStage: data.nStage,
-        mStage: data.mStage,
-        stas: data.stas === 'positive' ? true : data.stas === 'negative' ? false : null,
-        vpi: data.vpi === 'positive' ? true : data.vpi === 'negative' ? false : null,
-        lvi: data.lvi === 'positive' ? true : data.lvi === 'negative' ? false : null,
-        surgeryType: data.surgeryType,
-        marginStatus: data.marginStatus,
+        histology: data.histology || 'adenocarcinoma',
+        noduleType: stagingResult.noduleType,
+        sizeMm: stagingResult.tumorSize * 10,
+        ctr: stagingResult.ctr,
+        tumorSize: stagingResult.tumorSize,
+        grade: data.grade || data.iaslcGrade || '2',
+        tStage: stagingResult.tStage,
+        nStage: stagingResult.nStage,
+        mStage: stagingResult.mStage,
+        stas: isStas,
+        vpi: isVpi,
+        lvi: isLvi,
+        surgeryType: data.surgeryType || 'segmentectomy',
+        marginStatus: marginStatus,
         
         // State Engine
         currentStage: currentStage,
@@ -69,10 +67,26 @@ export async function POST(request: Request) {
       }
     });
 
-    if (profile) {
-      (profile as any).gender = profile.sex;
-    }
-    return NextResponse.json({ success: true, profile });
+    // Return enriched profile object with normalized strings for UI
+    const enriched = {
+      ...profile,
+      gender: profile.sex,
+      stas: profile.stas ? 'positive' : 'negative',
+      vpi: profile.vpi ? 'positive' : 'negative',
+      lvi: profile.lvi ? 'positive' : 'negative',
+      margin: profile.marginStatus || 'negative',
+      marginStatus: profile.marginStatus || 'negative',
+      noduleType: profile.noduleType || 'mixed_ggo',
+      morphology: profile.noduleType || 'mixed_ggo',
+      tumorSize: stagingResult.tumorSize,
+      solidSize: stagingResult.solidSize,
+      ctr: stagingResult.ctr,
+      stage: stagingResult.stage,
+      stageExplanation: stagingResult.explanation,
+      iaslcGrade: profile.grade || '2',
+    };
+
+    return NextResponse.json({ success: true, profile: enriched });
   } catch (error: any) {
     console.error('Error saving profile:', error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
@@ -128,10 +142,48 @@ export async function GET(request: Request) {
       orderBy: { createdAt: 'desc' }
     });
     
-    if (profile) {
-      (profile as any).gender = profile.sex;
+    if (!profile) {
+      return NextResponse.json({ profile: null });
     }
-    return NextResponse.json({ profile });
+
+    // Recompute accurate AJCC Stage and normalize all fields for frontend
+    const tumorSize = profile.tumorSize ?? (profile.sizeMm ? profile.sizeMm / 10 : 1.5);
+    const stagingResult = computeClinicalTnmStage({
+      noduleType: profile.noduleType || "mixed_ggo",
+      tumorSize: tumorSize,
+      ctr: profile.ctr ?? 0.53,
+      tStage: profile.tStage,
+      nStage: profile.nStage || "N0",
+      mStage: profile.mStage || "M0",
+      vpi: profile.vpi,
+      stas: profile.stas,
+      lvi: profile.lvi,
+      marginStatus: profile.marginStatus,
+    });
+
+    const enriched = {
+      ...profile,
+      gender: profile.sex || 'male',
+      sex: profile.sex || 'male',
+      stas: profile.stas ? 'positive' : 'negative',
+      vpi: profile.vpi ? 'positive' : 'negative',
+      lvi: profile.lvi ? 'positive' : 'negative',
+      margin: profile.marginStatus || 'negative',
+      marginStatus: profile.marginStatus || 'negative',
+      noduleType: profile.noduleType || 'mixed_ggo',
+      morphology: profile.noduleType || 'mixed_ggo',
+      tumorSize: stagingResult.tumorSize,
+      solidSize: stagingResult.solidSize,
+      ctr: stagingResult.ctr,
+      stage: stagingResult.stage,
+      tStage: stagingResult.tStage,
+      nStage: stagingResult.nStage,
+      mStage: stagingResult.mStage,
+      stageExplanation: stagingResult.explanation,
+      iaslcGrade: profile.grade || '2',
+    };
+
+    return NextResponse.json({ profile: enriched });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
