@@ -324,23 +324,23 @@ export const WIKI_TOPICS: WikiTopic[] = [
     id: "ihc-ki67",
     category: "pathology",
     subcategory: "病理免疫组化",
-    title: "免疫组化指标破译 (TTF-1 / P40 / Ki-67 增殖指数)",
-    subtitle: "Immunohistochemistry (IHC) & Ki-67 Proliferation Index",
+    title: "免疫组化指标破译 (TTF-1 / Napsin A / P40 / Ki-67 增殖指数)",
+    subtitle: "Immunohistochemistry (IHC) Panel & Ki-67 Proliferation Index",
     icon: "🧬",
     riskLevel: "moderate",
     priorityOrder: 85,
     metaphor: "TTF-1、CK7 阳性是肿瘤的'户口本与身份证'（证明它属于哪一种细胞宗族）；而 Ki-67 是细胞发动机的'实时转速表'——转速高代表踩了油门，但同时也更容易被靶向药和化疗药物精准锁定！",
-    clinicalTruth: "免疫组织化学（IHC）利用抗体特异性结合原理，检测肿瘤细胞表达的特异性蛋白质。'TTF-1(+)'和'Napsin A(+)'是肺腺癌最核心的免疫标记，用于排除鳞癌（P40/P63阳性）或转移癌；'Ki-67 阳性率（如 10%、30%）'反映处于分裂增殖周期的细胞百分比，是评估生长活性的转速表，绝不是患者的'复发转移概率'！",
+    clinicalTruth: "免疫组织化学（IHC）利用抗体特异性结合原理，检测肿瘤细胞表达的特异性蛋白质，是确诊组织学分型的金标准：\n• 肺腺癌特异性标志物：TTF-1(+)、Napsin A(+)、CK7(+)，同时 P40(-)、P63(-)，用于精确排除肺鳞癌或胃肠转移癌（CDX2/CK20）；\n• Ki-67 增殖指数：反映处于细胞分裂活跃周期的比例。在原位/微浸润腺癌中通常极低（<3%~5%）；在常规浸润性腺癌中多在 10%~30%；在高级别神经内分泌癌/小细胞肺癌中常 >50%~80%+。Ki-67 是肿瘤代谢活性的转速表，绝不是患者的'复发转移概率'！",
     tactics: [
-      "若 TTF-1 阳性确诊为肺腺癌，应常规进行驱动基因（EGFR/ALK等）NGS 检测以锁定靶向药",
-      "若 Ki-67 较高（>30%），提示肿瘤细胞代谢旺盛，在需要术后辅助治疗时对铂类化疗与靶向药物更敏感、响应更佳",
-      "结合病理 TNM 分期与微浸润程度综合评估，切忌脱离分期单看 Ki-67",
+      "若 TTF-1 阳性确诊为肺腺癌，应常规进行驱动基因（EGFR/ALK/ROS1等）NGS 大 Panel 检测以锁定靶向药",
+      "若 Ki-67 较高（>30%），提示肿瘤细胞分裂增殖活跃，在需要术后辅助治疗时对含铂化疗与靶向药物更敏感、响应更佳",
+      "必须结合病理 TNM 分期与微浸润程度综合评估，切忌脱离分期单看 Ki-67 数值过度恐慌",
     ],
     reassurance: "很多患者看到病理报告上一长串'+'号或者 Ki-67 20% 就吓得魂飞魄散。请记住：免疫组化的'+'号只是在给细胞做分类体检，不是疾病扩散的意思！确诊分型越精准，医生的武器库越强大！",
     keyMetric: {
       label: "TTF-1 肺腺癌诊断特异性",
-      value: "> 95% (临床确诊腺癌金标准)",
-      source: "WHO Classification of Thoracic Tumours",
+      value: "> 95% (确诊肺腺癌金标准标记)",
+      source: "WHO Classification of Thoracic Tumours 5th Edition",
     },
     faq: [
       {
@@ -349,12 +349,12 @@ export const WIKI_TOPICS: WikiTopic[] = [
       },
       {
         question: "为什么报告里有的指标是(+)有的是(-)？",
-        answer: "(+)代表阳性（有该蛋白表达），(-)代表阴性（无该蛋白表达）。比如腺癌通常表现为 TTF-1(+) 且 P40(-)，医生借此精确区分腺癌与鳞癌。"
+        answer: "(+)代表阳性（有该蛋白表达），(-)代表阴性（无该蛋白表达）。比如腺癌典型表现为 TTF-1(+)、Napsin A(+) 且 P40(-)、P63(-)，医生借此精确区分腺癌与鳞癌。"
       }
     ],
     visualComponent: "IhcKi67Visual",
     graphNodeId: "PATHOLOGY",
-    searchKeywords: ["免疫组化", "TTF-1", "Ki-67", "mianyizuhua", "Ki67", "Napsin A", "P40", "CK7", "病理阳性", "增殖指数"],
+    searchKeywords: ["免疫组化", "TTF-1", "Ki-67", "mianyizuhua", "Ki67", "Napsin A", "P40", "P63", "CK7", "病理阳性", "增殖指数"],
   },
   {
     id: "margin-r0",
@@ -460,48 +460,48 @@ export const WIKI_TOPICS: WikiTopic[] = [
     id: "sign-spiculation",
     category: "nodule",
     subcategory: "CT 影像征象破译",
-    title: "短细毛刺征 (Spiculation)",
-    subtitle: "Short Fine Radiating Spicules",
+    title: "短细毛刺征 (Spiculation / 纤维促增生机制)",
+    subtitle: "Fine Radiating Spicules & Desmoplastic Reaction",
     icon: "🦔",
     riskLevel: "moderate",
     priorityOrder: 49,
     metaphor: "像板栗外壳上的细密小刺，或者结节收缩时周围纤维组织拉伸出的小细丝。长粗毛刺多为以前肺炎留下的瘢痕，短细密集毛刺才需要关注。",
-    clinicalTruth: "毛刺征（Spiculation）是指从结节边缘向周围肺实质呈放射状伸出的小线条。临床上严格区分'长粗毛刺（>5mm，多见于陈旧性结核、慢性炎症机化瘢痕）'与'短细毛刺（<3mm，可能提示微血管牵拉或微浸润）'。单凭毛刺不能直接定性为恶性，需结合 CTR 和体积动态对比。",
+    clinicalTruth: "毛刺征（Spiculation）是指从结节边缘向周围肺实质呈放射状伸出的小线条，病理学机制截然不同：\n• 短细放射状毛刺（长度 <3mm，密集纤细）：多因肿瘤细胞沿小叶间隔浸润生长并诱导间质促纤维组织增生（Desmoplasia）收缩牵拉所致，需警惕浸润性活性；\n• 粗长条索状毛刺（长度 >5mm，稀疏僵直）：多为既往肺炎、肺结核痊愈后遗留的机化纤维条索瘢痕，属于良性病变。单凭毛刺不能直接定性为恶性，需结合实性成分（CTR）和三维体积倍增时间（VDT）综合评估。",
     tactics: [
-      "请放射科医生在薄层 CT 上鉴别是'长索条状瘢痕'还是'短细放射状毛刺'",
-      "若为首次发现且伴有长粗毛刺，通常建议 3~6 个月复查观察是否为陈旧炎性病灶",
-      "若伴随实性成分增大（CTR升高），由胸外科专家评估是否需行微创手术",
+      "请放射科医生在薄层高分辨率 CT（HRCT）上精准鉴别是'粗长炎性条索'还是'短细放射毛刺'",
+      "若为首次发现且伴有长粗毛刺，通常建议 3~6 个月复查薄层 CT 观察是否为陈旧炎性机化灶",
+      "若短细毛刺伴随实性成分进行性增多（CTR 升高），由胸外科专家评估微创手术切除指征",
     ],
     reassurance: "看到报告写'见毛刺'千万不要吓慌！我国成年人体检中有相当高比例的人因为以前得过支气管炎、肺炎或隐匿性结核感染，肺部留下了类似'伤疤拉扯'的长粗毛刺，只要长期随访形态稳定，就完全属于无害良性瘢痕！",
     keyMetric: {
       label: "长毛刺与短毛刺鉴别",
-      value: "长粗毛刺 (>5mm) 多为炎性瘢痕",
+      value: "粗长毛刺 (>5mm) 绝大多数为良性机化瘢痕",
       source: "Chinese Expert Consensus on Lung Nodule Evaluation 2024",
     },
     faq: [
       {
         question: "毛刺会不会自己慢慢消失？",
-        answer: "如果是急性炎症吸收期的纤维充血毛刺，经过充分休息或抗炎后可能会变淡甚至消失；如果是陈旧性纤维瘢痕，通常会长期稳定存在，只要体积不增大就无需治疗。"
+        answer: "如果是急性炎症吸收期的纤维充血毛刺，经过充分休息或抗炎后可能会变淡甚至吸收消失；如果是陈旧性纤维瘢痕，通常会长期稳定存在，只要体积不增大就无需任何干预。"
       }
     ],
     visualComponent: "SpiculationVisual",
-    searchKeywords: ["毛刺征", "短细毛刺", "长毛刺", "maoci", "Spiculation", "放射状毛刺", "毛刺状边缘"],
+    searchKeywords: ["毛刺征", "短细毛刺", "长毛刺", "maoci", "Spiculation", "放射状毛刺", "毛刺状边缘", "促纤维增生"],
   },
   {
     id: "sign-lobulation",
     category: "nodule",
     subcategory: "CT 影像征象破译",
-    title: "分叶征 (Lobulation / 浅分叶与深分叶)",
-    subtitle: "Scalloped & Lobulated Margins",
+    title: "分叶征 (Lobulation / 浅分叶与深分叶切迹)",
+    subtitle: "Scalloped & Lobulated Margins (Notch Depth >2mm vs ≤2mm)",
     icon: "🌊",
     riskLevel: "moderate",
     priorityOrder: 48,
     metaphor: "像生面团在烤箱里不同角落膨胀速度不一样，边缘形成了起伏的波浪小山丘。浅浅的波浪在良性错构瘤中非常多见，深切迹分叶才需要重点随访。",
-    clinicalTruth: "分叶征（Lobulation）是指结节轮廓呈现凹凸不平的波浪状或花瓣状弧形边缘。其形成原因是结节不同方向的细胞增殖速率存在差异，或受到周围肺血管、小叶间隔阻力的挤压所致。浅分叶（弧度平缓）常见于良性病变如错构瘤、炎性假瘤；深分叶（切迹明显）多见于浸润性病变。",
+    clinicalTruth: "分叶征（Lobulation）是指结节轮廓呈现凹凸不平的波浪状或花瓣状弧形边缘。其成因是病灶不同方向细胞增殖速率不同，或受周围肺血管、小叶间隔纤维阻力挤压所致：\n• 浅分叶（切迹深度 ≤2mm，边缘波浪平缓）：良性错构瘤（多达 30%+）、结核球或慢性炎性假瘤极其多见；\n• 深分叶（切迹深度 >2mm，切迹深锐陡峭）：多见于浸润生长较快的恶性病变。需结合内部密度（纯磨玻璃 vs 混合磨玻璃）与三维体积动态对比。",
     tactics: [
-      "CT 报告若提示分叶，重点查看是'浅分叶'还是'深分叶'，并结合内部密度（纯磨玻璃 vs 混合磨玻璃）",
-      "结合三维重建（3D-VR）测量体积倍增时间（VDT），若 1 年以上无体积倍增，倾向良性或极惰性",
-      "必要时行薄层增强 CT 查看强化幅度（良性错构瘤强化多不明显或含爆米花样钙化）",
+      "CT 报告若提示分叶，重点查看是'浅分叶（≤2mm）'还是'深分叶（>2mm）'，并测量内部实性成分占比（CTR）",
+      "结合三维重建测量体积倍增时间（VDT），若 1 年以上无体积倍增，倾向良性或极惰性病变",
+      "必要时行薄层增强 CT 查看强化幅度（良性错构瘤强化不明显，且常测得负值脂肪成分）",
     ],
     reassurance: "良性肺错构瘤由于含有软骨和脂肪等不同组织，天生就长得像一颗'小花卷'（浅分叶状）。因此报告上出现分叶两个字绝不等于恶性，放平心态找专科医生综合阅片即可！",
     keyMetric: {
@@ -516,7 +516,7 @@ export const WIKI_TOPICS: WikiTopic[] = [
       }
     ],
     visualComponent: "LobulationVisual",
-    searchKeywords: ["分叶征", "浅分叶", "深分叶", "fenye", "Lobulation", "花瓣状", "波浪边缘"],
+    searchKeywords: ["分叶征", "浅分叶", "深分叶", "fenye", "Lobulation", "花瓣状", "波浪边缘", "切迹深度"],
   },
   {
     id: "sign-pleural-indentation",
@@ -616,52 +616,52 @@ export const WIKI_TOPICS: WikiTopic[] = [
     category: "nodule",
     subcategory: "良性结构识别",
     title: "胸膜下微结节与叶裂间淋巴结 (IPLN)",
-    subtitle: "Subpleural Nodules & Intrapulmonary Lymph Nodes",
+    subtitle: "Subpleural Nodules & Intrapulmonary Lymph Nodes (IPLN)",
     icon: "🛡️",
     riskLevel: "safe",
     priorityOrder: 15,
-    metaphor: "像肺部表面天然设立的'微型保安岗亭'——它们天生就喜欢紧贴着肺外表面的胸膜或叶间裂缝隙，形态大多像扁豆或三角形，是完全无害的正常淋巴防线组织。",
-    clinicalTruth: "体检 CT 报告上极为常见的'胸膜下微小结节（通常 3~5mm）'，绝大多数在病理学上是肺内正常淋巴结（Intrapulmonary Lymph Node, IPLN）。其影像学典型特征为：紧贴脏层胸膜或叶间裂（距离<15mm）、形态呈扁椭圆或三角形、边缘光滑清晰。这与恶性肿瘤的'胸膜转移'有着本质的区别。",
+    metaphor: "像肺部表面天然设立的'微型保安岗亭'——它们天生就喜欢紧贴着肺外表面的胸膜或叶间裂缝隙，形态大多像扁豆、三角形或小菱形，是完全无害的正常淋巴防线组织。",
+    clinicalTruth: "体检 CT 报告上极为常见的'胸膜下微小结节（通常 3~6mm）'，绝大多数在病理学上是肺内正常淋巴结（IPLN）。其特征性影像学表现为：好发于隆突水平以下的中下叶胸膜下（距离脏层胸膜 <15mm）或紧贴斜裂/水平裂；形态呈扁椭圆、小三角形或扁菱形（长宽比常 >1.5）；边缘极其锐利光滑，内部密度均匀。这与恶性肿瘤的'胸膜种植转移'在形态学与发生机制上有着本质天壤之别。",
     tactics: [
       "若 CT 报告提示'胸膜下/裂间微小结节（<6mm）'且形态扁平规则，无需恐慌，常规年度体检即可",
-      "对比既往体检 CT 胶片，若多年大小形态无变化，即可 100% 确认为良性生理结构",
-      "切忌因为看到'胸膜下'字眼盲目要求手术穿刺，过度医疗反而增加气胸风险",
+      "对比既往体检 CT 胶片，若多年大小形态无变化，即可 100% 确认为良性生理淋巴结构",
+      "切忌因为看到'胸膜下'字眼盲目要求穿刺或手术，过度医疗反而增加气胸与出血风险",
     ],
     reassurance: "体检看到'胸膜下'三个字千万别自己吓自己！绝大多数胸膜下微结节就像皮肤上的小痣一样普通正常，是人体健康的微型哨所，和恶性肿瘤没有半毛钱关系！",
     keyMetric: {
       label: "胸膜下微结节良性率",
-      value: "> 99% (多为正常 IPLN 淋巴结)",
-      source: "European Radiology / Fleischner Society",
+      value: "> 99% (多为正常生理性 IPLN 淋巴结)",
+      source: "European Radiology / Fleischner Society Guidelines",
     },
     faq: [
       {
         question: "报告写胸膜下结节，是不是代表癌细胞已经长在胸膜上了？",
-        answer: "绝对不是！'胸膜下'只是一个解剖空间位置描述（指位于肺表面外周），就像说'皮肤下有颗痣'一样，并不代表是恶性转移。正常肺内淋巴结天生就分布在胸膜下区域。"
+        answer: "绝对不是！'胸膜下'只是一个解剖空间位置描述（指位于肺表面外周），就像说'皮肤下有颗痣'一样，并不代表是恶性转移。正常肺内淋巴结天生就分布在胸膜下与叶间裂区域。"
       }
     ],
     visualComponent: "IplnLymphVisual",
-    searchKeywords: ["胸膜下结节", "IPLN", "肺内淋巴结", "xiongmoxia", "裂间结节", "叶裂结节", "胸膜下微结节", "扁豆状结节"],
+    searchKeywords: ["胸膜下结节", "IPLN", "肺内淋巴结", "xiongmoxia", "裂间结节", "叶裂结节", "胸膜下微结节", "扁豆状结节", "菱形结节"],
   },
   {
     id: "calcification-hamartoma",
     category: "nodule",
     subcategory: "良性结构识别",
-    title: "钙化结节与错构瘤 (爆米花样钙化)",
-    subtitle: "Calcified Nodules & Pulmonary Hamartoma",
+    title: "钙化结节与错构瘤 (爆米花钙化与脂肪双铁证)",
+    subtitle: "Calcified Nodules & Pulmonary Hamartoma (Popcorn Sign & Fat Density)",
     icon: "💎",
     riskLevel: "safe",
     priorityOrder: 12,
     metaphor: "像身体过去发生轻微炎症或受伤后，机体用钙质水泥浇筑封存的'坚固墓碑'，或者是天生良性的'小软骨肉丸'（错构瘤）。它就像肺里的一颗光滑小石头，坚固而稳定。",
-    clinicalTruth: "钙化是肺部组织在既往感染（如结核、肺炎）痊愈或良性肿瘤（错构瘤）生长过程中形成的无机钙盐沉积。CT 上具有特定良性特征的钙化模式包括：中心完全致密钙化、同心圆层状钙化、爆米花样钙化（错构瘤特异性特征）。这些钙化模式在医学放射学上被公认为 100% 良性金标准。",
+    clinicalTruth: "钙化与错构瘤是医学放射学中公认的'良性金标准'：\n• 良性钙化模式：中心完全致密钙化、同心圆层状钙化、爆米花样粗大钙化；\n• 肺错构瘤（Hamartoma）双铁证：薄层 CT 上同时测得典型'负值脂肪密度（CT值 -40 ~ -120 HU）'和/或'爆米花样软骨钙化'，具有 100% 良性诊断特异性，终生几乎不恶变，无需任何创伤性切除。",
     tactics: [
-      "薄层 CT 测定结节内部 CT 值（通常 >100 HU 甚至达到骨密度 300+ HU）即可明确钙化性质",
-      "具备中心致密或爆米花样钙化的结节，指南明确指出无需任何进一步检查与过度治疗",
-      "保持健康生活作息，无需因为钙化结节反复做 CT 辐射检查",
+      "薄层 CT 测定结节内部 CT 值（脂肪负值 -40~-120 HU 或钙化高致密 >100~300+ HU）即可一锤定音明确良性",
+      "具备中心致密钙化或典型错构瘤表现的结节，指南明确指出无需任何进一步穿刺或过度手术",
+      "保持健康生活作息，无需因为良性钙化结节频繁做 CT 接受无谓辐射",
     ],
-    reassurance: "看到'钙化'两字应该感到庆幸！钙化是机体战胜病原体并将其石化封锁的胜利勋章，是良性病变最铁的证据，彻底放下心理包袱！",
+    reassurance: "看到'钙化'或'错构瘤'两字应该感到庆幸！钙化是机体战胜病原体并将其石化封锁的胜利勋章，是良性病变最铁的证据，彻底放下心理包袱！",
     keyMetric: {
-      label: "典型良性钙化恶性概率",
-      value: "< 0.1% (放射学良性金标准)",
+      label: "典型良性钙化/错构瘤恶性概率",
+      value: "< 0.1% (放射学公认良性金标准)",
       source: "Radiology / ACR Lung-RADS Guidelines",
     },
     faq: [
@@ -671,7 +671,7 @@ export const WIKI_TOPICS: WikiTopic[] = [
       }
     ],
     visualComponent: "CalcificationVisual",
-    searchKeywords: ["钙化", "gaihua", "错构瘤", "爆米花钙化", "钙化灶", "肺钙化", "同心圆钙化", "良性结节"],
+    searchKeywords: ["钙化", "gaihua", "错构瘤", "爆米花钙化", "钙化灶", "肺钙化", "同心圆钙化", "良性结节", "脂肪CT值"],
   },
 
   // ==================== 3. 驱动基因与靶向治疗 (按风险高低排序) ====================
@@ -748,23 +748,23 @@ export const WIKI_TOPICS: WikiTopic[] = [
     id: "rare-mutations",
     category: "genetics",
     subcategory: "其他靶向基因",
-    title: "ALK / ROS1 / KRAS / RET 等罕见靶点",
-    subtitle: "ALK Fusion, ROS1, KRAS G12C, RET, MET Exon 14",
+    title: "ALK / ROS1 / KRAS / RET / HER2 / BRAF 靶向武器库",
+    subtitle: "Precision Therapies: ALK, ROS1, KRAS G12C, RET, HER2, BRAF V600E",
     icon: "🧬",
     riskLevel: "moderate",
     priorityOrder: 65,
-    metaphor: "非小细胞肺癌就像一把拥有数十种不同锁眼的锁——除了最常见的 EGFR 锁眼，还有 ALK（钻石靶点）、ROS1、KRAS 等锁眼。现代医学已经为几乎每一个突变研发了专属的定制钥匙。",
-    clinicalTruth: "ALK 融合突变（占比约 5~7%，多见于年轻非吸烟患者）被称为'钻石突变'，阿来替尼、洛拉替尼等靶向药具备超长无进展生存期（ALINA 试验确立了术后辅助地位）；KRAS G12C、RET 融合、MET 14 外显子跳跃突变等也有针对性的特异性抑制剂上市。",
+    metaphor: "非小细胞肺癌就像一把拥有数十种不同锁眼的锁——除了最常见的 EGFR 锁眼，还有 ALK（钻石靶点）、ROS1、KRAS 等锁眼。现代医学已经为几乎每一个突变研发了专属的定制高精度钥匙。",
+    clinicalTruth: "精准肿瘤学已进入全靶点时代，肺腺癌常见少见/罕见靶点均有成熟特效药：\n• ALK 融合（5~7%）：钻石靶点，阿来替尼（ALINA 试验证实术后辅助复发风险降低 76%）、布格替尼、三代洛拉替尼；\n• ROS1 融合（1~2%）：克唑替尼、恩曲替尼、新一代瑞普替尼（Repotrectinib）；\n• KRAS G12C（3~5%）：氟泽雷塞（达伯特）、格索雷塞、索托拉西布、阿达格拉西布；\n• RET 融合（1~2%）：高选择性普拉替尼（Pralsetinib）、塞珀替尼（Selpercatinib）；\n• HER2 突变（2~4%）：抗体偶联药物（ADC）德曲妥珠单抗（T-DXd / DS-8201）；\n• BRAF V600E（1~2%）：达拉非尼联合曲美替尼（双靶方案）；\n• NTRK 融合（<1%）：拉罗替尼、恩曲替尼（广谱神药，ORR >75%）。",
     tactics: [
-      "推荐使用大 Panel NGS 基因检测，一次性覆盖 EGFR、ALK、ROS1、KRAS、RET、MET、HER2 等数十个核心驱动基因",
-      "ALK 阳性患者根据 ALINA 试验，术后口服阿来替尼辅助治疗同样可大幅降低复发风险（HR=0.24）",
-      "突变全阴性患者（野生型）重点评估 PD-L1 表达状态，为后续可能的免疫治疗储备依据",
+      "推荐使用包含 DNA+RNA 的大 Panel NGS 基因检测，一次性覆盖 EGFR/ALK/ROS1/KRAS/RET/MET/HER2/BRAF/NTRK 全部核心驱动基因",
+      "ALK 阳性患者根据 ALINA 试验，术后口服阿来替尼辅助治疗（2年）可大幅降低复发风险（HR=0.24）",
+      "驱动基因全阴性患者（野生型）重点评估 PD-L1 表达，积极储备免疫联合化疗治疗依据",
     ],
-    reassurance: "无论检测出哪种基因突变，现代精准肿瘤学都拥有层出不穷的新药武器。即使所有基因均为阴性（野生型），免疫治疗（如 PD-1 抑制剂）联合化疗也为患者带来了前所未有的长期生存奇迹！",
+    reassurance: "无论检测出哪种基因突变，现代精准肿瘤学都拥有层出不穷的靶向新药武器。即使所有基因均为阴性（野生型），免疫治疗（如 PD-1/PD-L1 抑制剂）联合化疗也为患者带来了前所未有的长期生存与临床治愈奇迹！",
     keyMetric: {
       label: "ALK 术后辅助靶向复发风险降低",
       value: "HR = 0.24 (复发风险 ↓76%)",
-      source: "ALINA Phase III Trial (NEJM 2024)",
+      source: "ALINA Phase III Trial (NEJM 2024 / NCCN 2024)",
     },
     faq: [
       {
@@ -772,7 +772,7 @@ export const WIKI_TOPICS: WikiTopic[] = [
         answer: "对于肺腺癌初诊患者，涵盖 10~50 个肺癌核心指南推荐基因的标准 Panel 已经能够满足 98% 以上的临床用药指导需求。几百个基因的超大套餐多用于罕见耐药机制研究，常规初诊按临床医生建议选择标准套餐即可。"
       }
     ],
-    searchKeywords: ["ALK", "阿来替尼", "KRAS", "ROS1", "RET", "MET", "基因检测", "钻石靶点"],
+    searchKeywords: ["ALK", "阿来替尼", "KRAS", "ROS1", "RET", "MET", "HER2", "BRAF", "NTRK", "氟泽雷塞", "德曲妥珠单抗", "基因检测", "钻石靶点"],
   },
   {
     id: "met-exon14-skip",
@@ -799,7 +799,7 @@ export const WIKI_TOPICS: WikiTopic[] = [
     faq: [
       {
         question: "MET 扩增和 MET 14 外显子跳跃突变是一回事吗？",
-        answer: "不是。MET 14 跳跃是原发基因结构的剪接突变，属于特异性驱动基因；MET 扩增则是基因拷贝数增多，常作为三代 EGFR 靶向药耐药后的旁路旁路激活机制。两者临床用药策略有所不同。"
+        answer: "不是。MET 14 跳跃是原发基因结构的剪接突变，属于特异性驱动基因；MET 扩增则是基因拷贝数增多，常作为三代 EGFR 靶向药耐药后的旁路激活机制。两者临床用药策略有所不同。"
       }
     ],
     searchKeywords: ["MET", "MET14跳跃", "谷美替尼", "赛沃替尼", "卡马替尼", "特泊替尼", "MET exon 14", "MET基因"],
@@ -870,31 +870,35 @@ export const WIKI_TOPICS: WikiTopic[] = [
     id: "tumor-markers",
     category: "recovery",
     subcategory: "血液指标认知",
-    title: "肿瘤标志物轻度波动认知 (CEA / CYFRA21-1)",
-    subtitle: "Understanding Tumor Marker Fluctuations",
+    title: "五大肺癌肿瘤标志物轻度波动破译 (CEA / CYFRA21-1 / NSE / ProGRP / SCC)",
+    subtitle: "Understanding Tumor Marker Fluctuations & False Positive Factors",
     icon: "📈",
     riskLevel: "low",
     priorityOrder: 25,
-    metaphor: "像人体的体温计——感冒发烧时体温会升高，天气热或剧烈运动后也会轻微波动。抽烟、慢性胃炎、支气管炎都会让指标轻微晃动，只要影像学 CT 检查没有新病灶，单次轻度升高绝不代表复发！",
-    clinicalTruth: "癌胚抗原（CEA）和细胞角蛋白19片段（CYFRA21-1）是肺癌随访中常用的血液监测指标。然而，肿瘤标志物的特异性并非 100%。吸烟、慢性胃炎、结肠息肉、良性肺部感染或检测仪器批次差异都会导致其在正常参考值上下波动。临床判断复发始终以薄层 CT 影像学检查为金标准。",
+    metaphor: "像人体的敏感体温计——感冒发烧时体温会升高，天气炎热或剧烈运动后也会轻微晃动。吸烟、胃炎、溶血或标本批次差异都会让指标轻微起伏；只要胸部 CT 影像学没有新病灶，单次轻度升高绝不代表复发！",
+    clinicalTruth: "临床常用的 5 大肺癌血清标志物谱系及其临床特征：\n• CEA（癌胚抗原）：肺腺癌主要标志物，吸烟、慢性胃炎、结肠息肉常引起轻度非特异性假阳性升高；\n• CYFRA21-1（细胞角蛋白19片段）：肺鳞癌/腺癌敏感指标，肾功能不全、间质性肺炎、良性感染可致轻度偏高；\n• NSE（神经元特异性烯醇化酶）：小细胞肺癌/神经内分泌肿瘤标志物，采血标本轻度'红细胞溶血'是临床最常见的假阳性原因；\n• ProGRP（胃泌素释放肽前体）：小细胞肺癌高特异性指标，肾功能减退时代谢减缓可轻度升高；\n• SCC（鳞状细胞癌抗原）：肺鳞癌特异指标，皮肤湿疹、银屑病、皮炎或皮肤汗液污染均可引起假阳性。\n临床判断复发始终以高分辨率薄层 CT 影像学检查为金标准，切忌仅凭一次轻微波动自我吓唬。",
     tactics: [
-      "单次轻度升高（如正常值 0~5，查出 5.6）切忌恐慌，建议间隔 1 个月在同一家医院原仪器复查观察趋势",
-      "只有出现'进行性、成倍持续翻倍升高'（如从 5 升到 15 再升到 50）才提示需要进行胸腹部增强 CT 或全身 PET-CT 排查",
-      "戒烟可显著降低假阳性干扰并大幅保护剩余健康肺组织",
+      "单次轻度升高（如 CEA 参考值 0~5 查出 5.8，或 NSE 18）切忌恐慌，建议间隔 1 个月在同一家医院原仪器复查观察动态趋势",
+      "只有出现'进行性、成倍持续翻倍升高'（如 CEA 从 5 升到 18 再升到 50+）才提示需安排胸腹增强 CT、头部 MRI 或 PET-CT 排查",
+      "严格戒烟可显著消除 CEA/CYFRA21-1 假阳性干扰，并大幅保护剩余健康肺功能",
     ],
-    reassurance: "门诊中 80% 因为指标轻度偏高吓得痛哭流涕的患者，复查 CT 后均证实没有任何问题。标志物只是哨兵的一声偶发喷嚏，影像学 CT 才是真正的法官。放下每天看指标数值的焦虑！",
+    reassurance: "门诊中 85% 以上因为体检单上指标箭头偏高吓得痛哭流涕的患者，复查 CT 后均证实完全正常。标志物只是血液哨兵的一声偶发咳嗽，影像学 CT 才是真正的最高法官。请彻底放下每天刷指标数值的精神内耗！",
     keyMetric: {
-      label: "肿瘤标志物单次升高假阳性率",
-      value: "约 15 ~ 30% (良性因素导致)",
-      source: "Clinical Chemistry / CSCO Guidelines 2024",
+      label: "肿瘤标志物单次升高良性假阳性率",
+      value: "约 20 ~ 35% (良性生理/炎症因素引起)",
+      source: "Clinical Chemistry / CSCO Non-Small Cell Lung Cancer Guidelines 2024",
     },
     faq: [
       {
         question: "我的 CEA 术前是 2.1 正常，术后 3 个月复查变成 4.8（依然在 5 以内），这算升高吗？",
-        answer: "在正常参考值范围内的数值波动（2.1 ➔ 4.8）完全属于人体的正常生理代谢和检测仪器误差，没有任何临床病理学意义，请完全放心！"
+        answer: "在正常参考值范围内的数值波动（2.1 ➔ 4.8）完全属于人体的正常生理代谢和检测仪器批次系统误差，没有任何临床病理学恶性意义，请完全放心！"
+      },
+      {
+        question: "抽血查出 NSE 偏高（如 21，参考值 <16.3），是不是得了小细胞肺癌？",
+        answer: "绝大多数不是！正常红细胞内含有大量 NSE，抽血时只要有轻微溶血（标本运输震荡或拔针挤压），红细胞破裂释放出的 NSE 就会导致数值升高。若无临床症状且 CT 正常，间隔 2~4 周复查即可恢复正常。"
       }
     ],
-    searchKeywords: ["CEA", "CYFRA21-1", "肿瘤标志物", "zhongliubiaozhiwu", "癌胚抗原", "指标偏高", "标志物波动"],
+    searchKeywords: ["CEA", "CYFRA21-1", "NSE", "ProGRP", "SCC", "肿瘤标志物", "zhongliubiaozhiwu", "癌胚抗原", "指标偏高", "溶血假阳性", "标志物波动"],
   },
   {
     id: "postop-symptoms",
