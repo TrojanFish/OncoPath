@@ -342,13 +342,13 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
             onClick={() => setParsedData(null)}
             className="px-5 py-2.5 rounded-xl text-sm font-semibold border border-slate-300 text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
           >
-            ← 重新上传
+            重新上传
           </button>
           <button 
             onClick={handleConfirm}
             className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-sky-600 hover:from-blue-700 hover:to-sky-700 text-white font-bold text-sm shadow-md shadow-blue-500/20 transition-all cursor-pointer"
           >
-            确认无误，保存医疗档案 →
+            确认无误，保存医疗档案
           </button>
         </div>
       </div>

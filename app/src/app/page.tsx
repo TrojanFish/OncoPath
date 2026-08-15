@@ -130,7 +130,7 @@ export default function HomePage() {
               id="nav-start-btn"
               className="hidden sm:inline-flex btn-primary px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold cursor-pointer shadow-sm"
             >
-              建立癌症档案 ➔
+              建立癌症档案
             </Link>
 
             {/* Mobile Hamburger Button */}
@@ -227,7 +227,7 @@ export default function HomePage() {
                   onClick={() => setMobileMenuOpen(false)}
                   className="w-full btn-primary py-3.5 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 shadow-md"
                 >
-                  <span>🔬 立即解析病理报告 ➔</span>
+                  <span>🔬 立即解析病理报告</span>
                 </Link>
               </div>
             </div>
@@ -527,7 +527,7 @@ export default function HomePage() {
               id="view-all-studies-btn"
               className="btn-primary px-8 py-3.5 rounded-2xl text-sm font-bold inline-flex items-center gap-2 shadow-md"
             >
-              <span>查看全部已收录国际研究库 ({FEATURED_STUDIES.length}篇+) ➔</span>
+              <span>查看全部已收录国际研究库 ({FEATURED_STUDIES.length}篇+)</span>
             </Link>
           </div>
         </div>
@@ -585,7 +585,7 @@ export default function HomePage() {
                 href="/profile"
                 className="inline-flex items-center gap-2 bg-white text-blue-700 hover:bg-blue-50 px-8 py-4 rounded-2xl font-extrabold text-base shadow-lg transition-all transform hover:-translate-y-0.5"
               >
-                <span>🔬 立即免费建立专属癌症档案 ➔</span>
+                <span>🔬 立即免费建立专属癌症档案</span>
               </Link>
             </div>
           </div>

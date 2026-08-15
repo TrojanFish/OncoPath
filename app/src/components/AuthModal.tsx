@@ -150,7 +150,7 @@ export default function AuthModal({ onClose, onSuccess }: AuthModalProps) {
                 <span>正在验证凭据...</span>
               </>
             ) : (
-              <span>{isLogin ? "安全登录 ➔" : "立即注册并登录 ➔"}</span>
+              <span>{isLogin ? "安全登录" : "立即注册并登录"}</span>
             )}
           </button>
         </form>

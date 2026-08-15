@@ -449,14 +449,14 @@ export default function AdminPage() {
                     <span>正在验证凭据...</span>
                   </>
                 ) : (
-                  <span>安全登录进入证据中台 ➔</span>
+                  <span>安全登录进入证据中台</span>
                 )}
               </button>
             </form>
 
             <div className="mt-8 pt-6 border-t border-gray-100 text-center">
               <Link href="/" className="text-xs text-text-muted hover:text-accent-blue transition-colors">
-                ← 返回 OncoPath 患者主页
+                返回 OncoPath 患者主页
               </Link>
             </div>
           </div>

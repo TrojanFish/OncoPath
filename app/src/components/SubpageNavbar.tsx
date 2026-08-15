@@ -63,7 +63,7 @@ export default function SubpageNavbar() {
               href="/profile"
               className="hidden sm:inline-flex btn-primary px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-sm"
             >
-              建立档案 / 分析 ➔
+              建立档案 / 分析
             </Link>
 
             {/* Mobile Hamburger Button */}
@@ -153,7 +153,7 @@ export default function SubpageNavbar() {
                   onClick={() => setMobileMenuOpen(false)}
                   className="w-full btn-primary py-3.5 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 shadow-md"
                 >
-                  <span>🔬 立即解析病理报告 ➔</span>
+                  <span>🔬 立即解析病理报告</span>
                 </Link>
               </div>
             </div>

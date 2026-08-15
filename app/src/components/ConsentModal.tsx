@@ -114,7 +114,7 @@ export default function ConsentModal({ onConsentAccepted }: ConsentModalProps) {
                   : "bg-slate-200 text-slate-400 cursor-not-allowed"
               }`}
             >
-              同意并进入平台 ➔
+              同意并进入平台
             </button>
           </div>
         </div>

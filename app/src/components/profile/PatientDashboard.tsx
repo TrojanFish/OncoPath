@@ -230,7 +230,7 @@ export default function PatientDashboard() {
             href="/profile/report" 
             className="w-full mt-6 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-sky-600 hover:from-blue-700 hover:to-sky-700 text-white text-xs sm:text-sm font-bold shadow-md shadow-blue-500/20 text-center block transition-all cursor-pointer"
           >
-            生成专属深度循证报告 →
+            生成专属深度循证报告
           </Link>
         </div>
       </div>
