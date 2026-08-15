@@ -178,7 +178,7 @@ export default function EvidenceReportPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50/70 pb-24 print:bg-white print:pb-0 text-slate-900">
+    <div className="min-h-screen bg-slate-50/70 pb-8 sm:pb-12 print:bg-white print:pb-0 text-slate-900">
       
       {/* Toast Notification for Copied */}
       {copied && (
@@ -405,7 +405,7 @@ export default function EvidenceReportPage() {
         )}
 
         {/* Report Content Main Container */}
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden min-h-[60vh] print:border-none print:shadow-none print:m-0 print:p-0">
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden min-h-[260px] print:border-none print:shadow-none print:m-0 print:p-0">
           
           {/* Top Decorative Gradient Accent Bar */}
           <div className="h-1.5 w-full bg-gradient-to-r from-accent-blue via-accent-teal to-accent-blue print:hidden" />
@@ -551,7 +551,7 @@ export default function EvidenceReportPage() {
               </div>
             )}
             
-            <div ref={contentEndRef} className="h-4 print:hidden" />
+            <div ref={contentEndRef} className="h-0.5 print:hidden" />
           </div>
         </div>
 

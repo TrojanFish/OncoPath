@@ -9,9 +9,9 @@ export const metadata: Metadata = {
 
 export default function ProfilePage() {
   return (
-    <div className="min-h-screen bg-gray-50 pb-24">
+    <div className="min-h-screen bg-gray-50 pb-8 sm:pb-12">
       <SubpageNavbar />
-      <div className="pt-28 md:pt-32">
+      <div className="pt-24 sm:pt-28 md:pt-32">
         <PatientDashboard />
       </div>
     </div>
