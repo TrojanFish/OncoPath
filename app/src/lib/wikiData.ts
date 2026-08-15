@@ -43,7 +43,10 @@ export interface WikiTopic {
     | "SpiculationVisual"
     | "PleuralIndentationVisual"
     | "VacuoleSignVisual"
-    | "VascularConvergenceVisual";
+    | "VascularConvergenceVisual"
+    | "IplnLymphVisual"
+    | "IhcKi67Visual"
+    | "CalcificationVisual";
   
   // 关联知识图谱节点 ID
   graphNodeId?: string;
@@ -282,6 +285,42 @@ export const WIKI_TOPICS: WikiTopic[] = [
     ],
     graphNodeId: "METASTASIS",
     searchKeywords: ["N2", "纵隔淋巴结", "zonggelinbajie", "淋巴结转移", "IIIA期", "淋巴清扫", "第7组淋巴结", "第4组淋巴结"],
+  },
+  {
+    id: "ihc-ki67",
+    category: "pathology",
+    subcategory: "病理免疫组化",
+    title: "免疫组化指标破译 (TTF-1 / P40 / Ki-67 增殖指数)",
+    subtitle: "Immunohistochemistry (IHC) & Ki-67 Proliferation Index",
+    icon: "🧬",
+    riskLevel: "moderate",
+    priorityOrder: 85,
+    metaphor: "TTF-1、CK7 阳性是肿瘤的'户口本与身份证'（证明它属于哪一种细胞宗族）；而 Ki-67 是细胞发动机的'实时转速表'——转速高代表踩了油门，但同时也更容易被靶向药和化疗药物精准锁定！",
+    clinicalTruth: "免疫组织化学（IHC）利用抗体特异性结合原理，检测肿瘤细胞表达的特异性蛋白质。'TTF-1(+)'和'Napsin A(+)'是肺腺癌最核心的免疫标记，用于排除鳞癌（P40/P63阳性）或转移癌；'Ki-67 阳性率（如 10%、30%）'反映处于分裂增殖周期的细胞百分比，是评估生长活性的转速表，绝不是患者的'复发转移概率'！",
+    tactics: [
+      "若 TTF-1 阳性确诊为肺腺癌，应常规进行驱动基因（EGFR/ALK等）NGS 检测以锁定靶向药",
+      "若 Ki-67 较高（>30%），提示肿瘤细胞代谢旺盛，在需要术后辅助治疗时对铂类化疗与靶向药物更敏感、响应更佳",
+      "结合病理 TNM 分期与微浸润程度综合评估，切忌脱离分期单看 Ki-67",
+    ],
+    reassurance: "很多患者看到病理报告上一长串'+'号或者 Ki-67 20% 就吓得魂飞魄散。请记住：免疫组化的'+'号只是在给细胞做分类体检，不是疾病扩散的意思！确诊分型越精准，医生的武器库越强大！",
+    keyMetric: {
+      label: "TTF-1 肺腺癌诊断特异性",
+      value: "> 95% (临床确诊腺癌金标准)",
+      source: "WHO Classification of Thoracic Tumours",
+    },
+    faq: [
+      {
+        question: "病理报告写着 Ki-67(+) 25%，这是不是代表我有 25% 的可能会复发？",
+        answer: "完全不是！Ki-67 25% 是指切片中大约有 25% 的细胞处于增殖周期，反映的是细胞生长速度快慢，与您个人的'复发率'没有任何直接数学换算关系。"
+      },
+      {
+        question: "为什么报告里有的指标是(+)有的是(-)？",
+        answer: "(+)代表阳性（有该蛋白表达），(-)代表阴性（无该蛋白表达）。比如腺癌通常表现为 TTF-1(+) 且 P40(-)，医生借此精确区分腺癌与鳞癌。"
+      }
+    ],
+    visualComponent: "IhcKi67Visual",
+    graphNodeId: "PATHOLOGY",
+    searchKeywords: ["免疫组化", "TTF-1", "Ki-67", "mianyizuhua", "Ki67", "Napsin A", "P40", "CK7", "病理阳性", "增殖指数"],
   },
   {
     id: "margin-r0",
@@ -537,6 +576,68 @@ export const WIKI_TOPICS: WikiTopic[] = [
     ],
     visualComponent: "VascularConvergenceVisual",
     searchKeywords: ["血管集束征", "血管增粗", "xueguanjishu", "Vascular Convergence", "血管聚集", "血管穿行"],
+  },
+  {
+    id: "subpleural-ipln",
+    category: "nodule",
+    subcategory: "良性结构识别",
+    title: "胸膜下微结节与叶裂间淋巴结 (IPLN)",
+    subtitle: "Subpleural Nodules & Intrapulmonary Lymph Nodes",
+    icon: "🛡️",
+    riskLevel: "safe",
+    priorityOrder: 15,
+    metaphor: "像肺部表面天然设立的'微型保安岗亭'——它们天生就喜欢紧贴着肺外表面的胸膜或叶间裂缝隙，形态大多像扁豆或三角形，是完全无害的正常淋巴防线组织。",
+    clinicalTruth: "体检 CT 报告上极为常见的'胸膜下微小结节（通常 3~5mm）'，绝大多数在病理学上是肺内正常淋巴结（Intrapulmonary Lymph Node, IPLN）。其影像学典型特征为：紧贴脏层胸膜或叶间裂（距离<15mm）、形态呈扁椭圆或三角形、边缘光滑清晰。这与恶性肿瘤的'胸膜转移'有着本质的区别。",
+    tactics: [
+      "若 CT 报告提示'胸膜下/裂间微小结节（<6mm）'且形态扁平规则，无需恐慌，常规年度体检即可",
+      "对比既往体检 CT 胶片，若多年大小形态无变化，即可 100% 确认为良性生理结构",
+      "切忌因为看到'胸膜下'字眼盲目要求手术穿刺，过度医疗反而增加气胸风险",
+    ],
+    reassurance: "体检看到'胸膜下'三个字千万别自己吓自己！绝大多数胸膜下微结节就像皮肤上的小痣一样普通正常，是人体健康的微型哨所，和恶性肿瘤没有半毛钱关系！",
+    keyMetric: {
+      label: "胸膜下微结节良性率",
+      value: "> 99% (多为正常 IPLN 淋巴结)",
+      source: "European Radiology / Fleischner Society",
+    },
+    faq: [
+      {
+        question: "报告写胸膜下结节，是不是代表癌细胞已经长在胸膜上了？",
+        answer: "绝对不是！'胸膜下'只是一个解剖空间位置描述（指位于肺表面外周），就像说'皮肤下有颗痣'一样，并不代表是恶性转移。正常肺内淋巴结天生就分布在胸膜下区域。"
+      }
+    ],
+    visualComponent: "IplnLymphVisual",
+    searchKeywords: ["胸膜下结节", "IPLN", "肺内淋巴结", "xiongmoxia", "裂间结节", "叶裂结节", "胸膜下微结节", "扁豆状结节"],
+  },
+  {
+    id: "calcification-hamartoma",
+    category: "nodule",
+    subcategory: "良性结构识别",
+    title: "钙化结节与错构瘤 (爆米花样钙化)",
+    subtitle: "Calcified Nodules & Pulmonary Hamartoma",
+    icon: "💎",
+    riskLevel: "safe",
+    priorityOrder: 12,
+    metaphor: "像身体过去发生轻微炎症或受伤后，机体用钙质水泥浇筑封存的'坚固墓碑'，或者是天生良性的'小软骨肉丸'（错构瘤）。它就像肺里的一颗光滑小石头，坚固而稳定。",
+    clinicalTruth: "钙化是肺部组织在既往感染（如结核、肺炎）痊愈或良性肿瘤（错构瘤）生长过程中形成的无机钙盐沉积。CT 上具有特定良性特征的钙化模式包括：中心完全致密钙化、同心圆层状钙化、爆米花样钙化（错构瘤特异性特征）。这些钙化模式在医学放射学上被公认为 100% 良性金标准。",
+    tactics: [
+      "薄层 CT 测定结节内部 CT 值（通常 >100 HU 甚至达到骨密度 300+ HU）即可明确钙化性质",
+      "具备中心致密或爆米花样钙化的结节，指南明确指出无需任何进一步检查与过度治疗",
+      "保持健康生活作息，无需因为钙化结节反复做 CT 辐射检查",
+    ],
+    reassurance: "看到'钙化'两字应该感到庆幸！钙化是机体战胜病原体并将其石化封锁的胜利勋章，是良性病变最铁的证据，彻底放下心理包袱！",
+    keyMetric: {
+      label: "典型良性钙化恶性概率",
+      value: "< 0.1% (放射学良性金标准)",
+      source: "Radiology / ACR Lung-RADS Guidelines",
+    },
+    faq: [
+      {
+        question: "钙化结节以后会不会恶变成为肺癌？",
+        answer: "不会。完全钙化的病灶内部已经是失去生物活性的钙盐结晶，没有分裂增殖能力；良性错构瘤也属于极惰性良性间叶组织肿瘤，终生恶变率极低，无需担忧。"
+      }
+    ],
+    visualComponent: "CalcificationVisual",
+    searchKeywords: ["钙化", "gaihua", "错构瘤", "爆米花钙化", "钙化灶", "肺钙化", "同心圆钙化", "良性结节"],
   },
 
   // ==================== 3. 驱动基因与靶向治疗 (按风险高低排序) ====================

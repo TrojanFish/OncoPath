@@ -15,6 +15,9 @@ import { SpiculationVisual } from "./visuals/SpiculationVisual";
 import { PleuralIndentationVisual } from "./visuals/PleuralIndentationVisual";
 import { VacuoleSignVisual } from "./visuals/VacuoleSignVisual";
 import { VascularConvergenceVisual } from "./visuals/VascularConvergenceVisual";
+import { IplnLymphVisual } from "./visuals/IplnLymphVisual";
+import { IhcKi67Visual } from "./visuals/IhcKi67Visual";
+import { CalcificationVisual } from "./visuals/CalcificationVisual";
 
 interface WikiTopicCardProps {
   topic: WikiTopic;
@@ -24,9 +27,18 @@ interface WikiTopicCardProps {
 export function WikiTopicCard({ topic, isMatchedProfile }: WikiTopicCardProps) {
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
   const [showVisual, setShowVisual] = useState<boolean>(true);
+  const [copied, setCopied] = useState<boolean>(false);
 
   const riskCfg = RISK_LEVEL_CONFIG[topic.riskLevel];
   const catCfg = WIKI_CATEGORIES[topic.category];
+
+  const handleCopyReassurance = () => {
+    const textToCopy = `【${topic.title} · 暖心定心丸】\n🌰 比喻：${topic.metaphor}\n💚 定心丸：${topic.reassurance}\n— 来源：肺结节与肺癌循证视觉百科`;
+    navigator.clipboard.writeText(textToCopy).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
 
   return (
     <div
@@ -108,6 +120,9 @@ export function WikiTopicCard({ topic, isMatchedProfile }: WikiTopicCardProps) {
                 {topic.visualComponent === "PleuralIndentationVisual" && <PleuralIndentationVisual />}
                 {topic.visualComponent === "VacuoleSignVisual" && <VacuoleSignVisual />}
                 {topic.visualComponent === "VascularConvergenceVisual" && <VascularConvergenceVisual />}
+                {topic.visualComponent === "IplnLymphVisual" && <IplnLymphVisual />}
+                {topic.visualComponent === "IhcKi67Visual" && <IhcKi67Visual />}
+                {topic.visualComponent === "CalcificationVisual" && <CalcificationVisual />}
               </div>
             )}
           </div>
@@ -179,10 +194,22 @@ export function WikiTopicCard({ topic, isMatchedProfile }: WikiTopicCardProps) {
 
       {/* 💚 Section 5: Warm Reassurance Box (Mandatory Bottom Safety Shield) */}
       <div className="mt-2 pt-4 border-t border-slate-100">
-        <div className="bg-gradient-to-br from-teal-50 to-emerald-50 p-4 rounded-2xl border border-teal-200/80 flex items-start gap-2.5">
-          <span className="text-teal-600 text-lg leading-none mt-0.5">💚</span>
-          <div className="text-xs text-teal-950 leading-relaxed flex-1">
-            <strong>暖心定心丸：</strong> {topic.reassurance}
+        <div className="bg-gradient-to-br from-teal-50 to-emerald-50 p-4 rounded-2xl border border-teal-200/80 space-y-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5 text-xs font-bold text-teal-900">
+              <span className="text-teal-600 text-base leading-none">💚</span>
+              <span>暖心定心丸</span>
+            </div>
+            <button
+              onClick={handleCopyReassurance}
+              className="text-[11px] font-bold px-2.5 py-0.5 rounded-lg bg-white/90 border border-teal-300 text-teal-800 hover:bg-white transition-all cursor-pointer flex items-center gap-1 shadow-2xs"
+              title="一键复制定心丸金句发给家人或病友"
+            >
+              <span>{copied ? "✓ 已复制金句" : "📋 复制定心丸"}</span>
+            </button>
+          </div>
+          <div className="text-xs text-teal-950 leading-relaxed">
+            {topic.reassurance}
           </div>
         </div>
 
