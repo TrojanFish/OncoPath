@@ -414,64 +414,148 @@ export default function HomePage() {
       </section>
 
       {/* Act 4.5: OncoWiki Patient Evidence-Based Visual Encyclopedia Section */}
-      <section id="wiki-showcase" className="py-20 px-6 bg-gradient-to-b from-white via-sky-50/40 to-slate-50 border-b border-slate-100">
-        <div className="max-w-7xl mx-auto">
-          <div className="bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950 rounded-3xl p-8 sm:p-12 text-white shadow-2xl relative overflow-hidden">
-            <div className="grid lg:grid-cols-12 gap-8 items-center relative z-10">
-              <div className="lg:col-span-7 space-y-4">
-                <div className="inline-flex items-center gap-2 bg-blue-500/20 px-3.5 py-1.5 rounded-full text-xs font-bold text-blue-300 border border-blue-400/30">
-                  <span>💡 专属患者视觉百科 · 全新上线</span>
-                </div>
-                <h3 className="text-2xl sm:text-4xl font-black tracking-tight leading-tight">
-                  看不懂病理报告与结节指标？<br />
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-teal-300">
-                    OncoWiki 全景循证视觉百科为你破译
-                  </span>
-                </h3>
-                <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
-                  涵盖<strong>磨玻璃结节演变模拟器</strong>、<strong>Fleischner 随访决策树</strong>与 <strong>STAS / VPI / LVI 高危指标生活化大白话破译</strong>。拒绝网络谣言与恐慌，用直观微观图解与全球顶级循证数据构筑抗癌定力！
-                </p>
-                <div className="pt-3 flex flex-wrap items-center gap-3.5">
-                  <Link
-                    href="/wiki"
-                    className="btn-primary px-6 py-3 rounded-xl text-sm font-bold shadow-lg inline-flex items-center gap-2"
-                  >
-                    <span>💡 立即探索 OncoWiki 百科</span>
-                    <span>➔</span>
-                  </Link>
-                  <Link
-                    href="/resources"
-                    className="px-5 py-3 rounded-xl text-sm font-bold bg-white/10 hover:bg-white/20 border border-white/20 transition-colors inline-flex items-center gap-2"
-                  >
-                    <span>📖 查阅医生专业指南 (学术导航)</span>
-                  </Link>
-                </div>
-              </div>
+      <section id="wiki-showcase" className="py-24 px-6 bg-gradient-to-b from-white via-sky-50/25 to-slate-50 border-b border-slate-100">
+        <div className="max-w-7xl mx-auto space-y-14">
+          <SectionHeader
+            badge="循证视觉百科 · OncoWiki"
+            title="大白话破译病理密码 · 从未知恐慌走向从容笃定"
+            subtitle="拒绝冰冷晦涩的医学术语与网络谣言。我们用高精 SVG 微观解剖图解、生活化大白话比喻与全球顶级期刊真实队列，为您构筑坚实抗癌定力。"
+          />
 
-              {/* Right Mini Cards Grid */}
-              <div className="lg:col-span-5 grid grid-cols-2 gap-3">
-                <div className="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/15 space-y-1">
-                  <div className="text-2xl">🫁</div>
-                  <div className="text-xs font-bold text-white">磨玻璃 CTR 模拟</div>
-                  <div className="text-[10px] text-slate-300">拖动滑块直观查看实性浸润演变</div>
+          {/* 4 Core Scenario Cards Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Card 1: 肺结节消恐 */}
+            <Link
+              href="/wiki#category-nodule"
+              className="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-emerald-300 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group cursor-pointer"
+            >
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center text-2xl border border-emerald-100 group-hover:scale-110 transition-transform">
+                    🫁
+                  </div>
+                  <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    结节消恐 · 7个词条
+                  </span>
                 </div>
-                <div className="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/15 space-y-1">
-                  <div className="text-2xl">🧭</div>
-                  <div className="text-xs font-bold text-white">随访决策树</div>
-                  <div className="text-[10px] text-slate-300">Fleischner 权威随访时间表</div>
-                </div>
-                <div className="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/15 space-y-1">
-                  <div className="text-2xl">🌬️</div>
-                  <div className="text-xs font-bold text-white">STAS 气道播散</div>
-                  <div className="text-[10px] text-slate-300">蒲公英隐喻与安全切缘解析</div>
-                </div>
-                <div className="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/15 space-y-1">
-                  <div className="text-2xl">🎯</div>
-                  <div className="text-xs font-bold text-white">EGFR 靶向阻断</div>
-                  <div className="text-[10px] text-slate-300">ADAURA 83% 复发风险降低</div>
+                <div>
+                  <h4 className="text-base font-bold text-slate-900 group-hover:text-emerald-700 transition-colors">
+                    我刚体检查出肺结节
+                  </h4>
+                  <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                    体检提示磨玻璃、实性成分或毛刺？内含 Fleischner 随访决策树与磨玻璃 CTR 浸润模拟器。
+                  </p>
                 </div>
               </div>
-            </div>
+              <div className="pt-4 border-t border-slate-100 mt-4 flex items-center justify-between text-xs font-bold text-emerald-700">
+                <span>进入结节专区</span>
+                <span className="group-hover:translate-x-1 transition-transform">➔</span>
+              </div>
+            </Link>
+
+            {/* Card 2: 术后病理密码 */}
+            <Link
+              href="/wiki#category-pathology"
+              className="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-blue-300 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group cursor-pointer"
+            >
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center text-2xl border border-blue-100 group-hover:scale-110 transition-transform">
+                    🔬
+                  </div>
+                  <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+                    病理破译 · 6个词条
+                  </span>
+                </div>
+                <div>
+                  <h4 className="text-base font-bold text-slate-900 group-hover:text-blue-700 transition-colors">
+                    我刚拿到术后病理报告
+                  </h4>
+                  <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                    STAS 气道播散、VPI 胸膜侵犯、LVI 脉管癌栓？用“蒲公英播种”等大白话比喻逐一解密。
+                  </p>
+                </div>
+              </div>
+              <div className="pt-4 border-t border-slate-100 mt-4 flex items-center justify-between text-xs font-bold text-blue-700">
+                <span>进入病理专区</span>
+                <span className="group-hover:translate-x-1 transition-transform">➔</span>
+              </div>
+            </Link>
+
+            {/* Card 3: 驱动基因靶向 */}
+            <Link
+              href="/wiki#category-genetics"
+              className="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-purple-300 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group cursor-pointer"
+            >
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="w-12 h-12 rounded-2xl bg-purple-50 text-purple-700 flex items-center justify-center text-2xl border border-purple-100 group-hover:scale-110 transition-transform">
+                    🧬
+                  </div>
+                  <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-purple-50 text-purple-700 border border-purple-200">
+                    驱动基因 · 83%阻断
+                  </span>
+                </div>
+                <div>
+                  <h4 className="text-base font-bold text-slate-900 group-hover:text-purple-700 transition-colors">
+                    医生让我做基因检测与靶向
+                  </h4>
+                  <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                    EGFR 21/19、ALK 突变是什么？第三代靶向药（奥希替尼等）如何精准阻断复发通道。
+                  </p>
+                </div>
+              </div>
+              <div className="pt-4 border-t border-slate-100 mt-4 flex items-center justify-between text-xs font-bold text-purple-700">
+                <span>进入基因专区</span>
+                <span className="group-hover:translate-x-1 transition-transform">➔</span>
+              </div>
+            </Link>
+
+            {/* Card 4: 术后康复随访 */}
+            <Link
+              href="/wiki#category-recovery"
+              className="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-amber-300 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group cursor-pointer"
+            >
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-700 flex items-center justify-center text-2xl border border-amber-100 group-hover:scale-110 transition-transform">
+                    🌿
+                  </div>
+                  <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                    康复调适 · 科学心安
+                  </span>
+                </div>
+                <div>
+                  <h4 className="text-base font-bold text-slate-900 group-hover:text-amber-700 transition-colors">
+                    术后身体恢复与长期随访
+                  </h4>
+                  <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                    术后持续咳嗽、胸闷正常吗？肿瘤标志物轻微波动是不是复发了？科学解密指标真相。
+                  </p>
+                </div>
+              </div>
+              <div className="pt-4 border-t border-slate-100 mt-4 flex items-center justify-between text-xs font-bold text-amber-700">
+                <span>进入康复专区</span>
+                <span className="group-hover:translate-x-1 transition-transform">➔</span>
+              </div>
+            </Link>
+          </div>
+
+          {/* Bottom Action Area */}
+          <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link
+              href="/wiki"
+              className="btn-primary px-8 py-3.5 rounded-2xl text-sm font-bold shadow-md hover:shadow-lg transition-all inline-flex items-center gap-2 cursor-pointer"
+            >
+              <span>💡 立即探索 OncoWiki 循证视觉百科全库 (20+精解词条)</span>
+              <span>➔</span>
+            </Link>
+            <Link
+              href="/resources"
+              className="px-6 py-3.5 rounded-2xl text-sm font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition-all inline-flex items-center gap-2 shadow-2xs"
+            >
+              <span>📖 查阅医生专业指南 (学术导航) ➔</span>
+            </Link>
           </div>
         </div>
       </section>
