@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import SubpageNavbar from "@/components/SubpageNavbar";
 import ProfileForm from "@/components/ProfileForm";
 import EvidenceReport from "@/components/EvidenceReport";
 import KnowledgeMapPreview from "@/components/KnowledgeMapPreview";
@@ -24,7 +25,6 @@ export default function HomePage() {
   const [scrollY, setScrollY] = useState(0);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -79,20 +79,7 @@ export default function HomePage() {
   if (appState === "input") {
     return (
       <div className="min-h-screen bg-gray-50 overflow-x-hidden">
-        <nav className="bg-white border-b border-gray-200 fixed top-0 left-0 right-0 z-50 px-6 py-4 shadow-sm">
-          <div className="max-w-7xl mx-auto flex items-center justify-between">
-            <button
-              onClick={() => setAppState("landing")}
-              className="flex items-center gap-2 text-accent-blue hover:text-accent-blue-light transition-colors"
-            >
-              <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path d="M19 12H5M12 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-              <LogoMark />
-            </button>
-            <span className="text-text-secondary text-sm">输入病理资料</span>
-          </div>
-        </nav>
+        <SubpageNavbar />
         <div className="pt-28 md:pt-32 pb-16 flex justify-center w-full">
           <div className="w-full">
             <ProfileForm onSubmit={handleProfileSubmit} />
@@ -107,147 +94,8 @@ export default function HomePage() {
     <div className="min-h-screen overflow-x-hidden bg-slate-50 text-slate-900">
       <ConsentModal />
       
-      {/* Floating Island Navigation Bar */}
-      <div className="fixed top-4 left-0 right-0 z-50 px-4 sm:px-6 pointer-events-none">
-        <nav className="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-7 py-3 rounded-2xl sm:rounded-full bg-white/90 backdrop-blur-md border border-slate-200/80 shadow-lg shadow-slate-900/5 transition-all duration-300 pointer-events-auto hover:border-slate-300">
-          <LogoMark />
-          
-          {/* Desktop Nav Links */}
-          <div className="hidden md:flex items-center gap-7">
-            <NavLink href="#workflow">工作流</NavLink>
-            <NavLink href="/wiki">循证百科</NavLink>
-            <NavLink href="#studies">研究库</NavLink>
-            <NavLink href="#knowledge">知识图谱</NavLink>
-            <NavLink href="/resources">学术导航</NavLink>
-          </div>
-
-          {/* Right Action Area */}
-          <div className="flex items-center gap-2 sm:gap-3">
-            <UserAvatar />
-            
-            <Link
-              href="/profile"
-              id="nav-start-btn"
-              className="hidden sm:inline-flex btn-primary px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold cursor-pointer shadow-sm"
-            >
-              建立癌症档案
-            </Link>
-
-            {/* Mobile Hamburger Button */}
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-xl text-slate-700 hover:bg-slate-100 border border-slate-200 transition-colors focus:outline-none"
-              aria-label="打开移动端导航菜单"
-            >
-              {mobileMenuOpen ? (
-                <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              ) : (
-                <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-              )}
-            </button>
-          </div>
-        </nav>
-      </div>
-
-      {/* Mobile Slide-Over Drawer Menu */}
-      {mobileMenuOpen && (
-        <div className="fixed inset-0 z-[100] md:hidden">
-          <div 
-            className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm animate-fade-in"
-            onClick={() => setMobileMenuOpen(false)}
-          />
-
-          <div className="fixed top-0 right-0 bottom-0 w-[85%] max-w-sm bg-white shadow-2xl p-6 flex flex-col justify-between animate-fade-in-up border-l border-slate-200">
-            <div className="space-y-6">
-              <div className="flex items-center justify-between pb-4 border-b border-slate-100">
-                <LogoMark />
-                <button
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="p-2 rounded-xl text-slate-500 hover:bg-slate-100 transition-colors"
-                >
-                  <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-
-              <div className="space-y-2">
-                <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-3 mb-2">
-                  系统功能导航
-                </div>
-                <Link
-                  href="#workflow"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3 px-3.5 py-3 rounded-2xl text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-all"
-                >
-                  <span className="text-lg">⚡</span>
-                  <span>3步工作流</span>
-                </Link>
-                <Link
-                  href="/wiki"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3 px-3.5 py-3 rounded-2xl text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-all"
-                >
-                  <span className="text-lg">💡</span>
-                  <span>循证视觉百科 (OncoWiki)</span>
-                </Link>
-                <Link
-                  href="/knowledge"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3 px-3.5 py-3 rounded-2xl text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-all"
-                >
-                  <span className="text-lg">🗺️</span>
-                  <span>4D 知识图谱</span>
-                </Link>
-                <Link
-                  href="/studies"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3 px-3.5 py-3 rounded-2xl text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-all"
-                >
-                  <span className="text-lg">📚</span>
-                  <span>国际研究库</span>
-                </Link>
-                <Link
-                  href="/resources"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3 px-3.5 py-3 rounded-2xl text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-all"
-                >
-                  <span className="text-lg">📖</span>
-                  <span>学术导航 (临床指南)</span>
-                </Link>
-                <Link
-                  href="/profile"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3 px-3.5 py-3 rounded-2xl text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-all"
-                >
-                  <span className="text-lg">📋</span>
-                  <span>我的癌症档案</span>
-                </Link>
-              </div>
-
-              <div className="pt-2">
-                <Link
-                  href="/profile"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="w-full btn-primary py-3.5 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 shadow-md"
-                >
-                  <span>🔬 立即解析病理报告</span>
-                </Link>
-              </div>
-            </div>
-
-            <div className="pt-6 border-t border-slate-100 text-center">
-              <div className="text-[11px] text-slate-400">
-                © 2026 OncoPath · 严格同行评审循证医学知识库
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Unified Global Floating Island Navigation Bar */}
+      <SubpageNavbar />
 
       {/* Act 1: Hero Section (2-Column Split Layout matching Telemedicine Demo) */}
       <section
@@ -300,7 +148,7 @@ export default function HomePage() {
               </p>
 
               {/* CTA Action Buttons */}
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 pt-2 animate-fade-in-up stagger-3">
+              <div className="flex flex-wrap items-center gap-3.5 pt-2 animate-fade-in-up stagger-3">
                 <Link
                   href="/profile"
                   id="hero-start-btn"
@@ -311,12 +159,21 @@ export default function HomePage() {
                   </svg>
                   <span>立即建立专属档案</span>
                 </Link>
-                <Link
-                  href="/studies"
-                  id="hero-learn-btn"
-                  className="btn-secondary px-6 py-3.5 rounded-2xl text-base font-semibold border-slate-200 text-slate-700 hover:bg-slate-50 transition-all flex items-center justify-center gap-2"
+                <a
+                  href="#workflow"
+                  id="hero-workflow-btn"
+                  className="btn-secondary px-5 py-3.5 rounded-2xl text-sm font-semibold border-slate-200 text-slate-700 hover:bg-slate-50 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                 >
-                  <span>📖 浏览国际研究库</span>
+                  <span>⚡ 了解 3 步工作流</span>
+                  <span className="text-xs text-slate-400">↓</span>
+                </a>
+                <Link
+                  href="/wiki"
+                  id="hero-wiki-btn"
+                  className="px-5 py-3.5 rounded-2xl text-sm font-semibold bg-white border border-slate-200 text-sky-700 hover:bg-sky-50 transition-all flex items-center justify-center gap-1.5 shadow-2xs"
+                >
+                  <span>💡 循证百科</span>
+                  <span>➔</span>
                 </Link>
               </div>
 
@@ -687,17 +544,6 @@ function LogoMark() {
         Onco<span className="text-accent-blue font-extrabold">Path</span>
       </span>
     </div>
-  );
-}
-
-function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
-  return (
-    <a
-      href={href}
-      className="text-xs sm:text-sm font-semibold text-slate-600 hover:text-accent-blue transition-colors"
-    >
-      {children}
-    </a>
   );
 }
 
