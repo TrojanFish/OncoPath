@@ -60,6 +60,20 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
           setEdgeEvidences(data.edgeEvidences);
           const total = data.nodes.reduce((sum: number, n: any) => sum + (n.studies || 0), 0);
           setTotalStudies(total > 0 ? total : 142);
+
+          // Deep link: auto-select target node if ?node=... or ?focus=... is provided
+          if (typeof window !== "undefined") {
+            const urlParams = new URLSearchParams(window.location.search);
+            const nodeParam = urlParams.get("node") || urlParams.get("focus") || urlParams.get("highlight");
+            if (nodeParam) {
+              const matchedNode = data.nodes.find(
+                (n: KnowledgeNode) => n.id.toLowerCase() === nodeParam.toLowerCase()
+              );
+              if (matchedNode) {
+                setSelectedNode(matchedNode);
+              }
+            }
+          }
         }
       })
       .catch((err) => {

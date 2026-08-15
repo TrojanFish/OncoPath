@@ -17,6 +17,7 @@ export default function WikiPage() {
   const [selectedRisk, setSelectedRisk] = useState<RiskLevel | "all">("all");
   const [activeLabTool, setActiveLabTool] = useState<"ggo" | "fleischner" | "none">("ggo");
   const [userProfile, setUserProfile] = useState<PatientProfile | null>(null);
+  const [highlightedTopicId, setHighlightedTopicId] = useState<string | null>(null);
 
   // Load patient profile from localStorage if present
   useEffect(() => {
@@ -28,6 +29,69 @@ export default function WikiPage() {
     } catch (e) {
       console.error("Failed to load local profile:", e);
     }
+  }, []);
+
+  // Deep Linking Handler: Listen to URL Search Params & Hash for direct navigation (#topic-stas or ?category=pathology)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const handleHashAndParams = () => {
+      const hash = window.location.hash;
+      const urlParams = new URLSearchParams(window.location.search);
+
+      // 1. Check category param or hash (e.g. ?category=nodule or #category-nodule)
+      const catParam = urlParams.get("category");
+      if (catParam && (catParam in WIKI_CATEGORIES || catParam === "all")) {
+        setActiveCategory(catParam as WikiCategory | "all");
+      } else if (hash.startsWith("#category-")) {
+        const cat = hash.replace("#category-", "") as WikiCategory;
+        if (cat in WIKI_CATEGORIES) {
+          setActiveCategory(cat);
+        }
+      }
+
+      // 2. Check topic param or hash (e.g. ?topic=stas, #topic-stas, or #stas)
+      const topicParam = urlParams.get("topic");
+      let targetTopicId = "";
+      if (topicParam) {
+        targetTopicId = topicParam.toLowerCase();
+      } else if (hash.startsWith("#topic-")) {
+        targetTopicId = hash.replace("#topic-", "").toLowerCase();
+      } else if (hash.length > 1 && !hash.startsWith("#wiki-") && !hash.startsWith("#category-")) {
+        const clean = hash.replace("#", "").toLowerCase();
+        if (WIKI_TOPICS.some((t) => t.id.toLowerCase() === clean)) {
+          targetTopicId = clean;
+        }
+      }
+
+      if (targetTopicId) {
+        const targetTopic = WIKI_TOPICS.find((t) => t.id.toLowerCase() === targetTopicId);
+        if (targetTopic) {
+          // Ensure topic is not hidden by current filters
+          setActiveCategory(targetTopic.category);
+          setSelectedRisk("all");
+          setSearchQuery("");
+          setHighlightedTopicId(targetTopic.id);
+
+          // Smooth scroll to target card with slight delay for DOM mount
+          setTimeout(() => {
+            const el = document.getElementById(`topic-${targetTopic.id}`);
+            if (el) {
+              el.scrollIntoView({ behavior: "smooth", block: "center" });
+            }
+          }, 200);
+
+          // Dismiss breathing highlight after 4.5 seconds
+          setTimeout(() => {
+            setHighlightedTopicId(null);
+          }, 4500);
+        }
+      }
+    };
+
+    handleHashAndParams();
+    window.addEventListener("hashchange", handleHashAndParams);
+    return () => window.removeEventListener("hashchange", handleHashAndParams);
   }, []);
 
   // Filter & Sort topics by Risk Priority (High > Moderate > Low > Safe)
@@ -64,6 +128,9 @@ export default function WikiPage() {
   // Handler for scenario entrance click
   const handleSelectScenario = (cat: WikiCategory) => {
     setActiveCategory(cat);
+    if (typeof window !== "undefined") {
+      window.history.replaceState(null, "", `#category-${cat}`);
+    }
     // Smooth scroll down to topic list
     const el = document.getElementById("wiki-topics-section");
     if (el) {
@@ -143,7 +210,7 @@ export default function WikiPage() {
 
         {/* Act 1: Emotion-First Scenario Entrance Cards */}
         <section className="pt-1">
-          <WikiScenarioEntry onSelectCategory={handleSelectScenario} />
+          <WikiScenarioEntry activeCategory={activeCategory} onSelectCategory={handleSelectScenario} />
         </section>
 
         {/* Act 2: Interactive Visual Lab (CTR Simulator & Fleischner Decision Tree) */}
@@ -194,7 +261,12 @@ export default function WikiPage() {
           {/* Category Tabs */}
           <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 pb-4">
             <button
-              onClick={() => setActiveCategory("all")}
+              onClick={() => {
+                setActiveCategory("all");
+                if (typeof window !== "undefined") {
+                  window.history.replaceState(null, "", window.location.pathname);
+                }
+              }}
               className={`px-4 py-2 rounded-2xl text-xs sm:text-sm font-black transition-all cursor-pointer ${
                 activeCategory === "all"
                   ? "bg-blue-600 text-white shadow-sm"
@@ -210,7 +282,12 @@ export default function WikiPage() {
               return (
                 <button
                   key={catKey}
-                  onClick={() => setActiveCategory(catKey)}
+                  onClick={() => {
+                    setActiveCategory(catKey);
+                    if (typeof window !== "undefined") {
+                      window.history.replaceState(null, "", `#category-${catKey}`);
+                    }
+                  }}
                   className={`px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center gap-1.5 border ${
                     activeCategory === catKey
                       ? "bg-slate-900 text-white border-slate-900 shadow-sm"
@@ -243,6 +320,7 @@ export default function WikiPage() {
                   key={topic.id}
                   topic={topic}
                   isMatchedProfile={isTopicMatchedToProfile(topic.id)}
+                  isHighlighted={highlightedTopicId === topic.id}
                 />
               ))}
             </div>

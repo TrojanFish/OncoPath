@@ -22,15 +22,30 @@ import { CalcificationVisual } from "./visuals/CalcificationVisual";
 interface WikiTopicCardProps {
   topic: WikiTopic;
   isMatchedProfile?: boolean;
+  isHighlighted?: boolean;
 }
 
-export function WikiTopicCard({ topic, isMatchedProfile }: WikiTopicCardProps) {
+export function WikiTopicCard({ topic, isMatchedProfile, isHighlighted }: WikiTopicCardProps) {
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
   const [showVisual, setShowVisual] = useState<boolean>(true);
   const [copied, setCopied] = useState<boolean>(false);
+  const [copiedLink, setCopiedLink] = useState<boolean>(false);
 
   const riskCfg = RISK_LEVEL_CONFIG[topic.riskLevel];
   const catCfg = WIKI_CATEGORIES[topic.category];
+
+  const handleCopyLink = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (typeof window !== "undefined") {
+      const directUrl = `${window.location.origin}${window.location.pathname}#topic-${topic.id}`;
+      window.history.replaceState(null, "", `#topic-${topic.id}`);
+      navigator.clipboard?.writeText(directUrl).then(() => {
+        setCopiedLink(true);
+        setTimeout(() => setCopiedLink(false), 2000);
+      });
+    }
+  };
 
   const handleCopyReassurance = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -78,10 +93,12 @@ export function WikiTopicCard({ topic, isMatchedProfile }: WikiTopicCardProps) {
   return (
     <div
       id={`topic-${topic.id}`}
-      className={`bg-white rounded-3xl p-5 sm:p-7 border transition-all duration-300 shadow-sm hover:shadow-md flex flex-col justify-between relative ${
-        isMatchedProfile
-          ? "border-teal-400/80 ring-2 ring-teal-400/20 bg-gradient-to-b from-teal-50/20 to-white"
-          : "border-slate-200/90"
+      className={`bg-white rounded-3xl p-5 sm:p-7 border transition-all duration-500 flex flex-col justify-between relative ${
+        isHighlighted
+          ? "border-blue-500 ring-4 ring-blue-500/40 shadow-xl bg-gradient-to-b from-blue-50/40 via-white to-white scale-[1.01]"
+          : isMatchedProfile
+          ? "border-teal-400/80 ring-2 ring-teal-400/20 bg-gradient-to-b from-teal-50/20 to-white shadow-sm hover:shadow-md"
+          : "border-slate-200/90 shadow-sm hover:shadow-md"
       }`}
     >
       {/* Matched Profile Badge */}
@@ -91,12 +108,30 @@ export function WikiTopicCard({ topic, isMatchedProfile }: WikiTopicCardProps) {
         </div>
       )}
 
+      {/* Deep Link Hit Badge */}
+      {isHighlighted && !isMatchedProfile && (
+        <div className="absolute -top-3 right-6 bg-blue-600 text-white text-[11px] font-bold px-3 py-0.5 rounded-full shadow-xs flex items-center gap-1 animate-bounce">
+          <span>🎯 已精准定位该词条</span>
+        </div>
+      )}
+
       <div>
-        {/* Card Header: Category Tag & Risk Level Badge */}
+        {/* Card Header: Category Tag, Risk Badge & Share Link Button */}
         <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-          <span className={`text-xs font-bold px-3 py-1 rounded-full border ${catCfg.badgeBg}`}>
-            {catCfg.icon} {topic.subcategory || catCfg.label}
-          </span>
+          <div className="flex items-center gap-1.5">
+            <span className={`text-xs font-bold px-3 py-1 rounded-full border ${catCfg.badgeBg}`}>
+              {catCfg.icon} {topic.subcategory || catCfg.label}
+            </span>
+            <button
+              type="button"
+              onClick={handleCopyLink}
+              title={copiedLink ? "已复制直达链接" : "复制此词条直达分享链接"}
+              className="text-[11px] text-slate-400 hover:text-blue-600 px-1.5 py-0.5 rounded-md hover:bg-slate-100 transition-colors cursor-pointer flex items-center gap-1"
+            >
+              <span>🔗</span>
+              <span className="text-[10px] hidden sm:inline">{copiedLink ? "已复制链接" : "分享"}</span>
+            </button>
+          </div>
 
           <span className={`text-xs font-bold px-3 py-1 rounded-full border flex items-center gap-1 ${riskCfg.bg} ${riskCfg.color} ${riskCfg.border}`}>
             <span>{riskCfg.label}</span>
@@ -267,7 +302,7 @@ export function WikiTopicCard({ topic, isMatchedProfile }: WikiTopicCardProps) {
         <div className="flex flex-wrap items-center justify-between gap-2 mt-3 pt-1">
           {topic.graphNodeId ? (
             <Link
-              href={`/knowledge`}
+              href={`/knowledge?node=${encodeURIComponent(topic.graphNodeId)}`}
               className="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 transition-colors"
             >
               <span>代入知识图谱推演因果链 ➔</span>
