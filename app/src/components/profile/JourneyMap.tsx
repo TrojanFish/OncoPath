@@ -25,13 +25,34 @@ export default function JourneyMap({
     { id: "confidence", label: "建立长期信心", desc: "回归健康生活" },
   ];
 
-  const getStageIndex = (stages: any[], id: string) => {
-    const idx = stages.findIndex(s => s.id === id);
-    return idx >= 0 ? idx : 0;
+  const normalizeMedicalStage = (stage?: string) => {
+    if (!stage) return "post_op";
+    const s = String(stage).toLowerCase();
+    if (s === "discovery" || s === "nodule_found") return "discovery";
+    if (s === "evaluation" || s === "ct_imaging" || s === "pre_op" || s === "imaging") return "evaluation";
+    if (s === "post_op" || s === "pathology" || s === "decision" || s === "comprehensive" || s === "treatment" || s === "surgery") return "post_op";
+    if (s === "follow_up" || s === "recovery" || s === "surveillance") return "follow_up";
+    return "post_op";
   };
 
-  const medIndex = getStageIndex(medicalStages, currentStage);
-  const psychIndex = getStageIndex(psychStages, psychologicalState);
+  const normalizePsychStage = (stage?: string) => {
+    if (!stage) return "understanding";
+    const s = String(stage).toLowerCase();
+    if (s === "fear" || s === "anxiety") return "fear";
+    if (s === "understanding" || s === "cognition") return "understanding";
+    if (s === "decision" || s === "action") return "decision";
+    if (s === "confidence" || s === "recovery") return "confidence";
+    return "understanding";
+  };
+
+  const getStageIndex = (stages: any[], id: string, isMedical: boolean = false) => {
+    const normalizedId = isMedical ? normalizeMedicalStage(id) : normalizePsychStage(id);
+    const idx = stages.findIndex(s => s.id === normalizedId);
+    return idx >= 0 ? idx : (isMedical ? 2 : 1);
+  };
+
+  const medIndex = getStageIndex(medicalStages, currentStage, true);
+  const psychIndex = getStageIndex(psychStages, psychologicalState, false);
 
   return (
     <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200 shadow-sm mb-8">

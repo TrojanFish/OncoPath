@@ -189,7 +189,7 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
         sex: parsedData.sex || "female",
         histology: parsedData.histology || "adenocarcinoma",
         reportType: parsedData.reportType || "pathology",
-        currentStage: (parsedData.reportType === 'ct_imaging' || parsedData.surgeryType === 'unknown') ? 'evaluation' : 'decision',
+        currentStage: (parsedData.reportType === 'ct_imaging' || parsedData.surgeryType === 'unknown') ? 'evaluation' : 'post_op',
         imagingFeatures: parsedData.imagingFeatures || [],
         noduleLocation: parsedData.noduleLocation || "右肺上叶尖段",
         lungRads: parsedData.lungRads || null,

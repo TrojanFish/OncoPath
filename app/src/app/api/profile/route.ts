@@ -26,7 +26,10 @@ export async function POST(request: Request) {
       marginStatus: marginStatus,
     });
 
-    let currentStage = data.currentStage || (data.reportType === 'ct_imaging' ? 'evaluation' : 'post_op');
+    let currentStage = data.currentStage;
+    if (!currentStage || currentStage === 'decision' || currentStage === 'pathology') {
+      currentStage = (data.reportType === 'ct_imaging' && data.surgeryType === 'unknown') ? 'evaluation' : 'post_op';
+    }
     let riskLevel = data.riskLevel || ((isStas || isVpi || isLvi || stagingResult.nStage !== 'N0') ? 'moderate' : 'low');
     let nextAction = data.nextAction || (
       data.reportType === 'ct_imaging'
