@@ -8,33 +8,33 @@ export function VpiPleuraVisual() {
         <span className="text-[10px] text-slate-400">标注：仅为原理解释，非真实解剖</span>
       </div>
 
-      <svg viewBox="0 0 200 110" className="w-full h-auto">
+      <svg viewBox="0 0 220 110" className="w-full h-auto">
         {/* Lung Parenchyma Background */}
-        <rect width="200" height="110" fill="#0b1120" rx="8" />
+        <rect width="220" height="110" fill="#0b1120" rx="8" />
 
         {/* 3 Zones: Lung Parenchyma, Visceral Pleura, Pleural Cavity */}
         {/* Zone 1: Lung Tissue */}
-        <rect x="10" y="10" width="100" height="90" fill="#1e293b" opacity="0.6" rx="4" />
+        <rect x="10" y="10" width="105" height="90" fill="#1e293b" opacity="0.6" rx="4" />
         <text x="60" y="25" textAnchor="middle" fill="#94a3b8" fontSize="6.5" fontWeight="bold">
           肺实质内部 (组织)
         </text>
 
         {/* Zone 2: Visceral Pleura Layers */}
         {/* Inner Elastic Lamina (PL1 border) */}
-        <line x1="115" y1="10" x2="115" y2="100" stroke="#38bdf8" strokeWidth="2" strokeDasharray="4,1" />
-        <text x="115" y="106" textAnchor="middle" fill="#38bdf8" fontSize="5" fontWeight="bold">
+        <line x1="120" y1="10" x2="120" y2="100" stroke="#38bdf8" strokeWidth="2" strokeDasharray="4,1" />
+        <text x="120" y="106" textAnchor="middle" fill="#38bdf8" fontSize="5" fontWeight="bold">
           内弹力层 (PL1)
         </text>
 
         {/* Outer Surface Layer (PL2 border) */}
-        <line x1="145" y1="10" x2="145" y2="100" stroke="#fbbf24" strokeWidth="2.5" />
-        <text x="145" y="106" textAnchor="middle" fill="#fbbf24" fontSize="5" fontWeight="bold">
+        <line x1="155" y1="10" x2="155" y2="100" stroke="#fbbf24" strokeWidth="2.5" />
+        <text x="155" y="106" textAnchor="middle" fill="#fbbf24" fontSize="5" fontWeight="bold">
           脏层外表面 (PL2)
         </text>
 
         {/* Zone 3: Pleural Cavity (Safe space) */}
-        <rect x="150" y="10" width="40" height="90" fill="#0f172a" opacity="0.5" />
-        <text x="170" y="55" textAnchor="middle" fill="#64748b" fontSize="5.5" transform="rotate(90 170 55)">
+        <rect x="160" y="10" width="50" height="90" fill="#0f172a" opacity="0.5" rx="3" />
+        <text x="185" y="55" textAnchor="middle" fill="#64748b" fontSize="5.5" transform="rotate(90 185 55)">
           胸膜腔外空间
         </text>
 
@@ -44,16 +44,16 @@ export function VpiPleuraVisual() {
         <text x="50" y="52" textAnchor="middle" fill="#ffffff" fontSize="5" fontWeight="bold">PL0 (安全)</text>
 
         {/* PL1: Penetrates Inner Elastic Layer -> Upstages to T2a */}
-        <path d="M 85 45 Q 120 40 125 55 Q 120 70 85 65 Z" fill="#f43f5e" opacity="0.85" />
-        <circle cx="123" cy="55" r="3" fill="#fb7185" />
+        <path d="M 85 45 Q 125 40 130 55 Q 125 70 85 65 Z" fill="#f43f5e" opacity="0.85" />
+        <circle cx="128" cy="55" r="3" fill="#fb7185" />
         <text x="95" y="57" textAnchor="middle" fill="#ffffff" fontSize="5.5" fontWeight="bold">
           PL1 穿透
         </text>
 
         {/* Resection Line encompassing the whole Visceral Pleura */}
-        <path d="M 148 5 L 148 105" stroke="#10b981" strokeWidth="1.5" strokeDasharray="3,2" />
-        <text x="150" y="20" fill="#10b981" fontSize="5" fontWeight="bold">
-          手术切除线 (完整取出)
+        <path d="M 158 5 L 158 105" stroke="#10b981" strokeWidth="1.5" strokeDasharray="3,2" />
+        <text x="158" y="18" textAnchor="middle" fill="#10b981" fontSize="4.5" fontWeight="bold">
+          ← 手术切除线 (完整取出)
         </text>
       </svg>
 
