@@ -22,11 +22,13 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
 
   useEffect(() => {
     if (parsedData) {
+      const tumorVal = parsedData.tumorSize !== "" && parsedData.tumorSize != null ? parseFloat(String(parsedData.tumorSize)) : 1.5;
+      const solidVal = parsedData.solidSize !== "" && parsedData.solidSize != null ? parseFloat(String(parsedData.solidSize)) : 0.8;
       const calc = computeClinicalTnmStage({
         noduleType: parsedData.noduleType || "mixed_ggo",
-        tumorSize: parsedData.tumorSize ? parseFloat(parsedData.tumorSize) : 1.5,
-        solidSize: parsedData.solidSize ? parseFloat(parsedData.solidSize) : 0.8,
-        ctr: parsedData.ctr ? parseFloat(parsedData.ctr) : null,
+        tumorSize: isNaN(tumorVal) ? 1.5 : tumorVal,
+        solidSize: isNaN(solidVal) ? 0.8 : solidVal,
+        ctr: parsedData.ctr ? parseFloat(String(parsedData.ctr)) : null,
         nStage: parsedData.nStage || "N0",
         vpi: parsedData.vpi,
         stas: parsedData.stas,
@@ -97,11 +99,12 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
     if (parsedData) {
       const finalData = {
         ...parsedData,
+        age: parsedData.age !== "" && parsedData.age != null ? parseInt(String(parsedData.age)) || 55 : 55,
+        tumorSize: stagingPreview?.tumorSize || (parsedData.tumorSize !== "" && parsedData.tumorSize != null ? parseFloat(String(parsedData.tumorSize)) || 1.5 : 1.5),
+        solidSize: stagingPreview?.solidSize || (parsedData.solidSize !== "" && parsedData.solidSize != null ? parseFloat(String(parsedData.solidSize)) || 0.8 : 0.8),
+        ctr: stagingPreview?.ctr || parsedData.ctr || 0.53,
         stage: stagingPreview?.stage || parsedData.stage || "IA1",
         tStage: stagingPreview?.tStage || parsedData.tStage || "T1a",
-        tumorSize: stagingPreview?.tumorSize || parsedData.tumorSize || 1.5,
-        solidSize: stagingPreview?.solidSize || parsedData.solidSize || 0.8,
-        ctr: stagingPreview?.ctr || parsedData.ctr || 0.53,
         noduleType: parsedData.noduleType || "mixed_ggo",
       };
       onParsed(finalData);
@@ -174,11 +177,11 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
                   肿瘤总径 (cm)
                 </label>
                 <input 
-                  type="number" 
-                  step="0.1"
-                  value={parsedData.tumorSize ?? 1.5} 
-                  onChange={e => setParsedData({...parsedData, tumorSize: parseFloat(e.target.value) || 1.5})}
-                  className="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-blue-500"
+                  type="text" 
+                  inputMode="decimal"
+                  value={parsedData.tumorSize !== undefined && parsedData.tumorSize !== null ? parsedData.tumorSize : ""} 
+                  onChange={e => setParsedData({...parsedData, tumorSize: e.target.value})}
+                  className="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-blue-500 outline-none"
                   placeholder="如 1.5"
                 />
               </div>
@@ -188,11 +191,11 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
                   CT 实性/浸润大小 (cm)
                 </label>
                 <input 
-                  type="number" 
-                  step="0.1"
-                  value={parsedData.solidSize ?? 0.8} 
-                  onChange={e => setParsedData({...parsedData, solidSize: parseFloat(e.target.value) || 0.8})}
-                  className="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-blue-500"
+                  type="text" 
+                  inputMode="decimal"
+                  value={parsedData.solidSize !== undefined && parsedData.solidSize !== null ? parsedData.solidSize : ""} 
+                  onChange={e => setParsedData({...parsedData, solidSize: e.target.value})}
+                  className="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-blue-500 outline-none"
                   placeholder="如 0.8"
                 />
               </div>
@@ -284,10 +287,12 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
             <div>
               <label className="block text-xs font-semibold text-slate-600 mb-1">患者年龄</label>
               <input 
-                type="number" 
-                value={parsedData.age || 55} 
-                onChange={e => setParsedData({...parsedData, age: parseInt(e.target.value) || 55})}
-                className="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm font-medium"
+                type="text" 
+                inputMode="numeric"
+                value={parsedData.age !== undefined && parsedData.age !== null ? parsedData.age : ""} 
+                onChange={e => setParsedData({...parsedData, age: e.target.value})}
+                className="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm font-medium outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="如 55"
               />
             </div>
 

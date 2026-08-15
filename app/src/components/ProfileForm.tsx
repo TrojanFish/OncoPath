@@ -471,11 +471,12 @@ function Step3({ form, updateForm }: StepProps) {
             step="1"
             min="1"
             max="150"
-            value={form.tumorSize || ""}
+            value={form.tumorSize !== undefined && form.tumorSize !== null ? form.tumorSize : ""}
             onChange={(e) => {
-              const v = parseFloat(e.target.value);
-              updateForm("tumorSize", v);
-              if (form.solidSize) {
+              const str = e.target.value;
+              const v = str === "" ? 0 : parseFloat(str);
+              updateForm("tumorSize", isNaN(v) ? 0 : v);
+              if (form.solidSize && v > 0) {
                 updateForm("ctr", Math.round((form.solidSize / v) * 100) / 100);
               }
             }}
@@ -490,11 +491,12 @@ function Step3({ form, updateForm }: StepProps) {
             step="1"
             min="0"
             max="150"
-            value={form.solidSize || ""}
+            value={form.solidSize !== undefined && form.solidSize !== null ? form.solidSize : ""}
             onChange={(e) => {
-              const v = parseFloat(e.target.value);
-              updateForm("solidSize", v);
-              if (form.tumorSize) {
+              const str = e.target.value;
+              const v = str === "" ? 0 : parseFloat(str);
+              updateForm("solidSize", isNaN(v) ? 0 : v);
+              if (form.tumorSize && form.tumorSize > 0) {
                 updateForm("ctr", Math.round((v / form.tumorSize) * 100) / 100);
               }
             }}
