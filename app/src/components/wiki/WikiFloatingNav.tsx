@@ -110,7 +110,7 @@ export function WikiFloatingNav({
   return (
     <aside
       aria-label="百科专区快速电梯导轨"
-      className="fixed right-3 sm:right-5 top-1/2 -translate-y-1/2 z-40 hidden md:flex flex-col items-center gap-2 p-2 rounded-3xl bg-white/80 backdrop-blur-xl border border-slate-200/90 shadow-2xl shadow-slate-900/10 transition-all duration-300 select-none animate-fade-in"
+      className="fixed right-3 sm:right-5 top-1/2 -translate-y-1/2 z-40 hidden md:flex flex-col items-center gap-2 p-2 rounded-full bg-white/80 backdrop-blur-xl border border-slate-200/90 shadow-2xl shadow-slate-900/10 transition-all duration-300 select-none animate-fade-in"
     >
       {/* Category Fast Switcher Items */}
       {categories.map((item) => {
@@ -123,7 +123,7 @@ export function WikiFloatingNav({
                 onSelectCategory(item.id);
                 scrollToSection("wiki-topics-section");
               }}
-              className={`w-9 h-9 rounded-2xl flex items-center justify-center transition-all duration-200 cursor-pointer ${
+              className={`w-9 h-9 rounded-full aspect-square flex items-center justify-center transition-all duration-200 cursor-pointer ${
                 isActive
                   ? `${item.activeTheme} shadow-md scale-105 ring-2 font-bold`
                   : "bg-slate-100/70 text-slate-600 hover:bg-slate-200/90 hover:text-slate-900 hover:scale-105 active:scale-95"
@@ -156,7 +156,7 @@ export function WikiFloatingNav({
         <button
           type="button"
           onClick={() => scrollToSection("wiki-visual-lab-section")}
-          className="w-9 h-9 rounded-2xl bg-amber-50/80 text-amber-700 hover:bg-amber-100 hover:scale-105 flex items-center justify-center transition-all cursor-pointer border border-amber-200/70 shadow-2xs active:scale-95"
+          className="w-9 h-9 rounded-full aspect-square bg-amber-50/80 text-amber-700 hover:bg-amber-100 hover:scale-105 flex items-center justify-center transition-all cursor-pointer border border-amber-200/70 shadow-2xs active:scale-95"
           aria-label="快速跳转至视觉实验室"
         >
           <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -182,7 +182,7 @@ export function WikiFloatingNav({
         <button
           type="button"
           onClick={scrollToTop}
-          className="w-9 h-9 rounded-2xl bg-slate-100/70 text-slate-600 hover:bg-slate-900 hover:text-white hover:scale-105 flex items-center justify-center transition-all cursor-pointer shadow-2xs active:scale-95"
+          className="w-9 h-9 rounded-full aspect-square bg-slate-100/70 text-slate-600 hover:bg-slate-900 hover:text-white hover:scale-105 flex items-center justify-center transition-all cursor-pointer shadow-2xs active:scale-95"
           aria-label="返回顶部"
         >
           <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
