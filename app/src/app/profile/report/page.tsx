@@ -245,13 +245,13 @@ export default function EvidenceReportPage() {
           <div className="flex items-center gap-2">
             <Link
               href="/knowledge"
-              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-teal-700 bg-teal-50 hover:bg-teal-100 border border-teal-200 transition-all shadow-2xs"
+              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-teal-700 bg-teal-50/80 hover:bg-teal-100/90 border border-teal-200 transition-all shadow-2xs group"
             >
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
-                <circle cx="6" cy="6" r="2.5" />
-                <circle cx="18" cy="18" r="2.5" />
-                <circle cx="18" cy="6" r="2.5" />
-                <path d="M8.5 7h7M18 8.5v7M8.5 7.5l7 7" strokeLinecap="round" />
+              <svg className="w-3.5 h-3.5 transition-transform group-hover:scale-110" viewBox="0 0 24 24" fill="none">
+                <circle cx="6" cy="6" r="3" fill="currentColor" fillOpacity="0.25" stroke="currentColor" strokeWidth="1.75" />
+                <circle cx="18" cy="18" r="3" fill="currentColor" fillOpacity="0.25" stroke="currentColor" strokeWidth="1.75" />
+                <circle cx="18" cy="6" r="2.5" fill="currentColor" fillOpacity="0.25" stroke="currentColor" strokeWidth="1.75" />
+                <path d="M8.5 7h7M18 8.5v7M8.5 7.5l7 7" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
               </svg>
               <span>4D图谱</span>
             </Link>
@@ -260,30 +260,34 @@ export default function EvidenceReportPage() {
               <>
                 <button
                   onClick={() => setShowRegenConfirm(true)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-300 transition-all cursor-pointer shadow-2xs"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-300 transition-all cursor-pointer shadow-2xs group"
                   title="当修改了分期或基因突变时重新生成"
                 >
-                  <svg className="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  <svg className="w-3.5 h-3.5 text-slate-500 transition-transform group-hover:rotate-45" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="7.5" fill="currentColor" fillOpacity="0.18" />
+                    <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                   <span>重新推演</span>
                 </button>
                 <button
                   onClick={handleCopyChecklist}
-                  className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 transition-all cursor-pointer shadow-2xs"
+                  className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-blue-700 bg-blue-50/80 hover:bg-blue-100 border border-blue-200 transition-all cursor-pointer shadow-2xs group"
                   title="一键提取问诊清单"
                 >
-                  <svg className="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                  <svg className="w-3.5 h-3.5 text-blue-600 transition-transform group-hover:scale-110" viewBox="0 0 24 24" fill="none">
+                    <rect x="5" y="4" width="14" height="17" rx="2.5" fill="currentColor" fillOpacity="0.2" stroke="currentColor" strokeWidth="1.75" />
+                    <path d="M9 4.5V3.5a1 1 0 011-1h4a1 1 0 011 1v1M8.5 11l2.5 2.5 4.5-4.5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                   <span>复制问诊单</span>
                 </button>
                 <button 
                   onClick={handlePrint}
-                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white transition-all shadow-xs cursor-pointer"
+                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white transition-all shadow-xs cursor-pointer group"
                 >
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                  <svg className="w-3.5 h-3.5 transition-transform group-hover:-translate-y-0.5" viewBox="0 0 24 24" fill="none">
+                    <path d="M6 9V4a1 1 0 011-1h10a1 1 0 011 1v5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
+                    <rect x="3" y="9" width="18" height="9" rx="2" fill="currentColor" fillOpacity="0.25" stroke="currentColor" strokeWidth="1.75" />
+                    <path d="M7 14h10M7 18h10v3H7v-3z" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                   <span>导出 / 打印PDF</span>
                 </button>
@@ -300,8 +304,9 @@ export default function EvidenceReportPage() {
           <div className="mb-5 p-4 rounded-2xl bg-gradient-to-r from-sky-50 via-blue-50 to-teal-50 border border-sky-200/90 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 print:hidden">
             <div className="flex items-start sm:items-center gap-3">
               <div className="w-8 h-8 rounded-xl bg-white text-sky-600 flex items-center justify-center shadow-xs flex-shrink-0 border border-sky-100">
-                <svg className="w-4 h-4 text-sky-600" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                <svg className="w-4 h-4 text-sky-600" viewBox="0 0 24 24" fill="none">
+                  <path d="M7 3h7l5 5v13a1 1 0 01-1 1H7a1 1 0 01-1-1V4a1 1 0 011-1z" fill="currentColor" fillOpacity="0.2" stroke="currentColor" strokeWidth="1.75" />
+                  <path d="M14 3v5h5M9 13h6M9 17h4" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
                 </svg>
               </div>
               <div>
@@ -321,10 +326,11 @@ export default function EvidenceReportPage() {
 
             <button
               onClick={() => setShowRegenConfirm(true)}
-              className="self-end sm:self-center flex-shrink-0 px-3.5 py-1.5 rounded-xl bg-white hover:bg-sky-50 text-sky-700 font-bold text-xs border border-sky-300 shadow-xs hover:shadow transition-all cursor-pointer flex items-center gap-1.5"
+              className="self-end sm:self-center flex-shrink-0 px-3.5 py-1.5 rounded-xl bg-white hover:bg-sky-50 text-sky-700 font-bold text-xs border border-sky-300 shadow-xs hover:shadow transition-all cursor-pointer flex items-center gap-1.5 group"
             >
-              <svg className="w-3.5 h-3.5 text-sky-600" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              <svg className="w-3.5 h-3.5 text-sky-600 transition-transform group-hover:rotate-45" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="7.5" fill="currentColor" fillOpacity="0.18" />
+                <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
               <span>重新推演生成</span>
             </button>
@@ -585,17 +591,28 @@ function MatrixBadge({ label, value, type }: { label: string; value: string; typ
     danger: 'bg-rose-50/90 text-rose-800 border-rose-200'
   };
 
-  const icons = {
-    safe: '✅',
-    warning: '⚠️',
-    danger: '🚨'
-  };
-
   return (
     <div className={`p-2.5 rounded-xl border ${styles[type]} flex flex-col justify-between transition-all shadow-xs`}>
-      <span className="text-[11px] font-medium opacity-80 mb-0.5">{label}</span>
-      <span className="text-xs font-bold flex items-center gap-1">
-        <span>{icons[type]}</span>
+      <span className="text-[11px] font-medium opacity-80 mb-1">{label}</span>
+      <span className="text-xs font-bold flex items-center gap-1.5">
+        {type === 'safe' && (
+          <svg className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="9" fill="currentColor" fillOpacity="0.2" stroke="currentColor" strokeWidth="1.75" />
+            <path d="M8.5 12.5l2.5 2.5 5-5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        )}
+        {type === 'warning' && (
+          <svg className="w-3.5 h-3.5 text-amber-600 flex-shrink-0" viewBox="0 0 24 24" fill="none">
+            <path d="M12 4L3 20h18L12 4z" fill="currentColor" fillOpacity="0.22" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M12 10v4M12 17h.01" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
+          </svg>
+        )}
+        {type === 'danger' && (
+          <svg className="w-3.5 h-3.5 text-rose-600 flex-shrink-0" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="9" fill="currentColor" fillOpacity="0.2" stroke="currentColor" strokeWidth="1.75" />
+            <path d="M9 9l6 6M15 9l-6 6" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        )}
         <span className="truncate">{value}</span>
       </span>
     </div>
