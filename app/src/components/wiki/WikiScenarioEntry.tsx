@@ -10,7 +10,8 @@ export function WikiScenarioEntry({ onSelectCategory }: WikiScenarioEntryProps) 
   const scenarios = [
     {
       category: "nodule" as WikiCategory,
-      title: "🫁 我刚体检查出肺结节",
+      icon: "🫁",
+      title: "我刚体检查出肺结节",
       subtitle: "体检报告提示磨玻璃结节、实性结节或毛刺，我很慌，该怎么办？",
       badge: "结节消恐 · 随访时间表",
       gradient: "from-emerald-50 to-teal-50 hover:from-emerald-100/70 hover:to-teal-100/70 border-emerald-200/80 text-emerald-950",
@@ -19,7 +20,8 @@ export function WikiScenarioEntry({ onSelectCategory }: WikiScenarioEntryProps) 
     },
     {
       category: "pathology" as WikiCategory,
-      title: "🔬 我刚拿到术后病理报告",
+      icon: "🔬",
+      title: "我刚拿到术后病理报告",
       subtitle: "报告上写着 STAS、VPI、LVI、微乳头、切缘等各种生僻词，不知吉凶？",
       badge: "病理密码破译 · 战术武器",
       gradient: "from-blue-50 to-indigo-50 hover:from-blue-100/70 hover:to-indigo-100/70 border-blue-200/80 text-blue-950",
@@ -28,7 +30,8 @@ export function WikiScenarioEntry({ onSelectCategory }: WikiScenarioEntryProps) 
     },
     {
       category: "genetics" as WikiCategory,
-      title: "🧬 医生让我做基因检测 / 靶向治疗",
+      icon: "🧬",
+      title: "医生让我做基因检测/靶向",
       subtitle: "EGFR、ALK、KRAS 是什么意思？第三代靶向药（奥希替尼）怎么帮我？",
       badge: "驱动基因 · 83% 复发阻断",
       gradient: "from-purple-50 to-fuchsia-50 hover:from-purple-100/70 hover:to-fuchsia-100/70 border-purple-200/80 text-purple-950",
@@ -37,7 +40,8 @@ export function WikiScenarioEntry({ onSelectCategory }: WikiScenarioEntryProps) 
     },
     {
       category: "recovery" as WikiCategory,
-      title: "🌿 术后身体恢复与长期随访",
+      icon: "🌿",
+      title: "术后身体恢复与长期随访",
       subtitle: "术后咳喘、胸闷正常吗？肿瘤标志物轻微波动是不是复发了？",
       badge: "康复调适 · 标志物真相",
       gradient: "from-amber-50 to-orange-50 hover:from-amber-100/70 hover:to-orange-100/70 border-amber-200/80 text-amber-950",
@@ -60,7 +64,10 @@ export function WikiScenarioEntry({ onSelectCategory }: WikiScenarioEntryProps) 
             className={`text-left p-4 sm:p-5 rounded-3xl bg-gradient-to-br border transition-all duration-300 shadow-xs hover:shadow-md hover:-translate-y-0.5 cursor-pointer flex flex-col justify-between ${s.gradient}`}
           >
             <div>
-              <div className="flex items-center justify-between gap-2 mb-2">
+              <div className="flex items-center justify-between gap-2 mb-3">
+                <div className="w-10 h-10 rounded-2xl bg-white/90 border border-slate-200/60 flex items-center justify-center text-xl shadow-2xs">
+                  {s.icon}
+                </div>
                 <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${s.tagColor}`}>
                   {s.badge}
                 </span>

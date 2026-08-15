@@ -8,6 +8,8 @@ import { StasAirwayVisual } from "./visuals/StasAirwayVisual";
 import { VpiPleuraVisual } from "./visuals/VpiPleuraVisual";
 import { LviVesselVisual } from "./visuals/LviVesselVisual";
 import { IaslcSubtypeVisual } from "./visuals/IaslcSubtypeVisual";
+import { GgoEvolutionSimulator } from "./visuals/GgoEvolutionSimulator";
+import { FleischnerDecisionTree } from "./visuals/FleischnerDecisionTree";
 
 interface WikiTopicCardProps {
   topic: WikiTopic;
@@ -50,10 +52,10 @@ export function WikiTopicCard({ topic, isMatchedProfile }: WikiTopicCardProps) {
         </div>
 
         {/* Title */}
-        <div className="flex items-start gap-3 mb-3">
-          <span className="text-2xl sm:text-3xl p-2 rounded-2xl bg-slate-50 border border-slate-100 flex-shrink-0">
+        <div className="flex items-start gap-3.5 mb-3.5">
+          <div className="w-12 h-12 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center text-2xl flex-shrink-0 shadow-2xs">
             {topic.icon}
-          </span>
+          </div>
           <div>
             <h3 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
               {topic.title}
@@ -79,8 +81,8 @@ export function WikiTopicCard({ topic, isMatchedProfile }: WikiTopicCardProps) {
         {/* 🔬 Visual Micro Diagram if configured */}
         {topic.visualComponent && (
           <div className="mb-4">
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="text-xs font-bold text-slate-500">🔬 视觉微观图解</span>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-bold text-slate-500">🔬 视觉微观图解与模拟</span>
               <button
                 onClick={() => setShowVisual(!showVisual)}
                 className="text-[11px] text-blue-600 hover:text-blue-700 font-semibold cursor-pointer"
@@ -89,7 +91,9 @@ export function WikiTopicCard({ topic, isMatchedProfile }: WikiTopicCardProps) {
               </button>
             </div>
             {showVisual && (
-              <div>
+              <div className="animate-fade-in">
+                {topic.visualComponent === "GgoEvolutionSimulator" && <GgoEvolutionSimulator />}
+                {topic.visualComponent === "FleischnerDecisionTree" && <FleischnerDecisionTree />}
                 {topic.visualComponent === "StasAirwayVisual" && <StasAirwayVisual />}
                 {topic.visualComponent === "VpiPleuraVisual" && <VpiPleuraVisual />}
                 {topic.visualComponent === "LviVesselVisual" && <LviVesselVisual />}
