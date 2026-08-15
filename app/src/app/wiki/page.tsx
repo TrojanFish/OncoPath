@@ -7,6 +7,7 @@ import { WIKI_TOPICS, WIKI_CATEGORIES, type WikiCategory, type RiskLevel } from 
 import { WikiScenarioEntry } from "@/components/wiki/WikiScenarioEntry";
 import { WikiSearchBar } from "@/components/wiki/WikiSearchBar";
 import { WikiTopicCard } from "@/components/wiki/WikiTopicCard";
+import { WikiFloatingNav } from "@/components/wiki/WikiFloatingNav";
 import { GgoEvolutionSimulator } from "@/components/wiki/visuals/GgoEvolutionSimulator";
 import { FleischnerDecisionTree } from "@/components/wiki/visuals/FleischnerDecisionTree";
 import type { PatientProfile } from "@/lib/types";
@@ -94,6 +95,14 @@ export default function WikiPage() {
     return () => window.removeEventListener("hashchange", handleHashAndParams);
   }, []);
 
+  // Category item counts for tabs and floating nav
+  const categoryCounts = useMemo(() => {
+    return (Object.keys(WIKI_CATEGORIES) as WikiCategory[]).reduce((acc, key) => {
+      acc[key] = WIKI_TOPICS.filter((t) => t.category === key).length;
+      return acc;
+    }, {} as Record<WikiCategory, number>);
+  }, []);
+
   // Filter & Sort topics by Risk Priority (High > Moderate > Low > Safe)
   const filteredTopics = useMemo(() => {
     let list = [...WIKI_TOPICS];
@@ -151,7 +160,7 @@ export default function WikiPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col selection:bg-blue-500 selection:text-white">
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col selection:bg-blue-500 selection:text-white relative">
       {/* Top Floating Island Navigation Bar */}
       <SubpageNavbar />
 
@@ -214,7 +223,7 @@ export default function WikiPage() {
         </section>
 
         {/* Act 2: Interactive Visual Lab (CTR Simulator & Fleischner Decision Tree) */}
-        <section className="space-y-4 pt-4">
+        <section id="wiki-visual-lab-section" className="space-y-4 pt-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-1">
             <div>
               <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
@@ -377,6 +386,23 @@ export default function WikiPage() {
         </section>
 
       </main>
+
+      {/* Right Side Desktop Floating Elevator Navigation Dock (Scheme A) */}
+      <WikiFloatingNav
+        activeCategory={activeCategory}
+        onSelectCategory={(cat) => {
+          setActiveCategory(cat);
+          if (typeof window !== "undefined") {
+            if (cat === "all") {
+              window.history.replaceState(null, "", window.location.pathname);
+            } else {
+              window.history.replaceState(null, "", `#category-${cat}`);
+            }
+          }
+        }}
+        totalTopics={WIKI_TOPICS.length}
+        categoryCounts={categoryCounts}
+      />
     </div>
   );
 }
