@@ -1,0 +1,304 @@
+"use client";
+
+import { useState, useEffect, useMemo } from "react";
+import Link from "next/link";
+import SubpageNavbar from "@/components/SubpageNavbar";
+import { WIKI_TOPICS, WIKI_CATEGORIES, type WikiCategory, type RiskLevel } from "@/lib/wikiData";
+import { WikiScenarioEntry } from "@/components/wiki/WikiScenarioEntry";
+import { WikiSearchBar } from "@/components/wiki/WikiSearchBar";
+import { WikiTopicCard } from "@/components/wiki/WikiTopicCard";
+import { GgoEvolutionSimulator } from "@/components/wiki/visuals/GgoEvolutionSimulator";
+import { FleischnerDecisionTree } from "@/components/wiki/visuals/FleischnerDecisionTree";
+import type { PatientProfile } from "@/lib/types";
+
+export default function WikiPage() {
+  const [activeCategory, setActiveCategory] = useState<WikiCategory | "all">("all");
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [selectedRisk, setSelectedRisk] = useState<RiskLevel | "all">("all");
+  const [activeLabTool, setActiveLabTool] = useState<"ggo" | "fleischner" | "none">("ggo");
+  const [userProfile, setUserProfile] = useState<PatientProfile | null>(null);
+
+  // Load patient profile from localStorage if present
+  useEffect(() => {
+    try {
+      const savedProfile = localStorage.getItem("patient_profile");
+      if (savedProfile) {
+        setUserProfile(JSON.parse(savedProfile));
+      }
+    } catch (e) {
+      console.error("Failed to load local profile:", e);
+    }
+  }, []);
+
+  // Filter & Sort topics by Risk Priority (High > Moderate > Low > Safe)
+  const filteredTopics = useMemo(() => {
+    let list = [...WIKI_TOPICS];
+
+    // 1. Filter by category
+    if (activeCategory !== "all") {
+      list = list.filter((t) => t.category === activeCategory);
+    }
+
+    // 2. Filter by risk level
+    if (selectedRisk !== "all") {
+      list = list.filter((t) => t.riskLevel === selectedRisk);
+    }
+
+    // 3. Filter by search query (keywords + title + metaphor + clinicalTruth)
+    if (searchQuery.trim()) {
+      const q = searchQuery.trim().toLowerCase();
+      list = list.filter(
+        (t) =>
+          t.title.toLowerCase().includes(q) ||
+          (t.subtitle && t.subtitle.toLowerCase().includes(q)) ||
+          t.metaphor.toLowerCase().includes(q) ||
+          t.clinicalTruth.toLowerCase().includes(q) ||
+          t.searchKeywords.some((kw) => kw.toLowerCase().includes(q))
+      );
+    }
+
+    // 4. Sort strictly by priorityOrder descending (High-risk 100+ first)
+    return list.sort((a, b) => b.priorityOrder - a.priorityOrder);
+  }, [activeCategory, selectedRisk, searchQuery]);
+
+  // Handler for scenario entrance click
+  const handleSelectScenario = (cat: WikiCategory) => {
+    setActiveCategory(cat);
+    // Smooth scroll down to topic list
+    const el = document.getElementById("wiki-topics-section");
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  // Profile matching helper
+  const isTopicMatchedToProfile = (topicId: string) => {
+    if (!userProfile) return false;
+    if (topicId === "stas" && userProfile.stas === "positive") return true;
+    if (topicId === "vpi" && userProfile.vpi === "positive") return true;
+    if (topicId === "lvi" && userProfile.lvi === "positive") return true;
+    if (topicId === "ggo-evolution" && (userProfile.ctr > 0 || userProfile.morphology === "mixed_ggo")) return true;
+    if (topicId === "egfr-targeted" && userProfile.egfr === "positive") return true;
+    if (topicId === "iaslc-grade3" && userProfile.iaslcGrade === "3") return true;
+    return false;
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col selection:bg-blue-500 selection:text-white">
+      {/* Top Floating Island Navigation Bar */}
+      <SubpageNavbar />
+
+      {/* Main Page Container (Standard max-w-7xl) */}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 pt-24 pb-16 space-y-8">
+        
+        {/* Distinction Banner: Patient Wiki vs Academic Navigation (/resources) */}
+        <div className="bg-gradient-to-r from-blue-50 via-sky-50 to-indigo-50 border border-blue-200/80 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs shadow-xs">
+          <div className="flex items-start sm:items-center gap-2.5">
+            <span className="text-xl leading-none">💡</span>
+            <div>
+              <span className="font-black text-blue-950 text-sm">OncoWiki 循证视觉百科定位：</span>
+              <span className="text-slate-600 ml-1">面向患者与家属的生活化大白话破译、结节消恐与微观图解。</span>
+            </div>
+          </div>
+          <Link
+            href="/resources"
+            className="flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-blue-200 text-blue-700 font-bold hover:bg-blue-50 transition-colors cursor-pointer"
+          >
+            <span>📖 需要查阅临床医生专业指南？前往【学术导航】</span>
+            <span>➔</span>
+          </Link>
+        </div>
+
+        {/* Hero Section */}
+        <section className="text-center space-y-4 pt-2 pb-4">
+          <div className="inline-flex items-center gap-2 bg-white px-4 py-1.5 rounded-full text-xs font-bold text-sky-700 border border-sky-200 shadow-xs">
+            <span>📚 肺结节与肺癌全景循证视觉百科</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-sky-500" />
+            <span>按风险优先级排序</span>
+          </div>
+
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+            从<span className="text-blue-600">未知恐慌</span>走向<span className="text-teal-600">从容笃定</span>
+          </h1>
+
+          <p className="max-w-3xl mx-auto text-sm sm:text-base text-slate-600 leading-relaxed font-normal">
+            拒绝冰冷晦涩的医学术语与网络恐慌谣言。我们用<strong>生活化大白话比喻</strong>、<strong>高精 SVG 微观解剖图解</strong>与<strong>全球顶级循证试验数据</strong>，为您逐一破译病理指标，构筑坚不可摧的抗癌信心。
+          </p>
+
+          {/* Profile Matched Notification Bar if profile exists */}
+          {userProfile && (
+            <div className="max-w-2xl mx-auto bg-teal-50/90 border border-teal-300 p-3.5 rounded-2xl text-xs text-teal-950 flex items-center justify-between gap-3 shadow-xs">
+              <div className="flex items-center gap-2 text-left">
+                <span className="text-base">👤</span>
+                <span>
+                  已识别到您的个人数字档案（<strong>{userProfile.stage}期 · {userProfile.gender === "female" ? "女性" : "男性"} · {userProfile.age}岁</strong>），已为您智能置顶关联词条。
+                </span>
+              </div>
+              <Link href="/profile" className="flex-shrink-0 font-bold text-teal-700 hover:underline">
+                管理档案 ➔
+              </Link>
+            </div>
+          )}
+        </section>
+
+        {/* Act 1: Emotion-First Scenario Entrance Cards */}
+        <section className="pt-1">
+          <WikiScenarioEntry onSelectCategory={handleSelectScenario} />
+        </section>
+
+        {/* Act 2: Interactive Visual Lab (CTR Simulator & Fleischner Decision Tree) */}
+        <section className="space-y-4 pt-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-1">
+            <div>
+              <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+                <span>🎛️ 交互式视觉实验室</span>
+                <span className="text-xs font-normal text-slate-400">（动态交互与决策计算）</span>
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+                亲自动手调节参数，直观理解影像浸润演变与科学随访周期
+              </p>
+            </div>
+
+            {/* Lab Tool Tab Switcher */}
+            <div className="inline-flex bg-slate-200/80 p-1 rounded-2xl text-xs font-bold self-start sm:self-auto">
+              <button
+                onClick={() => setActiveLabTool("ggo")}
+                className={`px-3.5 py-1.5 rounded-xl transition-all cursor-pointer ${
+                  activeLabTool === "ggo"
+                    ? "bg-white text-blue-700 shadow-xs"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                🫁 磨玻璃 CTR 模拟器
+              </button>
+              <button
+                onClick={() => setActiveLabTool("fleischner")}
+                className={`px-3.5 py-1.5 rounded-xl transition-all cursor-pointer ${
+                  activeLabTool === "fleischner"
+                    ? "bg-white text-emerald-700 shadow-xs"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                🧭 结节随访决策树
+              </button>
+            </div>
+          </div>
+
+          {/* Render Selected Lab Component */}
+          {activeLabTool === "ggo" && <GgoEvolutionSimulator />}
+          {activeLabTool === "fleischner" && <FleischnerDecisionTree />}
+        </section>
+
+        {/* Act 3: Wiki Encyclopedia Topic Matrix */}
+        <section id="wiki-topics-section" className="space-y-6 pt-6">
+          {/* Category Tabs */}
+          <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 pb-4">
+            <button
+              onClick={() => setActiveCategory("all")}
+              className={`px-4 py-2 rounded-2xl text-xs sm:text-sm font-black transition-all cursor-pointer ${
+                activeCategory === "all"
+                  ? "bg-blue-600 text-white shadow-sm"
+                  : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-100"
+              }`}
+            >
+              🌐 全部专区 ({WIKI_TOPICS.length})
+            </button>
+
+            {(Object.keys(WIKI_CATEGORIES) as WikiCategory[]).map((catKey) => {
+              const cat = WIKI_CATEGORIES[catKey];
+              const count = WIKI_TOPICS.filter((t) => t.category === catKey).length;
+              return (
+                <button
+                  key={catKey}
+                  onClick={() => setActiveCategory(catKey)}
+                  className={`px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center gap-1.5 border ${
+                    activeCategory === catKey
+                      ? "bg-slate-900 text-white border-slate-900 shadow-sm"
+                      : "bg-white border-slate-200 text-slate-700 hover:bg-slate-100"
+                  }`}
+                >
+                  <span>{cat.icon}</span>
+                  <span>{cat.label}</span>
+                  <span className="text-[11px] opacity-70 font-mono">({count})</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Search & Risk Filter Bar */}
+          <WikiSearchBar
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            selectedRisk={selectedRisk}
+            onRiskChange={setSelectedRisk}
+            totalCount={WIKI_TOPICS.length}
+            filteredCount={filteredTopics.length}
+          />
+
+          {/* Topics Grid (2 columns on desktop, 1 on mobile) */}
+          {filteredTopics.length > 0 ? (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {filteredTopics.map((topic) => (
+                <WikiTopicCard
+                  key={topic.id}
+                  topic={topic}
+                  isMatchedProfile={isTopicMatchedToProfile(topic.id)}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="bg-white rounded-3xl p-12 text-center border border-slate-200 space-y-3">
+              <div className="text-4xl">🔍</div>
+              <h3 className="text-base font-bold text-slate-800">未找到与 &quot;{searchQuery}&quot; 相关的破译词条</h3>
+              <p className="text-xs text-slate-400">
+                请尝试更换关键词，或点击上方「全部」重置筛选条件
+              </p>
+              <button
+                onClick={() => {
+                  setSearchQuery("");
+                  setActiveCategory("all");
+                  setSelectedRisk("all");
+                }}
+                className="btn-primary px-4 py-2 rounded-xl text-xs font-bold cursor-pointer"
+              >
+                重置全部筛选
+              </button>
+            </div>
+          )}
+        </section>
+
+        {/* Act 4: Bottom Psychological Empowerment Footer Banner */}
+        <section className="mt-12 bg-gradient-to-br from-blue-900 via-slate-900 to-indigo-950 text-white rounded-3xl p-6 sm:p-10 shadow-xl relative overflow-hidden">
+          <div className="relative z-10 max-w-3xl space-y-4">
+            <div className="inline-flex items-center gap-2 bg-blue-500/20 px-3 py-1 rounded-full text-xs font-bold text-blue-300 border border-blue-400/30">
+              <span>🌟 给每一位勇敢前行的抗癌伙伴</span>
+            </div>
+            <h3 className="text-2xl sm:text-3xl font-black tracking-tight leading-snug">
+              数据是群体的历史 · 而奇迹由您亲自书写
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+              任何病理报告上的百分比和危险度，都只是大样本统计学上的参考值，并不代表对您个人的终局裁决。在现代精准靶向治疗、微创外科与免疫治疗日新月异的今天，保持规律随访、加强自身体质与保持坚定乐观的心态，永远是您最强大的底气！
+            </p>
+            <div className="pt-2 flex flex-wrap items-center gap-3">
+              <Link
+                href="/profile"
+                className="btn-primary px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold shadow-md inline-flex items-center gap-1.5"
+              >
+                <span>🔬 前往个人数字档案</span>
+                <span>➔</span>
+              </Link>
+              <Link
+                href="/knowledge"
+                className="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-white/10 hover:bg-white/20 border border-white/20 transition-colors inline-flex items-center gap-1.5"
+              >
+                <span>🗺️ 查看 4D 知识图谱</span>
+                <span>➔</span>
+              </Link>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  );
+}

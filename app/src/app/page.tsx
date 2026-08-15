@@ -115,7 +115,7 @@ export default function HomePage() {
           {/* Desktop Nav Links */}
           <div className="hidden md:flex items-center gap-7">
             <NavLink href="#workflow">工作流</NavLink>
-            <NavLink href="#difference">循证优势</NavLink>
+            <NavLink href="/wiki">循证百科</NavLink>
             <NavLink href="#studies">研究库</NavLink>
             <NavLink href="#knowledge">知识图谱</NavLink>
             <NavLink href="/resources">学术导航</NavLink>
@@ -188,6 +188,14 @@ export default function HomePage() {
                   <span>3步工作流</span>
                 </Link>
                 <Link
+                  href="/wiki"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-3 px-3.5 py-3 rounded-2xl text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-all"
+                >
+                  <span className="text-lg">💡</span>
+                  <span>循证视觉百科 (OncoWiki)</span>
+                </Link>
+                <Link
                   href="/knowledge"
                   onClick={() => setMobileMenuOpen(false)}
                   className="flex items-center gap-3 px-3.5 py-3 rounded-2xl text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-all"
@@ -209,7 +217,7 @@ export default function HomePage() {
                   className="flex items-center gap-3 px-3.5 py-3 rounded-2xl text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-all"
                 >
                   <span className="text-lg">📖</span>
-                  <span>学术导航与防坑</span>
+                  <span>学术导航 (临床指南)</span>
                 </Link>
                 <Link
                   href="/profile"
@@ -544,6 +552,69 @@ export default function HomePage() {
 
           <div className="mt-14 bg-white rounded-3xl p-2 border border-slate-200 shadow-xl overflow-hidden">
             <KnowledgeMapPreview />
+          </div>
+        </div>
+      </section>
+
+      {/* Act 4.5: OncoWiki Patient Evidence-Based Visual Encyclopedia Section */}
+      <section id="wiki-showcase" className="py-20 px-6 bg-gradient-to-b from-white via-sky-50/40 to-slate-50 border-b border-slate-100">
+        <div className="max-w-7xl mx-auto">
+          <div className="bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950 rounded-3xl p-8 sm:p-12 text-white shadow-2xl relative overflow-hidden">
+            <div className="grid lg:grid-cols-12 gap-8 items-center relative z-10">
+              <div className="lg:col-span-7 space-y-4">
+                <div className="inline-flex items-center gap-2 bg-blue-500/20 px-3.5 py-1.5 rounded-full text-xs font-bold text-blue-300 border border-blue-400/30">
+                  <span>💡 专属患者视觉百科 · 全新上线</span>
+                </div>
+                <h3 className="text-2xl sm:text-4xl font-black tracking-tight leading-tight">
+                  看不懂病理报告与结节指标？<br />
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-teal-300">
+                    OncoWiki 全景循证视觉百科为你破译
+                  </span>
+                </h3>
+                <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
+                  涵盖<strong>磨玻璃结节演变模拟器</strong>、<strong>Fleischner 随访决策树</strong>与 <strong>STAS / VPI / LVI 高危指标生活化大白话破译</strong>。拒绝网络谣言与恐慌，用直观微观图解与全球顶级循证数据构筑抗癌定力！
+                </p>
+                <div className="pt-3 flex flex-wrap items-center gap-3.5">
+                  <Link
+                    href="/wiki"
+                    className="btn-primary px-6 py-3 rounded-xl text-sm font-bold shadow-lg inline-flex items-center gap-2"
+                  >
+                    <span>💡 立即探索 OncoWiki 百科</span>
+                    <span>➔</span>
+                  </Link>
+                  <Link
+                    href="/resources"
+                    className="px-5 py-3 rounded-xl text-sm font-bold bg-white/10 hover:bg-white/20 border border-white/20 transition-colors inline-flex items-center gap-2"
+                  >
+                    <span>📖 查阅医生专业指南 (学术导航)</span>
+                  </Link>
+                </div>
+              </div>
+
+              {/* Right Mini Cards Grid */}
+              <div className="lg:col-span-5 grid grid-cols-2 gap-3">
+                <div className="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/15 space-y-1">
+                  <div className="text-2xl">🫁</div>
+                  <div className="text-xs font-bold text-white">磨玻璃 CTR 模拟</div>
+                  <div className="text-[10px] text-slate-300">拖动滑块直观查看实性浸润演变</div>
+                </div>
+                <div className="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/15 space-y-1">
+                  <div className="text-2xl">🧭</div>
+                  <div className="text-xs font-bold text-white">随访决策树</div>
+                  <div className="text-[10px] text-slate-300">Fleischner 权威随访时间表</div>
+                </div>
+                <div className="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/15 space-y-1">
+                  <div className="text-2xl">🌬️</div>
+                  <div className="text-xs font-bold text-white">STAS 气道播散</div>
+                  <div className="text-[10px] text-slate-300">蒲公英隐喻与安全切缘解析</div>
+                </div>
+                <div className="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/15 space-y-1">
+                  <div className="text-2xl">🎯</div>
+                  <div className="text-xs font-bold text-white">EGFR 靶向阻断</div>
+                  <div className="text-[10px] text-slate-300">ADAURA 83% 复发风险降低</div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>

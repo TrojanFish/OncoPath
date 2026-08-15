@@ -20,6 +20,7 @@ export function LogoMark() {
 
 const NAV_LINKS = [
   { label: "首页", href: "/", icon: "🏠" },
+  { label: "循证百科", href: "/wiki", icon: "💡" },
   { label: "知识图谱", href: "/knowledge", icon: "🗺️" },
   { label: "国际研究库", href: "/studies", icon: "📚" },
   { label: "学术导航", href: "/resources", icon: "📖" },
