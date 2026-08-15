@@ -55,10 +55,42 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
       const reader = new FileReader();
       reader.onloadend = () => {
         const result = reader.result as string;
-        const [prefix, base64] = result.split(',');
-        const mimeType = prefix.match(/:(.*?);/)?.[1] || "image/jpeg";
-        setImageBase64(base64);
-        setImageMimeType(mimeType);
+        
+        // Client-side image scaling to ensure smooth mobile upload & optimal Gemini OCR resolution
+        const img = new Image();
+        img.onload = () => {
+          const maxDim = 1600;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > maxDim || height > maxDim) {
+            if (width > height) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            } else {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+
+          const canvas = document.createElement("canvas");
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            const compressedDataUrl = canvas.toDataURL("image/jpeg", 0.88);
+            const base64 = compressedDataUrl.split(',')[1];
+            setImageBase64(base64);
+            setImageMimeType("image/jpeg");
+          } else {
+            const [prefix, base64] = result.split(',');
+            const mimeType = prefix.match(/:(.*?);/)?.[1] || "image/jpeg";
+            setImageBase64(base64);
+            setImageMimeType(mimeType);
+          }
+        };
+        img.src = result;
       };
       reader.readAsDataURL(file);
     }
@@ -372,8 +404,7 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
         <div className="border-2 border-dashed border-slate-200 hover:border-blue-400 rounded-2xl p-5 flex flex-col items-center justify-center bg-slate-50/50 hover:bg-blue-50/20 transition-all relative cursor-pointer">
           <input 
             type="file" 
-            accept="image/*" 
-            capture="environment" 
+            accept="image/jpeg,image/png,image/webp,image/jpg,image/heic,image/heif,image/*" 
             onChange={handleImageUpload} 
             ref={fileInputRef}
             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
@@ -392,8 +423,8 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
           ) : (
             <div className="text-center py-5 pointer-events-none">
               <div className="text-3xl mb-2">📷</div>
-              <div className="text-sm font-bold text-slate-700">点击拍照或上传病理/影像报告图片</div>
-              <div className="text-xs text-slate-400 mt-1">支持 JPG, PNG, WebP 格式</div>
+              <div className="text-sm font-bold text-slate-700">点击从相册选择或拍照上传病理报告</div>
+              <div className="text-xs text-slate-400 mt-1">支持手机相册图片、JPG、PNG、WebP、HEIC 格式</div>
             </div>
           )}
         </div>
