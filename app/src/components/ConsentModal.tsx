@@ -100,7 +100,15 @@ export default function ConsentModal({ onConsentAccepted }: ConsentModalProps) {
               className="w-4 h-4 rounded text-accent-blue focus:ring-accent-blue border-slate-300 transition-colors cursor-pointer"
             />
             <span className="text-xs text-slate-700 font-medium">
-              我已完整阅读并知晓上述医学免责条款，确认以知情参考为目的使用本系统
+              我已完整阅读并同意
+              <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-blue-600 font-bold underline hover:text-blue-800 mx-1">
+                《用户服务协议与医疗免责声明》
+              </a>
+              及
+              <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-blue-600 font-bold underline hover:text-blue-800 mx-1">
+                《隐私政策》
+              </a>
+              ，确认以知情参考为目的使用本系统
             </span>
           </label>
 

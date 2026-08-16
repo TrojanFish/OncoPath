@@ -593,7 +593,22 @@ export default function HomePage() {
       {/* Footer */}
       <footer className="bg-white border-t border-slate-200 py-10 sm:py-12 px-3.5 sm:px-6">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
-          <LogoMark />
+          <div className="flex flex-col items-center md:items-start gap-2">
+            <LogoMark />
+            <div className="flex items-center gap-4 text-xs text-slate-500 mt-1">
+              <Link href="/terms" className="hover:text-blue-600 font-medium transition-colors">
+                服务协议与免责声明
+              </Link>
+              <span>·</span>
+              <Link href="/privacy" className="hover:text-blue-600 font-medium transition-colors">
+                隐私政策 (PIPL)
+              </Link>
+              <span>·</span>
+              <a href="/api/health" target="_blank" rel="noopener noreferrer" className="hover:text-teal-600 font-medium transition-colors">
+                系统探针
+              </a>
+            </div>
+          </div>
           <div className="text-xs text-slate-500 text-center md:text-right space-y-1">
             <div>© 2026 OncoPath · 严格同行评审肺癌循证知识与决策导航系统</div>
             <div>所有数据均可追溯至 JTO、Lancet、JCO、Chest 等国际顶级学术期刊。</div>

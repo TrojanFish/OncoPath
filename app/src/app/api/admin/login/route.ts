@@ -1,8 +1,19 @@
 import { NextResponse } from 'next/server';
 import { validateAdminCredentials, generateAdminToken, verifyAdminToken } from '@/lib/adminAuth';
+import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
 
 export async function POST(request: Request) {
   try {
+    // Brute-force protection: Max 5 login attempts per 15 minutes per IP
+    const clientIp = getClientIp(request);
+    const rateLimit = checkRateLimit(`admin_login_${clientIp}`, { intervalMs: 15 * 60 * 1000, maxRequests: 5 });
+    if (!rateLimit.success) {
+      return NextResponse.json(
+        { success: false, error: "登录尝试次数过多，IP 已被临时锁定 15 分钟。" },
+        { status: 429, headers: { 'Retry-After': '900' } }
+      );
+    }
+
     const { username, password } = await request.json();
 
     if (!username || !password) {

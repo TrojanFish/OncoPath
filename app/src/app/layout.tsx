@@ -1,19 +1,11 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Noto_Sans_SC } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
   display: "swap",
-});
-
-const notoSansSC = Noto_Sans_SC({
-  subsets: ["latin"],
-  variable: "--font-noto",
-  weight: ["300", "400", "500", "600", "700"],
-  display: "swap",
-  preload: false,
 });
 
 export const viewport: Viewport = {
@@ -69,7 +61,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="zh-CN" className={`${inter.variable} ${notoSansSC.variable}`}>
+    <html lang="zh-CN" className={inter.variable}>
       <head>
         <link rel="icon" href="/logo.png" type="image/png" sizes="any" />
         <link rel="apple-touch-icon" href="/logo.png" />

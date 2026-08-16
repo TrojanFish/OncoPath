@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { ai } from '@/lib/gemini';
+import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
+import { sanitizePatientProfile } from '@/lib/privacy';
 
 const POST_OP_PROMPT = `
 你是一位国际顶级胸部肿瘤专科主治医生与循证医学专家。
@@ -99,11 +101,24 @@ const PRE_OP_CT_PROMPT = `
 
 export async function POST(request: Request) {
   try {
-    const profile = await request.json();
+    // 1. Production Rate Limiting (5 requests per minute per IP for high-cost LLM calls)
+    const clientIp = getClientIp(request);
+    const rateLimit = checkRateLimit(`gen_report_${clientIp}`, { intervalMs: 60 * 1000, maxRequests: 5 });
+    if (!rateLimit.success) {
+      return NextResponse.json(
+        { success: false, error: "您在短时间内请求过于频繁，请稍候 1 分钟后重试。" },
+        { status: 429, headers: { 'Retry-After': '60' } }
+      );
+    }
+
+    const rawProfile = await request.json();
 
     if (!process.env.GEMINI_API_KEY) {
       return NextResponse.json({ success: false, error: "系统未配置 GEMINI_API_KEY" }, { status: 500 });
     }
+
+    // 2. Patient Privacy & PII Sanitization (HIPAA / PIPL compliance)
+    const profile = sanitizePatientProfile(rawProfile);
 
     const isCtReport = profile.reportType === "ct_imaging" || profile.currentStage === "evaluation" || profile.currentStage === "discovery";
 
