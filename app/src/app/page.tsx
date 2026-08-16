@@ -121,7 +121,7 @@ export default function HomePage() {
           <FloatingParticles />
         </div>
 
-        <div className="relative z-10 max-w-7xl mx-auto px-6 w-full">
+        <div className="relative z-10 max-w-7xl mx-auto px-3.5 sm:px-6 w-full">
           <div className="grid lg:grid-cols-12 gap-12 lg:gap-8 items-center">
             
             {/* Left Column: Headline, Trust Badge & CTAs */}
@@ -258,7 +258,7 @@ export default function HomePage() {
       <StatsBanner />
 
       {/* Act 2: 3-Step Clean Workflow & Core Difference vs General AI */}
-      <section id="workflow" className="py-24 px-6 bg-white border-b border-slate-100">
+      <section id="workflow" className="py-16 sm:py-24 px-3.5 sm:px-6 bg-white border-b border-slate-100">
         <div className="max-w-7xl mx-auto">
           <SectionHeader
             badge="循证工作流"
@@ -363,7 +363,7 @@ export default function HomePage() {
       </section>
 
       {/* Act 3: Peer-Reviewed International Studies Library */}
-      <section id="studies" className="py-24 px-6 bg-slate-50">
+      <section id="studies" className="py-16 sm:py-24 px-3.5 sm:px-6 bg-slate-50">
         <div className="max-w-7xl mx-auto">
           <SectionHeader
             badge="权威研究库"
@@ -390,7 +390,7 @@ export default function HomePage() {
       </section>
 
       {/* Act 4: 4D Knowledge Graph Sandbox */}
-      <section id="knowledge" className="py-24 px-6 bg-white border-y border-slate-100">
+      <section id="knowledge" className="py-16 sm:py-24 px-3.5 sm:px-6 bg-white border-y border-slate-100">
         <div className="max-w-7xl mx-auto">
           <SectionHeader
             badge="动态推演沙盘"
@@ -405,7 +405,7 @@ export default function HomePage() {
       </section>
 
       {/* Act 4.5: OncoWiki Patient Evidence-Based Visual Encyclopedia Section */}
-      <section id="wiki-showcase" className="py-24 px-6 bg-gradient-to-b from-white via-sky-50/25 to-slate-50 border-b border-slate-100">
+      <section id="wiki-showcase" className="py-16 sm:py-24 px-3.5 sm:px-6 bg-gradient-to-b from-white via-sky-50/25 to-slate-50 border-b border-slate-100">
         <div className="max-w-7xl mx-auto space-y-14">
           <SectionHeader
             badge="循证视觉百科 · OncoWiki"
@@ -547,7 +547,7 @@ export default function HomePage() {
       </section>
 
       {/* Act 5: Frequently Asked Questions & Final Conversion CTA */}
-      <section className="py-24 px-6 bg-slate-50">
+      <section className="py-16 sm:py-24 px-3.5 sm:px-6 bg-slate-50">
         <div className="max-w-4xl mx-auto">
           <SectionHeader
             badge="患者与家属答疑"
@@ -571,7 +571,7 @@ export default function HomePage() {
           </div>
 
           {/* Final Action Card */}
-          <div className="mt-16 bg-gradient-to-r from-blue-600 to-teal-600 rounded-3xl p-8 sm:p-12 text-white text-center shadow-xl space-y-6">
+          <div className="mt-16 bg-gradient-to-r from-blue-600 to-teal-600 rounded-3xl p-6 sm:p-12 text-white text-center shadow-xl space-y-6">
             <h3 className="text-2xl sm:text-4xl font-black tracking-tight">
               准备好理解您的病理档案了吗？
             </h3>
@@ -591,7 +591,7 @@ export default function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-slate-200 py-12 px-6">
+      <footer className="bg-white border-t border-slate-200 py-10 sm:py-12 px-3.5 sm:px-6">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <LogoMark />
           <div className="text-xs text-slate-500 text-center md:text-right space-y-1">

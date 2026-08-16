@@ -64,9 +64,9 @@ export default function PatientDashboard() {
 
   if (showUploader || !profile) {
     return (
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-4 sm:pb-6">
+      <div className="max-w-5xl mx-auto px-2.5 sm:px-6 lg:px-8 pb-4 sm:pb-6">
         <ConsentModal />
-        <div className="text-center mb-8">
+        <div className="text-center mb-6 sm:mb-8">
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">建立个人医学档案</h1>
           <p className="text-slate-500 text-sm mt-1.5">将您的病理与影像报告交给 AI，自动建立结构化实性成分与循证模型</p>
         </div>
@@ -91,22 +91,22 @@ export default function PatientDashboard() {
     : '混合磨玻璃结节 (mGGO)';
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-4 sm:pb-6">
+    <div className="max-w-5xl mx-auto px-2.5 sm:px-6 lg:px-8 pb-4 sm:pb-6">
       <ConsentModal />
       
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-6 sm:mb-8">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
             患者临床数字档案 (Patient Profile)
           </h1>
-          <p className="text-slate-500 text-sm mt-1">
+          <p className="text-slate-500 text-xs sm:text-sm mt-1">
             动态决策状态机 · 基于 AJCC 8th/9th 实性成分与前瞻性临床队列
           </p>
         </div>
         <button 
           onClick={() => setShowUploader(true)}
-          className="self-start sm:self-center px-4 py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs border border-slate-300 shadow-xs transition-all cursor-pointer flex items-center gap-1.5 group"
+          className="self-start sm:self-center px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs border border-slate-300 shadow-xs transition-all cursor-pointer flex items-center gap-1.5 group"
         >
           <svg className="w-3.5 h-3.5 text-slate-500 transition-transform group-hover:scale-110" viewBox="0 0 24 24" fill="none">
             <path d="M4 20h4l10.5-10.5a2.121 2.121 0 00-3-3L5 17v3z" fill="currentColor" fillOpacity="0.22" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
@@ -121,10 +121,10 @@ export default function PatientDashboard() {
         psychologicalState={profile.psychologicalState} 
       />
 
-      <div className="grid md:grid-cols-3 gap-6 mb-6">
+      <div className="grid md:grid-cols-3 gap-4 sm:gap-6 mb-6">
         
         {/* Core Clinical Profile Card (Adaptive CT & Pathology) */}
-        <div className="md:col-span-2 bg-white rounded-3xl p-6 sm:p-7 border border-slate-200 shadow-sm">
+        <div className="md:col-span-2 bg-white rounded-3xl p-3.5 sm:p-6 md:p-7 border border-slate-200 shadow-sm">
           <div className="flex items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100">
             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
               <span>{profile.currentStage === 'evaluation' || profile.currentStage === 'discovery' ? '🩻 CT IMAGING DIAGNOSIS · 影像诊断画像' : '🔬 CLINICAL DIAGNOSIS · 术后病理画像'}</span>
@@ -255,7 +255,7 @@ export default function PatientDashboard() {
         </div>
 
         {/* Decision Engine Recommendation Card */}
-        <div className="bg-gradient-to-b from-blue-50/80 via-white to-white rounded-3xl p-6 sm:p-7 border border-blue-100 shadow-sm flex flex-col justify-between">
+        <div className="bg-gradient-to-b from-blue-50/80 via-white to-white rounded-3xl p-3.5 sm:p-6 md:p-7 border border-blue-100 shadow-sm flex flex-col justify-between">
           <div>
             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">
               DECISION ENGINE · {profile.currentStage === 'evaluation' || profile.currentStage === 'discovery' ? '术前决策引擎' : '术后决策引擎'}

@@ -101,7 +101,7 @@ export function WikiTopicCard({ topic, isMatchedProfile, isHighlighted }: WikiTo
   return (
     <div
       id={`topic-${topic.id}`}
-      className={`bg-white rounded-3xl p-5 sm:p-7 border transition-all duration-500 flex flex-col justify-between relative ${
+      className={`bg-white rounded-3xl p-3.5 sm:p-6 border transition-all duration-500 flex flex-col justify-between relative ${
         isHighlighted
           ? "border-blue-500 ring-4 ring-blue-500/40 shadow-xl bg-gradient-to-b from-blue-50/40 via-white to-white scale-[1.01]"
           : isMatchedProfile

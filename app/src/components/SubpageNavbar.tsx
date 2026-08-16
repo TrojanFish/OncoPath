@@ -33,8 +33,8 @@ export default function SubpageNavbar() {
   return (
     <>
       {/* Floating Island Navbar */}
-      <div className="fixed top-4 left-0 right-0 z-50 px-4 sm:px-6 pointer-events-none">
-        <nav className="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-7 py-3 rounded-2xl sm:rounded-full bg-white/90 backdrop-blur-md border border-slate-200/80 shadow-lg shadow-slate-900/5 transition-all duration-300 pointer-events-auto hover:border-slate-300">
+      <div className="fixed top-2.5 sm:top-4 left-0 right-0 z-50 px-2 sm:px-6 pointer-events-none print:hidden">
+        <nav className="max-w-5xl mx-auto flex items-center justify-between px-3 sm:px-6 py-2 sm:py-2.5 rounded-2xl sm:rounded-full bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-lg shadow-slate-900/5 transition-all pointer-events-auto hover:border-slate-300">
           <Link href="/" className="flex-shrink-0 hover:opacity-85 transition-opacity">
             <LogoMark />
           </Link>
@@ -145,17 +145,6 @@ export default function SubpageNavbar() {
                   <span className="text-lg">📋</span>
                   <span>我的癌症档案</span>
                 </Link>
-
-                <div className="pt-2 border-t border-slate-100 mt-2">
-                  <Link
-                    href="/#workflow"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs font-semibold text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all"
-                  >
-                    <span className="text-base">⚡</span>
-                    <span>了解 3 步解析工作流</span>
-                  </Link>
-                </div>
               </div>
 
               {/* Main Action CTA */}

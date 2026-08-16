@@ -55,7 +55,7 @@ export default function JourneyMap({
   const psychIndex = getStageIndex(psychStages, psychologicalState, false);
 
   return (
-    <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200 shadow-sm mb-8">
+    <div className="bg-white rounded-3xl p-3.5 sm:p-6 md:p-7 border border-slate-200 shadow-sm mb-6 sm:mb-8">
       
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6 pb-4 border-b border-slate-100">

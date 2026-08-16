@@ -165,7 +165,7 @@ export default function WikiPage() {
       <SubpageNavbar />
 
       {/* Main Page Container (Standard max-w-7xl) */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 pt-24 pb-16 space-y-8">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-2.5 sm:px-6 pt-24 pb-16 space-y-6 sm:space-y-8">
         
         {/* Distinction Banner: Patient Wiki vs Academic Navigation (/resources) */}
         <div className="bg-gradient-to-r from-blue-50 via-sky-50 to-indigo-50 border border-blue-200/80 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs shadow-xs">

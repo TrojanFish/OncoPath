@@ -161,9 +161,48 @@ export default function EvidenceReportPage() {
     window.print();
   };
 
-  const handleCopyChecklist = () => {
-    // Extract Section 3 (Consultation Checklist) from markdown text
-    const section3Match = reportMarkdown.match(/##?\s*3[\s\S]*?(?=##?\s*4|$)/);
+  async function copyTextSafe(text: string): Promise<boolean> {
+    if (typeof window === "undefined") return false;
+    if (navigator?.clipboard?.writeText) {
+      try {
+        await navigator.clipboard.writeText(text);
+        return true;
+      } catch (e) {
+        console.warn("navigator.clipboard failed, falling back to execCommand", e);
+      }
+    }
+
+    // Fallback for non-HTTPS / iOS Safari / in-app WebViews
+    return new Promise((resolve) => {
+      try {
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-9999px";
+        textArea.style.top = "-9999px";
+        textArea.setAttribute("readonly", "");
+        document.body.appendChild(textArea);
+        textArea.select();
+        textArea.setSelectionRange(0, 99999);
+        const successful = document.execCommand("copy");
+        document.body.removeChild(textArea);
+        resolve(successful);
+      } catch (err) {
+        console.error("Fallback copy failed:", err);
+        resolve(false);
+      }
+    });
+  }
+
+  const handleCopyChecklist = async () => {
+    if (!reportMarkdown) return;
+
+    // Comprehensive regex extraction for Section 3 (Consultation checklist)
+    const section3Match = 
+      reportMarkdown.match(/##?\s*(?:3[\.\s、]|三[\.\s、]|【向[^】]*问诊清单[^】]*】)[\s\S]*?(?=##?\s*(?:4[\.\s、]|四[\.\s、]|$))/i) ||
+      reportMarkdown.match(/##?\s*3[\s\S]*?(?=##?\s*4|$)/) ||
+      reportMarkdown.match(/【向[^】]*问诊清单】[\s\S]*?(?=##?\s*\d|$)/);
+
     let textToCopy = "";
     if (section3Match) {
       textToCopy = section3Match[0].trim();
@@ -171,10 +210,13 @@ export default function EvidenceReportPage() {
       textToCopy = reportMarkdown;
     }
 
-    navigator.clipboard.writeText(textToCopy).then(() => {
+    const success = await copyTextSafe(textToCopy);
+    if (success) {
       setCopied(true);
       setTimeout(() => setCopied(false), 3000);
-    });
+    } else {
+      alert("复制遇到浏览器限制，请长按文本手动选择复制。");
+    }
   };
 
   return (
@@ -189,8 +231,8 @@ export default function EvidenceReportPage() {
       )}
 
       {/* Floating Island Navigation Header */}
-      <div className="fixed top-2.5 sm:top-4 left-0 right-0 z-50 px-2.5 sm:px-6 pointer-events-none print:hidden">
-        <nav className="max-w-5xl mx-auto flex items-center justify-between px-3 sm:px-6 py-2 sm:py-3 rounded-2xl sm:rounded-full bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-lg shadow-slate-900/5 transition-all pointer-events-auto gap-2">
+      <div className="fixed top-2.5 sm:top-4 left-0 right-0 z-50 px-2 sm:px-6 pointer-events-none print:hidden">
+        <nav className="max-w-5xl mx-auto flex items-center justify-between px-2.5 sm:px-6 py-2 sm:py-2.5 rounded-2xl sm:rounded-full bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-lg shadow-slate-900/5 transition-all pointer-events-auto gap-2">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <Link 
               href="/profile" 
@@ -202,7 +244,7 @@ export default function EvidenceReportPage() {
             <div className="w-px h-3.5 sm:h-4 bg-slate-200 flex-shrink-0"></div>
             <div className="font-bold text-slate-900 text-xs sm:text-sm flex items-center gap-1.5 min-w-0 whitespace-nowrap truncate">
               <span className={`w-2 h-2 rounded-full flex-shrink-0 ${isGenerating ? 'bg-amber-500 animate-ping' : 'bg-accent-teal animate-pulse'}`} />
-              <span className="sm:hidden truncate">循证解读报告</span>
+              <span className="sm:hidden truncate">循证报告</span>
               <span className="hidden sm:inline">专属深度循证解读报告</span>
             </div>
           </div>
@@ -253,25 +295,25 @@ export default function EvidenceReportPage() {
         </nav>
       </div>
 
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 md:pt-32 print:pt-0 print:px-0">
+      <div className="max-w-5xl mx-auto px-2.5 sm:px-6 lg:px-8 pt-24 sm:pt-28 md:pt-32 print:pt-0 print:px-0">
         
         {/* Smart Cache Notification Banner (Clean & Informative) */}
         {isLoadedFromCache && !isGenerating && (
-          <div className="mb-5 p-3.5 px-4 rounded-2xl bg-gradient-to-r from-sky-50 via-blue-50/70 to-teal-50/50 border border-sky-200/80 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-slate-600 print:hidden">
-            <div className="flex items-center gap-2.5">
+          <div className="mb-4 p-3 sm:p-3.5 px-3.5 sm:px-4 rounded-2xl bg-gradient-to-r from-sky-50 via-blue-50/70 to-teal-50/50 border border-sky-200/80 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs text-slate-600 print:hidden">
+            <div className="flex items-center gap-2">
               <svg className="w-4 h-4 text-sky-600 flex-shrink-0" viewBox="0 0 24 24" fill="none">
                 <path d="M7 3h7l5 5v13a1 1 0 01-1 1H7a1 1 0 01-1-1V4a1 1 0 011-1z" fill="currentColor" fillOpacity="0.2" stroke="currentColor" strokeWidth="1.75" />
                 <path d="M14 3v5h5M9 13h6M9 17h4" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
               </svg>
               <span>
                 已载入您的专属深度循证解读报告
-                {cachedTime && <span className="font-semibold text-sky-800 ml-1.5 bg-sky-100/80 px-2 py-0.5 rounded-md">生成于 {cachedTime}</span>}
+                {cachedTime && <span className="font-semibold text-sky-800 ml-1 bg-sky-100/80 px-1.5 py-0.5 rounded-md">生成于 {cachedTime}</span>}
               </span>
             </div>
 
             <Link
               href="/profile"
-              className="self-end sm:self-center flex items-center gap-1 text-[11px] font-bold text-sky-700 hover:text-sky-900 bg-white px-3 py-1 rounded-lg border border-sky-200 shadow-2xs hover:bg-sky-50 transition-all cursor-pointer"
+              className="self-end sm:self-center flex items-center gap-1 text-[11px] font-bold text-sky-700 hover:text-sky-900 bg-white px-2.5 py-1 rounded-lg border border-sky-200 shadow-2xs hover:bg-sky-50 transition-all cursor-pointer"
             >
               <span>若指标有更新，前往档案修改</span>
             </Link>
@@ -280,26 +322,26 @@ export default function EvidenceReportPage() {
 
         {/* Patient Clinical Overview Hero Card */}
         {profile && (
-          <div className="bg-white rounded-2xl p-5 md:p-6 border border-slate-200 shadow-sm mb-6 print:border-none print:shadow-none print:mb-4">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="bg-white rounded-2xl p-3.5 sm:p-5 md:p-6 border border-slate-200 shadow-sm mb-5 print:border-none print:shadow-none print:mb-4">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
               <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <h2 className="text-lg sm:text-xl font-black text-slate-900">
+                <div className="flex items-center gap-2 mb-1 flex-wrap">
+                  <h2 className="text-base sm:text-lg md:text-xl font-black text-slate-900">
                     {profile.currentStage === 'evaluation' || profile.currentStage === 'discovery' || profile.reportType === 'ct_imaging'
                       ? (profile.stage ? `c${profile.stage} 期肺结节 (CT 影像初估)` : '早期肺结节 (待病理确诊)')
                       : (profile.stage ? `${profile.stage} 期原发性肺腺癌` : '早期原发性肺腺癌')
                     }
                   </h2>
-                  <span className="px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 text-xs font-black">
+                  <span className="px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 text-xs font-black">
                     {profile.tStage || "T1a"}{profile.nStage || "N0"}{profile.mStage || "M0"}
                   </span>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-2 text-xs text-slate-600">
-                  <span className="px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700 text-xs font-medium">
+                <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs text-slate-600">
+                  <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-xs font-medium">
                     {profile.age || 55} 岁 · {profile.sex === 'female' ? '女性' : '男性'}
                   </span>
-                  <span className="px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700 text-xs font-medium">
+                  <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-xs font-medium">
                     {profile.currentStage === 'evaluation' || profile.currentStage === 'discovery' || profile.reportType === 'ct_imaging'
                       ? `结节部位: ${profile.noduleLocation || '肺部结节'} (尚未手术)`
                       : (profile.surgeryType === 'lobectomy' ? '标准肺叶切除' : profile.surgeryType === 'segmentectomy' ? '解剖性肺段切除' : profile.surgeryType || '手术切除')
@@ -307,7 +349,7 @@ export default function EvidenceReportPage() {
                   </span>
                 </div>
                 {profile.solidSize != null && (
-                  <div className="text-[12px] text-slate-500 mt-1">
+                  <div className="text-[11px] sm:text-[12px] text-slate-500 mt-1">
                     📏 磨玻璃最大径: {profile.tumorSize || 1.5} cm · CT 实性成分: <strong className="text-teal-700">{profile.solidSize} cm</strong> (CTR: {profile.ctr ?? (profile.solidSize && profile.tumorSize ? Math.round((profile.solidSize / profile.tumorSize) * 100) / 100 : 0.53)})
                   </div>
                 )}
@@ -317,7 +359,7 @@ export default function EvidenceReportPage() {
                 <span className="text-xs text-slate-500 font-medium hidden md:inline">
                   {profile.currentStage === 'evaluation' || profile.currentStage === 'discovery' || profile.reportType === 'ct_imaging' ? '恶性风险:' : '风险评级:'}
                 </span>
-                <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                <span className={`px-2.5 sm:px-3 py-1 rounded-full text-xs font-bold ${
                   profile.currentStage === 'evaluation' || profile.currentStage === 'discovery' || profile.reportType === 'ct_imaging'
                     ? (profile.riskLevel === 'high' ? 'bg-amber-50 text-amber-800 border border-amber-200' : 'bg-emerald-50 text-emerald-800 border border-emerald-200')
                     : (profile.nStage === 'N2' || profile.stas === 'positive' || (profile.stas as any) === true
@@ -334,12 +376,12 @@ export default function EvidenceReportPage() {
 
             {/* CT Matrix vs Pathology Matrix */}
             {profile.currentStage === 'evaluation' || profile.currentStage === 'discovery' || profile.reportType === 'ct_imaging' ? (
-              <div className="mt-4 pt-1">
-                <div className="text-xs font-semibold text-slate-500 mb-2.5 flex items-center gap-1.5">
+              <div className="mt-3 sm:mt-4 pt-1">
+                <div className="text-xs font-semibold text-slate-500 mb-2 flex items-center gap-1.5">
                   <span>🩻 关键影像学评估矩阵</span>
-                  <span className="text-slate-400 font-normal text-[11px]">(基于薄层 CT 恶性征象与实性占比)</span>
+                  <span className="text-slate-400 font-normal text-[10px] sm:text-[11px]">(基于薄层 CT 恶性征象与实性占比)</span>
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   <MatrixBadge 
                     label="结节形态" 
                     value={profile.noduleType === 'pure_ggo' ? '纯磨玻璃(pGGO)' : profile.noduleType === 'pure_solid' ? '纯实性结节' : '混合磨玻璃(mGGO)'} 
@@ -348,17 +390,21 @@ export default function EvidenceReportPage() {
                   <MatrixBadge 
                     label="实性占比 (CTR)" 
                     value={profile.solidSize != null ? `实性 ${profile.solidSize}cm (${Math.round((profile.ctr ?? 0.53)*100)}%)` : '微量实性'} 
-                    type={(profile.solidSize ?? 0) >= 0.5 ? 'warning' : 'safe'}
+                    type={(profile.ctr ?? 0.53) > 0.5 ? 'warning' : 'safe'}
                   />
                   <MatrixBadge 
-                    label="恶性影像征象" 
-                    value={profile.imagingFeatures && profile.imagingFeatures.length > 0 ? profile.imagingFeatures.slice(0, 2).join(' / ') : '边缘光滑'} 
+                    label="高危影像征象" 
+                    value={
+                      profile.imagingFeatures && profile.imagingFeatures.length > 0
+                        ? profile.imagingFeatures.slice(0, 2).join(' / ')
+                        : '边缘光滑'
+                    } 
                     type={profile.imagingFeatures && profile.imagingFeatures.length > 0 ? 'warning' : 'safe'}
                   />
                   <MatrixBadge 
-                    label="Lung-RADS 分级" 
-                    value={profile.lungRads ? `${profile.lungRads} 类` : '4A 恶性可疑'} 
-                    type={profile.lungRads === '4B' || profile.lungRads === '4X' ? 'danger' : 'safe'}
+                    label="Fleischner 指南" 
+                    value={(profile.ctr ?? 0.53) >= 0.5 ? 'MDT多学科评估' : '3~6个月薄层CT'} 
+                    type={(profile.ctr ?? 0.53) >= 0.5 ? 'warning' : 'safe'}
                   />
                 </div>
               </div>
@@ -410,7 +456,7 @@ export default function EvidenceReportPage() {
           {/* Top Decorative Gradient Accent Bar */}
           <div className="h-1.5 w-full bg-gradient-to-r from-accent-blue via-accent-teal to-accent-blue print:hidden" />
           
-          <div className="p-6 md:p-10 print:p-0">
+          <div className="p-3.5 sm:p-7 md:p-9 print:p-0">
             {!reportMarkdown && isGenerating && (
               <div className="flex flex-col items-center gap-3.5 text-accent-blue font-medium py-16 justify-center animate-pulse print:hidden">
                 <svg className="animate-spin h-8 w-8 text-accent-blue" viewBox="0 0 24 24">
@@ -431,11 +477,28 @@ export default function EvidenceReportPage() {
               <ReactMarkdown 
                 remarkPlugins={[remarkGfm]}
                 components={{
-                  h2: ({ node, ...props }) => (
-                    <div className="mt-8 mb-4 pt-3 border-t border-slate-100 first:border-none first:pt-0">
-                      <h2 className="flex items-center gap-2 text-slate-900 font-extrabold text-lg md:text-xl tracking-tight bg-slate-50/80 p-3 rounded-xl border border-slate-200/80" {...props} />
-                    </div>
-                  ),
+                  h2: ({ node, children, ...props }) => {
+                    const text = String(children || "");
+                    const isChecklist = text.includes("问诊清单") || text.includes("就医便签") || text.includes("3.");
+                    return (
+                      <div className="mt-7 mb-4 pt-3 border-t border-slate-100 first:border-none first:pt-0">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 bg-slate-50/90 p-3 sm:p-3.5 rounded-2xl border border-slate-200/80">
+                          <h2 className="flex items-center gap-2 text-slate-900 font-extrabold text-base sm:text-lg md:text-xl tracking-tight m-0" {...props}>
+                            {children}
+                          </h2>
+                          {isChecklist && (
+                            <button
+                              type="button"
+                              onClick={handleCopyChecklist}
+                              className="self-start sm:self-center flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-xs transition-all cursor-pointer print:hidden"
+                            >
+                              <span>📋 一键复制此问诊清单</span>
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  },
                   h3: ({ node, ...props }) => (
                     <h3 className="text-base md:text-lg font-bold text-slate-800 mt-6 mb-2 flex items-center gap-1.5" {...props} />
                   ),
