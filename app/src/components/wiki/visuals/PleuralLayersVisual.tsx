@@ -37,7 +37,7 @@ export function PleuralLayersVisual() {
   const active = plInfo[selectedPl];
 
   return (
-    <div className="bg-slate-900 rounded-2xl p-4 text-white select-none border border-slate-800">
+    <div className="bg-slate-900 rounded-2xl p-2.5 sm:p-4 text-white select-none border border-slate-800">
       <div className="flex items-center justify-between mb-2">
         <span className="text-[11px] font-bold text-sky-400">🚪 胸膜解剖层次与 PL0 ~ PL3 侵犯深度</span>
         <span className="text-[10px] text-slate-400">AJCC 第 8/9 版分期标准</span>

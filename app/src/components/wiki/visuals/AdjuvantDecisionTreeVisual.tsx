@@ -107,7 +107,7 @@ export function AdjuvantDecisionTreeVisual() {
   const decision = getDecision();
 
   return (
-    <div className="bg-slate-900 rounded-2xl p-4 text-white select-none border border-slate-800">
+    <div className="bg-slate-900 rounded-2xl p-2.5 sm:p-4 text-white select-none border border-slate-800">
       <div className="flex items-center justify-between mb-3">
         <span className="text-[11px] font-bold text-sky-400">🗺️ 术后辅助治疗科学决策模拟器</span>
         <span className="text-[10px] text-slate-400">基于 NCCN 2024 / CSCO 肺癌指南</span>

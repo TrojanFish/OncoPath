@@ -210,7 +210,7 @@ export default function ResourcesPage() {
       <SubpageNavbar />
 
       {/* Hero Header */}
-      <header className="pt-28 md:pt-32 pb-8 px-4 sm:px-6 max-w-4xl mx-auto text-center space-y-4">
+      <header className="pt-28 md:pt-32 pb-8 px-2.5 sm:px-6 max-w-4xl mx-auto text-center space-y-4">
         {/* Unified Top Pill Badge */}
         <div className="inline-flex items-center gap-2 bg-white px-4 py-1.5 rounded-full text-xs font-bold text-sky-700 border border-sky-200/80 shadow-xs">
           <span>📖 全球权威临床指南库</span>
@@ -229,7 +229,7 @@ export default function ResourcesPage() {
         </p>
 
         {/* Big Disclaimer */}
-        <div className="mt-4 p-4 rounded-2xl border border-amber-200 bg-amber-50 text-left shadow-xs">
+        <div className="mt-4 p-3.5 sm:p-4 rounded-2xl border border-amber-200 bg-amber-50 text-left shadow-xs">
           <p className="text-amber-800 font-bold text-xs mb-1 flex items-center gap-1.5">
             <span>📌 在您开始查阅之前，请阅读这段话</span>
           </p>
@@ -241,9 +241,9 @@ export default function ResourcesPage() {
       </header>
 
       {/* Filter Bar */}
-      <div className="max-w-7xl mx-auto px-6 mb-10">
-        <div className="flex flex-wrap items-center gap-3">
-          <span className="text-text-muted text-sm">筛选：</span>
+      <div className="max-w-7xl mx-auto px-2.5 sm:px-6 mb-8 sm:mb-10">
+        <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
+          <span className="text-text-muted text-xs sm:text-sm">筛选：</span>
           {[
             { key: "all", label: "全部", color: "text-gray-900 border-gray-200 bg-white shadow-sm" },
             { key: "beginner", label: "🏥 患者友好", color: "text-teal-600 border-teal-200 bg-white shadow-sm" },
@@ -253,7 +253,7 @@ export default function ResourcesPage() {
             <button
               key={f.key}
               onClick={() => setActiveFilter(f.key)}
-              className={`px-4 py-1.5 rounded-full text-sm border transition-all ${f.color} ${
+              className={`px-3 sm:px-4 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm border transition-all ${f.color} ${
                 activeFilter === f.key ? "bg-gray-100 ring-2 ring-gray-200" : "hover:bg-gray-50"
               }`}
             >
@@ -264,7 +264,7 @@ export default function ResourcesPage() {
       </div>
 
       {/* Categories */}
-      <main className="max-w-7xl mx-auto px-6 space-y-16">
+      <main className="max-w-7xl mx-auto px-2.5 sm:px-6 space-y-12 sm:space-y-16">
         {filtered.map((category) => (
           <section key={category.id}>
             {/* Category Header */}
@@ -306,7 +306,7 @@ export default function ResourcesPage() {
                       "bg-gradient-to-r from-accent-amber/60 to-transparent"
                     }`} />
 
-                    <div className="p-5">
+                    <div className="p-3.5 sm:p-5">
                       {/* Title row */}
                       <div className="flex items-start justify-between gap-3 mb-3">
                         <div className="flex-1">
@@ -318,23 +318,20 @@ export default function ResourcesPage() {
                           >
                             {link.name}
                             <svg className="inline-block ml-1 opacity-50 group-hover:opacity-100 transition-opacity" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                              <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3" strokeLinecap="round" strokeLinejoin="round"/>
+                              <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3" />
                             </svg>
                           </a>
                         </div>
                         <div className="flex items-center gap-1.5 shrink-0">
-                          <span className={`text-[10px] px-1.5 py-0.5 rounded border ${
-                            link.lang === "zh" ? "text-teal-600 border-teal-200 bg-teal-50" :
-                            link.lang === "both" ? "text-blue-600 border-blue-200 bg-blue-50" :
-                            "text-gray-500 border-gray-200 bg-gray-50"
-                          }`}>
-                            {link.lang === "zh" ? "中文" : link.lang === "both" ? "中/英" : "英文"}
-                          </span>
-                          <span className={`text-[10px] px-1.5 py-0.5 rounded border ${
-                            link.free ? "text-green-600 border-green-200 bg-green-50" : "text-gray-500 border-gray-200 bg-gray-50"
-                          }`}>
-                            {link.free ? "免费" : "部分收费"}
-                          </span>
+                          {link.lang === "zh" && (
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-gray-100 text-text-muted">中文</span>
+                          )}
+                          {link.lang === "both" && (
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-teal-50 text-accent-teal border border-teal-200">中/英</span>
+                          )}
+                          {link.free && (
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">免费</span>
+                          )}
                         </div>
                       </div>
 
@@ -343,34 +340,31 @@ export default function ResourcesPage() {
                         {link.description}
                       </p>
 
-                      {/* Tip toggle */}
+                      {/* Tip accordion */}
                       {hasTip && (
                         <div>
                           <button
                             onClick={() => toggleTip(tipKey)}
-                            className="text-accent-teal text-xs flex items-center gap-1 hover:text-accent-teal/80 transition-colors"
+                            className="text-[11px] text-accent-blue hover:text-blue-700 flex items-center gap-1 transition-colors cursor-pointer font-medium"
                           >
-                            <svg className={`transition-transform ${tipOpen ? "rotate-90" : ""}`} width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                              <path d="M9 18l6-6-6-6" strokeLinecap="round" strokeLinejoin="round"/>
-                            </svg>
-                            {tipOpen ? "收起提示" : "查看使用提示"}
+                            <span>{tipOpen ? "收起阅读建议 ▲" : "查看阅读建议 ▼"}</span>
                           </button>
                           {tipOpen && (
-                            <div className="mt-2 p-3 rounded-xl bg-teal-50 border border-teal-200 text-xs text-gray-700 leading-relaxed">
+                            <div className="mt-2 p-2.5 rounded-lg bg-blue-50/70 border border-blue-100 text-xs text-text-secondary leading-relaxed animate-fade-in">
                               {link.tip}
                             </div>
                           )}
                         </div>
                       )}
 
-                      {/* Visit button */}
+                      {/* Visit link CTA */}
                       <a
                         href={link.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="mt-4 inline-flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-900 border border-gray-200 hover:border-gray-300 px-3 py-1.5 rounded-lg transition-all bg-white"
+                        className="mt-3.5 inline-flex items-center gap-1.5 text-xs text-slate-600 hover:text-accent-blue border border-slate-200 hover:border-blue-300 px-3 py-1.5 rounded-xl transition-all bg-white font-medium shadow-2xs group-hover:border-blue-200"
                       >
-                        前往访问
+                        <span>前往访问官方主页</span>
                         <svg width="10" height="10" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                           <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
@@ -398,7 +392,7 @@ export default function ResourcesPage() {
                 step: "01",
                 title: "使用标准医学术语",
                 content: "不要使用中文或口语词汇，使用标准英文术语效果最佳。",
-                example: ["lung adenocarcinoma recurrence", "STAS prognosis lung cancer", "ground bg-white shadow-sm nodule follow-up"],
+                example: ["lung adenocarcinoma recurrence", "STAS prognosis lung cancer", "ground glass nodule follow-up"],
               },
               {
                 step: "02",
@@ -413,7 +407,7 @@ export default function ResourcesPage() {
                 example: ["「我看到这篇研究说复发率是X%」", "「这与我的情况类似吗？」", "「我需要额外注意什么？」"],
               },
             ].map((item) => (
-              <div key={item.step} className="rounded-2xl border border-gray-200 bg-white shadow-sm p-5">
+              <div key={item.step} className="rounded-2xl border border-gray-200 bg-white shadow-sm p-3.5 sm:p-5">
                 <div className="text-accent-blue font-bold text-3xl opacity-30 mb-3">{item.step}</div>
                 <h3 className="font-semibold text-text-primary mb-2 text-sm">{item.title}</h3>
                 <p className="text-text-muted text-xs mb-3 leading-relaxed">{item.content}</p>
@@ -432,7 +426,7 @@ export default function ResourcesPage() {
       </main>
 
       {/* Footer disclaimer */}
-      <div className="max-w-7xl mx-auto px-6 mt-16 pt-8 pb-8 border-t border-gray-200">
+      <div className="max-w-7xl mx-auto px-2.5 sm:px-6 mt-16 pt-8 pb-8 border-t border-gray-200">
         <p className="text-text-muted text-xs text-center leading-relaxed max-w-2xl mx-auto">
           ⚠️ 上述所有外部链接均指向独立的第三方学术机构网站，OncoPath 不对这些网站的内容或准确性负责。
           所有医学决策请以主治医生的意见为最终依据。

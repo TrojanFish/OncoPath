@@ -2,7 +2,7 @@
 
 export function CalcificationVisual() {
   return (
-    <div className="bg-slate-900 rounded-2xl p-4 text-white select-none border border-slate-800">
+    <div className="bg-slate-900 rounded-2xl p-2.5 sm:p-4 text-white select-none border border-slate-800">
       <div className="flex items-center justify-between mb-2">
         <span className="text-[11px] font-bold text-amber-400">🛡️ 钙化结节良性特征与爆米花样钙化</span>
         <span className="text-[10px] text-slate-400">CT 影像学特征</span>

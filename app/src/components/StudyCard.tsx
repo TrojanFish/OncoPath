@@ -70,7 +70,7 @@ export default function StudyCard({ study, compact = false }: StudyCardProps) {
   }
 
   return (
-    <div className="bg-white rounded-2xl p-6 shadow-sm card-hover border border-slate-200 flex flex-col justify-between transition-all">
+    <div className="bg-white rounded-2xl p-3.5 sm:p-5 md:p-6 shadow-sm card-hover border border-slate-200 flex flex-col justify-between transition-all">
       <div>
         {/* Header */}
         <div className="flex items-start gap-4 mb-4">

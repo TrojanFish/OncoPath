@@ -482,7 +482,7 @@ export default function AdminPage() {
       )}
 
       {/* Header */}
-      <header className="pt-28 md:pt-32 pb-10 px-6 max-w-7xl mx-auto">
+      <header className="pt-28 md:pt-32 pb-8 sm:pb-10 px-2.5 sm:px-6 max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold text-accent-blue bg-blue-50 border border-blue-200 mb-2.5">
@@ -515,7 +515,7 @@ export default function AdminPage() {
         </div>
 
         {/* Stats Metrics Cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mt-6 sm:mt-8">
           <StatCard 
             icon="📚" 
             title="已收录文献总数" 
@@ -544,10 +544,10 @@ export default function AdminPage() {
       </header>
 
       {/* Main Studio Body */}
-      <main className="max-w-7xl mx-auto px-6 space-y-10">
+      <main className="max-w-7xl mx-auto px-2.5 sm:px-6 space-y-6 sm:space-y-10">
         
         {/* Ingestion Studio Card */}
-        <section className="bg-white rounded-2xl border border-gray-200 p-6 md:p-8 shadow-sm">
+        <section className="bg-white rounded-2xl border border-gray-200 p-3.5 sm:p-6 md:p-8 shadow-sm">
           
           {/* Dual Ingestion Mode Tabs */}
           {!extractedData && (
@@ -1062,7 +1062,7 @@ export default function AdminPage() {
         </section>
 
         {/* Section: Ingested Evidence Library Table */}
-        <section className="bg-white rounded-2xl border border-gray-200 p-6 md:p-8 shadow-sm">
+        <section className="bg-white rounded-2xl border border-gray-200 p-3.5 sm:p-6 md:p-8 shadow-sm">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-gray-100 mb-6">
             <div>
               <h2 className="text-lg font-bold text-gray-900">已收录医学证据文献库</h2>

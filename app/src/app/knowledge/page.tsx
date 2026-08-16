@@ -31,7 +31,7 @@ export default function KnowledgePage() {
       <SubpageNavbar />
 
       {/* Hero Header */}
-      <header className="pt-28 md:pt-32 pb-8 px-4 sm:px-6 max-w-4xl mx-auto text-center space-y-4">
+      <header className="pt-28 md:pt-32 pb-8 px-2.5 sm:px-6 max-w-4xl mx-auto text-center space-y-4">
         {/* Unified Top Pill Badge */}
         <div className="inline-flex items-center gap-2 bg-white px-4 py-1.5 rounded-full text-xs font-bold text-sky-700 border border-sky-200/80 shadow-xs">
           <span>🗺️ 4D 动态因果推演引擎</span>
@@ -59,7 +59,7 @@ export default function KnowledgePage() {
       </header>
 
       {/* Knowledge Map */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6">
+      <main className="max-w-7xl mx-auto px-2.5 sm:px-6">
         <div className="bg-white rounded-3xl p-2 border border-slate-200/90 shadow-xl shadow-slate-900/5">
           {profileLoaded && <KnowledgeMapPreview profile={profile} />}
         </div>

@@ -2,7 +2,7 @@
 
 export function LviVesselVisual() {
   return (
-    <div className="bg-slate-900 rounded-2xl p-4 text-white select-none border border-slate-800">
+    <div className="bg-slate-900 rounded-2xl p-2.5 sm:p-4 text-white select-none border border-slate-800">
       <div className="flex items-center justify-between mb-2">
         <span className="text-[11px] font-bold text-rose-400">🚗 脉管通道与全身药物防护机制</span>
         <span className="text-[10px] text-slate-400">标注：仅为原理解释，非真实解剖</span>

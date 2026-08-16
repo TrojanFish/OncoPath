@@ -8,7 +8,7 @@ export function MediastinalLNMapVisual() {
   const [filter, setFilter] = useState<StationFilter>("ALL");
 
   return (
-    <div className="bg-slate-900 rounded-2xl p-4 text-white select-none border border-slate-800">
+    <div className="bg-slate-900 rounded-2xl p-2.5 sm:p-4 text-white select-none border border-slate-800">
       <div className="flex items-center justify-between mb-2">
         <span className="text-[11px] font-bold text-sky-400">🫁 国际 IASLC 肺癌胸腔淋巴结站点图谱</span>
         <span className="text-[10px] text-slate-400">N1 与 N2 解剖分界</span>

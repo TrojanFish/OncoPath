@@ -166,15 +166,15 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
   }
 
   return (
-    <div className="mt-12">
+    <div className="mt-6 sm:mt-12">
       {/* Time Slider */}
-      <div className="mb-6 flex flex-col items-center max-w-lg mx-auto bg-white shadow-sm p-4 rounded-xl border border-gray-200 relative h-20">
+      <div className="mb-6 flex flex-col items-center max-w-lg mx-auto bg-white shadow-sm p-3 sm:p-4 rounded-xl border border-gray-200 relative h-20">
         <TimeSlider value={timeYears} onChange={setTimeYears} />
       </div>
 
       {/* Mode Banners */}
       {sandboxMode ? (
-        <div className="mb-4 flex items-center justify-between bg-amber-50 rounded-xl px-4 py-2.5 border border-amber-200 shadow-sm">
+        <div className="mb-4 flex items-center justify-between bg-amber-50 rounded-xl px-3 sm:px-4 py-2 sm:py-2.5 border border-amber-200 shadow-sm">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
             <span className="text-amber-400 text-sm font-medium">沙盘推演模式</span>

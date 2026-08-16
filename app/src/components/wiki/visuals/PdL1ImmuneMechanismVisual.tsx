@@ -6,7 +6,7 @@ export function PdL1ImmuneMechanismVisual() {
   const [isTreated, setIsTreated] = useState<boolean>(true);
 
   return (
-    <div className="bg-slate-900 rounded-2xl p-4 text-white select-none border border-slate-800">
+    <div className="bg-slate-900 rounded-2xl p-2.5 sm:p-4 text-white select-none border border-slate-800">
       <div className="flex items-center justify-between mb-2">
         <span className="text-[11px] font-bold text-sky-400">🛡️ PD-1 / PD-L1 免疫检查点阻断机制图解</span>
         <span className="text-[10px] text-slate-400">分子免疫学突触示意</span>

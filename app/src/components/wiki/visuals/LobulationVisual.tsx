@@ -2,7 +2,7 @@
 
 export function LobulationVisual() {
   return (
-    <div className="bg-slate-900 rounded-2xl p-4 text-white select-none border border-slate-800">
+    <div className="bg-slate-900 rounded-2xl p-2.5 sm:p-4 text-white select-none border border-slate-800">
       <div className="flex items-center justify-between mb-2">
         <span className="text-[11px] font-bold text-sky-400">🌊 分叶征 (Lobulation) 影像原理解析</span>
         <span className="text-[10px] text-slate-400">标注：仅为原理解释，非真实解剖</span>

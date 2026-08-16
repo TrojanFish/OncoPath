@@ -2,7 +2,7 @@
 
 export function IaslcSubtypeVisual() {
   return (
-    <div className="bg-slate-900 rounded-2xl p-4 text-white select-none border border-slate-800">
+    <div className="bg-slate-900 rounded-2xl p-2.5 sm:p-4 text-white select-none border border-slate-800">
       <div className="flex items-center justify-between mb-3">
         <span className="text-[11px] font-bold text-purple-400">📊 IASLC 肺腺癌组织学亚型预后阶梯</span>
         <span className="text-[10px] text-slate-400">基于 IASLC / WHO 国际标准</span>

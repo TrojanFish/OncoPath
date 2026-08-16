@@ -61,7 +61,7 @@ export default function ProfileForm({ onSubmit }: ProfileFormProps) {
   };
 
   return (
-    <div className="max-w-2xl mx-auto px-4 sm:px-6">
+    <div className="max-w-2xl mx-auto px-2.5 sm:px-6">
       {/* Progress */}
       <div className="mb-6 md:mb-8">
         <div className="flex justify-between items-center mb-2">
@@ -79,7 +79,7 @@ export default function ProfileForm({ onSubmit }: ProfileFormProps) {
       </div>
 
       {/* Step indicator */}
-      <div className="flex items-center gap-2 mb-8">
+      <div className="flex items-center gap-2 mb-6 sm:mb-8">
         {Array.from({ length: totalSteps }).map((_, i) => (
           <div key={i} className="flex items-center">
             <div
@@ -101,7 +101,7 @@ export default function ProfileForm({ onSubmit }: ProfileFormProps) {
       </div>
 
       {/* Form Card */}
-      <div className="bg-white rounded-2xl p-5 md:p-8 shadow-sm border border-gray-200">
+      <div className="bg-white rounded-2xl p-3.5 sm:p-6 md:p-8 shadow-sm border border-gray-200">
         {step === 1 && <Step1 form={form} updateForm={updateForm} />}
         {step === 2 && <Step2 form={form} updateForm={updateForm} />}
         {step === 3 && <Step3 form={form} updateForm={updateForm} />}
