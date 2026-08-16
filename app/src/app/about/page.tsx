@@ -24,7 +24,7 @@ export default function AboutPage() {
             href="/"
             className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-slate-600 hover:text-blue-600 transition-colors"
           >
-            <span>← 返回首页</span>
+            <span>返回首页</span>
           </Link>
           <span className="text-xs text-slate-400 font-mono">OncoPath · 创作者初衷</span>
         </div>
@@ -46,13 +46,13 @@ export default function AboutPage() {
             </p>
           </div>
 
-          {/* Narrative Content */}
+          {/* Narrative Content (Unified Harmonious 3-Act Structure) */}
           <div className="space-y-8 text-sm sm:text-base leading-relaxed text-slate-700">
             
             {/* Act 1 */}
             <section className="space-y-3">
               <h2 className="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2.5">
-                <span className="w-7 h-7 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-black shrink-0">1</span>
+                <span className="w-7 h-7 rounded-xl bg-blue-50 border border-blue-200 text-blue-700 flex items-center justify-center text-xs font-black shrink-0">1</span>
                 <span>那张冰冷的病理报告，与漫长的黑夜</span>
               </h2>
               <p>
@@ -61,37 +61,46 @@ export default function AboutPage() {
               <p>
                 在术后漫长的康复与求医历程中，我日夜穿梭在各大医学论坛、患者交流群和文献数据库里。我看到了太多病友和家属在深夜的帖子里辗转难眠：
               </p>
-              <ul className="list-disc list-inside space-y-1.5 pl-2 text-slate-600 text-xs sm:text-sm">
-                <li>有人因为搜索到网络碎片化言论，误将极早期的原位/微浸润当成绝症，整日惶惶不可终日；</li>
-                <li>有人拿着复杂的病理指标，不知道该不该做基因检测、要不要做辅助化疗；</li>
-                <li>有人面对大医院专家短短几分钟的面诊时间，因为紧张而手足无措，走出诊室才发现最关键的问题一个都没来得及问。</li>
-              </ul>
+              <div className="bg-slate-50/80 p-4 sm:p-5 rounded-2xl border border-slate-200/80 space-y-2">
+                <div className="flex items-start gap-2 text-xs sm:text-sm text-slate-600">
+                  <span className="text-slate-400 font-bold">•</span>
+                  <span>有人因为搜索到网络碎片化言论，误将极早期的原位/微浸润当成绝症，整日惶惶不可终日；</span>
+                </div>
+                <div className="flex items-start gap-2 text-xs sm:text-sm text-slate-600">
+                  <span className="text-slate-400 font-bold">•</span>
+                  <span>有人拿着复杂的病理指标，不知道该不该做基因检测、要不要做辅助化疗；</span>
+                </div>
+                <div className="flex items-start gap-2 text-xs sm:text-sm text-slate-600">
+                  <span className="text-slate-400 font-bold">•</span>
+                  <span>有人面对大医院专家短短几分钟的面诊时间，因为紧张而手足无措，走出诊室才发现最关键的问题一个都没来得及问。</span>
+                </div>
+              </div>
             </section>
 
             {/* Act 2 */}
-            <section className="space-y-3 bg-blue-50/50 p-5 sm:p-6 rounded-2xl border border-blue-100">
-              <h2 className="text-base sm:text-lg font-bold text-blue-950 flex items-center gap-2.5">
-                <span className="w-7 h-7 rounded-xl bg-blue-600 text-white flex items-center justify-center text-xs font-black shrink-0">2</span>
+            <section className="space-y-3">
+              <h2 className="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2.5">
+                <span className="w-7 h-7 rounded-xl bg-blue-50 border border-blue-200 text-blue-700 flex items-center justify-center text-xs font-black shrink-0">2</span>
                 <span>为什么做 OncoPath —— 用理性的证据，消解不必要的恐惧</span>
               </h2>
-              <p className="text-blue-900">
+              <p>
                 恐慌往往来源于对未知的想象。随着我深入研读了数百篇国际同行评审的前瞻性临床队列研究（如日本 JCOG0804/JCOG0802 系列研究、ADAURA 第三代靶向研究、AJCC 第 8/9 版 TNM 分期指南），我发现：<strong>现代胸部肿瘤医学对早期肺癌的根治率、高危病理特征以及规范随访路径，已经有了极为清晰、严谨的统计学定论。</strong>
               </p>
-              <p className="text-blue-900">
+              <p>
                 作为一名技术开发者，我决定搭建 <strong>OncoPath</strong> 这个纯粹的公益工具：
               </p>
-              <div className="grid sm:grid-cols-3 gap-3 pt-2">
-                <div className="bg-white p-3.5 rounded-xl border border-blue-200/80 shadow-2xs">
+              <div className="grid sm:grid-cols-3 gap-3 pt-1">
+                <div className="bg-slate-50/80 p-4 rounded-2xl border border-slate-200/80">
                   <div className="text-xs font-bold text-blue-800 mb-1">📖 医学信息平权</div>
-                  <div className="text-xs text-slate-600">把晦涩的顶刊论文翻译成患者和家属能轻松看懂的白话解读。</div>
+                  <div className="text-xs text-slate-600 leading-relaxed">把晦涩的顶刊论文翻译成患者和家属能轻松看懂的白话解读。</div>
                 </div>
-                <div className="bg-white p-3.5 rounded-xl border border-blue-200/80 shadow-2xs">
+                <div className="bg-slate-50/80 p-4 rounded-2xl border border-slate-200/80">
                   <div className="text-xs font-bold text-teal-800 mb-1">🔬 杜绝算命式推测</div>
-                  <div className="text-xs text-slate-600">每一个风险指标均可追溯至公开的 PubMed 顶刊文献，拒绝主观臆断。</div>
+                  <div className="text-xs text-slate-600 leading-relaxed">每一个风险指标均可追溯至公开的 PubMed 顶刊文献，拒绝主观臆断。</div>
                 </div>
-                <div className="bg-white p-3.5 rounded-xl border border-blue-200/80 shadow-2xs">
+                <div className="bg-slate-50/80 p-4 rounded-2xl border border-slate-200/80">
                   <div className="text-xs font-bold text-sky-800 mb-1">📝 赋能门诊高效沟通</div>
-                  <div className="text-xs text-slate-600">生成一目了然的便签卡与问诊清单，让患者在面诊时不漏掉任何关键决策点。</div>
+                  <div className="text-xs text-slate-600 leading-relaxed">生成一目了然的便签卡与问诊清单，让患者在面诊时不漏掉任何关键决策点。</div>
                 </div>
               </div>
             </section>
@@ -99,7 +108,7 @@ export default function AboutPage() {
             {/* Act 3 */}
             <section className="space-y-3">
               <h2 className="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2.5">
-                <span className="w-7 h-7 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-black shrink-0">3</span>
+                <span className="w-7 h-7 rounded-xl bg-blue-50 border border-blue-200 text-blue-700 flex items-center justify-center text-xs font-black shrink-0">3</span>
                 <span>谦逊求教与专业共建声明</span>
               </h2>
               <p>
@@ -108,9 +117,9 @@ export default function AboutPage() {
               <p>
                 尽管平台内的所有病理分期逻辑、影像 CTR 计算模型与文献均经过权威指南的严格校验，但医学领域浩瀚深邃，个体病情千差万别，平台内容难免存在理解局限或需要改进之处。
               </p>
-              <p className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-xs sm:text-sm text-amber-900">
-                <strong>⚠️ 重要提醒</strong>：本平台提供的所有数据与建议<strong>仅供患者知情参考与就医辅助，绝不构成任何个性化临床诊断结论或处方指令</strong>。具体的治疗方案与随访检查，请务必以线下正规三甲医院主治医生的综合研判为准。
-              </p>
+              <div className="bg-amber-50/80 p-4 sm:p-5 rounded-2xl border border-amber-200/80 text-xs sm:text-sm text-amber-900">
+                <strong>⚠️ 重要声明</strong>：本平台提供的所有数据与建议<strong>仅供患者知情参考与就医辅助，绝不构成任何个性化临床诊断结论或处方指令</strong>。具体的治疗方案与随访检查，请务必以线下正规三甲医院主治医生的综合研判为准。
+              </div>
             </section>
 
           </div>

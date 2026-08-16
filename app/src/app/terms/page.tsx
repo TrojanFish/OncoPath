@@ -14,7 +14,7 @@ export default function TermsPage() {
             href="/"
             className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-blue-600 transition-colors"
           >
-            <span>← 返回首页</span>
+            <span>返回首页</span>
           </Link>
           <span className="text-xs text-slate-400 font-mono">版本：2026-V1.0</span>
         </div>
