@@ -24,6 +24,9 @@ import { EgfrMutationMapVisual } from "./visuals/EgfrMutationMapVisual";
 import { PleuralLayersVisual } from "./visuals/PleuralLayersVisual";
 import { LungRadsScaleVisual } from "./visuals/LungRadsScaleVisual";
 import { PdL1ImmuneMechanismVisual } from "./visuals/PdL1ImmuneMechanismVisual";
+import { SurgicalApproachesVisual } from "./visuals/SurgicalApproachesVisual";
+import { FollowupTimelineVisual } from "./visuals/FollowupTimelineVisual";
+import { MPLCGGOVisual } from "./visuals/MPLCGGOVisual";
 
 interface WikiTopicCardProps {
   topic: WikiTopic;
@@ -211,6 +214,9 @@ export function WikiTopicCard({ topic, isMatchedProfile, isHighlighted }: WikiTo
                 {topic.visualComponent === "PleuralLayersVisual" && <PleuralLayersVisual />}
                 {topic.visualComponent === "LungRadsScaleVisual" && <LungRadsScaleVisual />}
                 {topic.visualComponent === "PdL1ImmuneMechanismVisual" && <PdL1ImmuneMechanismVisual />}
+                {topic.visualComponent === "SurgicalApproachesVisual" && <SurgicalApproachesVisual />}
+                {topic.visualComponent === "FollowupTimelineVisual" && <FollowupTimelineVisual />}
+                {topic.visualComponent === "MPLCGGOVisual" && <MPLCGGOVisual />}
               </div>
             )}
           </div>
