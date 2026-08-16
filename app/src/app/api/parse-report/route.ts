@@ -3,6 +3,7 @@ import { ai } from '@/lib/gemini';
 import { computeClinicalTnmStage } from '@/lib/staging';
 import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
 import { sanitizeClinicalText } from '@/lib/privacy';
+import { logEvent } from '@/lib/logger';
 
 const SYSTEM_PROMPT = `
 你是一位国际顶级胸部肿瘤多学科诊疗 (MDT) 专家，精通【放射科胸部 CT 影像学诊断】与【病理组织学诊断】。
@@ -68,11 +69,21 @@ const SYSTEM_PROMPT = `
 `;
 
 export async function POST(request: Request) {
+  const startTime = Date.now();
+  const clientIp = getClientIp(request);
+
   try {
     // 1. Production Rate Limiting (10 requests per minute per IP for OCR/Multimodal parsing)
-    const clientIp = getClientIp(request);
     const rateLimit = checkRateLimit(`parse_report_${clientIp}`, { intervalMs: 60 * 1000, maxRequests: 10 });
     if (!rateLimit.success) {
+      logEvent({
+        level: 'warn',
+        endpoint: '/api/parse-report',
+        clientIp,
+        statusCode: 429,
+        action: 'parse_rate_limit_exceeded',
+        message: 'Client exceeded report parsing rate limit'
+      });
       return NextResponse.json(
         { success: false, error: "解析请求过于频繁，请稍候 1 分钟后重试。" },
         { status: 429, headers: { 'Retry-After': '60' } }
@@ -82,6 +93,13 @@ export async function POST(request: Request) {
     const { reportText, images, imageBase64, imageMimeType } = await request.json();
 
     if (!process.env.GEMINI_API_KEY) {
+      logEvent({
+        level: 'error',
+        endpoint: '/api/parse-report',
+        clientIp,
+        statusCode: 500,
+        message: 'Missing GEMINI_API_KEY environment variable'
+      });
       return NextResponse.json({ success: false, error: "系统未配置 GEMINI_API_KEY" }, { status: 500 });
     }
 
@@ -233,9 +251,32 @@ export async function POST(request: Request) {
       psychologicalState: psychState
     };
 
+    logEvent({
+      level: 'info',
+      endpoint: '/api/parse-report',
+      clientIp,
+      durationMs: Date.now() - startTime,
+      statusCode: 200,
+      aiModel: 'gemini-2.5-flash',
+      action: 'report_parsing_completed',
+      meta: {
+        reportType: safeData.reportType,
+        tStage: safeData.tStage,
+        nStage: safeData.nStage
+      }
+    });
+
     return NextResponse.json({ success: true, data: safeData });
   } catch (error: any) {
-    console.error('Error parsing report via Gemini:', error);
+    logEvent({
+      level: 'error',
+      endpoint: '/api/parse-report',
+      clientIp,
+      durationMs: Date.now() - startTime,
+      statusCode: 500,
+      error: error.message || 'Unknown parsing error',
+      action: 'parse_report_exception'
+    });
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
