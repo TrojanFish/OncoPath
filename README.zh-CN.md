@@ -134,6 +134,10 @@ docker compose -f docker-compose.prod.yml up -d --build
 docker image prune -f
 ```
 
+> 💡 **核心区别解析：`up -d --build` 与 `up -d`**：
+> - **`up -d --build`（带 `--build`）**：**拉取新代码后必须使用！** 强制重新触发 Next.js 编译打包，将最新修改的代码烧录进新镜像；
+> - **`up -d`（不带 `--build`）**：仅用于服务器重启或仅修改了 `.env` 环境变量时，直接复用已有镜像秒级拉起，**不会编译最新代码**。
+
 ---
 
 ### 三、 常用运维、备份与排查命令清单 (Ops CheatSheet)

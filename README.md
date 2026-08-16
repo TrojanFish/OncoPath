@@ -127,6 +127,10 @@ docker compose -f docker-compose.prod.yml up -d --build
 docker image prune -f
 ```
 
+> 💡 **Core Difference: `up -d --build` vs `up -d`**:
+> - **`up -d --build` (with `--build`)**: **Required after pulling new code!** Forces Next.js compilation so your updated UI/API code is baked into the new Docker container.
+> - **`up -d` (without `--build`)**: Reuses the existing local image for instant startup (use when rebooting the server or only changing `.env` variables without code changes).
+
 ---
 
 ### 3. Operations & Disaster Recovery CheatSheet
