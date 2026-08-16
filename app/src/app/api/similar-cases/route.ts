@@ -12,8 +12,8 @@ export async function POST(request: Request) {
 
     // A simplified matching engine MVP
     const isEarlyStage = profile.tStage === "T1a" || profile.tStage === "T1b" || profile.tStage === "T1c";
-    const isN0 = profile.nStage === "N0";
-    const hasHighRisk = profile.stas === "positive" || profile.vpi === "positive" || profile.lvi === "positive" || profile.nStage === "N1";
+    const isN0 = !profile.nStage || profile.nStage === "N0" || profile.lymphNodes === "N0";
+    const hasHighRisk = profile.stas === "positive" || profile.vpi === "positive" || profile.lvi === "positive" || profile.nStage === "N1" || profile.nStage === "N2" || profile.iaslcGrade === "3" || profile.grade === "3" || profile.margin === "positive" || profile.marginStatus === "positive";
 
     if (hasHighRisk) {
       matchedCohort = allCohorts.find(c => c.name === "STAS_HighRisk_Cohort");

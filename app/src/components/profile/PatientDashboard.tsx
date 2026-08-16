@@ -80,7 +80,9 @@ export default function PatientDashboard() {
   const isLviSafe = profile.lvi === 'negative' || (profile.lvi as any) === false;
   const isVpiSafe = profile.vpi === 'negative' || (profile.vpi as any) === false;
   const isMarginSafe = profile.margin === 'negative' || profile.marginStatus === 'negative' || (profile.margin as any) === false;
-  const isN0Safe = profile.nStage === 'N0' || !profile.nStage || profile.nStage === 'N?';
+  const isN0Safe = profile.nStage === 'N0' || !profile.nStage || profile.nStage === 'N?' || profile.lymphNodes === 'N0';
+  const isGrade3 = profile.iaslcGrade === '3' || profile.grade === '3';
+  const isAllSafe = isStasSafe && isLviSafe && isVpiSafe && isN0Safe && isMarginSafe && !isGrade3;
   const isFemale = (profile.gender as string) === 'female' || (profile.sex as string) === 'female' || (profile.gender as string) === '女' || (profile.sex as string) === '女';
   const genderText = isFemale ? '女性' : '男性';
 
@@ -223,16 +225,27 @@ export default function PatientDashboard() {
           ) : (
             <div className="mt-6 pt-5 border-t border-slate-100">
               <div className="flex items-center justify-between mb-3">
-                <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-                  🚦 关键病理红绿灯矩阵 (决定辅助治疗与复发风险)
+                <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center justify-between w-full">
+                  <span>🚦 关键病理红绿灯矩阵 (决定辅助治疗与复发风险)</span>
+                  <span className="text-[10px] font-normal text-slate-400">6项核心病理指标</span>
                 </h4>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3">
                 <RiskBadge 
                   label="切缘状态" 
                   status={isMarginSafe ? 'good' : 'danger'} 
                   text={isMarginSafe ? '阴性 (R0安全)' : '阳性 (有残留)'} 
+                />
+                <RiskBadge 
+                  label="淋巴结分期" 
+                  status={isN0Safe ? 'good' : profile.nStage === 'N1' ? 'warning' : 'danger'} 
+                  text={profile.nStage === 'N0' || !profile.nStage ? 'N0 (无转移)' : profile.nStage === 'N1' ? 'N1 (肺门累及)' : profile.nStage === 'N2' ? 'N2 (纵隔转移)' : profile.nStage} 
+                />
+                <RiskBadge 
+                  label="胸膜侵犯 (VPI)" 
+                  status={isVpiSafe ? 'good' : 'warning'} 
+                  text={isVpiSafe ? 'PL0 (未侵犯)' : 'PL1/PL2 (阳性高危)'} 
                 />
                 <RiskBadge 
                   label="气道播散 (STAS)" 
@@ -245,9 +258,9 @@ export default function PatientDashboard() {
                   text={isLviSafe ? '无 / 阴性' : '阳性 (高危)'} 
                 />
                 <RiskBadge 
-                  label="淋巴结分期" 
-                  status={isN0Safe ? 'good' : 'danger'} 
-                  text={profile.nStage === 'N0' ? 'N0 (无转移)' : profile.nStage === 'N1' ? 'N1 (肺门累及)' : profile.nStage === 'N2' ? 'N2 (纵隔转移)' : profile.nStage || 'N0'} 
+                  label="IASLC 病理分级" 
+                  status={isGrade3 ? 'warning' : 'good'} 
+                  text={isGrade3 ? 'Grade 3 (低分化高危)' : profile.iaslcGrade === '1' || profile.grade === '1' ? 'Grade 1 (高分化)' : 'Grade 2 (中分化)'} 
                 />
               </div>
             </div>
@@ -265,12 +278,12 @@ export default function PatientDashboard() {
               <span className={`w-3 h-3 rounded-full ${
                 profile.currentStage === 'evaluation' || profile.currentStage === 'discovery'
                   ? (profile.riskLevel === 'high' ? 'bg-amber-500' : 'bg-emerald-500')
-                  : (isStasSafe && isLviSafe && isN0Safe ? 'bg-emerald-500' : 'bg-amber-500')
+                  : (isAllSafe ? 'bg-emerald-500' : 'bg-amber-500')
               } animate-pulse`} />
               <span className="font-bold text-slate-900 text-base">
                 {profile.currentStage === 'evaluation' || profile.currentStage === 'discovery'
                   ? (profile.riskLevel === 'high' ? '⚡ 建议胸外科微创评估' : '🌱 建议 3~6 个月随访观察')
-                  : (isStasSafe && isLviSafe && isN0Safe ? '🌱 早期低复发风险组' : '⚡ 需积极辅助随访组')
+                  : (isAllSafe ? '🌱 早期低复发风险组' : '⚡ 需积极辅助随访组')
                 }
               </span>
             </div>
@@ -280,8 +293,8 @@ export default function PatientDashboard() {
                 ? (profile.riskLevel === 'high' 
                     ? 'CT 影像提示伴有实性浸润或分叶毛刺征象，建议携带影像 DICOM 光盘至三甲胸外科门诊进行多学科会诊。'
                     : '目前结节以磨玻璃成分为主，生长极其缓慢，恶性危险度较低，首选遵循国际指南进行动态薄层 CT 随访。')
-                : (isStasSafe && isLviSafe && isN0Safe 
-                    ? '您的关键优势因素（R0切除、N0淋巴结阴性、无 STAS/LVI）显著降低了术后复发概率。' 
+                : (isAllSafe 
+                    ? '您的关键优势因素（R0切除、N0淋巴结阴性、无 STAS/VPI/LVI、高/中分化）显著降低了术后复发概率。' 
                     : '存在局部高危病理因素，建议密切关注局部影像与长程管理计划。')
               }
             </p>

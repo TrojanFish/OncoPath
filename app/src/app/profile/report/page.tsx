@@ -410,11 +410,14 @@ export default function EvidenceReportPage() {
               </div>
             ) : (
               <div className="mt-4 pt-1">
-                <div className="text-xs font-semibold text-slate-500 mb-2.5 flex items-center gap-1.5">
-                  <span>🚦 关键病理红绿灯矩阵</span>
-                  <span className="text-slate-400 font-normal text-[11px]">(决定预后与辅助治疗的核心指标)</span>
+                <div className="text-xs font-semibold text-slate-500 mb-2.5 flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <span>🚦 关键病理红绿灯矩阵</span>
+                    <span className="text-slate-400 font-normal text-[11px]">(决定预后与辅助治疗的核心指标)</span>
+                  </div>
+                  <span className="text-[10px] text-slate-400 font-normal">6项标准化病理特征</span>
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
                   <MatrixBadge 
                     label="切缘状态" 
                     value={profile.margin === 'positive' || profile.marginStatus === 'positive' || (profile.margin as any) === true ? '阳性(有残留)' : '阴性(R0安全)'} 
@@ -422,8 +425,13 @@ export default function EvidenceReportPage() {
                   />
                   <MatrixBadge 
                     label="淋巴结状态" 
-                    value={profile.nStage === 'N0' ? 'N0 (无转移)' : profile.nStage === 'N1' ? 'N1 (肺门累及)' : profile.nStage === 'N2' ? 'N2 (纵隔转移)' : profile.nStage || 'N0 (无转移)'} 
+                    value={profile.nStage === 'N0' || !profile.nStage ? 'N0 (无转移)' : profile.nStage === 'N1' ? 'N1 (肺门累及)' : profile.nStage === 'N2' ? 'N2 (纵隔转移)' : profile.nStage} 
                     type={profile.nStage === 'N0' || !profile.nStage ? 'safe' : profile.nStage === 'N1' ? 'warning' : 'danger'}
+                  />
+                  <MatrixBadge 
+                    label="胸膜侵犯 (VPI)" 
+                    value={profile.vpi === 'positive' || (profile.vpi as any) === true ? 'PL1/PL2 (阳性高危)' : 'PL0 (未侵犯)'} 
+                    type={profile.vpi === 'positive' || (profile.vpi as any) === true ? 'warning' : 'safe'}
                   />
                   <MatrixBadge 
                     label="气道播散 (STAS)" 
@@ -434,6 +442,11 @@ export default function EvidenceReportPage() {
                     label="脉管癌栓 (LVI)" 
                     value={profile.lvi === 'positive' || (profile.lvi as any) === true ? '阳性 (高危)' : '阴性 (安全)'} 
                     type={profile.lvi === 'positive' || (profile.lvi as any) === true ? 'warning' : 'safe'}
+                  />
+                  <MatrixBadge 
+                    label="IASLC 病理分级" 
+                    value={profile.iaslcGrade === '3' || profile.grade === '3' ? 'Grade 3 (低分化高危)' : profile.iaslcGrade === '1' || profile.grade === '1' ? 'Grade 1 (高分化)' : 'Grade 2 (中分化)'} 
+                    type={profile.iaslcGrade === '3' || profile.grade === '3' ? 'warning' : 'safe'}
                   />
                 </div>
               </div>

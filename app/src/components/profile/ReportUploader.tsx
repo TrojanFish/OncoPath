@@ -420,48 +420,192 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
               </div>
             </div>
           ) : (
-            /* Pathology High-Risk Red/Green Factors */
+            /* Pathology High-Risk Red/Green Factors (6 Core Standardized Indicators) */
             <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
-              <div className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3">
-                🚦 术后高危病理特征 (红绿灯指标)
+              <div className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3 flex items-center justify-between">
+                <span>🚦 术后高危病理特征 (红绿灯指标)</span>
+                <span className="text-[11px] font-normal text-slate-400">决定辅助治疗与复发风险分层</span>
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                {[
-                  { key: "stas", label: "气道播散 (STAS)", desc: "标本边缘游离癌细胞" },
-                  { key: "vpi", label: "胸膜侵犯 (VPI)", desc: "突破肺脏层胸膜(PL1/2)" },
-                  { key: "lvi", label: "脉管瘤栓 (LVI)", desc: "微血管或淋巴管内癌栓" },
-                  { key: "marginStatus", label: "切缘状态 (Margin)", desc: "手术边缘切缘干净度" }
-                ].map(({ key, label, desc }) => {
-                  const isPos = parsedData[key] === "positive";
-                  return (
-                    <div key={key} className="bg-white p-3 rounded-xl border border-slate-200 space-y-2">
-                      <div>
-                        <div className="text-xs font-bold text-slate-800">{label}</div>
-                        <div className="text-[10px] text-slate-400 leading-tight">{desc}</div>
-                      </div>
-                      <div className="flex gap-1">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {/* 1. Margin Status */}
+                <div className="bg-white p-3 rounded-xl border border-slate-200 space-y-2">
+                  <div>
+                    <div className="text-xs font-bold text-slate-800">切缘状态 (Margin)</div>
+                    <div className="text-[10px] text-slate-400 leading-tight">手术切缘病理残留情况</div>
+                  </div>
+                  <div className="flex gap-1">
+                    <button
+                      type="button"
+                      onClick={() => setParsedData({ ...parsedData, marginStatus: "negative", margin: "negative" })}
+                      className={`flex-1 py-1 text-xs rounded-lg font-bold transition-all cursor-pointer ${
+                        parsedData.marginStatus !== "positive" && parsedData.margin !== "positive"
+                          ? "bg-emerald-500 text-white shadow-2xs"
+                          : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                      }`}
+                    >
+                      阴性 (R0安全)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setParsedData({ ...parsedData, marginStatus: "positive", margin: "positive" })}
+                      className={`flex-1 py-1 text-xs rounded-lg font-bold transition-all cursor-pointer ${
+                        parsedData.marginStatus === "positive" || parsedData.margin === "positive"
+                          ? "bg-rose-500 text-white shadow-2xs"
+                          : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                      }`}
+                    >
+                      阳性 (残留)
+                    </button>
+                  </div>
+                </div>
+
+                {/* 2. Lymph Node N-Stage */}
+                <div className="bg-white p-3 rounded-xl border border-slate-200 space-y-2">
+                  <div>
+                    <div className="text-xs font-bold text-slate-800">淋巴结转移 (N分期)</div>
+                    <div className="text-[10px] text-slate-400 leading-tight">纵隔与肺门淋巴结状态</div>
+                  </div>
+                  <div className="flex gap-1">
+                    {(["N0", "N1", "N2"] as const).map((n) => (
+                      <button
+                        key={n}
+                        type="button"
+                        onClick={() => setParsedData({ ...parsedData, nStage: n, lymphNodes: n })}
+                        className={`flex-1 py-1 text-xs rounded-lg font-bold transition-all cursor-pointer ${
+                          (parsedData.nStage || "N0") === n
+                            ? n === "N0"
+                              ? "bg-emerald-500 text-white shadow-2xs"
+                              : n === "N1"
+                              ? "bg-amber-500 text-white shadow-2xs"
+                              : "bg-rose-500 text-white shadow-2xs"
+                            : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                        }`}
+                      >
+                        {n === "N0" ? "N0(无)" : n === "N1" ? "N1(肺门)" : "N2(纵隔)"}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 3. VPI */}
+                <div className="bg-white p-3 rounded-xl border border-slate-200 space-y-2">
+                  <div>
+                    <div className="text-xs font-bold text-slate-800">胸膜侵犯 (VPI)</div>
+                    <div className="text-[10px] text-slate-400 leading-tight">突破脏层胸膜(PL1/PL2)</div>
+                  </div>
+                  <div className="flex gap-1">
+                    <button
+                      type="button"
+                      onClick={() => setParsedData({ ...parsedData, vpi: "negative" })}
+                      className={`flex-1 py-1 text-xs rounded-lg font-bold transition-all cursor-pointer ${
+                        parsedData.vpi !== "positive" ? "bg-emerald-500 text-white shadow-2xs" : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                      }`}
+                    >
+                      阴性 (PL0)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setParsedData({ ...parsedData, vpi: "positive" })}
+                      className={`flex-1 py-1 text-xs rounded-lg font-bold transition-all cursor-pointer ${
+                        parsedData.vpi === "positive" ? "bg-rose-500 text-white shadow-2xs" : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                      }`}
+                    >
+                      阳性 (PL1/2)
+                    </button>
+                  </div>
+                </div>
+
+                {/* 4. STAS */}
+                <div className="bg-white p-3 rounded-xl border border-slate-200 space-y-2">
+                  <div>
+                    <div className="text-xs font-bold text-slate-800">气道播散 (STAS)</div>
+                    <div className="text-[10px] text-slate-400 leading-tight">肺泡腔内微小游离细胞群</div>
+                  </div>
+                  <div className="flex gap-1">
+                    <button
+                      type="button"
+                      onClick={() => setParsedData({ ...parsedData, stas: "negative" })}
+                      className={`flex-1 py-1 text-xs rounded-lg font-bold transition-all cursor-pointer ${
+                        parsedData.stas !== "positive" ? "bg-emerald-500 text-white shadow-2xs" : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                      }`}
+                    >
+                      阴性 (-)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setParsedData({ ...parsedData, stas: "positive" })}
+                      className={`flex-1 py-1 text-xs rounded-lg font-bold transition-all cursor-pointer ${
+                        parsedData.stas === "positive" ? "bg-rose-500 text-white shadow-2xs" : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                      }`}
+                    >
+                      阳性 (+)
+                    </button>
+                  </div>
+                </div>
+
+                {/* 5. LVI */}
+                <div className="bg-white p-3 rounded-xl border border-slate-200 space-y-2">
+                  <div>
+                    <div className="text-xs font-bold text-slate-800">脉管瘤栓 (LVI)</div>
+                    <div className="text-[10px] text-slate-400 leading-tight">微血管或微淋巴管内癌栓</div>
+                  </div>
+                  <div className="flex gap-1">
+                    <button
+                      type="button"
+                      onClick={() => setParsedData({ ...parsedData, lvi: "negative" })}
+                      className={`flex-1 py-1 text-xs rounded-lg font-bold transition-all cursor-pointer ${
+                        parsedData.lvi !== "positive" ? "bg-emerald-500 text-white shadow-2xs" : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                      }`}
+                    >
+                      阴性 (-)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setParsedData({ ...parsedData, lvi: "positive" })}
+                      className={`flex-1 py-1 text-xs rounded-lg font-bold transition-all cursor-pointer ${
+                        parsedData.lvi === "positive" ? "bg-rose-500 text-white shadow-2xs" : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                      }`}
+                    >
+                      阳性 (+)
+                    </button>
+                  </div>
+                </div>
+
+                {/* 6. IASLC Histological Grade */}
+                <div className="bg-white p-3 rounded-xl border border-slate-200 space-y-2">
+                  <div>
+                    <div className="text-xs font-bold text-slate-800">IASLC 病理分级</div>
+                    <div className="text-[10px] text-slate-400 leading-tight">微乳头/实体高级别成分占比</div>
+                  </div>
+                  <div className="flex gap-1">
+                    {[
+                      { val: "1", label: "Grade 1(高)" },
+                      { val: "2", label: "Grade 2(中)" },
+                      { val: "3", label: "Grade 3(低/危)" }
+                    ].map(({ val, label }) => {
+                      const currentGrade = String(parsedData.iaslcGrade || parsedData.grade || "2");
+                      const isSelected = currentGrade === val;
+                      return (
                         <button
+                          key={val}
                           type="button"
-                          onClick={() => setParsedData({ ...parsedData, [key]: "negative" })}
+                          onClick={() => setParsedData({ ...parsedData, grade: val, iaslcGrade: val })}
                           className={`flex-1 py-1 text-xs rounded-lg font-bold transition-all cursor-pointer ${
-                            !isPos ? "bg-emerald-500 text-white shadow-2xs" : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                            isSelected
+                              ? val === "1"
+                                ? "bg-emerald-500 text-white shadow-2xs"
+                                : val === "2"
+                                ? "bg-blue-500 text-white shadow-2xs"
+                                : "bg-rose-500 text-white shadow-2xs"
+                              : "bg-slate-100 text-slate-500 hover:bg-slate-200"
                           }`}
                         >
-                          阴性 (-)
+                          {label}
                         </button>
-                        <button
-                          type="button"
-                          onClick={() => setParsedData({ ...parsedData, [key]: "positive" })}
-                          className={`flex-1 py-1 text-xs rounded-lg font-bold transition-all cursor-pointer ${
-                            isPos ? "bg-rose-500 text-white shadow-2xs" : "bg-slate-100 text-slate-500 hover:bg-slate-200"
-                          }`}
-                        >
-                          阳性 (+)
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })}
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
             </div>
           )}
