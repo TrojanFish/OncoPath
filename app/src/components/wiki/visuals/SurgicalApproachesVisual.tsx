@@ -7,20 +7,20 @@ type SurgicalMode = "wedge" | "segment" | "lobe";
 const MODES = [
   {
     id: "wedge" as SurgicalMode,
-    label: "楔形切除 (局部)",
+    label: "楔形切除 (局部微创)",
     color: "text-amber-700",
     bg: "bg-amber-50",
     border: "border-amber-300",
     barColor: "#f59e0b",
     lung: 95,
-    scope: "仅切除外周微小楔形局部",
+    scope: "仅切除外周微小楔形局部（不伤及肺段/支气管）",
     rfs: "适用 AIS/MIA 极小纯磨玻璃结节（CTR=0）",
     os: "5年 OS ≈ 100%",
-    note: "非解剖性切除，支气管树完全不动；仅切除病灶周围 1~2cm 安全边界，保留整叶及全部肺段",
+    note: "非解剖性局部切除；仅切除病灶边缘 1~2cm 安全边界，整叶及所有肺段支气管 100% 完好保留",
   },
   {
     id: "segment" as SurgicalMode,
-    label: "肺段切除 (保肺首选)",
+    label: "肺段切除 (解剖性保肺)",
     color: "text-emerald-700",
     bg: "bg-emerald-50",
     border: "border-emerald-300",
@@ -29,7 +29,7 @@ const MODES = [
     scope: "仅切除 1 个肺段（如右上叶 S1 尖段）",
     rfs: "CTR ≤ 0.5 早期肺癌（≤2cm）",
     os: "5年 OS 94.3% (JCOG0802)",
-    note: "解剖性切除，精细离断段支气管与段血管；保留同叶其余 2 段及全肺其余 4 叶，保留 90%+ 肺功能",
+    note: "解剖性切除，精细离断单根段支气管与段血管；保留同叶其余 2 个肺段及全肺其余 4 个肺叶，保留 90%+ 肺功能",
   },
   {
     id: "lobe" as SurgicalMode,
@@ -39,187 +39,271 @@ const MODES = [
     border: "border-blue-300",
     barColor: "#3b82f6",
     lung: 82,
-    scope: "切除右上叶整叶（其余 4 叶完好）",
+    scope: "切除右上叶整叶（右中/下叶及左肺 2 叶全部完好）",
     rfs: "CTR > 0.5 或实性成分 >2cm 浸润性肺癌",
     os: "5年 OS 91.1% (JCOG0802)",
-    note: "完整切除受累单侧单叶（全肺 5 叶中的 1 叶）及对应淋巴结；右中下叶与左肺 2 叶全部完好保留",
+    note: "完整切除受累单叶（全肺 5 叶中的 1 叶）及引流淋巴结；右中叶、右下叶及左肺 2 叶全部完好保留",
   },
 ];
 
 function LungSVG({ mode }: { mode: SurgicalMode }) {
-  // Normal healthy lobe colors
   const healthyLobe = "#e2e8f0";
   const healthyStroke = "#94a3b8";
 
-  // Mode highlights applied ONLY to Right Upper Lobe (RUL)
   const isWedge = mode === "wedge";
   const isSeg = mode === "segment";
   const isLobe = mode === "lobe";
 
   return (
-    <svg viewBox="0 0 280 200" className="w-full max-w-[280px] mx-auto select-none">
-      {/* Background grid / subtitle */}
+    <svg viewBox="0 0 360 250" className="w-full h-auto max-w-[420px] mx-auto select-none">
       <defs>
-        <pattern id="cutStripe" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-          <line x1="0" y1="0" x2="0" y2="6" stroke="#f59e0b" strokeWidth="2" opacity="0.8" />
+        {/* Stripe Patterns for Resected Areas */}
+        <pattern id="cutStripeWedge" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+          <line x1="0" y1="0" x2="0" y2="6" stroke="#f59e0b" strokeWidth="2.2" opacity="0.85" />
         </pattern>
-        <pattern id="segStripe" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-          <line x1="0" y1="0" x2="0" y2="6" stroke="#10b981" strokeWidth="2" opacity="0.8" />
+        <pattern id="cutStripeSeg" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+          <line x1="0" y1="0" x2="0" y2="6" stroke="#10b981" strokeWidth="2.2" opacity="0.85" />
         </pattern>
-        <pattern id="lobeStripe" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-          <line x1="0" y1="0" x2="0" y2="6" stroke="#3b82f6" strokeWidth="2" opacity="0.8" />
+        <pattern id="cutStripeLobe" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+          <line x1="0" y1="0" x2="0" y2="6" stroke="#3b82f6" strokeWidth="2.2" opacity="0.85" />
         </pattern>
+
+        {/* Drop shadow for text pills */}
+        <filter id="shadowPill" x="-10%" y="-10%" width="120%" height="120%">
+          <feDropShadow dx="0" dy="1" stdDeviation="1" floodColor="#000000" floodOpacity="0.08" />
+        </filter>
       </defs>
 
-      {/* Trachea and Bronchial Tree */}
-      <g stroke="#64748b" strokeWidth="3" fill="none" strokeLinecap="round">
-        {/* Main Trachea */}
-        <line x1="140" y1="12" x2="140" y2="46" strokeWidth="4.5" stroke="#475569" />
-        {/* Carina bifurcation */}
-        <path d="M140,46 Q140,55 160,65" /> {/* Right main bronchus */}
-        <path d="M140,46 Q140,55 120,65" /> {/* Left main bronchus */}
+      {/* Central Trachea and Bronchial Tree */}
+      <g stroke="#475569" strokeLinecap="round" fill="none">
+        {/* Trachea (气管) */}
+        <line x1="180" y1="12" x2="180" y2="48" strokeWidth="5.5" />
+        {/* Tracheal rings decoration */}
+        <line x1="176" y1="20" x2="184" y2="20" stroke="#94a3b8" strokeWidth="1.5" />
+        <line x1="176" y1="28" x2="184" y2="28" stroke="#94a3b8" strokeWidth="1.5" />
+        <line x1="176" y1="36" x2="184" y2="36" stroke="#94a3b8" strokeWidth="1.5" />
 
-        {/* Right lobar bronchi */}
-        <path d="M160,65 Q180,68 195,58" strokeWidth={isLobe ? "2.5" : "2"} stroke={isLobe ? "#ef4444" : "#64748b"} /> {/* RUL bronchus */}
-        <path d="M160,65 Q178,82 188,96" strokeWidth="2" /> {/* RML bronchus */}
-        <path d="M160,65 Q168,95 174,130" strokeWidth="2" /> {/* RLL bronchus */}
+        {/* Carina & Main Bronchi (左右主支气管 - 面向患者视向: 左图为患者右肺, 右图为患者左肺) */}
+        <path d="M180,48 Q175,60 152,70" strokeWidth="4" /> {/* 右主支气管 (解剖右=图左) */}
+        <path d="M180,48 Q185,60 208,70" strokeWidth="4" /> {/* 左主支气管 (解剖左=图右) */}
 
-        {/* RUL Segmental bronchi (S1, S2, S3) */}
+        {/* 右肺各叶支气管 */}
+        <path d="M152,70 Q130,72 108,58" strokeWidth={isLobe ? "3" : "2.5"} stroke={isLobe ? "#ef4444" : "#475569"} /> {/* 右上叶支气管 */}
+        <path d="M152,70 Q132,96 112,112" strokeWidth="2.5" /> {/* 右中叶支气管 */}
+        <path d="M152,70 Q142,110 135,160" strokeWidth="2.5" /> {/* 右下叶支气管 */}
+
+        {/* 段切时标出 S1 尖段支气管离断 */}
         {isSeg && (
           <>
-            <path d="M195,58 Q202,48 206,38" stroke="#10b981" strokeWidth="2" strokeDasharray="2,2" /> {/* S1 apical */}
-            <path d="M195,58 Q210,60 216,62" stroke="#64748b" strokeWidth="1.5" /> {/* S2 post */}
-            <path d="M195,58 Q200,70 205,76" stroke="#64748b" strokeWidth="1.5" /> {/* S3 ant */}
+            <path d="M108,58 Q98,46 92,34" stroke="#10b981" strokeWidth="2.5" strokeDasharray="3,2" /> {/* S1 尖段 */}
+            <path d="M108,58 Q88,60 78,64" stroke="#64748b" strokeWidth="1.8" /> {/* S2 后段 */}
+            <path d="M108,58 Q100,72 94,82" stroke="#64748b" strokeWidth="1.8" /> {/* S3 前段 */}
           </>
         )}
 
-        {/* Left lobar bronchi */}
-        <path d="M120,65 Q95,68 80,62" strokeWidth="2" /> {/* LUL bronchus */}
-        <path d="M120,65 Q105,95 98,130" strokeWidth="2" /> {/* LLL bronchus */}
+        {/* 左肺各叶支气管 */}
+        <path d="M208,70 Q235,72 255,64" strokeWidth="2.5" /> {/* 左上叶支气管 */}
+        <path d="M208,70 Q222,110 228,160" strokeWidth="2.5" /> {/* 左下叶支气管 */}
       </g>
 
-      {/* ================= RIGHT LUNG (3 Lobes) ================= */}
-      {/* 1. Right Upper Lobe (RUL) */}
+      {/* ================================================================= */}
+      {/* 🫁 1. 患者右肺 (图左侧，共 3 叶：右上叶、右中叶、右下叶) */}
+      {/* ================================================================= */}
+
+      {/* 【右上叶 (RUL)】 */}
       {isLobe ? (
-        // Entire RUL Resected Highlight
+        // 🔵 肺叶切除：整叶切除高亮
         <g>
           <path
-            d="M152,38 C175,22 215,22 228,52 C230,68 220,80 188,82 C168,82 152,65 152,38 Z"
-            fill="url(#lobeStripe)"
+            d="M165,42 C135,20 85,20 62,54 C58,74 72,92 118,94 C145,94 165,72 165,42 Z"
+            fill="url(#cutStripeLobe)"
             stroke="#2563eb"
-            strokeWidth="2"
-            strokeDasharray="4,2"
+            strokeWidth="2.5"
+            strokeDasharray="5,2"
           />
           <path
-            d="M152,38 C175,22 215,22 228,52 C230,68 220,80 188,82 C168,82 152,65 152,38 Z"
+            d="M165,42 C135,20 85,20 62,54 C58,74 72,92 118,94 C145,94 165,72 165,42 Z"
             fill="#3b82f6"
             opacity="0.25"
           />
-          {/* Resection marker */}
-          <circle cx="195" cy="58" r="4.5" fill="#ef4444" stroke="#ffffff" strokeWidth="1" />
-          <text x="190" y="32" fontSize="8" fill="#1d4ed8" fontWeight="bold">右上叶（整叶切除）</text>
+          {/* 离断切口标记 */}
+          <circle cx="108" cy="58" r="5" fill="#ef4444" stroke="#ffffff" strokeWidth="1.5" />
+          
+          {/* Label Pill */}
+          <g filter="url(#shadowPill)">
+            <rect x="52" y="24" width="102" height="20" rx="10" fill="#eff6ff" stroke="#bfdbfe" strokeWidth="1" />
+            <text x="103" y="38" fontSize="10.5" fill="#1d4ed8" fontWeight="bold" textAnchor="middle">
+              右上叶 (整叶切除)
+            </text>
+          </g>
         </g>
       ) : isSeg ? (
-        // RUL with S1 (Apical) segment resected, S2/S3 preserved
+        // 🟢 肺段切除：仅切除 S1 尖段，保留 S2/S3
         <g>
-          {/* Preserved S2 & S3 segments of RUL */}
+          {/* 保留的 S2/S3 段 */}
           <path
-            d="M165,58 C185,58 226,62 228,70 C222,82 188,82 158,80 C154,68 160,58 165,58 Z"
+            d="M148,64 C120,64 70,68 64,78 C70,92 118,94 158,92 C162,78 155,64 148,64 Z"
             fill={healthyLobe}
             stroke={healthyStroke}
-            strokeWidth="1.5"
+            strokeWidth="1.8"
           />
-          <text x="190" y="74" fontSize="6.5" fill="#64748b">保留S2/S3段</text>
+          {/* 保留段文字 */}
+          <g filter="url(#shadowPill)">
+            <rect x="68" y="74" width="76" height="16" rx="8" fill="#ffffff" stroke="#cbd5e1" strokeWidth="1" opacity="0.95" />
+            <text x="106" y="86" fontSize="9" fill="#64748b" textAnchor="middle" fontWeight="bold">
+              保留 S2/S3 段
+            </text>
+          </g>
 
-          {/* S1 Apical Segment (Resected) */}
+          {/* 切除的 S1 尖段 (Apical Segment) */}
           <path
-            d="M152,38 C175,22 215,22 228,52 C210,58 175,58 152,38 Z"
-            fill="url(#segStripe)"
+            d="M165,42 C135,20 85,20 62,54 C88,64 135,64 165,42 Z"
+            fill="url(#cutStripeSeg)"
             stroke="#059669"
-            strokeWidth="2"
-            strokeDasharray="3,2"
+            strokeWidth="2.5"
+            strokeDasharray="4,2"
           />
           <path
-            d="M152,38 C175,22 215,22 228,52 C210,58 175,58 152,38 Z"
+            d="M165,42 C135,20 85,20 62,54 C88,64 135,64 165,42 Z"
             fill="#10b981"
             opacity="0.3"
           />
-          {/* Resection marker on S1 bronchus */}
-          <circle cx="202" cy="46" r="3.5" fill="#10b981" stroke="#ffffff" strokeWidth="1" />
-          <text x="186" y="32" fontSize="7.5" fill="#047857" fontWeight="bold">S1 尖段（段切）</text>
+          {/* S1 段支气管离断点 */}
+          <circle cx="98" cy="46" r="4.5" fill="#10b981" stroke="#ffffff" strokeWidth="1.5" />
+
+          {/* S1 Label Pill */}
+          <g filter="url(#shadowPill)">
+            <rect x="52" y="22" width="105" height="20" rx="10" fill="#ecfdf5" stroke="#a7f3d0" strokeWidth="1" />
+            <text x="104.5" y="36" fontSize="10.5" fill="#047857" fontWeight="bold" textAnchor="middle">
+              S1 尖段 (段切)
+            </text>
+          </g>
         </g>
       ) : (
-        // Wedge mode: RUL intact with small triangular wedge excised at peripheral top-right
+        // 🟡 楔形切除：整叶完整，仅外周切除微小三角形
         <g>
+          {/* 完整的右上叶 */}
           <path
-            d="M152,38 C175,22 215,22 228,52 C230,68 220,80 188,82 C168,82 152,65 152,38 Z"
+            d="M165,42 C135,20 85,20 62,54 C58,74 72,92 118,94 C145,94 165,72 165,42 Z"
             fill={healthyLobe}
             stroke={healthyStroke}
-            strokeWidth="1.5"
+            strokeWidth="1.8"
           />
-          {/* Wedge slice at peripheral edge */}
+          {/* 外周微小楔切边缘 (Wedge slice) */}
           <polygon
-            points="218,26 230,42 212,45"
-            fill="url(#cutStripe)"
+            points="76,28 60,48 84,52"
+            fill="url(#cutStripeWedge)"
             stroke="#d97706"
-            strokeWidth="2"
-            strokeDasharray="3,1"
+            strokeWidth="2.2"
+            strokeDasharray="3,1.5"
           />
-          <polygon points="218,26 230,42 212,45" fill="#f59e0b" opacity="0.35" />
-          <circle cx="220" cy="37" r="2" fill="#b45309" />
-          <text x="180" y="32" fontSize="7" fill="#64748b">右上叶 (整叶保留)</text>
-          <text x="232" y="28" fontSize="7" fill="#b45309" fontWeight="bold">楔切</text>
+          <polygon points="76,28 60,48 84,52" fill="#f59e0b" opacity="0.4" />
+          {/* 结节微点 */}
+          <circle cx="73" cy="43" r="2.5" fill="#b45309" />
+
+          {/* Label Pill */}
+          <g filter="url(#shadowPill)">
+            <rect x="88" y="24" width="76" height="18" rx="9" fill="#ffffff" stroke="#cbd5e1" strokeWidth="1" opacity="0.95" />
+            <text x="126" y="37" fontSize="9" fill="#64748b" textAnchor="middle" fontWeight="bold">
+              右上叶 (整叶保留)
+            </text>
+          </g>
+          <g filter="url(#shadowPill)">
+            <rect x="42" y="44" width="40" height="16" rx="8" fill="#fef3c7" stroke="#fde68a" strokeWidth="1" />
+            <text x="62" y="56" fontSize="9" fill="#92400e" fontWeight="bold" textAnchor="middle">
+              楔切
+            </text>
+          </g>
         </g>
       )}
 
-      {/* 2. Right Middle Lobe (RML - Always Preserved) */}
-      <path
-        d="M154,84 C175,84 218,84 225,98 C222,112 185,116 156,110 C150,98 152,86 154,84 Z"
-        fill={healthyLobe}
-        stroke={healthyStroke}
-        strokeWidth="1.5"
-      />
-      <text x="185" y="102" fontSize="6.5" fill="#64748b" textAnchor="middle">右中叶 (保留)</text>
+      {/* 【右中叶 (RML - 永远完好保留)】 */}
+      <g>
+        <path
+          d="M162,98 C135,98 78,98 70,116 C74,134 122,140 160,132 C168,118 165,102 162,98 Z"
+          fill={healthyLobe}
+          stroke={healthyStroke}
+          strokeWidth="1.8"
+        />
+        <g filter="url(#shadowPill)">
+          <rect x="76" y="112" width="78" height="18" rx="9" fill="#ffffff" stroke="#cbd5e1" strokeWidth="1" opacity="0.95" />
+          <text x="115" y="125" fontSize="9.5" fill="#475569" textAnchor="middle" fontWeight="bold">
+            右中叶 (完好保留)
+          </text>
+        </g>
+      </g>
 
-      {/* 3. Right Lower Lobe (RLL - Always Preserved) */}
-      <path
-        d="M155,112 C185,118 220,114 220,140 C210,165 168,172 148,162 C146,140 150,118 155,112 Z"
-        fill={healthyLobe}
-        stroke={healthyStroke}
-        strokeWidth="1.5"
-      />
-      <text x="185" y="145" fontSize="6.5" fill="#64748b" textAnchor="middle">右下叶 (保留)</text>
+      {/* 【右下叶 (RLL - 永远完好保留)】 */}
+      <g>
+        <path
+          d="M160,136 C125,142 78,138 78,172 C90,205 145,214 170,202 C172,174 166,146 160,136 Z"
+          fill={healthyLobe}
+          stroke={healthyStroke}
+          strokeWidth="1.8"
+        />
+        <g filter="url(#shadowPill)">
+          <rect x="76" y="168" width="78" height="18" rx="9" fill="#ffffff" stroke="#cbd5e1" strokeWidth="1" opacity="0.95" />
+          <text x="115" y="181" fontSize="9.5" fill="#475569" textAnchor="middle" fontWeight="bold">
+            右下叶 (完好保留)
+          </text>
+        </g>
+      </g>
 
-      {/* ================= LEFT LUNG (2 Lobes - Always Preserved) ================= */}
-      {/* 1. Left Upper Lobe (LUL) */}
-      <path
-        d="M128,38 C105,22 65,22 52,55 C48,78 60,95 90,98 C112,98 126,75 128,38 Z"
-        fill={healthyLobe}
-        stroke={healthyStroke}
-        strokeWidth="1.5"
-      />
-      <text x="92" y="65" fontSize="6.5" fill="#64748b" textAnchor="middle">左上叶 (完好保留)</text>
+      {/* ================================================================= */}
+      {/* 🫁 2. 患者左肺 (图右侧，共 2 叶：左上叶、左下叶 - 永远完好保留) */}
+      {/* ================================================================= */}
 
-      {/* 2. Left Lower Lobe (LLL) */}
-      <path
-        d="M124,100 C95,97 55,98 58,135 C65,166 110,172 130,162 C132,138 128,110 124,100 Z"
-        fill={healthyLobe}
-        stroke={healthyStroke}
-        strokeWidth="1.5"
-      />
-      <text x="92" y="136" fontSize="6.5" fill="#64748b" textAnchor="middle">左下叶 (完好保留)</text>
+      {/* 【左上叶 (LUL - 永远完好保留)】 */}
+      <g>
+        <path
+          d="M195,42 C225,20 275,20 298,54 C302,84 288,108 248,112 C218,112 198,82 195,42 Z"
+          fill={healthyLobe}
+          stroke={healthyStroke}
+          strokeWidth="1.8"
+        />
+        <g filter="url(#shadowPill)">
+          <rect x="206" y="58" width="80" height="18" rx="9" fill="#ffffff" stroke="#cbd5e1" strokeWidth="1" opacity="0.95" />
+          <text x="246" y="71" fontSize="9.5" fill="#475569" textAnchor="middle" fontWeight="bold">
+            左上叶 (完好保留)
+          </text>
+        </g>
+      </g>
 
-      {/* Heart Silhouette in Center */}
-      <ellipse cx="138" cy="115" rx="10" ry="14" fill="#fda4af" opacity="0.6" stroke="#f43f5e" strokeWidth="1" />
-      <text x="138" y="118" fontSize="5.5" fill="#e11d48" textAnchor="middle" fontWeight="bold">心</text>
+      {/* 【左下叶 (LLL - 永远完好保留)】 */}
+      <g>
+        <path
+          d="M200,116 C238,112 290,114 285,160 C274,204 218,214 190,202 C188,172 194,136 200,116 Z"
+          fill={healthyLobe}
+          stroke={healthyStroke}
+          strokeWidth="1.8"
+        />
+        <g filter="url(#shadowPill)">
+          <rect x="206" y="156" width="80" height="18" rx="9" fill="#ffffff" stroke="#cbd5e1" strokeWidth="1" opacity="0.95" />
+          <text x="246" y="169" fontSize="9.5" fill="#475569" textAnchor="middle" fontWeight="bold">
+            左下叶 (完好保留)
+          </text>
+        </g>
+      </g>
 
-      {/* Bottom Labels */}
-      <text x="185" y="185" fontSize="8.5" textAnchor="middle" fill="#334155" fontWeight="bold">
-        右肺 (3叶: 上/中/下)
-      </text>
-      <text x="92" y="185" fontSize="8.5" textAnchor="middle" fill="#334155" fontWeight="bold">
-        左肺 (2叶: 上/下)
-      </text>
+      {/* 心脏轮廓 (Central Cardiac Silhouette) */}
+      <g>
+        <ellipse cx="180" cy="142" rx="14" ry="18" fill="#fda4af" opacity="0.75" stroke="#f43f5e" strokeWidth="1.2" />
+        <text x="180" y="146" fontSize="8" fill="#be123c" textAnchor="middle" fontWeight="bold">心</text>
+      </g>
+
+      {/* 底部解剖总标注 */}
+      <g filter="url(#shadowPill)">
+        <rect x="48" y="222" width="134" height="22" rx="11" fill="#f8fafc" stroke="#cbd5e1" strokeWidth="1.2" />
+        <text x="115" y="237" fontSize="10.5" textAnchor="middle" fill="#0f172a" fontWeight="bold">
+          右肺 (3叶: 上 / 中 / 下)
+        </text>
+      </g>
+      <g filter="url(#shadowPill)">
+        <rect x="188" y="222" width="124" height="22" rx="11" fill="#f8fafc" stroke="#cbd5e1" strokeWidth="1.2" />
+        <text x="250" y="237" fontSize="10.5" textAnchor="middle" fill="#0f172a" fontWeight="bold">
+          左肺 (2叶: 上 / 下)
+        </text>
+      </g>
     </svg>
   );
 }
@@ -230,16 +314,16 @@ export function SurgicalApproachesVisual() {
 
   return (
     <div className="w-full space-y-3 sm:space-y-4">
-      {/* Tab row */}
+      {/* Tab Selector Buttons */}
       <div className="flex gap-1.5 sm:gap-2">
         {MODES.map((m) => (
           <button
             key={m.id}
             onClick={() => setActive(m.id)}
-            className={`flex-1 py-1.5 sm:py-2 px-1 rounded-lg text-xs sm:text-sm font-semibold border-2 transition-all duration-200 ${
+            className={`flex-1 py-2 sm:py-2.5 px-1.5 sm:px-2 rounded-xl text-xs sm:text-sm font-bold border-2 transition-all duration-200 cursor-pointer ${
               active === m.id
                 ? `${m.border} ${m.bg} ${m.color} shadow-sm scale-[1.02]`
-                : "border-slate-200 bg-white text-slate-400 hover:border-slate-300"
+                : "border-slate-200 bg-white text-slate-500 hover:border-slate-300"
             }`}
           >
             {m.label}
@@ -247,56 +331,57 @@ export function SurgicalApproachesVisual() {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-        {/* Lung SVG Panel */}
-        <div className={`rounded-xl border-2 ${curr.border} ${curr.bg} p-2.5 sm:p-4 flex flex-col items-center justify-center`}>
-          <LungSVG mode={active} />
-          <div className="mt-2 text-center">
-            <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-bold ${curr.bg} ${curr.color} border ${curr.border}`}>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-4 items-stretch">
+        {/* Left: Lung SVG Panel (occupies 7 cols on large screens, fills available width) */}
+        <div className={`lg:col-span-7 rounded-2xl border-2 ${curr.border} ${curr.bg} p-3 sm:p-4 flex flex-col items-center justify-between shadow-xs`}>
+          <div className="w-full flex-1 flex items-center justify-center py-1">
+            <LungSVG mode={active} />
+          </div>
+          <div className="mt-2 w-full text-center">
+            <span className={`inline-block px-3 py-1 rounded-full text-xs sm:text-sm font-black ${curr.bg} ${curr.color} border ${curr.border} shadow-xs`}>
               {curr.scope}
             </span>
           </div>
         </div>
 
-        {/* Data panels */}
-        <div className="space-y-2.5 sm:space-y-3">
-          {/* Lung function bar */}
-          <div className={`rounded-xl border ${curr.border} ${curr.bg} p-2.5 sm:p-3`}>
-            <div className="flex items-center justify-between text-xs text-slate-600 mb-1.5 font-medium">
+        {/* Right: Data & Evidence Panel (occupies 5 cols) */}
+        <div className="lg:col-span-5 flex flex-col justify-between space-y-2.5 sm:space-y-3">
+          {/* Lung function preservation progress */}
+          <div className={`rounded-xl border-2 ${curr.border} ${curr.bg} p-3 sm:p-3.5 shadow-xs`}>
+            <div className="flex items-center justify-between text-xs text-slate-700 mb-1.5 font-bold">
               <span>术后整体肺功能保留率（代偿后）</span>
-              <span className={`text-sm font-bold ${curr.color}`}>{curr.lung}%</span>
+              <span className={`text-base font-black ${curr.color}`}>{curr.lung}%</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="flex-1 bg-slate-200 rounded-full h-3">
+              <div className="flex-1 bg-slate-200/90 rounded-full h-3.5 overflow-hidden p-0.5">
                 <div
-                  className="h-3 rounded-full transition-all duration-700"
+                  className="h-full rounded-full transition-all duration-700 shadow-xs"
                   style={{ width: `${curr.lung}%`, backgroundColor: curr.barColor }}
                 />
               </div>
             </div>
           </div>
 
-          {/* Stats */}
-          <div className="rounded-xl border border-slate-200 bg-white p-2.5 sm:p-3 space-y-2">
-            <div className="flex items-start gap-1.5">
-              <span className="text-xs text-slate-400 shrink-0">适用范围：</span>
-              <span className="text-xs font-semibold text-slate-700">{curr.rfs}</span>
+          {/* Detailed stats */}
+          <div className="rounded-xl border border-slate-200 bg-white p-3 sm:p-3.5 space-y-2 flex-1 shadow-xs">
+            <div className="flex items-start gap-1.5 text-xs">
+              <span className="text-slate-400 font-bold shrink-0">适用指征：</span>
+              <span className="font-semibold text-slate-800 leading-snug">{curr.rfs}</span>
             </div>
-            <div className="flex items-start gap-1.5">
-              <span className="text-xs text-slate-400 shrink-0">循证数据：</span>
-              <span className={`text-xs font-bold ${curr.color}`}>{curr.os}</span>
+            <div className="flex items-start gap-1.5 text-xs">
+              <span className="text-slate-400 font-bold shrink-0">循证疗效：</span>
+              <span className={`font-black ${curr.color}`}>{curr.os}</span>
             </div>
-            <div className="pt-1.5 border-t border-slate-100 text-xs text-slate-600 leading-relaxed">
-              <strong>解剖要点：</strong>{curr.note}
+            <div className="pt-2 border-t border-slate-100 text-xs text-slate-600 leading-relaxed">
+              <strong className="text-slate-800">解剖学要点：</strong>
+              {curr.note}
             </div>
           </div>
 
-          {/* JCOG0802 callout */}
-          <div className="rounded-xl bg-blue-50 border border-blue-200 p-2.5 sm:p-3">
-            <p className="text-xs text-blue-700 leading-relaxed">
-              <strong>JCOG0802（Lancet 2022 重磅数据）：</strong>
-              对于 ≤2cm 且 CTR≤0.5 的外周早期肺癌，肺段切除 5 年 OS <strong>94.3%</strong> 优于肺叶切除 91.1%，在彻底根治的同时最大化挽救健康肺泡！
-            </p>
+          {/* JCOG0802 Trial Gold Standard Banner */}
+          <div className="rounded-xl bg-gradient-to-r from-blue-50 to-sky-50 border border-blue-200 p-2.5 sm:p-3 text-xs text-blue-900 leading-relaxed shadow-xs">
+            <strong className="text-blue-950 block mb-0.5">🏆 JCOG0802（Lancet 2022 重磅循证）：</strong>
+            对于 ≤2cm 且 CTR≤0.5 的外周早期肺癌，肺段切除 5 年总生存率 <strong>94.3%</strong> 优于肺叶切除 91.1%，兼顾 100% 根治与极致保肺！
           </div>
         </div>
       </div>
