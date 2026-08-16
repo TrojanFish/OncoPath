@@ -83,9 +83,13 @@ export default function TermsPage() {
             </p>
           </section>
 
-          <section className="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <section className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
             <span>© 2026 OncoPath 肺癌循证医学决策系统</span>
-            <Link href="/privacy" className="text-blue-600 hover:underline font-medium">查看《隐私政策》</Link>
+            <div className="flex items-center gap-3">
+              <Link href="/about" className="text-blue-600 hover:underline font-medium">关于我们与初衷</Link>
+              <span>·</span>
+              <Link href="/privacy" className="text-blue-600 hover:underline font-medium">查看《隐私政策》</Link>
+            </div>
           </section>
 
         </div>

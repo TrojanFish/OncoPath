@@ -90,8 +90,13 @@ export default function PrivacyPage() {
             </p>
           </section>
 
-          <section className="space-y-2 pt-4 border-t border-slate-100 text-xs text-slate-500">
-            <p>如对本隐私政策或您的个人数据保护有任何疑问或投诉，请通过系统管理员后台或官方渠道联系技术支持团队。</p>
+          <section className="space-y-2 pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+            <p>© 2026 OncoPath 隐私安全保护</p>
+            <div className="flex items-center gap-3">
+              <Link href="/about" className="text-blue-600 hover:underline font-medium">关于我们与初衷</Link>
+              <span>·</span>
+              <Link href="/terms" className="text-blue-600 hover:underline font-medium">查看《服务协议与免责声明》</Link>
+            </div>
           </section>
 
         </div>

@@ -1,0 +1,240 @@
+"use client";
+
+import React, { useState } from "react";
+import Link from "next/link";
+
+export default function AboutPage() {
+  const [copied, setCopied] = useState(false);
+  const contactEmail = "contact@oncopath.org"; // 可以在此修改为您实际使用的邮箱
+
+  const handleCopyEmail = () => {
+    navigator.clipboard.writeText(contactEmail);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-50 text-slate-800 py-10 sm:py-14 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-4xl mx-auto space-y-8">
+        
+        {/* Top Navigation */}
+        <div className="flex items-center justify-between">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-slate-600 hover:text-blue-600 transition-colors"
+          >
+            <span>← 返回首页</span>
+          </Link>
+          <span className="text-xs text-slate-400 font-mono">OncoPath · 创作者初衷</span>
+        </div>
+
+        {/* Main Article Card */}
+        <div className="bg-white rounded-3xl p-6 sm:p-10 md:p-12 shadow-sm border border-slate-200 space-y-10">
+          
+          {/* Header Banner */}
+          <div className="space-y-4 border-b border-slate-100 pb-8">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-800 text-xs font-bold">
+              <span>🕊️ 创作者自白 · 致同行者</span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 tracking-tight leading-tight">
+              因为淋过雨，<br className="hidden sm:inline" />
+              所以想为同样迷茫的你撑一把伞
+            </h1>
+            <p className="text-sm sm:text-base text-slate-500 font-medium">
+              —— 一个早期肺癌亲历者的心路历程与 OncoPath 循证平台的诞生始末
+            </p>
+          </div>
+
+          {/* Narrative Content */}
+          <div className="space-y-8 text-sm sm:text-base leading-relaxed text-slate-700">
+            
+            {/* Act 1 */}
+            <section className="space-y-3">
+              <h2 className="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2.5">
+                <span className="w-7 h-7 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-black shrink-0">1</span>
+                <span>那张冰冷的病理报告，与漫长的黑夜</span>
+              </h2>
+              <p>
+                几个月前，当我自己拿到那份印着<strong>“浸润性肺腺癌”、“实性成分”、“气道播散 (STAS)”、“脏层胸膜侵犯 (VPI)”</strong>等专业字眼的病理组织学诊断书时，内心同样被巨大的未知、恐慌与手足无措所吞没。
+              </p>
+              <p>
+                在术后漫长的康复与求医历程中，我日夜穿梭在各大医学论坛、患者交流群和文献数据库里。我看到了太多病友和家属在深夜的帖子里辗转难眠：
+              </p>
+              <ul className="list-disc list-inside space-y-1.5 pl-2 text-slate-600 text-xs sm:text-sm">
+                <li>有人因为搜索到网络碎片化言论，误将极早期的原位/微浸润当成绝症，整日惶惶不可终日；</li>
+                <li>有人拿着复杂的病理指标，不知道该不该做基因检测、要不要做辅助化疗；</li>
+                <li>有人面对大医院专家短短几分钟的面诊时间，因为紧张而手足无措，走出诊室才发现最关键的问题一个都没来得及问。</li>
+              </ul>
+            </section>
+
+            {/* Act 2 */}
+            <section className="space-y-3 bg-blue-50/50 p-5 sm:p-6 rounded-2xl border border-blue-100">
+              <h2 className="text-base sm:text-lg font-bold text-blue-950 flex items-center gap-2.5">
+                <span className="w-7 h-7 rounded-xl bg-blue-600 text-white flex items-center justify-center text-xs font-black shrink-0">2</span>
+                <span>为什么做 OncoPath —— 用理性的证据，消解不必要的恐惧</span>
+              </h2>
+              <p className="text-blue-900">
+                恐慌往往来源于对未知的想象。随着我深入研读了数百篇国际同行评审的前瞻性临床队列研究（如日本 JCOG0804/JCOG0802 系列研究、ADAURA 第三代靶向研究、AJCC 第 8/9 版 TNM 分期指南），我发现：<strong>现代胸部肿瘤医学对早期肺癌的根治率、高危病理特征以及规范随访路径，已经有了极为清晰、严谨的统计学定论。</strong>
+              </p>
+              <p className="text-blue-900">
+                作为一名技术开发者，我决定搭建 <strong>OncoPath</strong> 这个纯粹的公益工具：
+              </p>
+              <div className="grid sm:grid-cols-3 gap-3 pt-2">
+                <div className="bg-white p-3.5 rounded-xl border border-blue-200/80 shadow-2xs">
+                  <div className="text-xs font-bold text-blue-800 mb-1">📖 医学信息平权</div>
+                  <div className="text-xs text-slate-600">把晦涩的顶刊论文翻译成患者和家属能轻松看懂的白话解读。</div>
+                </div>
+                <div className="bg-white p-3.5 rounded-xl border border-blue-200/80 shadow-2xs">
+                  <div className="text-xs font-bold text-teal-800 mb-1">🔬 杜绝算命式推测</div>
+                  <div className="text-xs text-slate-600">每一个风险指标均可追溯至公开的 PubMed 顶刊文献，拒绝主观臆断。</div>
+                </div>
+                <div className="bg-white p-3.5 rounded-xl border border-blue-200/80 shadow-2xs">
+                  <div className="text-xs font-bold text-sky-800 mb-1">📝 赋能门诊高效沟通</div>
+                  <div className="text-xs text-slate-600">生成一目了然的便签卡与问诊清单，让患者在面诊时不漏掉任何关键决策点。</div>
+                </div>
+              </div>
+            </section>
+
+            {/* Act 3 */}
+            <section className="space-y-3">
+              <h2 className="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2.5">
+                <span className="w-7 h-7 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-black shrink-0">3</span>
+                <span>谦逊求教与专业共建声明</span>
+              </h2>
+              <p>
+                我必须坦诚地向大家说明：<strong>我并非专业的执业临床医师，而是一名与你们走在同一条康复道路上的技术病友。</strong>
+              </p>
+              <p>
+                尽管平台内的所有病理分期逻辑、影像 CTR 计算模型与文献均经过权威指南的严格校验，但医学领域浩瀚深邃，个体病情千差万别，平台内容难免存在理解局限或需要改进之处。
+              </p>
+              <p className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-xs sm:text-sm text-amber-900">
+                <strong>⚠️ 重要提醒</strong>：本平台提供的所有数据与建议<strong>仅供患者知情参考与就医辅助，绝不构成任何个性化临床诊断结论或处方指令</strong>。具体的治疗方案与随访检查，请务必以线下正规三甲医院主治医生的综合研判为准。
+              </p>
+            </section>
+
+          </div>
+
+          {/* Connect & Sponsorship Cards Section */}
+          <div className="pt-6 border-t border-slate-100 space-y-6">
+            <div className="text-center max-w-md mx-auto">
+              <h3 className="text-lg sm:text-xl font-bold text-slate-900">同路相伴 · 交流与支持</h3>
+              <p className="text-xs sm:text-sm text-slate-500 mt-1">
+                本平台承诺所有核心功能对病友<strong>永久免费且无任何商业广告</strong>
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-6">
+              
+              {/* Card 1: WeChat Community QR */}
+              <div className="bg-slate-50 rounded-2xl p-6 border border-slate-200 text-center flex flex-col items-center justify-between space-y-4 hover:border-teal-300 transition-colors">
+                <div className="space-y-1">
+                  <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-teal-100 text-teal-800 text-[11px] font-bold">
+                    💬 病友交流与互助
+                  </div>
+                  <h4 className="text-sm font-bold text-slate-900">微信扫码入群 / 添加作者</h4>
+                  <p className="text-xs text-slate-500">与同路人互相打气、分享康复经验，抗癌路上不再孤单</p>
+                </div>
+
+                {/* QR Slot */}
+                <div className="w-44 h-44 rounded-2xl bg-white p-3 border border-slate-200 shadow-2xs flex flex-col items-center justify-center relative overflow-hidden group">
+                  {/* 当您有真实二维码图片时，将其放置在 app/public/wechat_qr.png 即可自动显示 */}
+                  <img 
+                    src="/wechat_qr.png" 
+                    alt="微信交流二维码" 
+                    className="w-full h-full object-contain rounded-xl"
+                    onError={(e) => {
+                      // 占位符后备显示
+                      (e.target as HTMLElement).style.display = 'none';
+                      const fallback = document.getElementById('wechat-qr-placeholder');
+                      if (fallback) fallback.style.display = 'flex';
+                    }}
+                  />
+                  <div id="wechat-qr-placeholder" className="hidden flex-col items-center justify-center text-slate-400 text-center p-2">
+                    <span className="text-3xl mb-1.5">📱</span>
+                    <span className="text-xs font-bold text-slate-600">微信交流二维码</span>
+                    <span className="text-[10px] text-slate-400 mt-1">（待添加 wechat_qr.png）</span>
+                  </div>
+                </div>
+
+                <div className="text-[11px] text-slate-400">
+                  扫码请注明来意：“OncoPath 病友”
+                </div>
+              </div>
+
+              {/* Card 2: Server Support Tip / Sponsorship */}
+              <div className="bg-slate-50 rounded-2xl p-6 border border-slate-200 text-center flex flex-col items-center justify-between space-y-4 hover:border-blue-300 transition-colors">
+                <div className="space-y-1">
+                  <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[11px] font-bold">
+                    ☕ 支持服务器与算力支出
+                  </div>
+                  <h4 className="text-sm font-bold text-slate-900">自愿赞助一杯清茶</h4>
+                  <p className="text-xs text-slate-500">所有赞助将全部用于覆盖 VPS 服务器、域名与大模型 Token 成本</p>
+                </div>
+
+                {/* QR Slot */}
+                <div className="w-44 h-44 rounded-2xl bg-white p-3 border border-slate-200 shadow-2xs flex flex-col items-center justify-center relative overflow-hidden group">
+                  {/* 当您有真实赞赏码图片时，将其放置在 app/public/sponsor_qr.png 即可自动显示 */}
+                  <img 
+                    src="/sponsor_qr.png" 
+                    alt="赞赏支持二维码" 
+                    className="w-full h-full object-contain rounded-xl"
+                    onError={(e) => {
+                      // 占位符后备显示
+                      (e.target as HTMLElement).style.display = 'none';
+                      const fallback = document.getElementById('sponsor-qr-placeholder');
+                      if (fallback) fallback.style.display = 'flex';
+                    }}
+                  />
+                  <div id="sponsor-qr-placeholder" className="hidden flex-col items-center justify-center text-slate-400 text-center p-2">
+                    <span className="text-3xl mb-1.5">☕</span>
+                    <span className="text-xs font-bold text-slate-600">自愿赞赏支持码</span>
+                    <span className="text-[10px] text-slate-400 mt-1">（待添加 sponsor_qr.png）</span>
+                  </div>
+                </div>
+
+                <div className="text-[11px] text-slate-400">
+                  金额随心 · 感谢每一份让公益平台长久活下去的温暖鼓励
+                </div>
+              </div>
+
+            </div>
+
+            {/* Email Contact & Bug Report */}
+            <div className="bg-gradient-to-r from-blue-50/70 to-teal-50/70 p-5 rounded-2xl border border-blue-100 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+              <div className="space-y-0.5">
+                <div className="text-xs font-bold text-blue-900 flex items-center justify-center sm:justify-start gap-1.5">
+                  <span>📮 专业建议与纠错反馈</span>
+                </div>
+                <p className="text-xs text-slate-600">
+                  欢迎胸外科、病理科、肿瘤内科医师及病友提出宝贵指正。每一封邮件我都会认真研读并持续迭代系统。
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  onClick={handleCopyEmail}
+                  className="px-4 py-2 rounded-xl bg-white hover:bg-slate-50 text-blue-700 text-xs font-bold border border-blue-200 shadow-2xs transition-all cursor-pointer flex items-center gap-1.5"
+                >
+                  <span>{copied ? "✅ 已复制邮箱" : "📋 复制联系邮箱"}</span>
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+          {/* Bottom Sign-off */}
+          <div className="pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
+            <div className="italic text-slate-600">
+              “愿每一个认真了解疾病的灵魂，都能在理性和科学的光芒中重获笃定与安宁。”
+            </div>
+            <div className="font-bold text-slate-700">
+              —— OncoPath 创作者 · 与您并肩同行
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  );
+}

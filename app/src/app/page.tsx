@@ -595,7 +595,11 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex flex-col items-center md:items-start gap-2">
             <LogoMark />
-            <div className="flex items-center gap-3 text-xs text-slate-500 mt-1">
+            <div className="flex items-center gap-3 text-xs text-slate-500 mt-1 flex-wrap justify-center md:justify-start">
+              <Link href="/about" className="hover:text-blue-600 font-medium transition-colors text-blue-700">
+                关于我们与初衷
+              </Link>
+              <span>·</span>
               <Link href="/terms" className="hover:text-blue-600 font-medium transition-colors">
                 服务协议与免责声明
               </Link>
