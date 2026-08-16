@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import Link from "next/link";
-import html2canvas from "html2canvas";
+import { toPng } from "html-to-image";
 import type { PatientProfile } from "@/lib/types";
 import { getGuestId } from "@/lib/guest";
 
@@ -170,19 +170,36 @@ export default function EvidenceReportPage() {
     try {
       setIsExportingImage(true);
 
-      const canvas = await html2canvas(reportContainerRef.current, {
-        scale: 2, // 2x Retina resolution
-        useCORS: true,
-        backgroundColor: "#f8fafc",
-        logging: false,
-        windowWidth: 1024,
-      });
+      // Primary engine: html-to-image (Native SVG foreignObject, 100% supports modern Tailwind v4 oklch/color-mix, HTTP/HTTPS)
+      let imgData = "";
+      try {
+        imgData = await toPng(reportContainerRef.current, {
+          quality: 0.95,
+          pixelRatio: 2,
+          backgroundColor: "#f8fafc",
+          cacheBust: true,
+        });
+      } catch (primaryErr) {
+        console.warn("Primary html-to-image engine hit error, trying html2canvas fallback:", primaryErr);
+        const html2canvas = (await import("html2canvas")).default;
+        const canvas = await html2canvas(reportContainerRef.current, {
+          scale: 2,
+          useCORS: true,
+          allowTaint: true,
+          backgroundColor: "#f8fafc",
+          logging: false,
+        });
+        imgData = canvas.toDataURL("image/png");
+      }
 
-      const imgData = canvas.toDataURL("image/png");
-      setExportedImageUrl(imgData);
-    } catch (err) {
+      if (imgData) {
+        setExportedImageUrl(imgData);
+      } else {
+        throw new Error("未能生成图片数据");
+      }
+    } catch (err: any) {
       console.error("Failed to generate report image:", err);
-      alert("生成就诊长图失败，请稍后重试或尝试直接导出PDF。");
+      alert("生成长图遇到浏览器限制，请长按文本复制或直接点击'导出PDF'。");
     } finally {
       setIsExportingImage(false);
     }
