@@ -5,6 +5,7 @@ import Link from "next/link";
 
 export default function AboutPage() {
   const [copied, setCopied] = useState(false);
+  const [previewImage, setPreviewImage] = useState<{ src: string; title: string } | null>(null);
   const contactEmail = "contact@oncopath.org"; // 可以在此修改为您实际使用的邮箱
 
   const handleCopyEmail = () => {
@@ -136,14 +137,16 @@ export default function AboutPage() {
                 </div>
 
                 {/* QR Slot */}
-                <div className="w-44 h-44 rounded-2xl bg-white p-3 border border-slate-200 shadow-2xs flex flex-col items-center justify-center relative overflow-hidden group">
-                  {/* 当您有真实二维码图片时，将其放置在 app/public/wechat_qr.png 即可自动显示 */}
+                <div 
+                  onClick={() => setPreviewImage({ src: "/wechat_qr.png", title: "微信交流二维码" })}
+                  className="w-48 h-48 rounded-2xl bg-white p-3 border border-slate-200 shadow-xs flex flex-col items-center justify-center relative overflow-hidden group cursor-pointer hover:border-teal-400 hover:shadow-md transition-all"
+                  title="点击放大查看 / 微信扫码"
+                >
                   <img 
                     src="/wechat_qr.png" 
                     alt="微信交流二维码" 
-                    className="w-full h-full object-contain rounded-xl"
+                    className="w-full h-full object-contain rounded-xl group-hover:scale-105 transition-transform"
                     onError={(e) => {
-                      // 占位符后备显示
                       (e.target as HTMLElement).style.display = 'none';
                       const fallback = document.getElementById('wechat-qr-placeholder');
                       if (fallback) fallback.style.display = 'flex';
@@ -153,6 +156,9 @@ export default function AboutPage() {
                     <span className="text-3xl mb-1.5">📱</span>
                     <span className="text-xs font-bold text-slate-600">微信交流二维码</span>
                     <span className="text-[10px] text-slate-400 mt-1">（待添加 wechat_qr.png）</span>
+                  </div>
+                  <div className="absolute inset-0 bg-teal-900/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+                    <span className="bg-white/90 text-teal-800 text-[10px] font-bold px-2 py-1 rounded-full shadow-xs backdrop-blur-xs">🔍 点击放大</span>
                   </div>
                 </div>
 
@@ -172,14 +178,16 @@ export default function AboutPage() {
                 </div>
 
                 {/* QR Slot */}
-                <div className="w-44 h-44 rounded-2xl bg-white p-3 border border-slate-200 shadow-2xs flex flex-col items-center justify-center relative overflow-hidden group">
-                  {/* 当您有真实赞赏码图片时，将其放置在 app/public/sponsor_qr.png 即可自动显示 */}
+                <div 
+                  onClick={() => setPreviewImage({ src: "/sponsor_qr.png", title: "赞赏支持二维码" })}
+                  className="w-48 h-48 rounded-2xl bg-white p-3 border border-slate-200 shadow-xs flex flex-col items-center justify-center relative overflow-hidden group cursor-pointer hover:border-amber-400 hover:shadow-md transition-all"
+                  title="点击放大查看 / 微信扫码"
+                >
                   <img 
                     src="/sponsor_qr.png" 
                     alt="赞赏支持二维码" 
-                    className="w-full h-full object-contain rounded-xl"
+                    className="w-full h-full object-contain rounded-xl group-hover:scale-105 transition-transform"
                     onError={(e) => {
-                      // 占位符后备显示
                       (e.target as HTMLElement).style.display = 'none';
                       const fallback = document.getElementById('sponsor-qr-placeholder');
                       if (fallback) fallback.style.display = 'flex';
@@ -189,6 +197,9 @@ export default function AboutPage() {
                     <span className="text-3xl mb-1.5">☕</span>
                     <span className="text-xs font-bold text-slate-600">自愿赞赏支持码</span>
                     <span className="text-[10px] text-slate-400 mt-1">（待添加 sponsor_qr.png）</span>
+                  </div>
+                  <div className="absolute inset-0 bg-amber-900/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+                    <span className="bg-white/90 text-amber-800 text-[10px] font-bold px-2 py-1 rounded-full shadow-xs backdrop-blur-xs">🔍 点击放大</span>
                   </div>
                 </div>
 
@@ -235,6 +246,42 @@ export default function AboutPage() {
         </div>
 
       </div>
+
+      {/* Full-Screen QR Preview Modal */}
+      {previewImage && (
+        <div 
+          onClick={() => setPreviewImage(null)}
+          className="fixed inset-0 z-[9999] bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 cursor-pointer animate-fade-in"
+        >
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full border border-slate-200 shadow-2xl flex flex-col items-center text-center space-y-4 animate-fade-in-up"
+          >
+            <div className="flex items-center justify-between w-full border-b border-slate-100 pb-3">
+              <span className="text-sm font-bold text-slate-900">{previewImage.title}</span>
+              <button 
+                onClick={() => setPreviewImage(null)}
+                className="w-7 h-7 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center text-sm font-bold cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <div className="w-64 h-64 p-2 bg-white rounded-2xl border border-slate-200 shadow-inner flex items-center justify-center">
+              <img 
+                src={previewImage.src} 
+                alt={previewImage.title} 
+                className="w-full h-full object-contain rounded-xl" 
+              />
+            </div>
+            
+            <p className="text-xs text-slate-500">
+              在手机上可<strong>长按图片</strong>识别二维码或保存到相册
+            </p>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
