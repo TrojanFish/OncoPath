@@ -222,14 +222,30 @@ export function WikiTopicCard({ topic, isMatchedProfile, isHighlighted }: WikiTo
           </div>
         )}
 
-        {/* 📋 Section 2: Clinical Truth (临床真相大白话) */}
+        {/* 📋 Section 2: Clinical Truth (临床真相深度解读) */}
         <div className="space-y-2 mb-4">
           <div className="text-xs font-bold text-slate-700 flex items-center gap-1">
             <span>📖 临床真相深度解读：</span>
           </div>
-          <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-            {topic.clinicalTruth}
-          </p>
+          <div className="text-xs sm:text-sm text-slate-600 leading-relaxed space-y-2">
+            {topic.clinicalTruth.split("\n").map((line, idx) => {
+              const trimmed = line.trim();
+              if (!trimmed) return null;
+              if (trimmed.startsWith("• ") || trimmed.startsWith("· ")) {
+                return (
+                  <div key={idx} className="flex items-start gap-2 pl-1">
+                    <span className="text-blue-500 font-bold mt-0.5 shrink-0 text-sm leading-none">•</span>
+                    <span className="flex-1 text-slate-600 leading-relaxed">{trimmed.substring(2)}</span>
+                  </div>
+                );
+              }
+              return (
+                <p key={idx} className="leading-relaxed text-slate-600">
+                  {line}
+                </p>
+              );
+            })}
+          </div>
         </div>
 
         {/* 🛡️ Section 3: Modern Medical Tactics (现代医学拦截武器) */}
@@ -276,7 +292,7 @@ export function WikiTopicCard({ topic, isMatchedProfile, isHighlighted }: WikiTo
                   <span className="text-slate-400">{expandedFaq === idx ? "▲" : "▼"}</span>
                 </button>
                 {expandedFaq === idx && (
-                  <div className="p-3.5 bg-white text-xs text-slate-600 leading-relaxed border-t border-slate-100">
+                  <div className="p-3.5 bg-white text-xs text-slate-600 leading-relaxed border-t border-slate-100 whitespace-pre-line">
                     <span className="font-bold text-blue-700">答：</span> {item.answer}
                   </div>
                 )}
@@ -317,7 +333,7 @@ export function WikiTopicCard({ topic, isMatchedProfile, isHighlighted }: WikiTo
               )}
             </button>
           </div>
-          <div className="text-xs text-teal-950 leading-relaxed">
+          <div className="text-xs text-teal-950 leading-relaxed whitespace-pre-line">
             {topic.reassurance}
           </div>
         </div>
