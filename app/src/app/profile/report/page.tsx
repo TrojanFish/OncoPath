@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import Link from "next/link";
+import html2canvas from "html2canvas";
 import type { PatientProfile } from "@/lib/types";
 import { getGuestId } from "@/lib/guest";
 
@@ -15,9 +16,12 @@ export default function EvidenceReportPage() {
   const [cachedTime, setCachedTime] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
+  const [isExportingImage, setIsExportingImage] = useState(false);
+  const [exportedImageUrl, setExportedImageUrl] = useState<string | null>(null);
   
   const hasLoadedRef = useRef(false);
   const contentEndRef = useRef<HTMLDivElement>(null);
+  const reportContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (isGenerating && contentEndRef.current) {
@@ -161,6 +165,39 @@ export default function EvidenceReportPage() {
     window.print();
   };
 
+  const handleExportImage = async () => {
+    if (!reportContainerRef.current || isExportingImage) return;
+    try {
+      setIsExportingImage(true);
+
+      const canvas = await html2canvas(reportContainerRef.current, {
+        scale: 2, // 2x Retina resolution
+        useCORS: true,
+        backgroundColor: "#f8fafc",
+        logging: false,
+        windowWidth: 1024,
+      });
+
+      const imgData = canvas.toDataURL("image/png");
+      setExportedImageUrl(imgData);
+    } catch (err) {
+      console.error("Failed to generate report image:", err);
+      alert("生成就诊长图失败，请稍后重试或尝试直接导出PDF。");
+    } finally {
+      setIsExportingImage(false);
+    }
+  };
+
+  const handleDownloadImage = () => {
+    if (!exportedImageUrl) return;
+    const link = document.createElement("a");
+    link.href = exportedImageUrl;
+    link.download = `OncoPath_临床循证就诊报告_${new Date().toISOString().slice(0, 10)}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   async function copyTextSafe(text: string): Promise<boolean> {
     if (typeof window === "undefined") return false;
     if (navigator?.clipboard?.writeText) {
@@ -274,9 +311,37 @@ export default function EvidenceReportPage() {
                     <rect x="5" y="4" width="14" height="17" rx="2.5" fill="currentColor" fillOpacity="0.2" stroke="currentColor" strokeWidth="1.75" />
                     <path d="M9 4.5V3.5a1 1 0 011-1h4a1 1 0 011 1v1M8.5 11l2.5 2.5 4.5-4.5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
-                  <span className="sm:hidden">复制便签</span>
+                  <span className="sm:hidden">复制清单</span>
                   <span className="hidden sm:inline">复制问诊单</span>
                 </button>
+
+                <button
+                  onClick={handleExportImage}
+                  disabled={isExportingImage}
+                  className="flex items-center gap-1 sm:gap-1.5 px-2.5 py-1.5 sm:px-3.5 sm:py-1.5 rounded-xl text-xs font-bold text-teal-800 bg-teal-50/90 hover:bg-teal-100 border border-teal-200 transition-all cursor-pointer shadow-2xs group whitespace-nowrap disabled:opacity-50"
+                  title="生成移动端高清就诊长图"
+                >
+                  {isExportingImage ? (
+                    <>
+                      <svg className="animate-spin h-3.5 w-3.5 text-teal-600 flex-shrink-0" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                      </svg>
+                      <span>生成中...</span>
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-3.5 h-3.5 text-teal-600 transition-transform group-hover:scale-110 flex-shrink-0" viewBox="0 0 24 24" fill="none">
+                        <rect x="3" y="3" width="18" height="18" rx="3" fill="currentColor" fillOpacity="0.2" stroke="currentColor" strokeWidth="1.75" />
+                        <circle cx="8.5" cy="8.5" r="1.5" fill="currentColor" />
+                        <path d="M21 15l-5-5L5 21" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                      <span className="sm:hidden">就诊长图</span>
+                      <span className="hidden sm:inline">导出长图</span>
+                    </>
+                  )}
+                </button>
+
                 <button 
                   onClick={handlePrint}
                   className="flex items-center gap-1 sm:gap-1.5 px-2.5 py-1.5 sm:px-3.5 sm:py-1.5 rounded-xl text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white transition-all shadow-xs cursor-pointer group whitespace-nowrap"
@@ -286,7 +351,7 @@ export default function EvidenceReportPage() {
                     <rect x="3" y="9" width="18" height="9" rx="2" fill="currentColor" fillOpacity="0.25" stroke="currentColor" strokeWidth="1.75" />
                     <path d="M7 14h10M7 18h10v3H7v-3z" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
-                  <span className="sm:hidden">导出PDF</span>
+                  <span className="sm:hidden">打印PDF</span>
                   <span className="hidden sm:inline">导出 / 打印PDF</span>
                 </button>
               </>
@@ -295,8 +360,20 @@ export default function EvidenceReportPage() {
         </nav>
       </div>
 
-      <div className="max-w-5xl mx-auto px-2.5 sm:px-6 lg:px-8 pt-16 sm:pt-20 md:pt-22 print:pt-0 print:px-0">
+      <div id="report-printable-area" ref={reportContainerRef} className="max-w-5xl mx-auto px-2.5 sm:px-6 lg:px-8 pt-16 sm:pt-20 md:pt-22 print:pt-0 print:px-0">
         
+        {/* Professional Clinical Report Brand Header (Visible in Exported Long Image & Print) */}
+        <div className="hidden print:flex items-center justify-between pb-3 mb-4 border-b border-slate-200 text-xs text-slate-500">
+          <div className="flex items-center gap-2">
+            <span className="font-black text-blue-700 text-sm tracking-tight">OncoPath</span>
+            <span className="text-slate-300">|</span>
+            <span className="font-bold text-slate-700">肺癌循证医学决策系统 · 临床专属循证解读报告</span>
+          </div>
+          <div className="text-[11px] text-slate-400 font-medium">
+            报告时间: {new Date().toLocaleDateString('zh-CN')}
+          </div>
+        </div>
+
         {/* Smart Cache Notification Banner (Clean & Informative) */}
         {isLoadedFromCache && !isGenerating && (
           <div className="mb-4 p-3 sm:p-3.5 px-3.5 sm:px-4 rounded-2xl bg-gradient-to-r from-sky-50 via-blue-50/70 to-teal-50/50 border border-sky-200/80 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs text-slate-600 print:hidden">
@@ -632,6 +709,69 @@ export default function EvidenceReportPage() {
         </div>
 
       </div>
+
+      {/* Image Export Preview Modal */}
+      {exportedImageUrl && (
+        <div className="fixed inset-0 z-[1000] bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6">
+          <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[92vh] flex flex-col shadow-2xl border border-slate-200 overflow-hidden">
+            {/* Modal Header */}
+            <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">🖼️</span>
+                <h3 className="font-extrabold text-slate-900 text-sm sm:text-base">
+                  专属临床就诊长图已生成
+                </h3>
+                <span className="text-[10px] font-bold text-teal-700 bg-teal-50 px-2 py-0.5 rounded-full border border-teal-200">
+                  高清 2x Retina
+                </span>
+              </div>
+              <button
+                onClick={() => setExportedImageUrl(null)}
+                className="w-8 h-8 rounded-full bg-slate-200/80 hover:bg-slate-300 flex items-center justify-center text-slate-600 font-bold text-sm transition-all cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Tip banner for mobile users */}
+            <div className="bg-amber-50/90 px-4 py-2.5 border-b border-amber-200/60 text-xs text-amber-900 flex items-center gap-2">
+              <span className="text-sm flex-shrink-0">💡</span>
+              <span>
+                <strong>移动端/微信提示</strong>：在手机端可<strong>【长按长图】</strong>直接保存至系统相册或直接发送给医生与家属。
+              </span>
+            </div>
+
+            {/* Scrollable Image Preview Area */}
+            <div className="flex-1 overflow-y-auto p-4 bg-slate-100/70 flex justify-center items-start min-h-[200px]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={exportedImageUrl}
+                alt="OncoPath 临床循证就诊报告"
+                className="w-full max-w-lg rounded-xl shadow-md border border-slate-200 object-contain bg-white"
+              />
+            </div>
+
+            {/* Modal Footer Actions */}
+            <div className="p-3.5 sm:p-4 border-t border-slate-100 bg-white flex items-center justify-between gap-3">
+              <button
+                onClick={() => setExportedImageUrl(null)}
+                className="px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-all cursor-pointer"
+              >
+                关闭
+              </button>
+              <button
+                onClick={handleDownloadImage}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-teal-600 hover:bg-teal-700 text-white shadow-md shadow-teal-600/20 transition-all cursor-pointer active:scale-95"
+              >
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none">
+                  <path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 11l5 5 5-5M12 4v12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                <span>保存 / 下载就诊长图</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
