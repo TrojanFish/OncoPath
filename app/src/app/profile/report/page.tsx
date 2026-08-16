@@ -22,6 +22,52 @@ export default function EvidenceReportPage() {
   const hasLoadedRef = useRef(false);
   const contentEndRef = useRef<HTMLDivElement>(null);
   const reportContainerRef = useRef<HTMLDivElement>(null);
+  const consultationCardRef = useRef<HTMLDivElement>(null);
+
+  // Helper: Extract structured questions from Section 3 for the Consultation Card
+  const extractChecklistItems = (markdown: string) => {
+    if (!markdown) return [];
+    const section3Match = 
+      markdown.match(/##?\s*(?:3[\.\s、]|三[\.\s、]|【向[^】]*问诊清单[^】]*】)[\s\S]*?(?=##?\s*(?:4[\.\s、]|四[\.\s、]|$))/i) ||
+      markdown.match(/##?\s*3[\s\S]*?(?=##?\s*4|$)/) ||
+      markdown.match(/【向[^】]*问诊清单】[\s\S]*?(?=##?\s*\d|$)/);
+
+    const text = section3Match ? section3Match[0] : markdown;
+    const lines = text.split('\n');
+    const items: { title: string; content: string }[] = [];
+    
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (trimmed.startsWith('- [ ]') || trimmed.startsWith('- ') || trimmed.startsWith('* ') || /^\d+\./.test(trimmed)) {
+        const cleaned = trimmed.replace(/^-\s*\[\s*\]\s*/, '').replace(/^[-*]\s+/, '').replace(/^\d+\.\s*/, '');
+        const titleMatch = cleaned.match(/\*\*【?([^】*]+)】?\*\*[：:]?\s*(.*)/) || cleaned.match(/【([^】]+)】[：:]?\s*(.*)/);
+        if (titleMatch) {
+          items.push({
+            title: titleMatch[1].trim(),
+            content: titleMatch[2].trim() || cleaned.replace(/\*\*.*?\*\*/, '').trim()
+          });
+        } else if (cleaned.length > 5 && !cleaned.includes('问诊清单') && !cleaned.includes('##')) {
+          items.push({
+            title: `关注问题 ${items.length + 1}`,
+            content: cleaned.replace(/\*\*/g, '').trim()
+          });
+        }
+      }
+    }
+
+    if (items.length === 0) {
+      return [
+        { title: "随访影像规划", content: "请教主治医生第一次胸部薄层 CT 推荐在术后第几个月复查？" },
+        { title: "术后治疗评估", content: "请教医生是否确认属于早期规范根治，无需过度吃药与盲目基因检测？" },
+        { title: "肺功能康复指导", content: "结合当前手术切除范围，术后呼吸训练与日常活动有哪些具体建议？" },
+        { title: "异常警示信号", content: "术后出现哪些体征（如发热、胸痛、持续咳痰）需要及时回院复诊？" }
+      ];
+    }
+
+    return items;
+  };
+
+  const checklistItems = extractChecklistItems(reportMarkdown);
 
   useEffect(() => {
     if (isGenerating && contentEndRef.current) {
@@ -166,27 +212,27 @@ export default function EvidenceReportPage() {
   };
 
   const handleExportImage = async () => {
-    if (!reportContainerRef.current || isExportingImage) return;
+    if (!consultationCardRef.current || isExportingImage) return;
     try {
       setIsExportingImage(true);
 
-      // Primary engine: html-to-image (Native SVG foreignObject, 100% supports modern Tailwind v4 oklch/color-mix, HTTP/HTTPS)
+      // Fast, lightweight, pixel-perfect render of the Consultation Pocket Card (560px)
       let imgData = "";
       try {
-        imgData = await toPng(reportContainerRef.current, {
-          quality: 0.95,
+        imgData = await toPng(consultationCardRef.current, {
+          quality: 0.98,
           pixelRatio: 2,
-          backgroundColor: "#f8fafc",
+          backgroundColor: "#0f172a",
           cacheBust: true,
         });
       } catch (primaryErr) {
         console.warn("Primary html-to-image engine hit error, trying html2canvas fallback:", primaryErr);
         const html2canvas = (await import("html2canvas")).default;
-        const canvas = await html2canvas(reportContainerRef.current, {
+        const canvas = await html2canvas(consultationCardRef.current, {
           scale: 2,
           useCORS: true,
           allowTaint: true,
-          backgroundColor: "#f8fafc",
+          backgroundColor: "#0f172a",
           logging: false,
         });
         imgData = canvas.toDataURL("image/png");
@@ -199,7 +245,7 @@ export default function EvidenceReportPage() {
       }
     } catch (err: any) {
       console.error("Failed to generate report image:", err);
-      alert("生成长图遇到浏览器限制，请长按文本复制或直接点击'导出PDF'。");
+      alert("生成问诊卡遇到浏览器限制，请长按文本复制或直接点击'导出PDF'。");
     } finally {
       setIsExportingImage(false);
     }
@@ -209,7 +255,7 @@ export default function EvidenceReportPage() {
     if (!exportedImageUrl) return;
     const link = document.createElement("a");
     link.href = exportedImageUrl;
-    link.download = `OncoPath_临床循证就诊报告_${new Date().toISOString().slice(0, 10)}.png`;
+    link.download = `OncoPath_门诊就医问诊便签卡_${new Date().toISOString().slice(0, 10)}.png`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -336,7 +382,7 @@ export default function EvidenceReportPage() {
                   onClick={handleExportImage}
                   disabled={isExportingImage}
                   className="flex items-center gap-1 px-2 py-1 sm:px-3 sm:py-1.5 rounded-xl text-[11px] sm:text-xs font-bold text-teal-800 bg-teal-50/90 hover:bg-teal-100 border border-teal-200 transition-all cursor-pointer shadow-2xs group whitespace-nowrap disabled:opacity-50"
-                  title="生成移动端高清就诊长图"
+                  title="生成门诊就医问诊便签卡"
                 >
                   {isExportingImage ? (
                     <>
@@ -354,8 +400,8 @@ export default function EvidenceReportPage() {
                         <circle cx="8.5" cy="8.5" r="1.5" fill="currentColor" />
                         <path d="M21 15l-5-5L5 21" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
                       </svg>
-                      <span className="sm:hidden">长图</span>
-                      <span className="hidden sm:inline">导出长图</span>
+                      <span className="sm:hidden">问诊卡</span>
+                      <span className="hidden sm:inline">导出问诊卡</span>
                     </>
                   )}
                 </button>
@@ -728,16 +774,141 @@ export default function EvidenceReportPage() {
 
       </div>
 
+      {/* Dedicated Consultation Pocket Card Container (Fixed 560px for Instant Pixel-Perfect 2x Export) */}
+      <div
+        style={{ position: 'fixed', left: '-9999px', top: '-9999px', width: '560px' }}
+        aria-hidden="true"
+      >
+        <div
+          ref={consultationCardRef}
+          className="w-[560px] bg-slate-900 text-white rounded-3xl p-6 shadow-2xl border border-slate-700/80 relative overflow-hidden font-sans"
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-800 relative z-10">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-500 to-teal-400 flex items-center justify-center text-white font-black text-sm shadow-md">
+                OP
+              </div>
+              <div>
+                <div className="text-xs font-black tracking-wider text-white">OncoPath · 肺癌循证决策系统</div>
+                <div className="text-[10px] text-slate-400">门诊就医问诊便签卡 · 医患高效协同</div>
+              </div>
+            </div>
+            <div className="text-right">
+              <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/20 text-blue-300 border border-blue-400/30">
+                {new Date().toLocaleDateString('zh-CN')}
+              </span>
+            </div>
+          </div>
+
+          {/* Patient Overview & 6-Factor Red/Green Matrix */}
+          {profile && (
+            <div className="mb-4 bg-slate-800/90 rounded-2xl p-3.5 border border-slate-700/80 relative z-10 space-y-2.5">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="text-sm font-black text-white">
+                    {profile.age || 55}岁 · {profile.sex === 'female' ? '女性' : '男性'}
+                  </span>
+                  <span className="text-xs font-bold text-slate-300">
+                    · {profile.currentStage === 'evaluation' || profile.currentStage === 'discovery' || profile.reportType === 'ct_imaging'
+                        ? (profile.stage ? `c${profile.stage} 期肺结节` : '早期肺结节')
+                        : (profile.stage ? `${profile.stage} 期原发性肺腺癌` : '早期原发性肺腺癌')
+                      }
+                  </span>
+                </div>
+                <span className="px-2 py-0.5 rounded-md bg-blue-500/20 text-blue-300 border border-blue-400/30 text-[11px] font-black">
+                  {profile.tStage || "T1a"}{profile.nStage || "N0"}{profile.mStage || "M0"}
+                </span>
+              </div>
+
+              {/* 6 Core Pathology Indicators Pills */}
+              <div className="grid grid-cols-3 gap-1.5 text-[11px]">
+                <div className="bg-slate-900/90 px-2 py-1.5 rounded-lg border border-slate-700/60 flex items-center justify-between">
+                  <span className="text-slate-400 text-[10px]">切缘状态</span>
+                  <span className={`font-bold ${profile.margin === 'positive' || profile.marginStatus === 'positive' ? 'text-rose-400' : 'text-emerald-400'}`}>
+                    {profile.margin === 'positive' || profile.marginStatus === 'positive' ? '阳性(残留)' : '阴性(R0)'}
+                  </span>
+                </div>
+                <div className="bg-slate-900/90 px-2 py-1.5 rounded-lg border border-slate-700/60 flex items-center justify-between">
+                  <span className="text-slate-400 text-[10px]">淋巴结分期</span>
+                  <span className={`font-bold ${profile.nStage === 'N0' || !profile.nStage ? 'text-emerald-400' : profile.nStage === 'N1' ? 'text-amber-400' : 'text-rose-400'}`}>
+                    {profile.nStage || 'N0 (无)'}
+                  </span>
+                </div>
+                <div className="bg-slate-900/90 px-2 py-1.5 rounded-lg border border-slate-700/60 flex items-center justify-between">
+                  <span className="text-slate-400 text-[10px]">胸膜侵犯</span>
+                  <span className={`font-bold ${profile.vpi === 'positive' ? 'text-amber-400' : 'text-emerald-400'}`}>
+                    {profile.vpi === 'positive' ? '阳性(升期)' : '阴性(PL0)'}
+                  </span>
+                </div>
+                <div className="bg-slate-900/90 px-2 py-1.5 rounded-lg border border-slate-700/60 flex items-center justify-between">
+                  <span className="text-slate-400 text-[10px]">气道播散</span>
+                  <span className={`font-bold ${profile.stas === 'positive' ? 'text-amber-400' : 'text-emerald-400'}`}>
+                    {profile.stas === 'positive' ? '阳性(高危)' : '阴性(-)'}
+                  </span>
+                </div>
+                <div className="bg-slate-900/90 px-2 py-1.5 rounded-lg border border-slate-700/60 flex items-center justify-between">
+                  <span className="text-slate-400 text-[10px]">脉管瘤栓</span>
+                  <span className={`font-bold ${profile.lvi === 'positive' ? 'text-amber-400' : 'text-emerald-400'}`}>
+                    {profile.lvi === 'positive' ? '阳性(高危)' : '阴性(-)'}
+                  </span>
+                </div>
+                <div className="bg-slate-900/90 px-2 py-1.5 rounded-lg border border-slate-700/60 flex items-center justify-between">
+                  <span className="text-slate-400 text-[10px]">病理分级</span>
+                  <span className={`font-bold ${profile.iaslcGrade === '3' || profile.grade === '3' ? 'text-amber-400' : 'text-emerald-400'}`}>
+                    {profile.iaslcGrade === '3' || profile.grade === '3' ? 'Grade 3(危)' : profile.iaslcGrade === '1' || profile.grade === '1' ? 'Grade 1(高)' : 'Grade 2(中)'}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Section 3 Consultation Checklist Items */}
+          <div className="space-y-2.5 mb-4 relative z-10">
+            <div className="text-xs font-bold text-blue-300 uppercase tracking-wider flex items-center gap-1.5">
+              <span>📋 向主管医生门诊咨询清单 (建议按序请教)</span>
+            </div>
+
+            {checklistItems.map((item, idx) => (
+              <div key={idx} className="bg-slate-800/90 rounded-2xl p-3 border border-slate-700/80 space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="w-5 h-5 rounded-full bg-blue-500 text-white font-black text-[11px] flex items-center justify-center flex-shrink-0">
+                    {idx + 1}
+                  </span>
+                  <span className="font-bold text-white text-xs">
+                    {item.title}
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-300 leading-relaxed pl-7 font-normal">
+                  {item.content}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* Footer Tips & Evidence Citation */}
+          <div className="pt-3 border-t border-slate-800 text-[10px] text-slate-400 flex items-center justify-between relative z-10">
+            <span className="flex items-center gap-1">
+              <span>💡</span>
+              <span>面诊时可直接出示本便签，高效表达关切</span>
+            </span>
+            <span className="text-slate-500 font-mono">
+              NCCN · CSCO · IASLC
+            </span>
+          </div>
+        </div>
+      </div>
+
       {/* Image Export Preview Modal */}
       {exportedImageUrl && (
         <div className="fixed inset-0 z-[1000] bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6">
-          <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[92vh] flex flex-col shadow-2xl border border-slate-200 overflow-hidden">
+          <div className="bg-white rounded-3xl max-w-lg w-full max-h-[92vh] flex flex-col shadow-2xl border border-slate-200 overflow-hidden">
             {/* Modal Header */}
             <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
               <div className="flex items-center gap-2">
                 <span className="text-lg">🖼️</span>
                 <h3 className="font-extrabold text-slate-900 text-sm sm:text-base">
-                  专属临床就诊长图已生成
+                  专属门诊问诊便签卡已生成
                 </h3>
                 <span className="text-[10px] font-bold text-teal-700 bg-teal-50 px-2 py-0.5 rounded-full border border-teal-200">
                   高清 2x Retina
@@ -755,7 +926,7 @@ export default function EvidenceReportPage() {
             <div className="bg-amber-50/90 px-4 py-2.5 border-b border-amber-200/60 text-xs text-amber-900 flex items-center gap-2">
               <span className="text-sm flex-shrink-0">💡</span>
               <span>
-                <strong>移动端/微信提示</strong>：在手机端可<strong>【长按长图】</strong>直接保存至系统相册或直接发送给医生与家属。
+                <strong>移动端/微信提示</strong>：在手机端可<strong>【长按图片】</strong>保存至相册或直接发送给主管医生与家属。
               </span>
             </div>
 
@@ -764,8 +935,8 @@ export default function EvidenceReportPage() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={exportedImageUrl}
-                alt="OncoPath 临床循证就诊报告"
-                className="w-full max-w-lg rounded-xl shadow-md border border-slate-200 object-contain bg-white"
+                alt="OncoPath 门诊就医问诊便签卡"
+                className="w-full max-w-md rounded-2xl shadow-lg border border-slate-700/80 object-contain"
               />
             </div>
 
@@ -784,7 +955,7 @@ export default function EvidenceReportPage() {
                 <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none">
                   <path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 11l5 5 5-5M12 4v12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
-                <span>保存 / 下载就诊长图</span>
+                <span>保存 / 下载问诊卡</span>
               </button>
             </div>
           </div>
