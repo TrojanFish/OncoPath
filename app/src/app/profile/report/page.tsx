@@ -222,11 +222,11 @@ export default function EvidenceReportPage() {
   return (
     <div className="min-h-screen bg-slate-50/70 pb-8 sm:pb-12 print:bg-white print:pb-0 text-slate-900">
       
-      {/* Toast Notification for Copied */}
+      {/* Centered Floating Toast Notification for Copied */}
       {copied && (
-        <div className="fixed bottom-6 right-6 z-[999] bg-slate-900 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 animate-fade-in-up border border-slate-700 text-sm">
-          <span className="text-emerald-400 font-bold">✓</span>
-          <span>门诊问诊清单已成功复制到剪贴板！可直接粘贴至微信或备忘录。</span>
+        <div className="fixed top-16 sm:top-20 left-1/2 -translate-x-1/2 z-[999] bg-slate-900/95 backdrop-blur-md text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-2xl shadow-2xl flex items-center gap-2.5 border border-slate-700/80 text-xs sm:text-sm max-w-[90vw] sm:max-w-md text-center pointer-events-none transition-all">
+          <span className="text-emerald-400 font-bold text-base flex-shrink-0">✓</span>
+          <span className="leading-snug">门诊问诊清单已成功复制到剪贴板！可直接粘贴至微信或备忘录。</span>
         </div>
       )}
 
@@ -295,7 +295,7 @@ export default function EvidenceReportPage() {
         </nav>
       </div>
 
-      <div className="max-w-5xl mx-auto px-2.5 sm:px-6 lg:px-8 pt-24 sm:pt-28 md:pt-32 print:pt-0 print:px-0">
+      <div className="max-w-5xl mx-auto px-2.5 sm:px-6 lg:px-8 pt-16 sm:pt-20 md:pt-22 print:pt-0 print:px-0">
         
         {/* Smart Cache Notification Banner (Clean & Informative) */}
         {isLoadedFromCache && !isGenerating && (

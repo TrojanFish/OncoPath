@@ -13,6 +13,7 @@ const notoSansSC = Noto_Sans_SC({
   variable: "--font-noto",
   weight: ["300", "400", "500", "600", "700"],
   display: "swap",
+  preload: false,
 });
 
 export const viewport: Viewport = {
