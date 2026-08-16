@@ -203,3 +203,26 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
+export async function DELETE(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const userId = searchParams.get('userId') || searchParams.get('id');
+
+  if (!userId) {
+    return NextResponse.json({ success: false, error: '缺少用户标识符' }, { status: 400 });
+  }
+
+  try {
+    // Delete all records associated with this userId
+    await prisma.patientProfile.deleteMany({
+      where: { userId }
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: '您的临床档案与历史记录已在服务端彻底销毁与注销'
+    });
+  } catch (error: any) {
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  }
+}

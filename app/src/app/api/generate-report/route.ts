@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { ai } from '@/lib/gemini';
 import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
 import { sanitizePatientProfile } from '@/lib/privacy';
+import { logEvent } from '@/lib/logger';
 
 const POST_OP_PROMPT = `
 你是一位国际顶级胸部肿瘤专科主治医生与循证医学专家。
@@ -100,11 +101,21 @@ const PRE_OP_CT_PROMPT = `
 `;
 
 export async function POST(request: Request) {
+  const startTime = Date.now();
+  const clientIp = getClientIp(request);
+
   try {
     // 1. Production Rate Limiting (5 requests per minute per IP for high-cost LLM calls)
-    const clientIp = getClientIp(request);
     const rateLimit = checkRateLimit(`gen_report_${clientIp}`, { intervalMs: 60 * 1000, maxRequests: 5 });
     if (!rateLimit.success) {
+      logEvent({
+        level: 'warn',
+        endpoint: '/api/generate-report',
+        clientIp,
+        statusCode: 429,
+        action: 'rate_limit_exceeded',
+        message: 'Client exceeded report generation rate limit'
+      });
       return NextResponse.json(
         { success: false, error: "您在短时间内请求过于频繁，请稍候 1 分钟后重试。" },
         { status: 429, headers: { 'Retry-After': '60' } }
@@ -114,6 +125,13 @@ export async function POST(request: Request) {
     const rawProfile = await request.json();
 
     if (!process.env.GEMINI_API_KEY) {
+      logEvent({
+        level: 'error',
+        endpoint: '/api/generate-report',
+        clientIp,
+        statusCode: 500,
+        message: 'Missing GEMINI_API_KEY environment variable'
+      });
       return NextResponse.json({ success: false, error: "系统未配置 GEMINI_API_KEY" }, { status: 500 });
     }
 
@@ -189,7 +207,29 @@ export async function POST(request: Request) {
           controller.enqueue(new TextEncoder().encode(safetyFooter));
 
           controller.close();
-        } catch (e) {
+
+          logEvent({
+            level: 'info',
+            endpoint: '/api/generate-report',
+            clientIp,
+            durationMs: Date.now() - startTime,
+            statusCode: 200,
+            aiModel: 'gemini-2.5-flash',
+            action: 'report_stream_completed',
+            meta: {
+              reportType: profile.reportType || 'pathology',
+              stage: profile.stage || 'unknown'
+            }
+          });
+        } catch (e: any) {
+          logEvent({
+            level: 'error',
+            endpoint: '/api/generate-report',
+            clientIp,
+            durationMs: Date.now() - startTime,
+            error: e.message || 'Stream processing error',
+            action: 'report_stream_failed'
+          });
           controller.error(e);
         }
       }
@@ -202,7 +242,15 @@ export async function POST(request: Request) {
       }
     });
   } catch (error: any) {
-    console.error('Error generating report via Gemini:', error);
+    logEvent({
+      level: 'error',
+      endpoint: '/api/generate-report',
+      clientIp,
+      durationMs: Date.now() - startTime,
+      statusCode: 500,
+      error: error.message || 'Unknown server error',
+      action: 'generate_report_exception'
+    });
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
