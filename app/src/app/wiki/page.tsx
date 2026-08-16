@@ -353,29 +353,37 @@ export default function WikiPage() {
           )}
         </section>
 
-        {/* Act 4: Bottom Psychological Empowerment Footer Banner */}
-        <section className="mt-12 bg-gradient-to-br from-blue-900 via-slate-900 to-indigo-950 text-white rounded-3xl p-6 sm:p-10 shadow-xl relative overflow-hidden">
-          <div className="relative z-10 max-w-3xl space-y-4">
-            <div className="inline-flex items-center gap-2 bg-blue-500/20 px-3 py-1 rounded-full text-xs font-bold text-blue-300 border border-blue-400/30">
-              <span>🌟 给每一位勇敢前行的抗癌伙伴</span>
+        {/* Act 4: Bottom Psychological Empowerment Footer Banner (Scheme A - Warm Healthcare Aesthetic) */}
+        <section className="mt-8 sm:mt-12 bg-gradient-to-br from-teal-50/90 via-sky-50/60 to-blue-50/90 border border-teal-200/90 rounded-2xl p-5 sm:p-8 shadow-xs relative overflow-hidden">
+          {/* Subtle background ambient glows */}
+          <div className="absolute -right-10 -bottom-10 w-64 h-64 bg-teal-200/20 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -left-10 -top-10 w-48 h-48 bg-sky-200/20 rounded-full blur-2xl pointer-events-none" />
+
+          <div className="relative z-10 max-w-3xl space-y-3.5 sm:space-y-4">
+            <div className="inline-flex items-center gap-1.5 bg-white/90 px-3 py-1 rounded-full text-xs font-bold text-teal-800 border border-teal-300/80 shadow-2xs">
+              <span className="text-teal-600">🌟</span>
+              <span>给每一位勇敢前行的抗癌伙伴</span>
             </div>
-            <h3 className="text-2xl sm:text-3xl font-black tracking-tight leading-snug">
-              数据是群体的历史 · 而奇迹由您亲自书写
+
+            <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 tracking-tight leading-snug">
+              数据是群体的历史 · <span className="text-teal-700">而奇迹由您亲自书写</span>
             </h3>
-            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+
+            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
               任何病理报告上的百分比和危险度，都只是大样本统计学上的参考值，并不代表对您个人的终局裁决。在现代精准靶向治疗、微创外科与免疫治疗日新月异的今天，保持规律随访、加强自身体质与保持坚定乐观的心态，永远是您最强大的底气！
             </p>
-            <div className="pt-2 flex flex-wrap items-center gap-3">
+
+            <div className="pt-1.5 flex flex-wrap items-center gap-2.5 sm:gap-3">
               <Link
                 href="/profile"
-                className="btn-primary px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold shadow-md inline-flex items-center gap-1.5"
+                className="inline-flex items-center gap-1.5 px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-teal-600 hover:bg-teal-700 text-white shadow-xs transition-all active:scale-95 cursor-pointer"
               >
                 <span>🔬 前往个人数字档案</span>
                 <span>➔</span>
               </Link>
               <Link
                 href="/knowledge"
-                className="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-white/10 hover:bg-white/20 border border-white/20 transition-colors inline-flex items-center gap-1.5"
+                className="inline-flex items-center gap-1.5 px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 shadow-2xs transition-all active:scale-95 cursor-pointer"
               >
                 <span>🗺️ 查看 4D 知识图谱</span>
                 <span>➔</span>
