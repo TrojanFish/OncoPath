@@ -331,29 +331,29 @@ export function SurgicalApproachesVisual() {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-4 items-stretch">
-        {/* Left: Lung SVG Panel (occupies 7 cols on large screens, fills available width) */}
-        <div className={`lg:col-span-7 rounded-2xl border-2 ${curr.border} ${curr.bg} p-3 sm:p-4 flex flex-col items-center justify-between shadow-xs`}>
-          <div className="w-full flex-1 flex items-center justify-center py-1">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 items-stretch">
+        {/* Left: Lung SVG Panel (Balanced 5:5 with compact padding for maximized diagram) */}
+        <div className={`rounded-2xl border-2 ${curr.border} ${curr.bg} p-2 sm:p-2.5 flex flex-col items-center justify-between shadow-xs`}>
+          <div className="w-full flex-1 flex items-center justify-center">
             <LungSVG mode={active} />
           </div>
-          <div className="mt-2 w-full text-center">
-            <span className={`inline-block px-3 py-1 rounded-full text-xs sm:text-sm font-black ${curr.bg} ${curr.color} border ${curr.border} shadow-xs`}>
+          <div className="mt-1.5 w-full text-center">
+            <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${curr.bg} ${curr.color} border ${curr.border} shadow-xs`}>
               {curr.scope}
             </span>
           </div>
         </div>
 
-        {/* Right: Data & Evidence Panel (occupies 5 cols) */}
-        <div className="lg:col-span-5 flex flex-col justify-between space-y-2.5 sm:space-y-3">
+        {/* Right: Data & Evidence Panel (Balanced 5:5) */}
+        <div className="flex flex-col justify-between space-y-2 sm:space-y-2.5">
           {/* Lung function preservation progress */}
-          <div className={`rounded-xl border-2 ${curr.border} ${curr.bg} p-3 sm:p-3.5 shadow-xs`}>
-            <div className="flex items-center justify-between text-xs text-slate-700 mb-1.5 font-bold">
+          <div className={`rounded-xl border-2 ${curr.border} ${curr.bg} p-2.5 sm:p-3 shadow-xs`}>
+            <div className="flex items-center justify-between text-xs text-slate-700 mb-1 font-bold">
               <span>术后整体肺功能保留率（代偿后）</span>
               <span className={`text-base font-black ${curr.color}`}>{curr.lung}%</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="flex-1 bg-slate-200/90 rounded-full h-3.5 overflow-hidden p-0.5">
+              <div className="flex-1 bg-slate-200/90 rounded-full h-3 overflow-hidden p-0.5">
                 <div
                   className="h-full rounded-full transition-all duration-700 shadow-xs"
                   style={{ width: `${curr.lung}%`, backgroundColor: curr.barColor }}
@@ -363,7 +363,7 @@ export function SurgicalApproachesVisual() {
           </div>
 
           {/* Detailed stats */}
-          <div className="rounded-xl border border-slate-200 bg-white p-3 sm:p-3.5 space-y-2 flex-1 shadow-xs">
+          <div className="rounded-xl border border-slate-200 bg-white p-2.5 sm:p-3 space-y-1.5 flex-1 shadow-xs">
             <div className="flex items-start gap-1.5 text-xs">
               <span className="text-slate-400 font-bold shrink-0">适用指征：</span>
               <span className="font-semibold text-slate-800 leading-snug">{curr.rfs}</span>
@@ -372,14 +372,14 @@ export function SurgicalApproachesVisual() {
               <span className="text-slate-400 font-bold shrink-0">循证疗效：</span>
               <span className={`font-black ${curr.color}`}>{curr.os}</span>
             </div>
-            <div className="pt-2 border-t border-slate-100 text-xs text-slate-600 leading-relaxed">
+            <div className="pt-1.5 border-t border-slate-100 text-xs text-slate-600 leading-relaxed">
               <strong className="text-slate-800">解剖学要点：</strong>
               {curr.note}
             </div>
           </div>
 
           {/* JCOG0802 Trial Gold Standard Banner */}
-          <div className="rounded-xl bg-gradient-to-r from-blue-50 to-sky-50 border border-blue-200 p-2.5 sm:p-3 text-xs text-blue-900 leading-relaxed shadow-xs">
+          <div className="rounded-xl bg-gradient-to-r from-blue-50 to-sky-50 border border-blue-200 p-2 sm:p-2.5 text-xs text-blue-900 leading-relaxed shadow-xs">
             <strong className="text-blue-950 block mb-0.5">🏆 JCOG0802（Lancet 2022 重磅循证）：</strong>
             对于 ≤2cm 且 CTR≤0.5 的外周早期肺癌，肺段切除 5 年总生存率 <strong>94.3%</strong> 优于肺叶切除 91.1%，兼顾 100% 根治与极致保肺！
           </div>
