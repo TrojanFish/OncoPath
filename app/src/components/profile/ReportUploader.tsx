@@ -1060,30 +1060,25 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
 
   return (
     <div className="bg-white rounded-3xl p-3.5 sm:p-6 md:p-8 border border-slate-200 shadow-sm max-w-3xl mx-auto w-full">
-      <div className="flex items-center gap-3.5 mb-4">
+      <div className="flex items-center gap-3.5 mb-3">
         <div className="w-11 h-11 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-2xl border border-blue-100 flex-shrink-0">
           🤖
         </div>
         <div>
-          <h2 className="text-lg font-bold text-slate-900">AI 报告智能提取与全景多模态解析</h2>
-          <p className="text-slate-500 text-xs sm:text-sm mt-0.5">支持同时勾选多张照片（CT 影像 + 术后病理 + 脑核磁 + 腹部超声 + 骨扫描），AI 自动跨模态融合提取</p>
+          <h2 className="text-lg font-bold text-slate-900">AI 医疗报告多模态智能提取</h2>
+          <p className="text-slate-500 text-xs sm:text-sm mt-0.5">上传或拍照一份或多份报告，AI 自动提取关键指标并校准分期</p>
         </div>
       </div>
 
-      {/* Supported Modality Chips Banner */}
-      <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80 mb-5 space-y-2">
-        <div className="text-xs font-bold text-slate-700 flex items-center justify-between">
-          <span>📋 现已全面支持以下 6 大类报告联合解析：</span>
-          <span className="text-[11px] text-teal-700 font-semibold">支持一次多选上传</span>
-        </div>
-        <div className="flex flex-wrap gap-1.5 text-xs">
-          <span className="px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-slate-700 font-medium">🩻 胸部薄层 CT</span>
-          <span className="px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-slate-700 font-medium">🔬 术后组织病理与 IHC</span>
-          <span className="px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-slate-700 font-medium">🧠 脑部增强 MRI</span>
-          <span className="px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-slate-700 font-medium">🩺 腹部与浅表超声</span>
-          <span className="px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-slate-700 font-medium">🦴 全身骨显像 ECT</span>
-          <span className="px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-slate-700 font-medium">🌟 全身 PET-CT / NGS 基因</span>
-        </div>
+      {/* Supported Modality Strip (Clean & Compact) */}
+      <div className="flex items-center gap-1.5 flex-wrap text-xs text-slate-600 bg-slate-50/80 p-2.5 px-3 rounded-2xl border border-slate-200/80 mb-5">
+        <span className="font-bold text-slate-700 text-[11px] mr-0.5">📋 支持类型：</span>
+        <span className="px-2 py-0.5 rounded-lg bg-white border border-slate-200 text-slate-600 text-[11px]">🩻 薄层 CT</span>
+        <span className="px-2 py-0.5 rounded-lg bg-white border border-slate-200 text-slate-600 text-[11px]">🔬 术后病理 / IHC</span>
+        <span className="px-2 py-0.5 rounded-lg bg-white border border-slate-200 text-slate-600 text-[11px]">🧠 脑部增强 MRI</span>
+        <span className="px-2 py-0.5 rounded-lg bg-white border border-slate-200 text-slate-600 text-[11px]">🩺 腹部与浅表超声</span>
+        <span className="px-2 py-0.5 rounded-lg bg-white border border-slate-200 text-slate-600 text-[11px]">🦴 骨显像 ECT</span>
+        <span className="px-2 py-0.5 rounded-lg bg-white border border-slate-200 text-slate-600 text-[11px]">🌟 全身 PET-CT</span>
       </div>
 
       <div className="space-y-4">
@@ -1093,8 +1088,7 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
             <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                  <span>📑 已添加 {images.length} 张医疗报告</span>
-                  <span className="text-[11px] text-slate-400 font-normal">（如 CT 报告 + 术后病理 + 脑核磁）</span>
+                  <span>📑 已添加 {images.length} 张报告图片</span>
                 </span>
                 <button
                   onClick={clearAllImages}
@@ -1132,9 +1126,8 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                     disabled={isParsing}
                   />
-                  <span className="text-xl text-blue-600 mb-1">+</span>
-                  <span className="text-xs font-bold text-slate-600">添加更多图片</span>
-                  <span className="text-[10px] text-slate-400 mt-0.5">CT / 病理 / 脑核磁</span>
+                  <span className="text-xl text-blue-600 mb-0.5">+</span>
+                  <span className="text-xs font-bold text-slate-600">继续添加图片</span>
                 </div>
               </div>
             </div>
@@ -1151,8 +1144,8 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
               />
               <div className="text-center py-3 pointer-events-none">
                 <div className="text-3xl mb-2">📷</div>
-                <div className="text-sm font-bold text-slate-700">点击从相册多选或拍照上传（支持多张报告）</div>
-                <div className="text-xs text-slate-400 mt-1">可同时选择【胸部 CT】+【术后病理】+【脑核磁/B超】，AI 将自动跨模态联合解析</div>
+                <div className="text-sm font-bold text-slate-700">点击拍照或从相册选择报告（支持一次多选）</div>
+                <div className="text-xs text-slate-400 mt-1">支持同时选择多张不同报告，AI 自动跨模态联合提取</div>
               </div>
             </div>
           )}
@@ -1160,7 +1153,7 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
 
         <div className="flex items-center gap-4">
           <div className="h-px bg-slate-200 flex-1" />
-          <span className="text-xs text-slate-400 font-medium">或者粘贴报告文字内容</span>
+          <span className="text-xs text-slate-400 font-medium">或者直接粘贴报告文本</span>
           <div className="h-px bg-slate-200 flex-1" />
         </div>
 
@@ -1169,7 +1162,7 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
             rows={5}
             value={reportText}
             onChange={(e) => setReportText(e.target.value)}
-            placeholder="在此粘贴影像报告（CT/MRI/超声）或术后病理报告诊断结论...&#10;（系统已启用 PIPL 金融级隐私脱敏，姓名与身份证号将自动掩码）"
+            placeholder="在此粘贴检查报告诊断结论...（系统已启用 PIPL 隐私脱敏，姓名与身份证号将自动掩码）"
             className="w-full p-4 border border-slate-300 rounded-2xl text-xs sm:text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none font-mono"
             disabled={isParsing}
           />
