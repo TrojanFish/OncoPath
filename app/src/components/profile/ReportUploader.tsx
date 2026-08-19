@@ -361,7 +361,57 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
 
         <div className="space-y-6">
           
-          {/* Section 1: Nodule Morphology & Solid Size & Accurate CTR */}
+          {/* Section 1: Patient Demographics & Surgery Status (Clinical Anchor & Primary Switch) */}
+          <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200">
+            <div className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3 flex items-center justify-between">
+              <span>👤 患者基本画像与诊疗状态</span>
+              <span className="text-[11px] font-normal text-slate-400">决定分期计算基准与临床路径分流</span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 mb-1">生物学性别</label>
+                <select 
+                  value={parsedData.sex || "female"} 
+                  onChange={e => setParsedData({...parsedData, sex: e.target.value})}
+                  className="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="female">女性 (Female)</option>
+                  <option value="male">男性 (Male)</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 mb-1">患者年龄</label>
+                <input 
+                  type="number" 
+                  value={parsedData.age || ""} 
+                  onChange={e => setParsedData({...parsedData, age: e.target.value})}
+                  className="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-blue-500"
+                  placeholder="55"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 mb-1">当前诊疗状态 / 手术术式</label>
+                {parsedData.reportType === 'ct_imaging' && parsedData.surgeryType === 'unknown' ? (
+                  <div className="p-2.5 bg-sky-50 border border-sky-200 rounded-xl text-xs font-bold text-sky-900 flex items-center h-[42px]">
+                    🌱 尚未手术 (随访观察 / 术前评估)
+                  </div>
+                ) : (
+                  <select 
+                    value={parsedData.surgeryType || "segmentectomy"} 
+                    onChange={e => setParsedData({...parsedData, surgeryType: e.target.value})}
+                    className="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="segmentectomy">解剖性肺段切除 (Segmentectomy)</option>
+                    <option value="lobectomy">标准肺叶切除 (Lobectomy)</option>
+                    <option value="wedge">肺楔形切除 (Wedge Resection)</option>
+                    <option value="unknown">尚未手术 / 随访期</option>
+                  </select>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Section 2: Nodule Morphology & Solid Size & Accurate CTR */}
           <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
             <div className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3 flex items-center justify-between">
               <span>🫁 结节形态与 CT 实性成分 (CTR 核心分期依据)</span>
@@ -426,7 +476,7 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
             </div>
           </div>
 
-          {/* Section 2: CT Malignant Imaging Signs with Plain-Language Definitions */}
+          {/* Section 3: CT Malignant Imaging Signs with Plain-Language Definitions */}
           <div className="p-4 rounded-2xl bg-sky-50/60 border border-sky-200 space-y-3">
             <div className="flex items-center justify-between flex-wrap gap-2">
               <div className="text-xs font-bold text-sky-900 uppercase tracking-wider flex items-center gap-1.5">
@@ -999,50 +1049,6 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
                 </div>
               </div>
 
-            </div>
-          </div>
-
-          {/* Section 5: Patient Demographics & Surgery */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-            <div>
-              <label className="block text-xs font-semibold text-slate-600 mb-1">患者年龄</label>
-              <input 
-                type="number" 
-                value={parsedData.age || ""} 
-                onChange={e => setParsedData({...parsedData, age: e.target.value})}
-                className="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm font-medium"
-                placeholder="55"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-slate-600 mb-1">生物学性别</label>
-              <select 
-                value={parsedData.sex || "female"} 
-                onChange={e => setParsedData({...parsedData, sex: e.target.value})}
-                className="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm font-medium"
-              >
-                <option value="female">女性</option>
-                <option value="male">男性</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-slate-600 mb-1">手术术式</label>
-              {parsedData.reportType === 'ct_imaging' && parsedData.surgeryType === 'unknown' ? (
-                <div className="p-2.5 bg-slate-100 border border-slate-200 rounded-xl text-xs font-semibold text-slate-600">
-                  尚未手术 (待随访/微创评估)
-                </div>
-              ) : (
-                <select 
-                  value={parsedData.surgeryType || "segmentectomy"} 
-                  onChange={e => setParsedData({...parsedData, surgeryType: e.target.value})}
-                  className="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm font-medium"
-                >
-                  <option value="segmentectomy">解剖性肺段切除</option>
-                  <option value="lobectomy">标准肺叶切除</option>
-                  <option value="wedge">肺楔形切除</option>
-                  <option value="unknown">尚未手术 / 随访期</option>
-                </select>
-              )}
             </div>
           </div>
         </div>
