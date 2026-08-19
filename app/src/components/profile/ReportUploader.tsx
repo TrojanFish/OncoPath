@@ -226,6 +226,13 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
         parsedData.boneScan === 'negative' || 
         parsedData.petCt === 'negative';
 
+      // Clean Ki-67 value
+      let cleanKi67: string | number | null = null;
+      if (parsedData.ki67 !== "" && parsedData.ki67 != null) {
+        const parsedNum = parseFloat(String(parsedData.ki67).replace(/%/g, "").trim());
+        cleanKi67 = isNaN(parsedNum) ? parsedData.ki67 : parsedNum;
+      }
+
       const finalData = {
         ...parsedData,
         age: parsedData.age !== "" && parsedData.age != null ? parseInt(String(parsedData.age)) || 55 : 55,
@@ -243,6 +250,7 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
         marginStatus: parsedData.marginStatus || "negative",
         surgeryType: parsedData.surgeryType || "segmentectomy",
         iaslcGrade: parsedData.grade || "2",
+        ki67: cleanKi67,
         sex: parsedData.sex || "female",
         gender: parsedData.sex || "female",
         histology: parsedData.histology || "adenocarcinoma",
@@ -514,8 +522,8 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
             </div>
           </div>
 
-          {/* Section 3: NEW! Systemic Staging & M0 Confirmation Matrix */}
-          <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-indigo-50/70 via-slate-50 to-teal-50/70 border-2 border-indigo-200/80 space-y-4 shadow-xs">
+          {/* Section 3: Systemic Staging & M0 Confirmation Matrix (Strictly Unified 5-Card Layout) */}
+          <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-indigo-50/70 via-slate-50 to-teal-50/70 border-2 border-indigo-200/80 space-y-3.5 shadow-xs">
             <div className="flex items-center justify-between flex-wrap gap-2">
               <div className="flex items-center gap-2">
                 <span className="text-lg">🌐</span>
@@ -536,26 +544,26 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
               )}
             </div>
 
-            {/* Organ Check Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-1">
+            {/* Symmetrical 5-Organ Grid: Uniform Height & Equal Padding */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2.5 pt-1">
               
-              {/* Brain MRI */}
-              <div className="bg-white p-3 rounded-xl border border-slate-200 space-y-1.5">
+              {/* 1. Brain MRI */}
+              <div className="bg-white p-3 rounded-xl border border-slate-200 flex flex-col justify-between h-[86px] shadow-2xs">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-800">🧠 脑部增强 MRI</span>
-                  <span className="text-[10px] text-slate-400">排除中枢脑转移</span>
+                  <span className="text-xs font-bold text-slate-800 truncate">🧠 脑部增强MRI</span>
+                  <span className="text-[10px] text-slate-400">排除脑转移</span>
                 </div>
-                <div className="flex gap-1">
+                <div className="flex gap-1 h-[28px]">
                   {[
-                    { val: "negative", label: "未见异常(M0)" },
-                    { val: "positive", label: "见异常(M1)" },
-                    { val: "not_performed", label: "尚未检查" }
+                    { val: "negative", label: "阴性(M0)" },
+                    { val: "positive", label: "可疑" },
+                    { val: "not_performed", label: "未做" }
                   ].map(opt => (
                     <button
                       key={opt.val}
                       type="button"
                       onClick={() => setParsedData({ ...parsedData, brainMri: opt.val })}
-                      className={`flex-1 py-1 text-[11px] rounded-lg font-bold transition-all cursor-pointer ${
+                      className={`flex-1 text-[11px] rounded-lg font-bold transition-all cursor-pointer flex items-center justify-center ${
                         (parsedData.brainMri || "not_performed") === opt.val
                           ? opt.val === "negative"
                             ? "bg-emerald-500 text-white shadow-2xs"
@@ -571,29 +579,26 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
                 </div>
               </div>
 
-              {/* Abdominal Ultrasound / CT */}
-              <div className="bg-white p-3 rounded-xl border border-slate-200 space-y-1.5">
+              {/* 2. Abdominal Ultrasound / CT */}
+              <div className="bg-white p-3 rounded-xl border border-slate-200 flex flex-col justify-between h-[86px] shadow-2xs">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-800">🩺 腹部/肾上腺超声</span>
-                  <span className="text-[10px] text-slate-400">排除肝/肾上腺</span>
+                  <span className="text-xs font-bold text-slate-800 truncate">🩺 腹部/肾上腺超声</span>
+                  <span className="text-[10px] text-slate-400">肝/肾上腺</span>
                 </div>
-                <div className="flex gap-1">
+                <div className="flex gap-1 h-[28px]">
                   {[
-                    { val: "negative", label: "未见异常" },
-                    { val: "benign_findings", label: "良性囊肿" },
-                    { val: "positive", label: "提示可疑" },
-                    { val: "not_performed", label: "尚未检查" }
+                    { val: "negative", label: "阴性/良性" },
+                    { val: "positive", label: "可疑" },
+                    { val: "not_performed", label: "未做" }
                   ].map(opt => (
                     <button
                       key={opt.val}
                       type="button"
                       onClick={() => setParsedData({ ...parsedData, abdominalUltrasound: opt.val })}
-                      className={`flex-1 py-1 text-[10px] rounded-lg font-bold transition-all cursor-pointer ${
-                        (parsedData.abdominalUltrasound || "not_performed") === opt.val
+                      className={`flex-1 text-[11px] rounded-lg font-bold transition-all cursor-pointer flex items-center justify-center ${
+                        (parsedData.abdominalUltrasound === "negative" || parsedData.abdominalUltrasound === "benign_findings" ? "negative" : (parsedData.abdominalUltrasound || "not_performed")) === opt.val
                           ? opt.val === "negative"
                             ? "bg-emerald-500 text-white shadow-2xs"
-                            : opt.val === "benign_findings"
-                            ? "bg-teal-600 text-white shadow-2xs"
                             : opt.val === "positive"
                             ? "bg-rose-500 text-white shadow-2xs"
                             : "bg-slate-700 text-white shadow-2xs"
@@ -606,23 +611,23 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
                 </div>
               </div>
 
-              {/* Bone Scan ECT */}
-              <div className="bg-white p-3 rounded-xl border border-slate-200 space-y-1.5">
+              {/* 3. Bone Scan ECT */}
+              <div className="bg-white p-3 rounded-xl border border-slate-200 flex flex-col justify-between h-[86px] shadow-2xs">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-800">🦴 全身骨显像 ECT</span>
-                  <span className="text-[10px] text-slate-400">排除骨质破坏</span>
+                  <span className="text-xs font-bold text-slate-800 truncate">🦴 全身骨显像ECT</span>
+                  <span className="text-[10px] text-slate-400">排除骨破坏</span>
                 </div>
-                <div className="flex gap-1">
+                <div className="flex gap-1 h-[28px]">
                   {[
-                    { val: "negative", label: "未见骨破坏(M0)" },
-                    { val: "positive", label: "异常代谢" },
-                    { val: "not_performed", label: "尚未检查" }
+                    { val: "negative", label: "阴性(M0)" },
+                    { val: "positive", label: "可疑" },
+                    { val: "not_performed", label: "未做" }
                   ].map(opt => (
                     <button
                       key={opt.val}
                       type="button"
                       onClick={() => setParsedData({ ...parsedData, boneScan: opt.val })}
-                      className={`flex-1 py-1 text-[11px] rounded-lg font-bold transition-all cursor-pointer ${
+                      className={`flex-1 text-[11px] rounded-lg font-bold transition-all cursor-pointer flex items-center justify-center ${
                         (parsedData.boneScan || "not_performed") === opt.val
                           ? opt.val === "negative"
                             ? "bg-emerald-500 text-white shadow-2xs"
@@ -638,23 +643,23 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
                 </div>
               </div>
 
-              {/* Neck / Supraclavicular Lymph Nodes */}
-              <div className="bg-white p-3 rounded-xl border border-slate-200 space-y-1.5">
+              {/* 4. Neck / Supraclavicular Lymph Nodes */}
+              <div className="bg-white p-3 rounded-xl border border-slate-200 flex flex-col justify-between h-[86px] shadow-2xs">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-800">🩺 锁骨上淋巴结B超</span>
-                  <span className="text-[10px] text-slate-400">排除 N3 远处淋巴</span>
+                  <span className="text-xs font-bold text-slate-800 truncate">🩺 锁骨上淋巴结</span>
+                  <span className="text-[10px] text-slate-400">排除N3转移</span>
                 </div>
-                <div className="flex gap-1">
+                <div className="flex gap-1 h-[28px]">
                   {[
-                    { val: "negative", label: "未见肿大(N0)" },
-                    { val: "positive", label: "见肿大(N3)" },
-                    { val: "not_performed", label: "尚未检查" }
+                    { val: "negative", label: "未见肿大" },
+                    { val: "positive", label: "见肿大" },
+                    { val: "not_performed", label: "未做" }
                   ].map(opt => (
                     <button
                       key={opt.val}
                       type="button"
                       onClick={() => setParsedData({ ...parsedData, neckLymphNodes: opt.val })}
-                      className={`flex-1 py-1 text-[11px] rounded-lg font-bold transition-all cursor-pointer ${
+                      className={`flex-1 text-[11px] rounded-lg font-bold transition-all cursor-pointer flex items-center justify-center ${
                         (parsedData.neckLymphNodes || "not_performed") === opt.val
                           ? opt.val === "negative"
                             ? "bg-emerald-500 text-white shadow-2xs"
@@ -670,23 +675,23 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
                 </div>
               </div>
 
-              {/* Whole Body PET-CT */}
-              <div className="bg-white p-3 rounded-xl border border-slate-200 space-y-1.5">
+              {/* 5. Whole Body PET-CT */}
+              <div className="bg-white p-3 rounded-xl border border-slate-200 flex flex-col justify-between h-[86px] shadow-2xs">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-800">🌟 全身 PET-CT</span>
-                  <span className="text-[10px] text-slate-400">全身代谢一站式</span>
+                  <span className="text-xs font-bold text-slate-800 truncate">🌟 全身 PET-CT</span>
+                  <span className="text-[10px] text-slate-400">代谢一站式</span>
                 </div>
-                <div className="flex gap-1">
+                <div className="flex gap-1 h-[28px]">
                   {[
-                    { val: "negative", label: "无远处浓聚(M0)" },
-                    { val: "positive", label: "远处高代谢" },
-                    { val: "not_performed", label: "尚未检查" }
+                    { val: "negative", label: "无浓聚(M0)" },
+                    { val: "positive", label: "高代谢" },
+                    { val: "not_performed", label: "未做" }
                   ].map(opt => (
                     <button
                       key={opt.val}
                       type="button"
                       onClick={() => setParsedData({ ...parsedData, petCt: opt.val })}
-                      className={`flex-1 py-1 text-[11px] rounded-lg font-bold transition-all cursor-pointer ${
+                      className={`flex-1 text-[11px] rounded-lg font-bold transition-all cursor-pointer flex items-center justify-center ${
                         (parsedData.petCt || "not_performed") === opt.val
                           ? opt.val === "negative"
                             ? "bg-emerald-500 text-white shadow-2xs"
@@ -702,67 +707,73 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
                 </div>
               </div>
 
-              {/* Benign Findings List & Management */}
-              <div className="bg-white p-3 rounded-xl border border-slate-200 space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-800">🛡️ 伴发良性发现（非转移）</span>
-                  <span className="text-[10px] text-emerald-600 font-semibold">消除虚惊</span>
+            </div>
+
+            {/* Dedicated Full-Width Banner: Benign Findings Management */}
+            <div className="bg-white p-3.5 rounded-xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-slate-800">🛡️ 伴发良性发现（非肿瘤转移，消除虚惊）：</span>
+                  <span className="text-[10px] text-emerald-600 font-semibold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100">良性囊性/退行表现</span>
                 </div>
-                <div className="flex flex-wrap gap-1">
+                <div className="flex flex-wrap gap-1.5 pt-0.5">
                   {(parsedData.benignFindings || ["肝囊肿", "肺内良性钙化点"]).map((item: string) => (
-                    <span key={item} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-medium">
+                    <span key={item} className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium">
                       <span>✓ {item}</span>
                       <button 
                         type="button" 
                         onClick={() => handleRemoveBenignFinding(item)}
-                        className="text-emerald-400 hover:text-emerald-700 cursor-pointer"
+                        className="text-emerald-400 hover:text-emerald-700 cursor-pointer text-xs"
                       >
                         ✕
                       </button>
                     </span>
                   ))}
                 </div>
-                <div className="flex items-center gap-1 pt-1">
-                  <input 
-                    type="text" 
-                    value={newBenignInput}
-                    onChange={e => setNewBenignInput(e.target.value)}
-                    onKeyDown={e => e.key === 'Enter' && handleAddBenignFinding()}
-                    placeholder="如：胆囊息肉、肾囊肿"
-                    className="flex-1 px-2 py-1 bg-slate-50 border border-slate-200 rounded-lg text-[11px] outline-none focus:bg-white focus:border-blue-400"
-                  />
-                  <button 
-                    type="button"
-                    onClick={handleAddBenignFinding}
-                    className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-bold rounded-lg cursor-pointer"
-                  >
-                    +添加
-                  </button>
-                </div>
               </div>
 
+              <div className="flex items-center gap-1.5 sm:max-w-xs w-full">
+                <input 
+                  type="text" 
+                  value={newBenignInput}
+                  onChange={e => setNewBenignInput(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleAddBenignFinding()}
+                  placeholder="添加如：胆囊息肉、肾囊肿"
+                  className="flex-1 px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:bg-white focus:border-blue-400"
+                />
+                <button 
+                  type="button"
+                  onClick={handleAddBenignFinding}
+                  className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl cursor-pointer transition-colors"
+                >
+                  +添加
+                </button>
+              </div>
             </div>
+
           </div>
 
-          {/* Section 4: Pathology High-Risk Red/Green Factors (When Pathology or Comprehensive) */}
+          {/* Section 4: Pathology High-Risk Red/Green Factors & Ki-67 (Uniform Symmetric Grid) */}
           {(parsedData.reportType === 'pathology' || parsedData.reportType === 'comprehensive' || parsedData.surgeryType !== 'unknown') && (
-            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
-              <div className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3 flex items-center justify-between">
-                <span>🚦 术后高危病理特征 (红绿灯指标)</span>
+            <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+              <div className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center justify-between">
+                <span>🚦 术后高危病理特征 (红绿灯指标) 与 Ki-67 增殖指数</span>
                 <span className="text-[11px] font-normal text-slate-400">决定辅助治疗与复发风险分层</span>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+                
                 {/* 1. Margin Status */}
-                <div className="bg-white p-3 rounded-xl border border-slate-200 space-y-2">
-                  <div>
+                <div className="bg-white p-3 rounded-xl border border-slate-200 flex flex-col justify-between h-[92px] shadow-2xs">
+                  <div className="flex items-center justify-between">
                     <div className="text-xs font-bold text-slate-800">切缘状态 (Margin)</div>
-                    <div className="text-[10px] text-slate-400 leading-tight">手术切缘病理残留情况</div>
+                    <div className="text-[10px] text-slate-400">残留排查</div>
                   </div>
-                  <div className="flex gap-1">
+                  <div className="flex gap-1 h-[32px]">
                     <button
                       type="button"
                       onClick={() => setParsedData({ ...parsedData, marginStatus: "negative", margin: "negative" })}
-                      className={`flex-1 py-1 text-xs rounded-lg font-bold transition-all cursor-pointer ${
+                      className={`flex-1 text-xs rounded-lg font-bold transition-all cursor-pointer flex items-center justify-center ${
                         parsedData.marginStatus !== "positive" && parsedData.margin !== "positive"
                           ? "bg-emerald-500 text-white shadow-2xs"
                           : "bg-slate-100 text-slate-500 hover:bg-slate-200"
@@ -773,30 +784,30 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
                     <button
                       type="button"
                       onClick={() => setParsedData({ ...parsedData, marginStatus: "positive", margin: "positive" })}
-                      className={`flex-1 py-1 text-xs rounded-lg font-bold transition-all cursor-pointer ${
+                      className={`flex-1 text-xs rounded-lg font-bold transition-all cursor-pointer flex items-center justify-center ${
                         parsedData.marginStatus === "positive" || parsedData.margin === "positive"
                           ? "bg-rose-500 text-white shadow-2xs"
                           : "bg-slate-100 text-slate-500 hover:bg-slate-200"
                       }`}
                     >
-                      阳性 (残留)
+                      阳性 (有残留)
                     </button>
                   </div>
                 </div>
 
                 {/* 2. Lymph Node N-Stage */}
-                <div className="bg-white p-3 rounded-xl border border-slate-200 space-y-2">
-                  <div>
-                    <div className="text-xs font-bold text-slate-800">淋巴结转移 (N分期)</div>
-                    <div className="text-[10px] text-slate-400 leading-tight">纵隔与肺门淋巴结状态</div>
+                <div className="bg-white p-3 rounded-xl border border-slate-200 flex flex-col justify-between h-[92px] shadow-2xs">
+                  <div className="flex items-center justify-between">
+                    <div className="text-xs font-bold text-slate-800">淋巴结分期 (N)</div>
+                    <div className="text-[10px] text-slate-400">纵隔/肺门</div>
                   </div>
-                  <div className="flex gap-1">
+                  <div className="flex gap-1 h-[32px]">
                     {(["N0", "N1", "N2"] as const).map((n) => (
                       <button
                         key={n}
                         type="button"
                         onClick={() => setParsedData({ ...parsedData, nStage: n, lymphNodes: n })}
-                        className={`flex-1 py-1 text-xs rounded-lg font-bold transition-all cursor-pointer ${
+                        className={`flex-1 text-xs rounded-lg font-bold transition-all cursor-pointer flex items-center justify-center ${
                           (parsedData.nStage || "N0") === n
                             ? n === "N0"
                               ? "bg-emerald-500 text-white shadow-2xs"
@@ -813,16 +824,16 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
                 </div>
 
                 {/* 3. VPI */}
-                <div className="bg-white p-3 rounded-xl border border-slate-200 space-y-2">
-                  <div>
+                <div className="bg-white p-3 rounded-xl border border-slate-200 flex flex-col justify-between h-[92px] shadow-2xs">
+                  <div className="flex items-center justify-between">
                     <div className="text-xs font-bold text-slate-800">胸膜侵犯 (VPI)</div>
-                    <div className="text-[10px] text-slate-400 leading-tight">突破脏层胸膜(PL1/PL2)</div>
+                    <div className="text-[10px] text-slate-400">脏层胸膜PL1/2</div>
                   </div>
-                  <div className="flex gap-1">
+                  <div className="flex gap-1 h-[32px]">
                     <button
                       type="button"
                       onClick={() => setParsedData({ ...parsedData, vpi: "negative" })}
-                      className={`flex-1 py-1 text-xs rounded-lg font-bold transition-all cursor-pointer ${
+                      className={`flex-1 text-xs rounded-lg font-bold transition-all cursor-pointer flex items-center justify-center ${
                         parsedData.vpi !== "positive" ? "bg-emerald-500 text-white shadow-2xs" : "bg-slate-100 text-slate-500 hover:bg-slate-200"
                       }`}
                     >
@@ -831,7 +842,7 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
                     <button
                       type="button"
                       onClick={() => setParsedData({ ...parsedData, vpi: "positive" })}
-                      className={`flex-1 py-1 text-xs rounded-lg font-bold transition-all cursor-pointer ${
+                      className={`flex-1 text-xs rounded-lg font-bold transition-all cursor-pointer flex items-center justify-center ${
                         parsedData.vpi === "positive" ? "bg-rose-500 text-white shadow-2xs" : "bg-slate-100 text-slate-500 hover:bg-slate-200"
                       }`}
                     >
@@ -841,16 +852,16 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
                 </div>
 
                 {/* 4. STAS */}
-                <div className="bg-white p-3 rounded-xl border border-slate-200 space-y-2">
-                  <div>
+                <div className="bg-white p-3 rounded-xl border border-slate-200 flex flex-col justify-between h-[92px] shadow-2xs">
+                  <div className="flex items-center justify-between">
                     <div className="text-xs font-bold text-slate-800">气道播散 (STAS)</div>
-                    <div className="text-[10px] text-slate-400 leading-tight">肿瘤微小巢气腔漂移</div>
+                    <div className="text-[10px] text-slate-400">气腔微巢漂移</div>
                   </div>
-                  <div className="flex gap-1">
+                  <div className="flex gap-1 h-[32px]">
                     <button
                       type="button"
                       onClick={() => setParsedData({ ...parsedData, stas: "negative" })}
-                      className={`flex-1 py-1 text-xs rounded-lg font-bold transition-all cursor-pointer ${
+                      className={`flex-1 text-xs rounded-lg font-bold transition-all cursor-pointer flex items-center justify-center ${
                         parsedData.stas !== "positive" ? "bg-emerald-500 text-white shadow-2xs" : "bg-slate-100 text-slate-500 hover:bg-slate-200"
                       }`}
                     >
@@ -859,7 +870,7 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
                     <button
                       type="button"
                       onClick={() => setParsedData({ ...parsedData, stas: "positive" })}
-                      className={`flex-1 py-1 text-xs rounded-lg font-bold transition-all cursor-pointer ${
+                      className={`flex-1 text-xs rounded-lg font-bold transition-all cursor-pointer flex items-center justify-center ${
                         parsedData.stas === "positive" ? "bg-rose-500 text-white shadow-2xs" : "bg-slate-100 text-slate-500 hover:bg-slate-200"
                       }`}
                     >
@@ -869,16 +880,16 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
                 </div>
 
                 {/* 5. LVI */}
-                <div className="bg-white p-3 rounded-xl border border-slate-200 space-y-2">
-                  <div>
+                <div className="bg-white p-3 rounded-xl border border-slate-200 flex flex-col justify-between h-[92px] shadow-2xs">
+                  <div className="flex items-center justify-between">
                     <div className="text-xs font-bold text-slate-800">脉管癌栓 (LVI)</div>
-                    <div className="text-[10px] text-slate-400 leading-tight">微血管/淋巴管内癌栓</div>
+                    <div className="text-[10px] text-slate-400">微血管/淋巴管</div>
                   </div>
-                  <div className="flex gap-1">
+                  <div className="flex gap-1 h-[32px]">
                     <button
                       type="button"
                       onClick={() => setParsedData({ ...parsedData, lvi: "negative" })}
-                      className={`flex-1 py-1 text-xs rounded-lg font-bold transition-all cursor-pointer ${
+                      className={`flex-1 text-xs rounded-lg font-bold transition-all cursor-pointer flex items-center justify-center ${
                         parsedData.lvi !== "positive" ? "bg-emerald-500 text-white shadow-2xs" : "bg-slate-100 text-slate-500 hover:bg-slate-200"
                       }`}
                     >
@@ -887,7 +898,7 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
                     <button
                       type="button"
                       onClick={() => setParsedData({ ...parsedData, lvi: "positive" })}
-                      className={`flex-1 py-1 text-xs rounded-lg font-bold transition-all cursor-pointer ${
+                      className={`flex-1 text-xs rounded-lg font-bold transition-all cursor-pointer flex items-center justify-center ${
                         parsedData.lvi === "positive" ? "bg-rose-500 text-white shadow-2xs" : "bg-slate-100 text-slate-500 hover:bg-slate-200"
                       }`}
                     >
@@ -897,16 +908,16 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
                 </div>
 
                 {/* 6. IASLC Histological Grade */}
-                <div className="bg-white p-3 rounded-xl border border-slate-200 space-y-2">
-                  <div>
+                <div className="bg-white p-3 rounded-xl border border-slate-200 flex flex-col justify-between h-[92px] shadow-2xs">
+                  <div className="flex items-center justify-between">
                     <div className="text-xs font-bold text-slate-800">IASLC 病理分级</div>
-                    <div className="text-[10px] text-slate-400 leading-tight">微乳头/实体高级别成分占比</div>
+                    <div className="text-[10px] text-slate-400">高级别成分</div>
                   </div>
-                  <div className="flex gap-1">
+                  <div className="flex gap-1 h-[32px]">
                     {[
-                      { val: "1", label: "Grade 1(高分化)" },
-                      { val: "2", label: "Grade 2(中分化)" },
-                      { val: "3", label: "Grade 3(高级别)" }
+                      { val: "1", label: "G1(高分化)" },
+                      { val: "2", label: "G2(中分化)" },
+                      { val: "3", label: "G3(高级别)" }
                     ].map(({ val, label }) => {
                       const currentGrade = String(parsedData.iaslcGrade || parsedData.grade || "2");
                       const isSelected = currentGrade === val;
@@ -915,7 +926,7 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
                           key={val}
                           type="button"
                           onClick={() => setParsedData({ ...parsedData, grade: val, iaslcGrade: val })}
-                          className={`flex-1 py-1 text-xs rounded-lg font-bold transition-all cursor-pointer ${
+                          className={`flex-1 text-xs rounded-lg font-bold transition-all cursor-pointer flex items-center justify-center ${
                             isSelected
                               ? val === "1"
                                 ? "bg-emerald-500 text-white shadow-2xs"
@@ -931,6 +942,55 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
                     })}
                   </div>
                 </div>
+
+                {/* 7. NEW! Ki-67 Proliferation Index (%) [Optional IHC Field] */}
+                <div className="bg-white p-3 rounded-xl border border-slate-200 flex flex-col justify-between h-[92px] shadow-2xs">
+                  <div className="flex items-center justify-between">
+                    <div className="text-xs font-bold text-slate-800 flex items-center gap-1">
+                      <span>🔬 Ki-67 增殖指数</span>
+                      <span className="text-[10px] text-slate-400 font-normal">[选填]</span>
+                    </div>
+                    <div className="text-[10px] text-slate-400">细胞增殖转速</div>
+                  </div>
+
+                  <div className="flex items-center gap-1.5 h-[32px]">
+                    <div className="relative flex-1 h-full">
+                      <input 
+                        type="text" 
+                        inputMode="decimal"
+                        value={parsedData.ki67 !== undefined && parsedData.ki67 !== null ? String(parsedData.ki67).replace(/%/g, "") : ""}
+                        onChange={e => setParsedData({ ...parsedData, ki67: e.target.value })}
+                        placeholder="如 5 或 15"
+                        className="w-full h-full px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-slate-800 outline-none focus:bg-white focus:border-blue-400"
+                      />
+                      <span className="absolute right-2 top-1.5 text-xs text-slate-400 font-bold pointer-events-none">%</span>
+                    </div>
+
+                    {/* Quick Preset Chips */}
+                    <div className="flex gap-1 h-full">
+                      {[
+                        { val: "5", label: "≤5%" },
+                        { val: "15", label: "15%" },
+                        { val: "30", label: ">30%" }
+                      ].map(preset => (
+                        <button
+                          key={preset.val}
+                          type="button"
+                          onClick={() => setParsedData({ ...parsedData, ki67: preset.val })}
+                          className={`px-1.5 text-[10px] font-bold rounded-lg border transition-all cursor-pointer flex items-center justify-center ${
+                            String(parsedData.ki67).replace(/%/g, "") === preset.val
+                              ? "bg-purple-600 text-white border-purple-600 shadow-2xs"
+                              : "bg-slate-50 border-slate-200 text-slate-500 hover:bg-slate-100"
+                          }`}
+                          title={`快速填入 ${preset.label}`}
+                        >
+                          {preset.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
               </div>
             </div>
           )}

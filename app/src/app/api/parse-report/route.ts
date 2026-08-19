@@ -81,7 +81,8 @@ const SYSTEM_PROMPT = `
   "lvi": "positive" | "negative",
   "marginStatus": "positive" | "negative",
   "surgeryType": "lobectomy" | "segmentectomy" | "wedge" | "unknown" | null,
-  "grade": "1" | "2" | "3" | null
+  "grade": "1" | "2" | "3" | null,
+  "ki67": Number | String | null (例如: 5, 15, "20%", 若未提及或未做免疫组化填 null)
 }
 `;
 
@@ -260,6 +261,7 @@ export async function POST(request: Request) {
       surgeryType: extracted.surgeryType || (isCtReport ? "unknown" : "segmentectomy"),
       grade: extracted.grade || "2",
       iaslcGrade: extracted.grade || "2",
+      ki67: extracted.ki67 || null,
       
       // Systemic Staging & M0 Confirmation
       brainMri: extracted.brainMri || "not_performed",

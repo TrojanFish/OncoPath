@@ -51,6 +51,7 @@ export interface PatientProfile {
   marginStatus?: "negative" | "positive" | string;
   iaslcGrade?: "1" | "2" | "3" | "unknown" | string;
   grade?: "1" | "2" | "3" | "unknown" | string;
+  ki67?: number | string; // Ki-67 proliferation index (%) e.g. 5, 15, 30
   histology?: any;
   egfr?: "positive" | "negative" | "unknown" | "not_tested" | string;
   surgeryType: "lobectomy" | "segmentectomy" | "wedge" | "unknown" | string;

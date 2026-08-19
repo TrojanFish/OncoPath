@@ -297,7 +297,7 @@ export default function PatientDashboard() {
               <div className="flex items-center justify-between mb-3">
                 <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center justify-between w-full">
                   <span>🚦 关键病理红绿灯矩阵 (决定辅助治疗与复发风险)</span>
-                  <span className="text-[10px] font-normal text-slate-400">6项核心病理指标</span>
+                  <span className="text-[10px] font-normal text-slate-400">{profile.ki67 ? '7项病理与IHC指标' : '6项核心病理指标'}</span>
                 </h4>
               </div>
 
@@ -332,6 +332,23 @@ export default function PatientDashboard() {
                   status={isGrade3 ? 'warning' : 'good'} 
                   text={isGrade3 ? 'Grade 3 (低分化高危)' : profile.iaslcGrade === '1' || profile.grade === '1' ? 'Grade 1 (高分化)' : 'Grade 2 (中分化)'} 
                 />
+                {profile.ki67 != null && profile.ki67 !== "" && (
+                  <RiskBadge 
+                    label="Ki-67 增殖指数" 
+                    status={
+                      (typeof profile.ki67 === 'number' ? profile.ki67 : parseFloat(String(profile.ki67))) <= 20 
+                        ? 'good' 
+                        : 'warning'
+                    } 
+                    text={`Ki-67: ${profile.ki67}% (${
+                      (typeof profile.ki67 === 'number' ? profile.ki67 : parseFloat(String(profile.ki67))) <= 5
+                        ? '极低惰性'
+                        : (typeof profile.ki67 === 'number' ? profile.ki67 : parseFloat(String(profile.ki67))) <= 20
+                        ? '常规增殖'
+                        : '活跃增殖'
+                    })`} 
+                  />
+                )}
               </div>
             </div>
           )}
