@@ -6,6 +6,9 @@ import { computeClinicalTnmStage } from "@/lib/staging";
 
 interface ReportUploaderProps {
   onParsed: (data: any) => void;
+  initialData?: any | null;
+  existingProfile?: any | null;
+  onCancel?: () => void;
 }
 
 interface UploadedReportImage {
@@ -62,11 +65,11 @@ const CT_SIGN_DEFINITIONS: Record<string, { label: string; enName: string; desc:
   }
 };
 
-export default function ReportUploader({ onParsed }: ReportUploaderProps) {
+export default function ReportUploader({ onParsed, initialData, existingProfile, onCancel }: ReportUploaderProps) {
   const [reportText, setReportText] = useState("");
   const [isParsing, setIsParsing] = useState(false);
   const [error, setError] = useState("");
-  const [parsedData, setParsedData] = useState<any | null>(null);
+  const [parsedData, setParsedData] = useState<any | null>(initialData || null);
   const [images, setImages] = useState<UploadedReportImage[]>([]);
   const [activeSignTooltip, setActiveSignTooltip] = useState<string | null>(null);
   const [newBenignInput, setNewBenignInput] = useState("");
@@ -227,49 +230,52 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
         parsedData.petCt === 'negative';
 
       // Clean Ki-67 value
-      let cleanKi67: string | number | null = null;
-      if (parsedData.ki67 !== "" && parsedData.ki67 != null) {
-        const parsedNum = parseFloat(String(parsedData.ki67).replace(/%/g, "").trim());
-        cleanKi67 = isNaN(parsedNum) ? parsedData.ki67 : parsedNum;
-      }
+      const base = existingProfile || initialData || {};
+      const cleanKi67 = parsedData.ki67 !== undefined && parsedData.ki67 !== null && parsedData.ki67 !== ""
+        ? String(parsedData.ki67).replace(/%/g, "").trim()
+        : (base.ki67 || null);
 
       const finalData = {
-        ...parsedData,
-        age: parsedData.age !== "" && parsedData.age != null ? parseInt(String(parsedData.age)) || 55 : 55,
+        ...base,
+        id: base.id,
+        userId: base.userId,
+        age: parsedData.age !== "" && parsedData.age != null ? parseInt(String(parsedData.age)) || 55 : (base.age || 55),
         tumorSize: stagingPreview?.tumorSize || tumorVal,
         solidSize: stagingPreview?.solidSize || solidVal,
         ctr: stagingPreview?.ctr ?? calculatedCtr,
-        stage: stagingPreview?.stage || parsedData.stage || "IA1",
-        tStage: stagingPreview?.tStage || parsedData.tStage || "T1a",
-        noduleType: parsedData.noduleType || "mixed_ggo",
-        nStage: parsedData.nStage || "N0",
-        mStage: parsedData.mStage || "M0",
-        stas: parsedData.stas || "negative",
-        vpi: parsedData.vpi || "negative",
-        lvi: parsedData.lvi || "negative",
-        marginStatus: parsedData.marginStatus || "negative",
-        surgeryType: parsedData.surgeryType || "segmentectomy",
-        iaslcGrade: parsedData.grade || "2",
+        stage: stagingPreview?.stage || parsedData.stage || base.stage || "IA1",
+        tStage: stagingPreview?.tStage || parsedData.tStage || base.tStage || "T1a",
+        noduleType: parsedData.noduleType || base.noduleType || "mixed_ggo",
+        nStage: parsedData.nStage || base.nStage || "N0",
+        mStage: parsedData.mStage || base.mStage || "M0",
+        stas: parsedData.stas !== undefined ? parsedData.stas : (base.stas || "negative"),
+        vpi: parsedData.vpi !== undefined ? parsedData.vpi : (base.vpi || "negative"),
+        lvi: parsedData.lvi !== undefined ? parsedData.lvi : (base.lvi || "negative"),
+        marginStatus: parsedData.marginStatus !== undefined ? parsedData.marginStatus : (base.marginStatus || "negative"),
+        margin: parsedData.marginStatus !== undefined ? parsedData.marginStatus : (base.margin || "negative"),
+        surgeryType: parsedData.surgeryType || base.surgeryType || "segmentectomy",
+        iaslcGrade: parsedData.grade || parsedData.iaslcGrade || base.iaslcGrade || "2",
+        grade: parsedData.grade || parsedData.iaslcGrade || base.grade || "2",
         ki67: cleanKi67,
-        sex: parsedData.sex || "female",
-        gender: parsedData.sex || "female",
-        histology: parsedData.histology || "adenocarcinoma",
-        reportType: parsedData.reportType || "pathology",
-        currentStage: (parsedData.reportType === 'ct_imaging' || parsedData.surgeryType === 'unknown') ? 'evaluation' : 'post_op',
-        imagingFeatures: parsedData.imagingFeatures || [],
-        noduleLocation: parsedData.noduleLocation || "右肺上叶尖段",
-        lungRads: parsedData.lungRads || null,
-        malignancyRisk: parsedData.malignancyRisk || "moderate",
-        clinicalRecommendation: parsedData.clinicalRecommendation || null,
+        sex: parsedData.sex || parsedData.gender || base.sex || "female",
+        gender: parsedData.sex || parsedData.gender || base.gender || "female",
+        histology: parsedData.histology || base.histology || "adenocarcinoma",
+        reportType: parsedData.reportType || base.reportType || "pathology",
+        currentStage: (parsedData.reportType === 'ct_imaging' || parsedData.surgeryType === 'unknown') ? 'evaluation' : 'treatment',
+        imagingFeatures: (Array.isArray(parsedData.imagingFeatures) && parsedData.imagingFeatures.length > 0) ? parsedData.imagingFeatures : (base.imagingFeatures || []),
+        noduleLocation: parsedData.noduleLocation || base.noduleLocation || "右肺上叶尖段",
+        lungRads: parsedData.lungRads || base.lungRads || null,
+        malignancyRisk: parsedData.malignancyRisk || base.malignancyRisk || "moderate",
+        clinicalRecommendation: parsedData.clinicalRecommendation || base.clinicalRecommendation || null,
 
         // Systemic Staging & M0 Confirmation
-        brainMri: parsedData.brainMri || "not_performed",
-        abdominalUltrasound: parsedData.abdominalUltrasound || "not_performed",
-        boneScan: parsedData.boneScan || "not_performed",
-        neckLymphNodes: parsedData.neckLymphNodes || "not_performed",
-        petCt: parsedData.petCt || "not_performed",
-        benignFindings: Array.isArray(parsedData.benignFindings) ? parsedData.benignFindings : [],
-        systemicStagingConfirmed: Boolean(parsedData.systemicStagingConfirmed ?? isM0Confirmed),
+        brainMri: parsedData.brainMri || base.brainMri || "not_performed",
+        abdominalUltrasound: parsedData.abdominalUltrasound || base.abdominalUltrasound || "not_performed",
+        boneScan: parsedData.boneScan || base.boneScan || "not_performed",
+        neckLymphNodes: parsedData.neckLymphNodes || base.neckLymphNodes || "not_performed",
+        petCt: parsedData.petCt || base.petCt || "not_performed",
+        benignFindings: Array.isArray(parsedData.benignFindings) ? parsedData.benignFindings : (base.benignFindings || []),
+        systemicStagingConfirmed: Boolean(parsedData.systemicStagingConfirmed ?? isM0Confirmed ?? base.systemicStagingConfirmed),
       };
 
       onParsed(finalData);
@@ -316,7 +322,7 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-6 pb-4 border-b border-slate-100">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold mb-1.5">
-              <span>✓ 全模态结构化提取就绪</span>
+              <span>{initialData ? "📝 档案核对与微调模式" : "✓ 全模态结构化提取就绪"}</span>
               <span className="text-slate-400">·</span>
               <span>
                 {parsedData.reportType === 'ct_imaging' 
@@ -328,15 +334,33 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
                   : '🔬 术后组织病理报告'}
               </span>
             </div>
-            <h2 className="text-xl font-extrabold text-slate-900">请核对并确认您的医疗特征指标</h2>
-            <p className="text-xs text-slate-500 mt-0.5">AI 已自动计算实性成分比例 (CTR)、校准临床分期并同步全身排查状态</p>
+            <h2 className="text-xl font-extrabold text-slate-900">
+              {initialData ? "核对并校准您的关键临床指标" : "请核对并确认您的医疗特征指标"}
+            </h2>
+            <p className="text-xs text-slate-500 mt-0.5">
+              {initialData 
+                ? "可直接调整性别、年龄、CTR实性成分、病理指标与全身排查状态，保存即生效" 
+                : "AI 已自动计算实性成分比例 (CTR)、校准临床分期并同步全身排查状态"}
+            </p>
           </div>
-          <button 
-            onClick={() => setParsedData(null)}
-            className="text-xs text-slate-500 hover:text-slate-800 font-semibold px-3 py-1.5 rounded-xl border border-slate-200 hover:bg-slate-50 transition-colors self-start sm:self-auto cursor-pointer"
-          >
-            ← 重新上传
-          </button>
+          <div className="flex items-center gap-2 flex-wrap self-start sm:self-auto">
+            <button 
+              type="button"
+              onClick={() => setParsedData(null)}
+              className="text-xs text-slate-600 hover:text-purple-700 font-semibold px-3 py-1.5 rounded-xl border border-slate-200 hover:bg-purple-50 transition-colors cursor-pointer flex items-center gap-1"
+            >
+              <span>📸 改为拍照上传新报告</span>
+            </button>
+            {onCancel && (
+              <button 
+                type="button"
+                onClick={onCancel}
+                className="text-xs text-slate-500 hover:text-slate-800 font-semibold px-3 py-1.5 rounded-xl border border-slate-200 hover:bg-slate-50 transition-colors cursor-pointer"
+              >
+                ‹ 返回看板
+              </button>
+            )}
+          </div>
         </div>
 
         {/* AJCC 8th/9th Solid Component Intelligence Banner */}
@@ -1055,16 +1079,24 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
 
         <div className="flex gap-3 justify-end mt-8 pt-4 border-t border-slate-100">
           <button 
-            onClick={() => setParsedData(null)}
+            type="button"
+            onClick={() => {
+              if (onCancel) {
+                onCancel();
+              } else {
+                setParsedData(null);
+              }
+            }}
             className="px-5 py-2.5 rounded-xl text-sm font-semibold border border-slate-300 text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
           >
-            返回
+            {onCancel ? "取消并返回看板" : "返回重新识别"}
           </button>
           <button 
+            type="button"
             onClick={handleConfirm}
             className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-sky-600 hover:from-blue-700 hover:to-sky-700 text-white font-bold text-sm shadow-md shadow-blue-500/20 transition-all cursor-pointer"
           >
-            确认无误，保存医疗档案
+            {initialData ? "保存修改并同步档案" : "确认无误，保存医疗档案"}
           </button>
         </div>
       </div>
@@ -1073,6 +1105,23 @@ export default function ReportUploader({ onParsed }: ReportUploaderProps) {
 
   return (
     <div className="bg-white rounded-3xl p-3.5 sm:p-6 md:p-8 border border-slate-200 shadow-sm max-w-3xl mx-auto w-full">
+      {onCancel && (
+        <div className="mb-5 pb-3 border-b border-slate-100 flex items-center justify-between flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-slate-900 transition-colors cursor-pointer px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200"
+          >
+            <span>‹ 取消并返回我的档案看板</span>
+          </button>
+          {existingProfile && (
+            <span className="text-[11px] text-purple-700 bg-purple-50 px-2.5 py-0.5 rounded-full font-bold border border-purple-200">
+              增量融合模式 · 不抹除已有记录
+            </span>
+          )}
+        </div>
+      )}
+
       <div className="flex items-center gap-3.5 mb-3">
         <div className="w-11 h-11 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-2xl border border-blue-100 flex-shrink-0">
           🤖

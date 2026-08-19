@@ -13,6 +13,8 @@ export default function PatientDashboard() {
   const [profile, setProfile] = useState<PatientProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [showUploader, setShowUploader] = useState(false);
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
+  const [editMode, setEditMode] = useState<'edit_direct' | 'upload_new' | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -47,6 +49,7 @@ export default function PatientDashboard() {
       if (dbData.success) {
         setProfile(dbData.profile);
         setShowUploader(false);
+        setEditMode(null);
       }
     } catch (err) {
       console.error("Failed to save parsed profile", err);
@@ -91,11 +94,21 @@ export default function PatientDashboard() {
     return (
       <div className="max-w-5xl mx-auto px-2.5 sm:px-6 lg:px-8 pb-4 sm:pb-6">
         <ConsentModal />
-        <div className="text-center mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">建立个人医学档案</h1>
-          <p className="text-slate-500 text-sm mt-1.5">将您的病理与影像报告交给 AI，自动建立结构化实性成分与循证模型</p>
-        </div>
-        <ReportUploader onParsed={handleParsed} />
+        {!profile && (
+          <div className="text-center mb-6 sm:mb-8">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">建立个人医学档案</h1>
+            <p className="text-slate-500 text-sm mt-1.5">将您的病理与影像报告交给 AI，自动建立结构化实性成分与循证模型</p>
+          </div>
+        )}
+        <ReportUploader 
+          initialData={editMode === 'edit_direct' ? profile : null}
+          existingProfile={profile}
+          onParsed={handleParsed}
+          onCancel={() => {
+            setShowUploader(false);
+            setEditMode(null);
+          }}
+        />
       </div>
     );
   }
@@ -145,10 +158,10 @@ export default function PatientDashboard() {
           </button>
           
           <button 
-            onClick={() => setShowUploader(true)}
-            className="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs border border-slate-300 shadow-xs transition-all cursor-pointer flex items-center gap-1.5 group"
+            onClick={() => setShowUpdateModal(true)}
+            className="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl bg-white hover:bg-blue-50 text-slate-700 hover:text-blue-700 font-bold text-xs border border-slate-300 hover:border-blue-300 shadow-xs transition-all cursor-pointer flex items-center gap-1.5 group"
           >
-            <svg className="w-3.5 h-3.5 text-slate-500 transition-transform group-hover:scale-110" viewBox="0 0 24 24" fill="none">
+            <svg className="w-3.5 h-3.5 text-slate-500 group-hover:text-blue-600 transition-transform group-hover:scale-110" viewBox="0 0 24 24" fill="none">
               <path d="M4 20h4l10.5-10.5a2.121 2.121 0 00-3-3L5 17v3z" fill="currentColor" fillOpacity="0.22" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
               <path d="M13.5 6.5l3 3" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
             </svg>
@@ -399,7 +412,98 @@ export default function PatientDashboard() {
         </div>
       </div>
 
-      <SimilarCasesCard profile={profile} />
+      {/* Profile Update Intent Router Modal (方案 A: 意图分流弹窗) */}
+      {showUpdateModal && (
+        <div className="fixed inset-0 z-[9999] bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 animate-fade-in">
+          <div className="bg-white rounded-3xl max-w-lg w-full border border-slate-200 shadow-2xl overflow-hidden flex flex-col p-6 sm:p-7 text-slate-900 animate-fade-in-up space-y-5">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl font-black">
+                  📝
+                </div>
+                <div>
+                  <h3 className="text-base sm:text-lg font-extrabold text-slate-900">
+                    请选择档案更新方式
+                  </h3>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    根据您的当前需求选择快速微调或增量上传新报告
+                  </p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setShowUpdateModal(false)}
+                className="text-slate-400 hover:text-slate-600 text-lg p-1 cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              {/* Option 1: Direct Edit on Existing Data */}
+              <button
+                type="button"
+                onClick={() => {
+                  setEditMode('edit_direct');
+                  setShowUpdateModal(false);
+                  setShowUploader(true);
+                }}
+                className="w-full text-left p-4 rounded-2xl border-2 border-slate-200 hover:border-blue-500 hover:bg-blue-50/40 transition-all cursor-pointer group flex items-start gap-3.5 shadow-2xs hover:shadow-md"
+              >
+                <div className="w-10 h-10 rounded-xl bg-blue-100/80 text-blue-700 flex items-center justify-center text-lg font-black shrink-0 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                  ✏️
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between mb-1">
+                    <h4 className="text-sm font-extrabold text-slate-900 group-hover:text-blue-900">
+                      快捷核对与微调已有指标
+                    </h4>
+                    <span className="text-[11px] font-bold text-blue-700 bg-blue-100 px-2 py-0.5 rounded-md">推荐 · 10秒</span>
+                  </div>
+                  <p className="text-xs text-slate-500 leading-relaxed">
+                    无需重新拍照，直接在当前已保存的性别、年龄、CTR实性成分、病理指标与全身排查状态上微调修改
+                  </p>
+                </div>
+              </button>
+
+              {/* Option 2: Upload New Medical Report (Incremental Merge) */}
+              <button
+                type="button"
+                onClick={() => {
+                  setEditMode('upload_new');
+                  setShowUpdateModal(false);
+                  setShowUploader(true);
+                }}
+                className="w-full text-left p-4 rounded-2xl border-2 border-slate-200 hover:border-purple-500 hover:bg-purple-50/40 transition-all cursor-pointer group flex items-start gap-3.5 shadow-2xs hover:shadow-md"
+              >
+                <div className="w-10 h-10 rounded-xl bg-purple-100/80 text-purple-700 flex items-center justify-center text-lg font-black shrink-0 group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                  📸
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between mb-1">
+                    <h4 className="text-sm font-extrabold text-slate-900 group-hover:text-purple-900">
+                      追加 / 上传新医疗报告
+                    </h4>
+                    <span className="text-[11px] font-bold text-purple-700 bg-purple-100 px-2 py-0.5 rounded-md">AI 智能合并</span>
+                  </div>
+                  <p className="text-xs text-slate-500 leading-relaxed">
+                    拿到了新的术后大病理、复查薄层CT、脑增强MRI或PET-CT？上传后由 AI 跨模态增量融合提取，不抹除已有记录
+                  </p>
+                </div>
+              </button>
+            </div>
+
+            <div className="pt-2 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setShowUpdateModal(false)}
+                className="px-4 py-2 text-xs font-bold text-slate-500 hover:text-slate-700 cursor-pointer"
+              >
+                取消
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* PIPL Right-to-be-Forgotten Wipe Confirmation Modal */}
       {showDeleteModal && (
