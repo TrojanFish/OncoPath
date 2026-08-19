@@ -319,6 +319,33 @@ export default function EvidenceReportPage() {
     }
   };
 
+  // Safe Clinical Helpers for Consultation Pocket Card Export
+  const isFemale = (profile?.gender as string) === 'female' || (profile?.sex as string) === 'female' || (profile?.gender as string) === '女' || (profile?.sex as string) === '女';
+  const genderText = isFemale ? '女性' : '男性';
+
+  const surgeryText = 
+    profile?.currentStage === 'evaluation' || profile?.currentStage === 'discovery' || profile?.surgeryType === 'unknown' ? '尚未手术 / 动态随访' :
+    profile?.surgeryType === 'segmentectomy' ? '解剖性肺段切除' :
+    profile?.surgeryType === 'lobectomy' ? '标准肺叶切除' :
+    profile?.surgeryType === 'wedge' ? '肺楔形切除' :
+    profile?.surgeryType || '根治性切除';
+
+  const isStasSafe = profile?.stas === 'negative' || (profile?.stas as any) === false;
+  const isLviSafe = profile?.lvi === 'negative' || (profile?.lvi as any) === false;
+  const isVpiSafe = profile?.vpi === 'negative' || (profile?.vpi as any) === false;
+  const isMarginSafe = profile?.margin === 'negative' || profile?.marginStatus === 'negative' || (profile?.margin as any) === false;
+  const isN0Safe = profile?.nStage === 'N0' || !profile?.nStage || profile?.nStage === 'N?' || profile?.lymphNodes === 'N0';
+  const isGrade3 = profile?.iaslcGrade === '3' || profile?.grade === '3';
+  const isAllSafe = isStasSafe && isLviSafe && isVpiSafe && isN0Safe && isMarginSafe && !isGrade3;
+
+  const riskLabel = profile?.currentStage === 'evaluation' || profile?.currentStage === 'discovery'
+    ? (profile?.riskLevel === 'high' ? '⚡ 建议胸外科微创评估' : '🌱 建议随访观察 (低危)')
+    : (isAllSafe ? '🌱 早期低复发风险组' : '⚡ 需积极辅助治疗');
+
+  const tumorVal = profile?.tumorSize != null ? profile.tumorSize : 2.5;
+  const solidVal = profile?.solidSize != null ? profile.solidSize : 0.8;
+  const calculatedCtr = profile?.ctr != null ? profile.ctr : (tumorVal > 0 ? Math.round((solidVal / tumorVal) * 100) / 100 : 0.32);
+
   return (
     <div className="min-h-screen bg-slate-50/70 pb-8 sm:pb-12 print:bg-white print:pb-0 text-slate-900">
       
@@ -365,19 +392,6 @@ export default function EvidenceReportPage() {
 
             {!isGenerating && (
               <>
-                <button
-                  onClick={handleCopyChecklist}
-                  className="flex items-center gap-1 px-2 py-1 sm:px-3 sm:py-1.5 rounded-xl text-[11px] sm:text-xs font-bold text-blue-700 bg-blue-50/90 hover:bg-blue-100 border border-blue-200 transition-all cursor-pointer shadow-2xs group whitespace-nowrap"
-                  title="一键提取问诊清单"
-                >
-                  <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-blue-600 transition-transform group-hover:scale-110 flex-shrink-0" viewBox="0 0 24 24" fill="none">
-                    <rect x="5" y="4" width="14" height="17" rx="2.5" fill="currentColor" fillOpacity="0.2" stroke="currentColor" strokeWidth="1.75" />
-                    <path d="M9 4.5V3.5a1 1 0 011-1h4a1 1 0 011 1v1M8.5 11l2.5 2.5 4.5-4.5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                  <span className="sm:hidden">复制</span>
-                  <span className="hidden sm:inline">复制问诊单</span>
-                </button>
-
                 <button
                   onClick={handleExportImage}
                   disabled={isExportingImage}
@@ -801,13 +815,14 @@ export default function EvidenceReportPage() {
             </div>
           </div>
 
-          {/* Patient Overview & 6-Factor Red/Green Matrix */}
+          {/* Patient Overview & Clinical Parameters */}
           {profile && (
             <div className="mb-4 bg-slate-800/90 rounded-2xl p-3.5 border border-slate-700/80 relative z-10 space-y-2.5">
+              {/* Row 1: Age, Gender, Stage, TNM */}
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-1.5 flex-wrap">
                   <span className="text-sm font-black text-white">
-                    {profile.age || 55}岁 · {profile.sex === 'female' ? '女性' : '男性'}
+                    {profile.age || 55}岁 · {genderText}
                   </span>
                   <span className="text-xs font-bold text-slate-300">
                     · {profile.currentStage === 'evaluation' || profile.currentStage === 'discovery' || profile.reportType === 'ct_imaging'
@@ -821,45 +836,82 @@ export default function EvidenceReportPage() {
                 </span>
               </div>
 
-              {/* 6 Core Pathology Indicators Pills */}
+              {/* Row 2: Surgery Type & Risk Rating */}
+              <div className="flex items-center justify-between flex-wrap gap-2 text-xs pt-1 border-t border-slate-700/60">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-slate-400 text-[11px]">手术术式:</span>
+                  <span className="font-bold text-white bg-slate-700/80 px-2 py-0.5 rounded-md border border-slate-600/50">
+                    {surgeryText}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-slate-400 text-[11px]">风险评级:</span>
+                  <span className={`px-2 py-0.5 rounded-md font-extrabold text-[11px] border ${isAllSafe ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' : 'bg-amber-500/20 text-amber-300 border-amber-500/30'}`}>
+                    {riskLabel}
+                  </span>
+                </div>
+              </div>
+
+              {/* Row 3: CT Tumor Size & CTR Calculation */}
+              <div className="bg-slate-900/90 p-2.5 rounded-xl border border-slate-700/60 text-xs flex items-center justify-between flex-wrap gap-2">
+                <span className="text-slate-300 flex items-center gap-1.5">
+                  <span>📏</span>
+                  <span><strong>磨玻璃最大径</strong>: {tumorVal} cm · <strong>CT 实性成分</strong>: {solidVal} cm</span>
+                </span>
+                <span className="px-2 py-0.5 rounded-md bg-teal-500/20 text-teal-300 border border-teal-400/30 font-mono font-bold text-[11px]">
+                  CTR: {calculatedCtr}
+                </span>
+              </div>
+
+              {/* Row 4: 6 Core Pathology Indicators Pills */}
               <div className="grid grid-cols-3 gap-1.5 text-[11px]">
                 <div className="bg-slate-900/90 px-2 py-1.5 rounded-lg border border-slate-700/60 flex items-center justify-between">
                   <span className="text-slate-400 text-[10px]">切缘状态</span>
-                  <span className={`font-bold ${profile.margin === 'positive' || profile.marginStatus === 'positive' ? 'text-rose-400' : 'text-emerald-400'}`}>
-                    {profile.margin === 'positive' || profile.marginStatus === 'positive' ? '阳性(残留)' : '阴性(R0)'}
+                  <span className={`font-bold ${!isMarginSafe ? 'text-rose-400' : 'text-emerald-400'}`}>
+                    {!isMarginSafe ? '阳性(残留)' : '阴性(R0)'}
                   </span>
                 </div>
                 <div className="bg-slate-900/90 px-2 py-1.5 rounded-lg border border-slate-700/60 flex items-center justify-between">
                   <span className="text-slate-400 text-[10px]">淋巴结分期</span>
-                  <span className={`font-bold ${profile.nStage === 'N0' || !profile.nStage ? 'text-emerald-400' : profile.nStage === 'N1' ? 'text-amber-400' : 'text-rose-400'}`}>
+                  <span className={`font-bold ${isN0Safe ? 'text-emerald-400' : profile.nStage === 'N1' ? 'text-amber-400' : 'text-rose-400'}`}>
                     {profile.nStage || 'N0 (无)'}
                   </span>
                 </div>
                 <div className="bg-slate-900/90 px-2 py-1.5 rounded-lg border border-slate-700/60 flex items-center justify-between">
                   <span className="text-slate-400 text-[10px]">胸膜侵犯</span>
-                  <span className={`font-bold ${profile.vpi === 'positive' ? 'text-amber-400' : 'text-emerald-400'}`}>
-                    {profile.vpi === 'positive' ? '阳性(升期)' : '阴性(PL0)'}
+                  <span className={`font-bold ${!isVpiSafe ? 'text-amber-400' : 'text-emerald-400'}`}>
+                    {!isVpiSafe ? 'PL1/2 (阳性)' : 'PL0 (阴性)'}
                   </span>
                 </div>
                 <div className="bg-slate-900/90 px-2 py-1.5 rounded-lg border border-slate-700/60 flex items-center justify-between">
                   <span className="text-slate-400 text-[10px]">气道播散</span>
-                  <span className={`font-bold ${profile.stas === 'positive' ? 'text-amber-400' : 'text-emerald-400'}`}>
-                    {profile.stas === 'positive' ? '阳性(高危)' : '阴性(-)'}
+                  <span className={`font-bold ${!isStasSafe ? 'text-amber-400' : 'text-emerald-400'}`}>
+                    {!isStasSafe ? '阳性(高危)' : '阴性(-)'}
                   </span>
                 </div>
                 <div className="bg-slate-900/90 px-2 py-1.5 rounded-lg border border-slate-700/60 flex items-center justify-between">
                   <span className="text-slate-400 text-[10px]">脉管瘤栓</span>
-                  <span className={`font-bold ${profile.lvi === 'positive' ? 'text-amber-400' : 'text-emerald-400'}`}>
-                    {profile.lvi === 'positive' ? '阳性(高危)' : '阴性(-)'}
+                  <span className={`font-bold ${!isLviSafe ? 'text-amber-400' : 'text-emerald-400'}`}>
+                    {!isLviSafe ? '阳性(高危)' : '阴性(-)'}
                   </span>
                 </div>
                 <div className="bg-slate-900/90 px-2 py-1.5 rounded-lg border border-slate-700/60 flex items-center justify-between">
                   <span className="text-slate-400 text-[10px]">病理分级</span>
-                  <span className={`font-bold ${profile.iaslcGrade === '3' || profile.grade === '3' ? 'text-amber-400' : 'text-emerald-400'}`}>
-                    {profile.iaslcGrade === '3' || profile.grade === '3' ? 'Grade 3(危)' : profile.iaslcGrade === '1' || profile.grade === '1' ? 'Grade 1(高)' : 'Grade 2(中)'}
+                  <span className={`font-bold ${isGrade3 ? 'text-amber-400' : 'text-emerald-400'}`}>
+                    {isGrade3 ? 'G3(低分化)' : profile.iaslcGrade === '1' || profile.grade === '1' ? 'G1(高分化)' : 'G2(中分化)'}
                   </span>
                 </div>
               </div>
+
+              {/* Row 5: Ki-67 Strip if available */}
+              {profile.ki67 != null && profile.ki67 !== "" && (
+                <div className="bg-purple-950/40 px-2.5 py-1 rounded-lg border border-purple-800/50 flex items-center justify-between text-[11px]">
+                  <span className="text-purple-300 text-[10px]">🔬 Ki-67 细胞增殖指数</span>
+                  <span className="font-bold text-purple-200">
+                    {profile.ki67}%
+                  </span>
+                </div>
+              )}
             </div>
           )}
 
