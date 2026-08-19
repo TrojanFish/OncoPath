@@ -175,36 +175,26 @@ export default function PatientDashboard() {
             </span>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-            <div className="w-20 h-16 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50 flex flex-col items-center justify-center text-slate-900 border border-blue-100 flex-shrink-0 shadow-xs">
-              <span className="text-[11px] font-bold text-slate-500">
-                {isFemale ? "♀ 女性" : "♂ 男性"}
+          <div>
+            <div className="flex flex-wrap items-center gap-2 mb-1.5">
+              <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900">
+                {profile.currentStage === 'evaluation' || profile.currentStage === 'discovery'
+                  ? (profile.stage ? `c${profile.stage} 期肺结节 (影像拟定)` : '早期肺结节 (待病理确诊)')
+                  : (profile.stage ? `${profile.stage} 期原发性肺腺癌` : '早期原发性肺腺癌')
+                }
+              </h2>
+              <span className="px-2.5 py-1 rounded-lg bg-blue-50 text-accent-blue border border-blue-200 text-xs font-extrabold">
+                {profile.tStage || "T1a"}{profile.nStage || "N0"}{profile.mStage || "M0"}
               </span>
-              <span className="text-xl font-black text-blue-900 leading-tight">
-                {profile.age || 55}<span className="text-xs font-semibold text-slate-500 ml-0.5">岁</span>
+              <span className="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 border border-slate-200 text-xs font-bold">
+                {genderText} · {profile.age || 55}岁
               </span>
+              {profile.lungRads && (
+                <span className="px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 text-xs font-bold">
+                  Lung-RADS {profile.lungRads}
+                </span>
+              )}
             </div>
-
-            <div className="flex-1">
-              <div className="flex flex-wrap items-center gap-2 mb-1.5">
-                <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900">
-                  {profile.currentStage === 'evaluation' || profile.currentStage === 'discovery'
-                    ? (profile.stage ? `c${profile.stage} 期肺结节 (影像拟定)` : '早期肺结节 (待病理确诊)')
-                    : (profile.stage ? `${profile.stage} 期原发性肺腺癌` : '早期原发性肺腺癌')
-                  }
-                </h2>
-                <span className="px-2.5 py-1 rounded-lg bg-blue-50 text-accent-blue border border-blue-200 text-xs font-extrabold">
-                  {profile.tStage || "T1a"}{profile.nStage || "N0"}{profile.mStage || "M0"}
-                </span>
-                <span className="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 border border-slate-200 text-xs font-bold">
-                  {genderText} · {profile.age || 55}岁
-                </span>
-                {profile.lungRads && (
-                  <span className="px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 text-xs font-bold">
-                    Lung-RADS {profile.lungRads}
-                  </span>
-                )}
-              </div>
 
               <div className="text-xs sm:text-sm text-slate-600 space-y-1">
                 <div>
@@ -237,7 +227,6 @@ export default function PatientDashboard() {
                 )}
               </div>
             </div>
-          </div>
           
           {/* Systemic Staging M0 & Benign Findings Bar */}
           {(profile.systemicStagingConfirmed || profile.brainMri === 'negative' || profile.abdominalUltrasound === 'negative' || profile.abdominalUltrasound === 'benign_findings' || profile.boneScan === 'negative' || (profile.benignFindings && profile.benignFindings.length > 0)) && (
