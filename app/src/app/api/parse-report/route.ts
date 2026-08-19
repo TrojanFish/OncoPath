@@ -6,16 +6,17 @@ import { sanitizeClinicalText } from '@/lib/privacy';
 import { logEvent } from '@/lib/logger';
 
 const SYSTEM_PROMPT = `
-你是一位国际顶级胸部肿瘤多学科诊疗 (MDT) 专家，精通【放射科胸部 CT 影像学诊断】与【病理组织学诊断】。
-你的任务是从患者上传的医学报告（可能是术前胸部CT影像报告、术后病理报告、穿刺活检报告、基因检测报告，或者多张纸质报告照片截图）中，高精度提取关键临床决策指标，并严格输出为 JSON 格式。
+你是一位国际顶级胸部肿瘤多学科诊疗 (MDT) 专家，精通【放射科胸部 CT 影像学诊断】、【病理组织学诊断】与【全身转移排查影像学（脑MRI、腹部B超、骨扫描、PET-CT）】。
+你的任务是从患者上传的医学报告（可能是术前胸部CT影像报告、术后病理报告、脑部MRI、腹部/浅表B超、骨显像ECT、PET-CT、基因检测报告，或者多张纸质报告照片截图）中，高精度提取关键临床决策指标，并严格输出为 JSON 格式。
 
-【重要说明：多报告联合解析】
-患者可能同时上传了多张图片或多段文本（例如：第1张为术前胸部CT影像报告，第2张为术后病理组织学报告，第3张为基因检测报告）。你必须综合所有图片与文本的医学信息进行交叉融合提取！
+【重要说明：多报告联合跨模态解析】
+患者可能同时上传了多张图片或多段文本（例如：第1张为术前胸部CT，第2张为脑部MRI，第3张为腹部B超，第4张为术后病理）。你必须综合所有图片与文本的医学信息进行交叉融合提取！
 
 【第一步：智能判断报告模态 (reportType)】
-- "ct_imaging": 术前/体检胸部 CT、低剂量 CT、高分辨薄层 CT 影像报告（特点：描述结节大小、磨玻璃、实性成分、毛刺、分叶、胸膜牵拉、Lung-RADS 等）。
-- "pathology": 术后手术标本病理组织学诊断、穿刺活检、免疫组化报告（特点：描述腺泡/贴壁/微乳头等组织学亚型、STAS气道播散、LVI脉管瘤栓、胸膜侵犯VPI、切缘R0等）。
-- "comprehensive": 同时包含 CT 影像与术后病理的综合出院/会诊报告，或同时上传了CT与病理多张报告。
+- "ct_imaging": 术前/体检胸部 CT、低剂量 CT、高分辨薄层 CT 影像报告。
+- "pathology": 术后手术标本病理组织学诊断、穿刺活检、免疫组化报告。
+- "systemic_staging": 脑部 MRI、腹部/浅表超声、骨扫描 ECT、全身 PET-CT 等全身转移排查报告。
+- "comprehensive": 同时包含 CT 影像、病理或全身排查的多张联合报告或出院小结。
 
 【第二步：CT 影像学特征与 CTR 提取规则】：
 1. noduleLocation: 结节所在肺叶与肺段（例如 "右肺上叶尖段"、"左肺下叶背段"、"右肺中叶"）。若未提及填 null。
@@ -35,7 +36,16 @@ const SYSTEM_PROMPT = `
    - "high": 混合磨玻璃实性成分 ≥5mm、伴分叶毛刺胸膜凹陷、或 Lung-RADS 4A/4B/4X。
 7. clinicalRecommendation: 提取报告中的随访或手术建议（例如 "建议3-6个月薄层CT动态复查"、"建议胸外科微创手术会诊评估"）。
 
-【第三步：病理报告阴阳性识别规则（术后确诊报告核心）】：
+【第三步：全身转移排查与伴发良性病变识别规则（M0 定心丸核心）】：
+- 脑部增强 MRI (brainMri): "未见异常/未见转移" ➔ "negative"; "见转移灶/占位" ➔ "positive"; 未提及 ➔ "not_performed"
+- 腹部与肾上腺超声/CT (abdominalUltrasound): "未见异常" ➔ "negative"; "见肝囊肿/血管瘤/胆囊息肉/肾囊肿等良性病变" ➔ "benign_findings"; "提示可疑转移" ➔ "positive"; 未提及 ➔ "not_performed"
+- 全身骨显像 ECT (boneScan): "未见异常骨代谢/骨质完整" ➔ "negative"; "见转移骨破坏" ➔ "positive"; 未提及 ➔ "not_performed"
+- 颈部/锁骨上淋巴结 (neckLymphNodes): "未见肿大淋巴结" ➔ "negative"; "提示转移 (N3)" ➔ "positive"; 未提及 ➔ "not_performed"
+- 全身 PET-CT (petCt): "未见远处异常高代谢" ➔ "negative"; "提示远处转移 (M1)" ➔ "positive"; 未提及 ➔ "not_performed"
+- 伴发良性病变提取 (benignFindings): 字符串数组，如 ["肝囊肿", "肝内钙化灶", "胆囊息肉", "肾囊肿", "甲状腺结节TI-RADS 2类", "肺内陈旧性纤维钙化灶"]
+- 全身排查确认 (systemicStagingConfirmed): 若脑部、腹部或骨扫描中有至少一项确认阴性且无任何阳性转移，设为 true。
+
+【第四步：病理报告阴阳性识别规则（术后确诊报告核心）】：
 - 气道播散 (STAS): "未见" / "STAS (-)" ➔ "negative"; "见" / "STAS (+)" ➔ "positive"; 未提及 ➔ "negative"
 - 脉管内癌栓 (LVI): "未见" / "LVI (-)" ➔ "negative"; "见" / "LVI (+)" ➔ "positive"; 未提及 ➔ "negative"
 - 脏层胸膜侵犯 (VPI): "未见" / "PL0" ➔ "negative"; "突破脏层胸膜" / "PL1" / "PL2" ➔ "positive"; 未提及 ➔ "negative"
@@ -43,7 +53,7 @@ const SYSTEM_PROMPT = `
 
 请严格遵守以下 JSON 结构输出，不要包含任何 Markdown 标记或多余的文字：
 {
-  "reportType": "ct_imaging" | "pathology" | "comprehensive",
+  "reportType": "ct_imaging" | "pathology" | "systemic_staging" | "comprehensive",
   "noduleLocation": String | null,
   "noduleType": "mixed_ggo" | "pure_ggo" | "pure_solid",
   "tumorSize": Number (磨玻璃最大径/结节全径厘米，例如 1.5),
@@ -53,6 +63,13 @@ const SYSTEM_PROMPT = `
   "lungRads": String | null,
   "malignancyRisk": "low" | "moderate" | "high",
   "clinicalRecommendation": String,
+  "brainMri": "negative" | "positive" | "not_performed",
+  "abdominalUltrasound": "negative" | "benign_findings" | "positive" | "not_performed",
+  "boneScan": "negative" | "positive" | "not_performed",
+  "neckLymphNodes": "negative" | "positive" | "not_performed",
+  "petCt": "negative" | "positive" | "not_performed",
+  "benignFindings": ["肝囊肿", ...],
+  "systemicStagingConfirmed": Boolean,
   "age": Number | null,
   "sex": "male" | "female" | null,
   "organ": "lung",
@@ -244,6 +261,18 @@ export async function POST(request: Request) {
       grade: extracted.grade || "2",
       iaslcGrade: extracted.grade || "2",
       
+      // Systemic Staging & M0 Confirmation
+      brainMri: extracted.brainMri || "not_performed",
+      abdominalUltrasound: extracted.abdominalUltrasound || "not_performed",
+      boneScan: extracted.boneScan || "not_performed",
+      neckLymphNodes: extracted.neckLymphNodes || "not_performed",
+      petCt: extracted.petCt || "not_performed",
+      benignFindings: Array.isArray(extracted.benignFindings) ? extracted.benignFindings : [],
+      systemicStagingConfirmed: Boolean(
+        extracted.systemicStagingConfirmed || 
+        (extracted.brainMri === 'negative' || extracted.abdominalUltrasound === 'negative' || extracted.abdominalUltrasound === 'benign_findings' || extracted.boneScan === 'negative' || extracted.petCt === 'negative')
+      ),
+
       // State Engine
       currentStage: currentStage,
       riskLevel: riskLevel,

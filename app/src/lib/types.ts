@@ -34,6 +34,15 @@ export interface PatientProfile {
   mStage?: string;
   lymphNodes?: "N0" | "N1" | "N2" | string;
 
+  // Systemic Metastasis Staging & Organ Exclusion (M0 Confirmation)
+  brainMri?: "negative" | "positive" | "not_performed" | string;
+  abdominalUltrasound?: "negative" | "benign_findings" | "positive" | "not_performed" | string;
+  boneScan?: "negative" | "positive" | "not_performed" | string;
+  neckLymphNodes?: "negative" | "positive" | "not_performed" | string;
+  petCt?: "negative" | "positive" | "not_performed" | string;
+  benignFindings?: string[]; // e.g. ["肝囊肿", "肺钙化灶", "胆囊息肉", "肾囊肿"]
+  systemicStagingConfirmed?: boolean;
+
   // Pathological High-Risk Factors
   stas: "negative" | "positive" | "unknown";
   lvi: "negative" | "positive" | "unknown";

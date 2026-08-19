@@ -239,6 +239,37 @@ export default function PatientDashboard() {
             </div>
           </div>
           
+          {/* Systemic Staging M0 & Benign Findings Bar */}
+          {(profile.systemicStagingConfirmed || profile.brainMri === 'negative' || profile.abdominalUltrasound === 'negative' || profile.abdominalUltrasound === 'benign_findings' || profile.boneScan === 'negative' || (profile.benignFindings && profile.benignFindings.length > 0)) && (
+            <div className="mt-4 p-3.5 bg-gradient-to-r from-indigo-50/70 via-slate-50 to-teal-50/70 rounded-2xl border border-indigo-200/80 space-y-2">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-indigo-950">
+                  <span>🌐 全身转移排查状态</span>
+                  <span className="text-[11px] text-slate-400">·</span>
+                  <span className="text-emerald-700 font-extrabold text-xs">M0 早期根治先决条件确立</span>
+                </div>
+                <div className="flex items-center gap-1.5 flex-wrap text-[11px]">
+                  {profile.brainMri === 'negative' && <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-700 font-medium">🧠 脑MRI: 阴性</span>}
+                  {(profile.abdominalUltrasound === 'negative' || profile.abdominalUltrasound === 'benign_findings') && <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-700 font-medium">🩺 腹部超声: 阴性/良性</span>}
+                  {profile.boneScan === 'negative' && <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-700 font-medium">🦴 骨扫描: 阴性</span>}
+                  {profile.neckLymphNodes === 'negative' && <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-700 font-medium">🩺 锁骨上淋巴: N0</span>}
+                  {profile.petCt === 'negative' && <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-700 font-medium">🌟 PET-CT: M0</span>}
+                </div>
+              </div>
+
+              {profile.benignFindings && profile.benignFindings.length > 0 && (
+                <div className="text-[11px] text-slate-600 flex items-center gap-1.5 flex-wrap pt-1 border-t border-indigo-100/60">
+                  <span className="font-semibold text-emerald-800">🛡️ 伴发良性发现（非肿瘤转移）：</span>
+                  {profile.benignFindings.map((item: string) => (
+                    <span key={item} className="px-1.5 py-0.5 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded text-[10px] font-medium">
+                      ✓ {item}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
           {/* CT Imaging Features Or Pathology Matrix */}
           {profile.currentStage === 'evaluation' || profile.currentStage === 'discovery' ? (
             <div className="mt-6 pt-5 border-t border-slate-100">
