@@ -455,6 +455,9 @@ export default function PatientDashboard() {
 
       </div>
 
+      {/* Similar Cases & Cohorts Prognosis (5-Yr RFS/OS & Warm Empathy Words) */}
+      <SimilarCasesCard profile={profile} />
+
       {/* Profile Update Intent Router Modal (方案 A: 意图分流弹窗) */}
       {showUpdateModal && (
         <div className="fixed inset-0 z-[9999] bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 animate-fade-in">
