@@ -175,201 +175,243 @@ export default function PatientDashboard() {
         psychologicalState={profile.psychologicalState} 
       />
 
-      <div className="grid md:grid-cols-3 gap-4 sm:gap-6 mb-6">
+      {/* 2x2 Bento Grid Clinical Dashboard */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6 mb-6">
         
-        {/* Core Clinical Profile Card (Adaptive CT & Pathology) */}
-        <div className="md:col-span-2 bg-white rounded-3xl p-3.5 sm:p-6 md:p-7 border border-slate-200 shadow-sm">
-          <div className="flex items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100">
-            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-              <span>{profile.currentStage === 'evaluation' || profile.currentStage === 'discovery' ? '🩻 CT IMAGING DIAGNOSIS · 影像诊断画像' : '🔬 CLINICAL DIAGNOSIS · 术后病理画像'}</span>
-            </h3>
-            <span className="text-xs font-semibold text-teal-700 bg-teal-50 px-2.5 py-0.5 rounded-full border border-teal-200">
-              {noduleLabel}
-            </span>
-          </div>
-
+        {/* Bento Box 1: Primary CT Imaging & Solid Component (T-Staging) */}
+        <div className="bg-white rounded-3xl p-5 sm:p-6 md:p-7 border border-slate-200 shadow-sm flex flex-col justify-between hover:border-sky-300 transition-all">
           <div>
-            <div className="flex flex-wrap items-center gap-2 mb-1.5">
-              <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900">
-                {profile.currentStage === 'evaluation' || profile.currentStage === 'discovery'
-                  ? (profile.stage ? `c${profile.stage} 期肺结节 (影像拟定)` : '早期肺结节 (待病理确诊)')
-                  : (profile.stage ? `${profile.stage} 期原发性肺腺癌` : '早期原发性肺腺癌')
-                }
-              </h2>
-              <span className="px-2.5 py-1 rounded-lg bg-blue-50 text-accent-blue border border-blue-200 text-xs font-extrabold">
-                {profile.tStage || "T1a"}{profile.nStage || "N0"}{profile.mStage || "M0"}
+            <div className="flex items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100">
+              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                <span>🩻 CT IMAGING & MORPHOLOGY · 薄层 CT 影像原发灶</span>
+              </h3>
+              <span className="text-xs font-semibold text-teal-700 bg-teal-50 px-2.5 py-0.5 rounded-full border border-teal-200">
+                {noduleLabel}
               </span>
-              <span className="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 border border-slate-200 text-xs font-bold">
-                {genderText} · {profile.age || 55}岁
-              </span>
-              {profile.lungRads && (
-                <span className="px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 text-xs font-bold">
-                  Lung-RADS {profile.lungRads}
-                </span>
-              )}
             </div>
 
-              <div className="text-xs sm:text-sm text-slate-600 space-y-1">
-                <div>
-                  {profile.currentStage === 'evaluation' || profile.currentStage === 'discovery' ? (
-                    <span><strong>结节部位</strong>: {profile.noduleLocation || '肺部结节'} · <strong>诊疗阶段</strong>: 术前影像评估 / 定期随访</span>
+            <div className="space-y-3.5">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <span className="text-xs text-slate-600">
+                  <strong>结节部位</strong>: <span className="font-semibold text-slate-900">{profile.noduleLocation || '肺部结节'}</span>
+                </span>
+                {profile.lungRads && (
+                  <span className="px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 text-xs font-bold">
+                    Lung-RADS {profile.lungRads}
+                  </span>
+                )}
+              </div>
+
+              {/* CTR Intelligence Computation Box */}
+              {profile.solidSize != null && (
+                <div className="bg-teal-50/90 p-3.5 rounded-2xl border border-teal-200 space-y-2">
+                  <div className="flex items-center justify-between flex-wrap gap-2 text-xs">
+                    <span className="text-teal-950 font-bold flex items-center gap-1.5">
+                      <span>📏 CT 实性浸润: {profile.solidSize} cm</span>
+                      <span className="text-slate-400">/</span>
+                      <span>全径: {profile.tumorSize || 1.5} cm</span>
+                    </span>
+                    <span className="px-2.5 py-0.5 rounded-md bg-teal-100 font-extrabold text-teal-900 text-xs">
+                      CTR: {profile.ctr != null ? profile.ctr : (profile.solidSize && profile.tumorSize ? Math.round((profile.solidSize / profile.tumorSize) * 100) / 100 : 0.53)}
+                    </span>
+                  </div>
+                  <div className="text-[11px] text-teal-700 font-medium">
+                    依据 AJCC 8th/9th 规则以实性成分精准校准为 <strong>{profile.stage || 'IA1'} 期 ({profile.tStage || 'T1a'})</strong>
+                  </div>
+                </div>
+              )}
+
+              {/* CT Malignant Signs Pills */}
+              <div className="space-y-1.5 pt-1">
+                <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                  已识别的恶性影像风险征象：
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {profile.imagingFeatures && profile.imagingFeatures.length > 0 ? (
+                    profile.imagingFeatures.map((feat, i) => (
+                      <span key={i} className="px-2.5 py-1 bg-amber-50 text-amber-900 border border-amber-200 rounded-xl text-xs font-semibold flex items-center gap-1">
+                        <span>⚠️</span>
+                        <span>{feat}</span>
+                      </span>
+                    ))
                   ) : (
-                    <span>
-                      <strong>手术术式</strong>: {
-                        profile.surgeryType === 'segmentectomy' ? '解剖性肺段切除' :
-                        profile.surgeryType === 'lobectomy' ? '标准肺叶切除' :
-                        profile.surgeryType === 'wedge' ? '肺楔形切除' :
-                        profile.surgeryType || '根治性切除'
-                      } · <strong>病理分级</strong>: {profile.iaslcGrade === '1' ? '高分化 (Grade 1)' : profile.iaslcGrade === '3' ? '低分化 (Grade 3)' : '中分化 (Grade 2)'}
+                    <span className="px-2.5 py-1 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-xl text-xs font-semibold">
+                      🟢 结节边缘光滑，未见明显毛刺或胸膜牵拉征
                     </span>
                   )}
                 </div>
-                
-                {profile.solidSize != null && (
-                  <div className="text-teal-900 text-xs font-medium bg-teal-50/90 p-2.5 rounded-xl border border-teal-200 mt-2 flex items-center justify-between flex-wrap gap-2">
-                    <span>
-                      📏 <strong>CT 实性成分最大径</strong>: {profile.solidSize} cm ÷ <strong>磨玻璃最大径</strong>: {profile.tumorSize || 1.5} cm
-                      <span className="ml-1.5 px-2 py-0.5 rounded-md bg-teal-100 font-bold text-teal-900">
-                        CTR: {profile.ctr != null ? profile.ctr : (profile.solidSize && profile.tumorSize ? Math.round((profile.solidSize / profile.tumorSize) * 100) / 100 : 0.53)}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Bento Box 2: Pathology High-Risk Indicators & Ki-67 (N-Stage & Invasive Factors) */}
+        <div className="bg-white rounded-3xl p-5 sm:p-6 md:p-7 border border-slate-200 shadow-sm flex flex-col justify-between hover:border-emerald-300 transition-all">
+          <div>
+            <div className="flex items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100">
+              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                <span>🔬 PATHOLOGY & IHC · 术后组织病理与浸润特征</span>
+              </h3>
+              <span className="text-xs font-semibold text-slate-600 bg-slate-100 px-2.5 py-0.5 rounded-full border border-slate-200">
+                {profile.currentStage === 'evaluation' || profile.currentStage === 'discovery' || profile.surgeryType === 'unknown' ? '术前基线' : '病理金标准'}
+              </span>
+            </div>
+
+            {profile.currentStage === 'evaluation' || profile.currentStage === 'discovery' || profile.surgeryType === 'unknown' ? (
+              <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3 text-center my-auto">
+                <div className="text-2xl">🌱</div>
+                <h4 className="text-sm font-bold text-slate-800">尚未接受手术切除</h4>
+                <p className="text-xs text-slate-500 leading-relaxed max-w-sm mx-auto">
+                  切缘状态 (R0)、微血管浸润 (LVI)、气道播散 (STAS) 及 Ki-67 需在手术切除后由病理科出具。当前建议重点参考薄层 CT 随访与全身排查。
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between flex-wrap gap-2 text-xs text-slate-600">
+                  <span>
+                    <strong>手术术式</strong>: {
+                      profile.surgeryType === 'segmentectomy' ? '解剖性肺段切除' :
+                      profile.surgeryType === 'lobectomy' ? '标准肺叶切除' :
+                      profile.surgeryType === 'wedge' ? '肺楔形切除' :
+                      profile.surgeryType || '根治性切除'
+                    }
+                  </span>
+                  <span>
+                    <strong>病理分级</strong>: {profile.iaslcGrade === '1' || profile.grade === '1' ? 'G1 (高分化)' : profile.iaslcGrade === '3' || profile.grade === '3' ? 'G3 (低分化)' : 'G2 (中分化)'}
+                  </span>
+                </div>
+
+                {/* 6-Core Risk Badges Matrix */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  <RiskBadge 
+                    label="切缘状态" 
+                    status={isMarginSafe ? 'good' : 'danger'} 
+                    text={isMarginSafe ? '阴性 (R0安全)' : '阳性 (有残留)'} 
+                  />
+                  <RiskBadge 
+                    label="淋巴结分期" 
+                    status={isN0Safe ? 'good' : profile.nStage === 'N1' ? 'warning' : 'danger'} 
+                    text={profile.nStage === 'N0' || !profile.nStage ? 'N0 (无转移)' : profile.nStage === 'N1' ? 'N1 (肺门累及)' : profile.nStage === 'N2' ? 'N2 (纵隔转移)' : profile.nStage} 
+                  />
+                  <RiskBadge 
+                    label="胸膜侵犯 (VPI)" 
+                    status={isVpiSafe ? 'good' : 'warning'} 
+                    text={isVpiSafe ? 'PL0 (未侵犯)' : 'PL1/PL2 (阳性)'} 
+                  />
+                  <RiskBadge 
+                    label="气道播散 (STAS)" 
+                    status={isStasSafe ? 'good' : 'warning'} 
+                    text={isStasSafe ? '无 / 阴性' : '阳性 (高危)'} 
+                  />
+                  <RiskBadge 
+                    label="脉管癌栓 (LVI)" 
+                    status={isLviSafe ? 'good' : 'warning'} 
+                    text={isLviSafe ? '无 / 阴性' : '阳性 (高危)'} 
+                  />
+                  <RiskBadge 
+                    label="IASLC 分级" 
+                    status={isGrade3 ? 'warning' : 'good'} 
+                    text={isGrade3 ? 'G3 (低分化)' : profile.iaslcGrade === '1' || profile.grade === '1' ? 'G1 (高分化)' : 'G2 (中分化)'} 
+                  />
+                </div>
+
+                {/* Ki-67 Dedicated Strip */}
+                {profile.ki67 != null && profile.ki67 !== "" && (
+                  <div className="p-2.5 bg-purple-50/80 rounded-xl border border-purple-200 flex items-center justify-between flex-wrap gap-2 text-xs">
+                    <span className="text-purple-900 font-bold flex items-center gap-1.5">
+                      <span>🔬 Ki-67 细胞增殖指数:</span>
+                      <span className="px-2 py-0.5 bg-purple-200/80 rounded-md font-extrabold text-purple-950">
+                        {profile.ki67}%
                       </span>
                     </span>
-                    <span className="text-[11px] text-teal-700">
-                      依据 AJCC 8th/9th 规则以实性成分精准校准为 <strong>{profile.stage || 'IA1'} 期</strong>
+                    <span className="text-[11px] text-purple-700 font-semibold">
+                      {(typeof profile.ki67 === 'number' ? profile.ki67 : parseFloat(String(profile.ki67))) <= 5 ? '惰性分裂 · 极高预后安全性' : '常规代谢增殖'}
                     </span>
                   </div>
                 )}
               </div>
+            )}
+          </div>
+        </div>
+
+        {/* Bento Box 3: Systemic Staging & Benign Findings (M-Staging) */}
+        <div className="bg-white rounded-3xl p-5 sm:p-6 md:p-7 border border-slate-200 shadow-sm flex flex-col justify-between hover:border-indigo-300 transition-all">
+          <div>
+            <div className="flex items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100">
+              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                <span>🌐 SYSTEMIC STAGING · 全身远处转移排查与良性排雷</span>
+              </h3>
+              <span className="text-xs font-extrabold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                M0 根治窗口确立
+              </span>
             </div>
-          
-          {/* Systemic Staging M0 & Benign Findings Bar */}
-          {(profile.systemicStagingConfirmed || profile.brainMri === 'negative' || profile.abdominalUltrasound === 'negative' || profile.abdominalUltrasound === 'benign_findings' || profile.boneScan === 'negative' || (profile.benignFindings && profile.benignFindings.length > 0)) && (
-            <div className="mt-4 p-3.5 bg-gradient-to-r from-indigo-50/70 via-slate-50 to-teal-50/70 rounded-2xl border border-indigo-200/80 space-y-2">
-              <div className="flex items-center justify-between flex-wrap gap-2">
-                <div className="flex items-center gap-1.5 text-xs font-bold text-indigo-950">
-                  <span>🌐 全身转移排查状态</span>
-                  <span className="text-[11px] text-slate-400">·</span>
-                  <span className="text-emerald-700 font-extrabold text-xs">M0 早期根治先决条件确立</span>
+
+            <div className="space-y-3.5">
+              {/* 5-Organ Checklist Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs flex flex-col justify-between">
+                  <span className="text-slate-500 text-[11px]">🧠 脑部增强 MRI</span>
+                  <span className={`font-bold mt-1 ${profile.brainMri === 'negative' ? 'text-emerald-700' : profile.brainMri === 'positive' ? 'text-rose-600' : 'text-slate-400'}`}>
+                    {profile.brainMri === 'negative' ? '✓ 阴性 (M0)' : profile.brainMri === 'positive' ? '⚠️ 提示可疑' : '未检查'}
+                  </span>
                 </div>
-                <div className="flex items-center gap-1.5 flex-wrap text-[11px]">
-                  {profile.brainMri === 'negative' && <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-700 font-medium">🧠 脑MRI: 阴性</span>}
-                  {(profile.abdominalUltrasound === 'negative' || profile.abdominalUltrasound === 'benign_findings') && <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-700 font-medium">🩺 腹部超声: 阴性/良性</span>}
-                  {profile.boneScan === 'negative' && <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-700 font-medium">🦴 骨扫描: 阴性</span>}
-                  {profile.neckLymphNodes === 'negative' && <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-700 font-medium">🩺 锁骨上淋巴: N0</span>}
-                  {profile.petCt === 'negative' && <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-700 font-medium">🌟 PET-CT: M0</span>}
+                <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs flex flex-col justify-between">
+                  <span className="text-slate-500 text-[11px]">🩺 腹部与肾上腺</span>
+                  <span className={`font-bold mt-1 ${(profile.abdominalUltrasound === 'negative' || profile.abdominalUltrasound === 'benign_findings') ? 'text-emerald-700' : profile.abdominalUltrasound === 'positive' ? 'text-rose-600' : 'text-slate-400'}`}>
+                    {(profile.abdominalUltrasound === 'negative' || profile.abdominalUltrasound === 'benign_findings') ? '✓ 阴性/良性' : profile.abdominalUltrasound === 'positive' ? '⚠️ 提示可疑' : '未检查'}
+                  </span>
+                </div>
+                <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs flex flex-col justify-between">
+                  <span className="text-slate-500 text-[11px]">🦴 全身骨显像 ECT</span>
+                  <span className={`font-bold mt-1 ${profile.boneScan === 'negative' ? 'text-emerald-700' : profile.boneScan === 'positive' ? 'text-rose-600' : 'text-slate-400'}`}>
+                    {profile.boneScan === 'negative' ? '✓ 阴性 (M0)' : profile.boneScan === 'positive' ? '⚠️ 提示可疑' : '未检查'}
+                  </span>
+                </div>
+                <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs flex flex-col justify-between">
+                  <span className="text-slate-500 text-[11px]">🩺 锁骨上淋巴结</span>
+                  <span className={`font-bold mt-1 ${profile.neckLymphNodes === 'negative' ? 'text-emerald-700' : profile.neckLymphNodes === 'positive' ? 'text-rose-600' : 'text-slate-400'}`}>
+                    {profile.neckLymphNodes === 'negative' ? '✓ 未见肿大 (N0)' : profile.neckLymphNodes === 'positive' ? '⚠️ 见肿大' : '未检查'}
+                  </span>
+                </div>
+                <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs flex flex-col justify-between">
+                  <span className="text-slate-500 text-[11px]">🌟 全身 PET-CT</span>
+                  <span className={`font-bold mt-1 ${profile.petCt === 'negative' ? 'text-emerald-700' : profile.petCt === 'positive' ? 'text-rose-600' : 'text-slate-400'}`}>
+                    {profile.petCt === 'negative' ? '✓ 无浓聚 (M0)' : profile.petCt === 'positive' ? '⚠️ 高代谢' : '未检查'}
+                  </span>
                 </div>
               </div>
 
+              {/* Benign Findings Strip */}
               {profile.benignFindings && profile.benignFindings.length > 0 && (
-                <div className="text-[11px] text-slate-600 flex items-center gap-1.5 flex-wrap pt-1 border-t border-indigo-100/60">
-                  <span className="font-semibold text-emerald-800">🛡️ 伴发良性发现（非肿瘤转移）：</span>
-                  {profile.benignFindings.map((item: string) => (
-                    <span key={item} className="px-1.5 py-0.5 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded text-[10px] font-medium">
-                      ✓ {item}
-                    </span>
-                  ))}
+                <div className="p-3 bg-emerald-50/70 rounded-2xl border border-emerald-200/80 space-y-1.5">
+                  <div className="text-[11px] font-bold text-emerald-900 flex items-center gap-1.5">
+                    <span>🛡️ 伴发良性发现（非肿瘤转移，消除虚惊）：</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {profile.benignFindings.map((item: string) => (
+                      <span key={item} className="px-2 py-0.5 bg-white text-emerald-800 border border-emerald-200 rounded-lg text-xs font-semibold shadow-2xs">
+                        ✓ {item}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
-          )}
-
-          {/* CT Imaging Features Or Pathology Matrix */}
-          {profile.currentStage === 'evaluation' || profile.currentStage === 'discovery' ? (
-            <div className="mt-6 pt-5 border-t border-slate-100">
-              <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2.5 flex items-center justify-between">
-                <span>🩻 放射科 CT 恶性风险征象</span>
-                <span className="text-sky-600 font-semibold text-[11px]">基于 Fleischner / CSCO 早期结节指南</span>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {profile.imagingFeatures && profile.imagingFeatures.length > 0 ? (
-                  profile.imagingFeatures.map((feat, i) => (
-                    <span key={i} className="px-3 py-1 bg-amber-50 text-amber-800 border border-amber-200 rounded-xl text-xs font-semibold flex items-center gap-1">
-                      <span>⚠️</span>
-                      <span>{feat}</span>
-                    </span>
-                  ))
-                ) : (
-                  <span className="px-3 py-1 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-xl text-xs font-semibold">
-                    🟢 结节边缘光滑，未见明显毛刺或胸膜牵拉征
-                  </span>
-                )}
-              </div>
-            </div>
-          ) : (
-            <div className="mt-6 pt-5 border-t border-slate-100">
-              <div className="flex items-center justify-between mb-3">
-                <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center justify-between w-full">
-                  <span>🚦 关键病理红绿灯矩阵 (决定辅助治疗与复发风险)</span>
-                  <span className="text-[10px] font-normal text-slate-400">{profile.ki67 ? '7项病理与IHC指标' : '6项核心病理指标'}</span>
-                </h4>
-              </div>
-
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3">
-                <RiskBadge 
-                  label="切缘状态" 
-                  status={isMarginSafe ? 'good' : 'danger'} 
-                  text={isMarginSafe ? '阴性 (R0安全)' : '阳性 (有残留)'} 
-                />
-                <RiskBadge 
-                  label="淋巴结分期" 
-                  status={isN0Safe ? 'good' : profile.nStage === 'N1' ? 'warning' : 'danger'} 
-                  text={profile.nStage === 'N0' || !profile.nStage ? 'N0 (无转移)' : profile.nStage === 'N1' ? 'N1 (肺门累及)' : profile.nStage === 'N2' ? 'N2 (纵隔转移)' : profile.nStage} 
-                />
-                <RiskBadge 
-                  label="胸膜侵犯 (VPI)" 
-                  status={isVpiSafe ? 'good' : 'warning'} 
-                  text={isVpiSafe ? 'PL0 (未侵犯)' : 'PL1/PL2 (阳性高危)'} 
-                />
-                <RiskBadge 
-                  label="气道播散 (STAS)" 
-                  status={isStasSafe ? 'good' : 'warning'} 
-                  text={isStasSafe ? '无 / 阴性' : '阳性 (高危)'} 
-                />
-                <RiskBadge 
-                  label="脉管癌栓 (LVI)" 
-                  status={isLviSafe ? 'good' : 'warning'} 
-                  text={isLviSafe ? '无 / 阴性' : '阳性 (高危)'} 
-                />
-                <RiskBadge 
-                  label="IASLC 病理分级" 
-                  status={isGrade3 ? 'warning' : 'good'} 
-                  text={isGrade3 ? 'Grade 3 (低分化高危)' : profile.iaslcGrade === '1' || profile.grade === '1' ? 'Grade 1 (高分化)' : 'Grade 2 (中分化)'} 
-                />
-                {profile.ki67 != null && profile.ki67 !== "" && (
-                  <RiskBadge 
-                    label="Ki-67 增殖指数" 
-                    status={
-                      (typeof profile.ki67 === 'number' ? profile.ki67 : parseFloat(String(profile.ki67))) <= 20 
-                        ? 'good' 
-                        : 'warning'
-                    } 
-                    text={`Ki-67: ${profile.ki67}% (${
-                      (typeof profile.ki67 === 'number' ? profile.ki67 : parseFloat(String(profile.ki67))) <= 5
-                        ? '极低惰性'
-                        : (typeof profile.ki67 === 'number' ? profile.ki67 : parseFloat(String(profile.ki67))) <= 20
-                        ? '常规增殖'
-                        : '活跃增殖'
-                    })`} 
-                  />
-                )}
-              </div>
-            </div>
-          )}
+          </div>
         </div>
 
-        {/* Decision Engine Recommendation Card */}
-        <div className="bg-gradient-to-b from-blue-50/80 via-white to-white rounded-3xl p-3.5 sm:p-6 md:p-7 border border-blue-100 shadow-sm flex flex-col justify-between">
-          <div>
-            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">
-              DECISION ENGINE · {profile.currentStage === 'evaluation' || profile.currentStage === 'discovery' ? '术前决策引擎' : '术后决策引擎'}
-            </h3>
-            
-            <div className="flex items-center gap-2 mb-2">
-              <span className={`w-3 h-3 rounded-full ${
-                profile.currentStage === 'evaluation' || profile.currentStage === 'discovery'
-                  ? (profile.riskLevel === 'high' ? 'bg-amber-500' : 'bg-emerald-500')
-                  : (isAllSafe ? 'bg-emerald-500' : 'bg-amber-500')
-              } animate-pulse`} />
-              <span className="font-bold text-slate-900 text-base">
+        {/* Bento Box 4: AI Decision Engine & Actionable Next Steps */}
+        <div className="bg-gradient-to-br from-blue-50/90 via-white to-sky-50/60 rounded-3xl p-5 sm:p-6 md:p-7 border border-blue-200 shadow-sm flex flex-col justify-between hover:border-blue-400 transition-all">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between gap-2 pb-3 border-b border-blue-100/80">
+              <h3 className="text-xs font-bold text-blue-900 uppercase tracking-wider flex items-center gap-1.5">
+                <span>🤖 DECISION ENGINE · 临床决策引擎</span>
+              </h3>
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="font-extrabold text-slate-900 text-base sm:text-lg">
                 {profile.currentStage === 'evaluation' || profile.currentStage === 'discovery'
                   ? (profile.riskLevel === 'high' ? '⚡ 建议胸外科微创评估' : '🌱 建议 3~6 个月随访观察')
                   : (isAllSafe ? '🌱 早期低复发风险组' : '⚡ 需积极辅助随访组')
@@ -377,7 +419,7 @@ export default function PatientDashboard() {
               </span>
             </div>
 
-            <p className="text-xs text-slate-600 leading-relaxed mb-4">
+            <p className="text-xs text-slate-600 leading-relaxed">
               {profile.currentStage === 'evaluation' || profile.currentStage === 'discovery'
                 ? (profile.riskLevel === 'high' 
                     ? 'CT 影像提示伴有实性浸润或分叶毛刺征象，建议携带影像 DICOM 光盘至三甲胸外科门诊进行多学科会诊。'
@@ -387,7 +429,7 @@ export default function PatientDashboard() {
                     : '存在局部高危病理因素，建议密切关注局部影像与长程管理计划。')
               }
             </p>
-            
+
             <div className="bg-white rounded-2xl p-4 border border-blue-200 shadow-xs relative overflow-hidden">
               <div className="absolute top-0 left-0 w-1.5 h-full bg-accent-blue" />
               <div className="text-[11px] text-accent-blue font-bold mb-1">
@@ -402,14 +444,15 @@ export default function PatientDashboard() {
               </div>
             </div>
           </div>
-          
+
           <Link 
             href="/profile/report" 
-            className="w-full mt-6 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-sky-600 hover:from-blue-700 hover:to-sky-700 text-white text-xs sm:text-sm font-bold shadow-md shadow-blue-500/20 text-center block transition-all cursor-pointer"
+            className="w-full mt-5 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-sky-600 hover:from-blue-700 hover:to-sky-700 text-white text-xs sm:text-sm font-bold shadow-md shadow-blue-500/20 text-center block transition-all cursor-pointer"
           >
-            生成专属深度循证报告
+            生成专属深度循证报告 →
           </Link>
         </div>
+
       </div>
 
       {/* Profile Update Intent Router Modal (方案 A: 意图分流弹窗) */}
