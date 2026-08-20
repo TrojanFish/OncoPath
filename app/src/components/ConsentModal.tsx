@@ -48,7 +48,7 @@ export default function ConsentModal({ onConsentAccepted }: ConsentModalProps) {
         {/* Scrollable Terms Content */}
         <div className="p-6 overflow-y-auto space-y-4 text-xs sm:text-sm text-slate-700 leading-relaxed">
           <div className="p-4 rounded-2xl bg-blue-50/70 border border-blue-100 text-xs text-blue-900 leading-normal font-medium">
-            <strong>欢迎使用 OncoPath。</strong> 在您上传病理报告或建立癌症档案前，请仔细阅读以下医学原则与安全条款：
+            <strong>欢迎使用 OncoPath。</strong> 在您上传检查报告或建立临床数字档案前，请仔细阅读以下医学原则与安全条款：
           </div>
 
           <div className="space-y-3">

@@ -100,7 +100,7 @@ export default function AuthModal({ onClose, onSuccess }: AuthModalProps) {
             {isLogin ? "登录 OncoPath" : "注册新账号"}
           </h2>
           <p className="text-xs text-slate-500 mt-1">
-            {isLogin ? "安全同步您的个人癌症档案与随访记录" : "免费创建个人循证档案库"}
+            {isLogin ? "安全同步您的临床数字档案与随访记录" : "免费创建个人循证档案库"}
           </p>
         </div>
 

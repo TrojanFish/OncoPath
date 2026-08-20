@@ -135,7 +135,7 @@ export default function HomePage() {
 
               {/* Main Headline */}
               <h1 className="text-4xl sm:text-5xl lg:text-[3.25rem] font-extrabold text-slate-900 leading-[1.15] tracking-tight animate-fade-in-up stagger-1">
-                循证医学，让病理报告
+                循证医学，让影像与病理报告
                 <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-sky-500 to-teal-500">
                   清晰透彻 · 触手可及
@@ -144,7 +144,7 @@ export default function HomePage() {
 
               {/* Description */}
               <p className="text-base sm:text-lg text-slate-600 leading-relaxed max-w-xl animate-fade-in-up stagger-2">
-                不再面对晦涩冰冷的医学术语盲目焦虑。AI 自动结构化提取 TNM 分期、STAS 与分子靶点，无缝匹配 JTO、Lancet、JCO 顶级期刊真实患者队列与生存数据。
+                不再面对晦涩冰冷的医学术语盲目焦虑。AI 自动结构化提取 CT 影像征象、TNM 分期与分子靶点，无缝匹配 JTO、Lancet、JCO 顶级期刊真实患者队列与生存数据。
               </p>
 
               {/* CTA Action Buttons */}
@@ -157,7 +157,7 @@ export default function HomePage() {
                   <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                     <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
-                  <span>建立癌症档案</span>
+                  <span>建立临床数字档案</span>
                 </Link>
                 <Link
                   href="/wiki"
@@ -573,17 +573,17 @@ export default function HomePage() {
           {/* Final Action Card */}
           <div className="mt-16 bg-gradient-to-r from-blue-600 to-teal-600 rounded-3xl p-6 sm:p-12 text-white text-center shadow-xl space-y-6">
             <h3 className="text-2xl sm:text-4xl font-black tracking-tight">
-              准备好理解您的病理档案了吗？
+              准备好科学破译您的临床报告了吗？
             </h3>
             <p className="text-blue-100 text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
-              只需一分钟，让国际顶级医学研究为您点亮清晰、理性的抗癌导航之路。
+              只需一分钟，让国际顶级同行评审医学研究为您点亮清晰、从容的科学决策之路。
             </p>
             <div>
               <Link
                 href="/profile"
                 className="inline-flex items-center gap-2 bg-white text-blue-700 hover:bg-blue-50 px-8 py-4 rounded-2xl font-extrabold text-base shadow-lg transition-all transform hover:-translate-y-0.5 cursor-pointer"
               >
-                <span>🔬 建立癌症档案</span>
+                <span>📋 建立患者临床档案</span>
               </Link>
             </div>
           </div>

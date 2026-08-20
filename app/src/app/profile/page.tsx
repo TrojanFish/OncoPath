@@ -3,8 +3,8 @@ import SubpageNavbar from "@/components/SubpageNavbar";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "我的癌症档案 - OncoPath Navigator",
-  description: "基于循证医学的个人癌症决策导航平台",
+  title: "患者临床数字档案 - OncoPath Navigator",
+  description: "基于循证医学的个人临床决策导航平台",
 };
 
 export default function ProfilePage() {
