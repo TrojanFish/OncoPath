@@ -4,8 +4,41 @@ export interface HistologyItem {
   percentage?: number;
 }
 
+export interface SecondaryNodule {
+  id: string;
+  location: string;          // e.g. "右肺下叶背段", "左肺上叶"
+  sizeMm: number;            // 结节大小毫米 e.g. 4
+  type: "pure_ggo" | "mixed_ggo" | "solid" | "calcification" | string;
+  isBenignTendency?: boolean;// 是否具有良性/陈旧倾向
+  imagingFeatures?: string[];
+  note?: string;             // e.g. "微小钙化结节，考虑陈旧性病灶"
+}
+
+export interface FollowUpRecord {
+  id: string;
+  date: string;              // "2023-08-15" 或 "2024-03"
+  tumorSize: number;         // 结节全径 cm
+  solidSize: number;         // 实性浸润 cm
+  ctr: number;               // CTR 0~1
+  noduleType?: string;
+  lungRads?: string;
+  hospital?: string;
+  note?: string;             // e.g. "较前片相仿，未见明显增大"
+}
+
+export interface TumorMarkersData {
+  cea?: number | null;       // 癌胚抗原 ng/mL (正常 0~5.0)
+  cyfra211?: number | null;  // 细胞角蛋白19片段 ng/mL (正常 0~3.3)
+  nse?: number | null;       // 神经元特异性烯醇化酶 ng/mL (正常 0~16.3)
+  scc?: number | null;       // 鳞状细胞癌抗原 ng/mL (正常 0~1.5)
+  proGrp?: number | null;    // 胃泌素释放肽前体 pg/mL (正常 0~65.0)
+  testDate?: string | null;  // 化验日期
+  note?: string | null;
+}
+
 export interface PatientProfile {
   id?: string;
+  userId?: string;
   age: number;
   gender: "female" | "male";
   sex?: "female" | "male" | "unknown" | string;
@@ -27,6 +60,16 @@ export interface PatientProfile {
   solidSize?: number; // Invasive / solid component size on CT in cm
   ctr: number;        // Consolidation-to-tumor ratio (0 to 1)
   stageExplanation?: string;
+
+  // Multiple Nodules Management (P0-1)
+  isMultipleNodules?: boolean;
+  secondaryNodules?: SecondaryNodule[];
+
+  // Longitudinal Follow-up Growth Tracking (P0-2)
+  followUpHistory?: FollowUpRecord[];
+
+  // Tumor Markers Blood Test Panel (P2-2)
+  tumorMarkers?: TumorMarkersData;
 
   // Staging
   tStage?: string;

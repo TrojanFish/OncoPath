@@ -4,8 +4,11 @@ import React, { useState, useEffect } from "react";
 import JourneyMap from "./JourneyMap";
 import ReportUploader from "./ReportUploader";
 import SimilarCasesCard from "./SimilarCasesCard";
+import { NoduleTimelineChart } from "./NoduleTimelineChart";
+import { TumorMarkersCard } from "./TumorMarkersCard";
+import { GlossaryTooltip } from "@/components/common/GlossaryTooltip";
 import ConsentModal from "@/components/ConsentModal";
-import type { PatientProfile } from "@/lib/types";
+import type { PatientProfile, FollowUpRecord, TumorMarkersData } from "@/lib/types";
 import { getGuestId } from "@/lib/guest";
 import Link from "next/link";
 
@@ -53,6 +56,36 @@ export default function PatientDashboard() {
       }
     } catch (err) {
       console.error("Failed to save parsed profile", err);
+    }
+  };
+
+  const handleUpdateHistory = async (newHistory: FollowUpRecord[]) => {
+    if (!profile) return;
+    const updatedProfile = { ...profile, followUpHistory: newHistory };
+    setProfile(updatedProfile);
+    try {
+      await fetch('/api/profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...updatedProfile, userId: getGuestId() })
+      });
+    } catch (err) {
+      console.error("Failed to update history", err);
+    }
+  };
+
+  const handleUpdateTumorMarkers = async (newMarkers: TumorMarkersData) => {
+    if (!profile) return;
+    const updatedProfile = { ...profile, tumorMarkers: newMarkers };
+    setProfile(updatedProfile);
+    try {
+      await fetch('/api/profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...updatedProfile, userId: getGuestId() })
+      });
+    } catch (err) {
+      console.error("Failed to update tumor markers", err);
     }
   };
 
@@ -221,17 +254,19 @@ export default function PatientDashboard() {
                 </div>
               )}
 
-              {/* CT Malignant Signs Pills */}
+              {/* CT Malignant Signs Pills with GlossaryTooltip */}
               <div className="space-y-1.5 pt-1">
                 <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                  已识别的恶性影像风险征象：
+                  已识别的恶性影像风险征象（点击词条查看人话释义）：
                 </div>
                 <div className="flex flex-wrap gap-1.5">
                   {profile.imagingFeatures && profile.imagingFeatures.length > 0 ? (
                     profile.imagingFeatures.map((feat, i) => (
-                      <span key={i} className="px-2.5 py-1 bg-amber-50 text-amber-900 border border-amber-200 rounded-xl text-xs font-semibold flex items-center gap-1">
+                      <span key={i} className="px-2.5 py-1 bg-amber-50 text-amber-900 border border-amber-200 rounded-xl text-xs font-semibold flex items-center gap-1 shadow-2xs">
                         <span>⚠️</span>
-                        <span>{feat}</span>
+                        <GlossaryTooltip term={feat}>
+                          <span>{feat}</span>
+                        </GlossaryTooltip>
                       </span>
                     ))
                   ) : (
@@ -241,6 +276,25 @@ export default function PatientDashboard() {
                   )}
                 </div>
               </div>
+
+              {/* Multiple Nodules Sub-Panel (P0-1) */}
+              {(profile.isMultipleNodules || (profile.secondaryNodules && profile.secondaryNodules.length > 0)) && (
+                <div className="p-3 bg-teal-50/80 rounded-2xl border border-teal-200/80 space-y-1.5">
+                  <div className="flex items-center justify-between text-[11px] font-bold text-teal-950">
+                    <span className="flex items-center gap-1">
+                      <span>🫁 双肺伴随微小结节（已排查良性）：</span>
+                    </span>
+                    <span className="text-[10px] text-teal-700 font-normal">多为陈旧良性病灶</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {(profile.secondaryNodules || []).map((sec, idx) => (
+                      <span key={sec.id || idx} className="px-2 py-0.5 bg-white text-teal-900 border border-teal-200 rounded-lg text-[11px] font-semibold">
+                        ✓ {sec.location} ({sec.sizeMm}mm · {sec.type === 'pure_ggo' ? '纯磨玻璃' : '微小灶'})
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -284,7 +338,7 @@ export default function PatientDashboard() {
                 {/* 6-Core Risk Badges Matrix */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   <RiskBadge 
-                    label="切缘状态" 
+                    label="切缘状态 (R0)" 
                     status={isMarginSafe ? 'good' : 'danger'} 
                     text={isMarginSafe ? '阴性 (R0安全)' : '阳性 (有残留)'} 
                   />
@@ -319,7 +373,9 @@ export default function PatientDashboard() {
                 {profile.ki67 != null && profile.ki67 !== "" && (
                   <div className="p-2.5 bg-purple-50/80 rounded-xl border border-purple-200 flex items-center justify-between flex-wrap gap-2 text-xs">
                     <span className="text-purple-900 font-bold flex items-center gap-1.5">
-                      <span>🔬 Ki-67 细胞增殖指数:</span>
+                      <GlossaryTooltip term="Ki-67">
+                        <span>🔬 Ki-67 细胞增殖指数:</span>
+                      </GlossaryTooltip>
                       <span className="px-2 py-0.5 bg-purple-200/80 rounded-md font-extrabold text-purple-950">
                         {profile.ki67}%
                       </span>
@@ -381,16 +437,16 @@ export default function PatientDashboard() {
                 </div>
               </div>
 
-              {/* Benign Findings Strip */}
+              {/* Benign Findings Strip with GlossaryTooltip */}
               {profile.benignFindings && profile.benignFindings.length > 0 && (
                 <div className="p-3 bg-emerald-50/70 rounded-2xl border border-emerald-200/80 space-y-1.5">
                   <div className="text-[11px] font-bold text-emerald-900 flex items-center gap-1.5">
-                    <span>🛡️ 伴发良性发现（非肿瘤转移，消除虚惊）：</span>
+                    <span>🛡️ 伴发良性发现（非肿瘤转移，点击查看释义）：</span>
                   </div>
                   <div className="flex flex-wrap gap-1.5">
                     {profile.benignFindings.map((item: string) => (
                       <span key={item} className="px-2 py-0.5 bg-white text-emerald-800 border border-emerald-200 rounded-lg text-xs font-semibold shadow-2xs">
-                        ✓ {item}
+                        ✓ <GlossaryTooltip term={item}><span>{item}</span></GlossaryTooltip>
                       </span>
                     ))}
                   </div>
@@ -453,6 +509,23 @@ export default function PatientDashboard() {
           </Link>
         </div>
 
+      </div>
+
+      {/* P0-2: Nodule Longitudinal CT Growth Timeline */}
+      <div className="mb-6">
+        <NoduleTimelineChart 
+          history={profile.followUpHistory} 
+          profile={profile} 
+          onUpdateHistory={handleUpdateHistory}
+        />
+      </div>
+
+      {/* P2-2: Blood Tumor Markers Monitoring & Reassurance */}
+      <div className="mb-6">
+        <TumorMarkersCard 
+          markers={profile.tumorMarkers} 
+          onUpdateMarkers={handleUpdateTumorMarkers}
+        />
       </div>
 
       {/* Similar Cases & Cohorts Prognosis (5-Yr RFS/OS & Warm Empathy Words) */}

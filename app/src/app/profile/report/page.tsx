@@ -7,6 +7,7 @@ import Link from "next/link";
 import { toPng } from "html-to-image";
 import type { PatientProfile } from "@/lib/types";
 import { getGuestId } from "@/lib/guest";
+import { GlossaryTooltip } from "@/components/common/GlossaryTooltip";
 
 export default function EvidenceReportPage() {
   const [profile, setProfile] = useState<PatientProfile | null>(null);
@@ -1026,7 +1027,11 @@ function MatrixBadge({ label, value, type }: { label: string; value: string; typ
 
   return (
     <div className={`p-2.5 rounded-xl border ${styles[type]} flex flex-col justify-between transition-all shadow-xs`}>
-      <span className="text-[11px] font-medium opacity-80 mb-1">{label}</span>
+      <span className="text-[11px] font-medium opacity-80 mb-1">
+        <GlossaryTooltip term={label}>
+          <span>{label}</span>
+        </GlossaryTooltip>
+      </span>
       <span className="text-xs font-bold flex items-center gap-1.5">
         {type === 'safe' && (
           <svg className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" viewBox="0 0 24 24" fill="none">

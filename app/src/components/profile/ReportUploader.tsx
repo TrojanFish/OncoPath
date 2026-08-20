@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import type { PatientProfile } from "@/lib/types";
+import type { PatientProfile, SecondaryNodule, FollowUpRecord, TumorMarkersData } from "@/lib/types";
 import { computeClinicalTnmStage } from "@/lib/staging";
+import { GlossaryTooltip } from "@/components/common/GlossaryTooltip";
 
 interface ReportUploaderProps {
   onParsed: (data: any) => void;
@@ -73,6 +74,12 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
   const [images, setImages] = useState<UploadedReportImage[]>([]);
   const [activeSignTooltip, setActiveSignTooltip] = useState<string | null>(null);
   const [newBenignInput, setNewBenignInput] = useState("");
+  
+  // Secondary nodules state
+  const [newSecLoc, setNewSecLoc] = useState("");
+  const [newSecSize, setNewSecSize] = useState("");
+  const [newSecType, setNewSecType] = useState("pure_ggo");
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Dynamic staging calculation result for human-in-the-loop preview
@@ -235,6 +242,29 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
         ? String(parsedData.ki67).replace(/%/g, "").trim()
         : (base.ki67 || null);
 
+      // Prepare follow-up timeline node
+      const prevHistory = Array.isArray(base.followUpHistory) ? [...base.followUpHistory] : [];
+      let finalHistory = Array.isArray(parsedData.followUpHistory) && parsedData.followUpHistory.length > 0
+        ? [...parsedData.followUpHistory]
+        : [...prevHistory];
+
+      // Add current scan to history if it's a CT report and not yet in history
+      const reportDate = parsedData.reportDate || new Date().toISOString().split('T')[0];
+      const hasDateInHist = finalHistory.some((h: any) => h.date === reportDate);
+      if (!hasDateInHist && (parsedData.reportType === 'ct_imaging' || parsedData.tumorSize)) {
+        finalHistory.push({
+          id: `hist_${Date.now()}`,
+          date: reportDate,
+          tumorSize: stagingPreview?.tumorSize || tumorVal,
+          solidSize: stagingPreview?.solidSize || solidVal,
+          ctr: stagingPreview?.ctr ?? calculatedCtr,
+          noduleType: parsedData.noduleType || "mixed_ggo",
+          lungRads: parsedData.lungRads || null,
+          note: parsedData.clinicalRecommendation || "本次检查建档"
+        });
+      }
+      finalHistory.sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
       const finalData = {
         ...base,
         id: base.id,
@@ -268,6 +298,16 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
         malignancyRisk: parsedData.malignancyRisk || base.malignancyRisk || "moderate",
         clinicalRecommendation: parsedData.clinicalRecommendation || base.clinicalRecommendation || null,
 
+        // P0-1 Multiple Nodules
+        isMultipleNodules: Boolean(parsedData.isMultipleNodules || (Array.isArray(parsedData.secondaryNodules) && parsedData.secondaryNodules.length > 0) || base.isMultipleNodules),
+        secondaryNodules: Array.isArray(parsedData.secondaryNodules) ? parsedData.secondaryNodules : (base.secondaryNodules || []),
+
+        // P0-2 Follow-up History
+        followUpHistory: finalHistory,
+
+        // P2-2 Tumor Markers
+        tumorMarkers: parsedData.tumorMarkers || base.tumorMarkers || null,
+
         // Systemic Staging & M0 Confirmation
         brainMri: parsedData.brainMri || base.brainMri || "not_performed",
         abdominalUltrasound: parsedData.abdominalUltrasound || base.abdominalUltrasound || "not_performed",
@@ -300,6 +340,36 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
     setParsedData({
       ...parsedData,
       benignFindings: current.filter((f: string) => f !== item)
+    });
+  };
+
+  const handleAddSecondaryNodule = () => {
+    if (!newSecLoc.trim() || !newSecSize.trim()) return;
+    const current = parsedData.secondaryNodules || [];
+    const newItem: SecondaryNodule = {
+      id: `sec_${Date.now()}`,
+      location: newSecLoc.trim(),
+      sizeMm: parseFloat(newSecSize) || 4,
+      type: newSecType,
+      isBenignTendency: true,
+      note: "微小伴随病灶，良性或常规随访"
+    };
+    setParsedData({
+      ...parsedData,
+      isMultipleNodules: true,
+      secondaryNodules: [...current, newItem]
+    });
+    setNewSecLoc("");
+    setNewSecSize("");
+  };
+
+  const handleRemoveSecondaryNodule = (id: string) => {
+    const current = parsedData.secondaryNodules || [];
+    const filtered = current.filter((item: any) => item.id !== id);
+    setParsedData({
+      ...parsedData,
+      isMultipleNodules: filtered.length > 0,
+      secondaryNodules: filtered
     });
   };
 
@@ -593,6 +663,94 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
                   </p>
                 </div>
               )}
+            </div>
+          </div>
+
+          {/* Section: Multiple Pulmonary Nodules Management (P0-1) */}
+          <div className="p-4 rounded-2xl bg-teal-50/60 border border-teal-200 space-y-3">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <div className="text-xs font-bold text-teal-900 uppercase tracking-wider flex items-center gap-1.5">
+                <span>🫁 双肺多发病灶协同管理 (主病灶 vs 伴随微小病灶)</span>
+              </div>
+              <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${
+                parsedData.isMultipleNodules
+                  ? "bg-teal-100 text-teal-800 border-teal-300"
+                  : "bg-slate-100 text-slate-600 border-slate-200"
+              }`}>
+                {parsedData.isMultipleNodules ? "双肺多发结节" : "单发主病灶"}
+              </span>
+            </div>
+
+            {/* Reassurance text */}
+            <div className="p-3 bg-white rounded-xl border border-teal-200 text-xs text-teal-950 space-y-1">
+              <div className="font-bold flex items-center gap-1">
+                <span>🛡️ 多发结节良性定心丸：</span>
+              </div>
+              <p className="text-[11px] text-teal-800 leading-relaxed">
+                体检中超过 30% 的人群伴有双肺多发微小结节，绝大多数为既往隐匿性感染留下的陈旧良性疤痕，<strong>绝不等于转移扩散</strong>！临床以【主病灶】作为手术或干预评估基准，次要微小灶以常规薄层 CT 随访观察即可。
+              </p>
+            </div>
+
+            {/* Secondary nodules list */}
+            <div className="space-y-2">
+              <div className="text-[11px] font-bold text-slate-700">次要伴随微小结节清单：</div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {(parsedData.secondaryNodules || []).map((sec: any) => (
+                  <div key={sec.id} className="p-2.5 bg-white rounded-xl border border-teal-200 flex items-center justify-between gap-2 text-xs">
+                    <div>
+                      <div className="font-bold text-slate-900 flex items-center gap-1.5">
+                        <span>{sec.location}</span>
+                        <span className="text-[10px] px-1.5 py-0.2 bg-teal-50 text-teal-800 rounded font-semibold border border-teal-100">
+                          {sec.sizeMm}mm · {sec.type === "pure_ggo" ? "纯磨玻璃" : sec.type === "calcification" ? "钙化灶" : "微小结节"}
+                        </span>
+                      </div>
+                      <div className="text-[10px] text-slate-500 mt-0.5">{sec.note || "良性随访"}</div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveSecondaryNodule(sec.id)}
+                      className="text-slate-400 hover:text-rose-600 p-1 text-xs cursor-pointer"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              {/* Add secondary nodule row */}
+              <div className="flex flex-wrap items-center gap-2 pt-1">
+                <input
+                  type="text"
+                  placeholder="部位 (如: 右肺下叶)"
+                  value={newSecLoc}
+                  onChange={(e) => setNewSecLoc(e.target.value)}
+                  className="p-1.5 bg-white border border-slate-300 rounded-lg text-xs flex-1 min-w-[120px]"
+                />
+                <input
+                  type="number"
+                  placeholder="大小(mm)"
+                  value={newSecSize}
+                  onChange={(e) => setNewSecSize(e.target.value)}
+                  className="p-1.5 bg-white border border-slate-300 rounded-lg text-xs w-20"
+                />
+                <select
+                  value={newSecType}
+                  onChange={(e) => setNewSecType(e.target.value)}
+                  className="p-1.5 bg-white border border-slate-300 rounded-lg text-xs"
+                >
+                  <option value="pure_ggo">纯磨玻璃</option>
+                  <option value="solid">实性小结节</option>
+                  <option value="calcification">钙化灶</option>
+                  <option value="mixed_ggo">混合磨玻璃</option>
+                </select>
+                <button
+                  type="button"
+                  onClick={handleAddSecondaryNodule}
+                  className="px-2.5 py-1.5 bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs rounded-lg transition-colors cursor-pointer"
+                >
+                  + 添加伴随结节
+                </button>
+              </div>
             </div>
           </div>
 
@@ -1073,6 +1231,82 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
                 </div>
               </div>
 
+            </div>
+          </div>
+
+          {/* Section: Blood Tumor Markers (P2-2) */}
+          <div className="p-4 rounded-2xl bg-indigo-50/60 border border-indigo-200 space-y-3">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <div className="text-xs font-bold text-indigo-900 uppercase tracking-wider flex items-center gap-1.5">
+                <span>🩸 血液肿瘤标志物 (选填 · 结合影像综合排雷)</span>
+              </div>
+              <span className="text-[11px] text-indigo-700">正常范围内波动属生理正常代谢</span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                  CEA 癌胚抗原 (ng/mL，参考 0~5.0)
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  placeholder="如: 2.5"
+                  value={parsedData.tumorMarkers?.cea ?? ""}
+                  onChange={(e) =>
+                    setParsedData({
+                      ...parsedData,
+                      tumorMarkers: {
+                        ...(parsedData.tumorMarkers || {}),
+                        cea: e.target.value ? parseFloat(e.target.value) : null
+                      }
+                    })
+                  }
+                  className="w-full p-2 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-800"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                  CYFRA21-1 (ng/mL，参考 0~3.3)
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  placeholder="如: 1.8"
+                  value={parsedData.tumorMarkers?.cyfra211 ?? ""}
+                  onChange={(e) =>
+                    setParsedData({
+                      ...parsedData,
+                      tumorMarkers: {
+                        ...(parsedData.tumorMarkers || {}),
+                        cyfra211: e.target.value ? parseFloat(e.target.value) : null
+                      }
+                    })
+                  }
+                  className="w-full p-2 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-800"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                  NSE (ng/mL，参考 0~16.3)
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  placeholder="如: 11.2"
+                  value={parsedData.tumorMarkers?.nse ?? ""}
+                  onChange={(e) =>
+                    setParsedData({
+                      ...parsedData,
+                      tumorMarkers: {
+                        ...(parsedData.tumorMarkers || {}),
+                        nse: e.target.value ? parseFloat(e.target.value) : null
+                      }
+                    })
+                  }
+                  className="w-full p-2 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-800"
+                />
+              </div>
             </div>
           </div>
         </div>

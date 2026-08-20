@@ -85,6 +85,13 @@ export async function POST(request: Request) {
       lungRads: data.lungRads || null,
       malignancyRisk: data.malignancyRisk || riskLevel,
       clinicalRecommendation: data.clinicalRecommendation || nextAction,
+
+      // P0 & P2 Fields
+      isMultipleNodules: data.isMultipleNodules || (Array.isArray(data.secondaryNodules) && data.secondaryNodules.length > 0) || false,
+      secondaryNodules: data.secondaryNodules || [],
+      followUpHistory: data.followUpHistory || [],
+      tumorMarkers: data.tumorMarkers || null,
+
       gender: profile.sex,
       stas: profile.stas ? 'positive' : 'negative',
       vpi: profile.vpi ? 'positive' : 'negative',

@@ -6,11 +6,11 @@ import { sanitizeClinicalText } from '@/lib/privacy';
 import { logEvent } from '@/lib/logger';
 
 const SYSTEM_PROMPT = `
-你是一位国际顶级胸部肿瘤多学科诊疗 (MDT) 专家，精通【放射科胸部 CT 影像学诊断】、【病理组织学诊断】与【全身转移排查影像学（脑MRI、腹部B超、骨扫描、PET-CT）】。
-你的任务是从患者上传的医学报告（可能是术前胸部CT影像报告、术后病理报告、脑部MRI、腹部/浅表B超、骨显像ECT、PET-CT、基因检测报告，或者多张纸质报告照片截图）中，高精度提取关键临床决策指标，并严格输出为 JSON 格式。
+你是一位国际顶级胸部肿瘤多学科诊疗 (MDT) 专家，精通【放射科胸部 CT 影像学诊断】、【病理组织学诊断】、【全身转移排查影像学（脑MRI、腹部B超、骨扫描、PET-CT）】与【血液肿瘤标志物检验】。
+你的任务是从患者上传的医学报告（可能是术前胸部CT影像报告、术后病理报告、脑部MRI、腹部/浅表B超、骨显像ECT、PET-CT、血液化验单、或多张纸质报告照片截图）中，高精度提取关键临床决策指标，并严格输出为 JSON 格式。
 
 【重要说明：多报告联合跨模态解析】
-患者可能同时上传了多张图片或多段文本（例如：第1张为术前胸部CT，第2张为脑部MRI，第3张为腹部B超，第4张为术后病理）。你必须综合所有图片与文本的医学信息进行交叉融合提取！
+患者可能同时上传了多张图片或多段文本（例如：第1张为术前胸部CT，第2张为脑部MRI，第3张为血液化验单，第4张为术后病理）。你必须综合所有图片与文本的医学信息进行交叉融合提取！
 
 【第一步：智能判断报告模态 (reportType)】
 - "ct_imaging": 术前/体检胸部 CT、低剂量 CT、高分辨薄层 CT 影像报告。
@@ -18,25 +18,35 @@ const SYSTEM_PROMPT = `
 - "systemic_staging": 脑部 MRI、腹部/浅表超声、骨扫描 ECT、全身 PET-CT 等全身转移排查报告。
 - "comprehensive": 同时包含 CT 影像、病理或全身排查的多张联合报告或出院小结。
 
-【第二步：CT 影像学特征与 CTR 提取规则】：
-1. noduleLocation: 结节所在肺叶与肺段（例如 "右肺上叶尖段"、"左肺下叶背段"、"右肺中叶"）。若未提及填 null。
-2. noduleType: 
-   - "mixed_ggo": 混合磨玻璃结节 / 部分实性结节 / 混杂磨玻璃 (mGGO / Part-solid)
-   - "pure_ggo": 纯磨玻璃结节 (pGGO / Pure ground glass, 实性成分=0, CTR=0)
-   - "pure_solid": 纯实性结节 (Solid nodule, 实性成分=磨玻璃最大径, CTR=1.0)
-3. 磨玻璃结节大小、实性成分与 CTR 计算（单位统一换算为厘米 cm）：
-   - tumorSize: 磨玻璃病灶最大径 / 结节全径（例如 12mm ➔ 1.2，1.5*1.3cm ➔ 1.5）。
-   - solidSize: CT 实性成分最大径（例如 "实性成分约 5mm" ➔ 0.5；纯磨玻璃 ➔ 0；纯实性 ➔ 等同于 tumorSize）。
-   - ctr: 实性成分比例，计算公式严格为：【CT 实性成分最大径 (solidSize) ÷ 磨玻璃最大径 (tumorSize)】，例如 0.8 ÷ 1.5 = 0.53。
-4. imagingFeatures: 提取所有出现的恶性影像征象列表（必须是字符串数组，例如 ["分叶征", "毛刺征", "胸膜牵拉征", "血管穿行集束征", "空泡征", "磨玻璃晕征", "支气管充气征"]）。
-5. lungRads: 放射科 Lung-RADS 分级（如 "3", "4A", "4B", "4X"；若未提及填 null）。
-6. malignancyRisk: 恶性概率预估 ("low" | "moderate" | "high")。
-   - "low": <6mm 纯磨玻璃、边界清晰、无毛刺分叶。
-   - "moderate": 6-10mm 纯磨玻璃或实性成分 <3mm 的混合磨玻璃。
-   - "high": 混合磨玻璃实性成分 ≥5mm、伴分叶毛刺胸膜凹陷、或 Lung-RADS 4A/4B/4X。
-7. clinicalRecommendation: 提取报告中的随访或手术建议（例如 "建议3-6个月薄层CT动态复查"、"建议胸外科微创手术会诊评估"）。
+【第二步：CT 影像学特征、主病灶与多发结节 (Multiple Nodules) 提取规则】：
+1. 主病灶认定（决定分期与恶性风险的核心）：
+   - 提取最大、最可疑或实性成分最高的结节作为主病灶（noduleLocation, noduleType, tumorSize, solidSize, ctr）。
+   - noduleLocation: 主结节所在肺叶与肺段（例如 "右肺上叶尖段"、"左肺下叶背段"）。
+   - noduleType: "mixed_ggo" (混合磨玻璃) | "pure_ggo" (纯磨玻璃) | "pure_solid" (纯实性)。
+   - tumorSize: 主结节全径厘米 (例如 1.5)。
+   - solidSize: CT 实性成分最大径厘米 (例如 0.8；纯磨玻璃为 0；纯实性等同于 tumorSize)。
+   - ctr: 实性成分比例 (solidSize ÷ tumorSize)。
+   - imagingFeatures: 恶性影像征象数组 (如 ["分叶征", "毛刺征", "胸膜牵拉征", "空泡征", "血管集束征", "磨玻璃晕征", "支气管充气征"])。
+   - lungRads: 放射科 Lung-RADS 分级 (如 "3", "4A", "4B", "4X"；若未提及填 null)。
+   - malignancyRisk: 恶性概率预估 ("low" | "moderate" | "high")。
+   - clinicalRecommendation: 随访或手术建议。
+2. 多发性结节与伴随微小结节提取 (isMultipleNodules & secondaryNodules)：
+   - 若报告中提及“双肺多发结节”、“另见数个微小结节”等，设 isMultipleNodules 为 true。
+   - secondaryNodules 数组提取除主病灶外的其他次要结节，每项结构为：
+     { "id": "sec_1", "location": "右肺下叶", "sizeMm": 4, "type": "pure_ggo" | "solid" | "calcification", "isBenignTendency": true, "note": "微小纯磨玻璃结节，考虑炎性或良性随访" }
+3. 检查日期与时序随访提取 (reportDate & followUpHistory)：
+   - reportDate: 提取报告上的检查日期 (如 "2024-03-12" 或 "2024-03"；若未提及填 null)。
+   - 若报告中包含了历史多次对比数据（例如“2023-05月片示6mm，2024-03月片示8mm”），请提取至 followUpHistory 数组中。
 
-【第三步：全身转移排查与伴发良性病变识别规则（M0 定心丸核心）】：
+【第三步：血液肿瘤标志物提取规则 (Tumor Markers)】：
+若报告包含血液生化化验，提取数值（若未检测或未提及填 null）：
+- cea: 癌胚抗原数值 (ng/mL，例如 2.8)
+- cyfra211: 细胞角蛋白19片段 (ng/mL，例如 1.9)
+- nse: 神经元特异性烯醇化酶 (ng/mL，例如 12.5)
+- scc: 鳞状细胞癌抗原 (ng/mL，例如 0.8)
+- proGrp: 胃泌素释放肽前体 (pg/mL，例如 35.2)
+
+【第四步：全身转移排查与伴发良性病变识别规则（M0 定心丸核心）】：
 - 脑部增强 MRI (brainMri): "未见异常/未见转移" ➔ "negative"; "见转移灶/占位" ➔ "positive"; 未提及 ➔ "not_performed"
 - 腹部与肾上腺超声/CT (abdominalUltrasound): "未见异常" ➔ "negative"; "见肝囊肿/血管瘤/胆囊息肉/肾囊肿等良性病变" ➔ "benign_findings"; "提示可疑转移" ➔ "positive"; 未提及 ➔ "not_performed"
 - 全身骨显像 ECT (boneScan): "未见异常骨代谢/骨质完整" ➔ "negative"; "见转移骨破坏" ➔ "positive"; 未提及 ➔ "not_performed"
@@ -45,7 +55,7 @@ const SYSTEM_PROMPT = `
 - 伴发良性病变提取 (benignFindings): 字符串数组，如 ["肝囊肿", "肝内钙化灶", "胆囊息肉", "肾囊肿", "甲状腺结节TI-RADS 2类", "肺内陈旧性纤维钙化灶"]
 - 全身排查确认 (systemicStagingConfirmed): 若脑部、腹部或骨扫描中有至少一项确认阴性且无任何阳性转移，设为 true。
 
-【第四步：病理报告阴阳性识别规则（术后确诊报告核心）】：
+【第五步：病理报告阴阳性识别规则（术后确诊报告核心）】：
 - 气道播散 (STAS): "未见" / "STAS (-)" ➔ "negative"; "见" / "STAS (+)" ➔ "positive"; 未提及 ➔ "negative"
 - 脉管内癌栓 (LVI): "未见" / "LVI (-)" ➔ "negative"; "见" / "LVI (+)" ➔ "positive"; 未提及 ➔ "negative"
 - 脏层胸膜侵犯 (VPI): "未见" / "PL0" ➔ "negative"; "突破脏层胸膜" / "PL1" / "PL2" ➔ "positive"; 未提及 ➔ "negative"
@@ -54,15 +64,45 @@ const SYSTEM_PROMPT = `
 请严格遵守以下 JSON 结构输出，不要包含任何 Markdown 标记或多余的文字：
 {
   "reportType": "ct_imaging" | "pathology" | "systemic_staging" | "comprehensive",
+  "reportDate": String | null,
   "noduleLocation": String | null,
   "noduleType": "mixed_ggo" | "pure_ggo" | "pure_solid",
-  "tumorSize": Number (磨玻璃最大径/结节全径厘米，例如 1.5),
+  "tumorSize": Number (主结节全径厘米，例如 1.5),
   "solidSize": Number (实性成分最大径厘米，例如 0.8),
   "ctr": Number (实性成分最大径除以磨玻璃最大径，例如 0.53),
   "imagingFeatures": ["分叶征", "毛刺征", ...],
   "lungRads": String | null,
   "malignancyRisk": "low" | "moderate" | "high",
   "clinicalRecommendation": String,
+  "isMultipleNodules": Boolean,
+  "secondaryNodules": [
+    {
+      "id": "sec_1",
+      "location": "右肺下叶",
+      "sizeMm": 4,
+      "type": "pure_ggo",
+      "isBenignTendency": true,
+      "note": "微小纯磨玻璃灶，考虑良性/定期随访"
+    }
+  ],
+  "followUpHistory": [
+    {
+      "id": "hist_1",
+      "date": "2023-05-10",
+      "tumorSize": 1.2,
+      "solidSize": 0.4,
+      "ctr": 0.33,
+      "note": "初次体检发现"
+    }
+  ],
+  "tumorMarkers": {
+    "cea": Number | null,
+    "cyfra211": Number | null,
+    "nse": Number | null,
+    "scc": Number | null,
+    "proGrp": Number | null,
+    "testDate": String | null
+  },
   "brainMri": "negative" | "positive" | "not_performed",
   "abdominalUltrasound": "negative" | "benign_findings" | "positive" | "not_performed",
   "boneScan": "negative" | "positive" | "not_performed",
@@ -82,7 +122,7 @@ const SYSTEM_PROMPT = `
   "marginStatus": "positive" | "negative",
   "surgeryType": "lobectomy" | "segmentectomy" | "wedge" | "unknown" | null,
   "grade": "1" | "2" | "3" | null,
-  "ki67": Number | String | null (例如: 5, 15, "20%", 若未提及或未做免疫组化填 null)
+  "ki67": Number | String | null
 }
 `;
 
@@ -230,13 +270,60 @@ export async function POST(request: Request) {
         : "属于早期低复发风险组。建议遵医嘱规律随访，无需过度化疗。";
     }
 
+    // Process Multiple Nodules
+    const isMultipleNodules = Boolean(extracted.isMultipleNodules || (Array.isArray(extracted.secondaryNodules) && extracted.secondaryNodules.length > 0));
+    const secondaryNodules = Array.isArray(extracted.secondaryNodules) ? extracted.secondaryNodules.map((sec: any, idx: number) => ({
+      id: sec.id || `sec_${idx + 1}`,
+      location: sec.location || "伴随结节",
+      sizeMm: sec.sizeMm ? parseFloat(String(sec.sizeMm)) : 4,
+      type: sec.type || "pure_ggo",
+      isBenignTendency: sec.isBenignTendency ?? true,
+      imagingFeatures: Array.isArray(sec.imagingFeatures) ? sec.imagingFeatures : [],
+      note: sec.note || "微小结节，考虑良性或随访"
+    })) : [];
+
+    // Process Follow-up History
+    const followUpHistory = Array.isArray(extracted.followUpHistory) ? extracted.followUpHistory.map((hist: any, idx: number) => ({
+      id: hist.id || `hist_${idx + 1}`,
+      date: hist.date || new Date().toISOString().split('T')[0],
+      tumorSize: hist.tumorSize ? parseFloat(String(hist.tumorSize)) : stagingCalc.tumorSize,
+      solidSize: hist.solidSize != null ? parseFloat(String(hist.solidSize)) : stagingCalc.solidSize,
+      ctr: hist.ctr != null ? parseFloat(String(hist.ctr)) : stagingCalc.ctr,
+      noduleType: hist.noduleType || stagingCalc.noduleType,
+      lungRads: hist.lungRads || extracted.lungRads || null,
+      note: hist.note || ""
+    })) : [];
+
+    // Process Tumor Markers
+    const rawTm = extracted.tumorMarkers || {};
+    const tumorMarkers = {
+      cea: rawTm.cea !== undefined && rawTm.cea !== null && rawTm.cea !== "" ? parseFloat(String(rawTm.cea)) : null,
+      cyfra211: rawTm.cyfra211 !== undefined && rawTm.cyfra211 !== null && rawTm.cyfra211 !== "" ? parseFloat(String(rawTm.cyfra211)) : null,
+      nse: rawTm.nse !== undefined && rawTm.nse !== null && rawTm.nse !== "" ? parseFloat(String(rawTm.nse)) : null,
+      scc: rawTm.scc !== undefined && rawTm.scc !== null && rawTm.scc !== "" ? parseFloat(String(rawTm.scc)) : null,
+      proGrp: rawTm.proGrp !== undefined && rawTm.proGrp !== null && rawTm.proGrp !== "" ? parseFloat(String(rawTm.proGrp)) : null,
+      testDate: rawTm.testDate || extracted.reportDate || null,
+      note: rawTm.note || null
+    };
+
     const safeData = {
       reportType: extracted.reportType || "ct_imaging",
+      reportDate: extracted.reportDate || null,
       noduleLocation: extracted.noduleLocation || "肺叶结节",
       imagingFeatures: Array.isArray(extracted.imagingFeatures) ? extracted.imagingFeatures : [],
       lungRads: extracted.lungRads || null,
       malignancyRisk: extracted.malignancyRisk || "moderate",
       clinicalRecommendation: extracted.clinicalRecommendation || nextAction,
+
+      // P0-1 Multiple Nodules
+      isMultipleNodules,
+      secondaryNodules,
+
+      // P0-2 Follow-up History
+      followUpHistory,
+
+      // P2-2 Tumor Markers
+      tumorMarkers,
 
       age: extracted.age || 55,
       sex: extracted.sex || "male",
