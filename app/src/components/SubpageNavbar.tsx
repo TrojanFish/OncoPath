@@ -64,7 +64,7 @@ export default function SubpageNavbar() {
               href="/profile"
               className="hidden sm:inline-flex btn-primary px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-sm"
             >
-              建立癌症档案
+              患者临床档案
             </Link>
 
             {/* Mobile Hamburger Button */}
@@ -132,29 +132,16 @@ export default function SubpageNavbar() {
                     <span>{link.label}</span>
                   </Link>
                 ))}
-
-                <Link
-                  href="/profile"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center gap-3 px-3.5 py-3 rounded-2xl text-sm font-semibold transition-all ${
-                    pathname === "/profile"
-                      ? "bg-blue-50 text-accent-blue border border-blue-100 font-bold"
-                      : "text-slate-700 hover:bg-slate-50"
-                  }`}
-                >
-                  <span className="text-lg">📋</span>
-                  <span>我的癌症档案</span>
-                </Link>
               </div>
 
-              {/* Main Action CTA */}
+              {/* Main Action CTA: Direct to Patient Clinical Profile */}
               <div className="pt-2">
                 <Link
                   href="/profile"
                   onClick={() => setMobileMenuOpen(false)}
                   className="w-full btn-primary py-3.5 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 shadow-md"
                 >
-                  <span>🔬 建立癌症档案</span>
+                  <span>📋 患者临床数字档案</span>
                 </Link>
               </div>
             </div>
