@@ -59,36 +59,6 @@ export default function PatientDashboard() {
     }
   };
 
-  const handleUpdateHistory = async (newHistory: FollowUpRecord[]) => {
-    if (!profile) return;
-    const updatedProfile = { ...profile, followUpHistory: newHistory };
-    setProfile(updatedProfile);
-    try {
-      await fetch('/api/profile', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...updatedProfile, userId: getGuestId() })
-      });
-    } catch (err) {
-      console.error("Failed to update history", err);
-    }
-  };
-
-  const handleUpdateTumorMarkers = async (newMarkers: TumorMarkersData) => {
-    if (!profile) return;
-    const updatedProfile = { ...profile, tumorMarkers: newMarkers };
-    setProfile(updatedProfile);
-    try {
-      await fetch('/api/profile', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...updatedProfile, userId: getGuestId() })
-      });
-    } catch (err) {
-      console.error("Failed to update tumor markers", err);
-    }
-  };
-
   const handleWipeProfile = async () => {
     try {
       setIsDeleting(true);
@@ -511,20 +481,18 @@ export default function PatientDashboard() {
 
       </div>
 
-      {/* P0-2: Nodule Longitudinal CT Growth Timeline */}
+      {/* P0-2: Nodule Longitudinal CT Growth Timeline (Read-Only) */}
       <div className="mb-6">
         <NoduleTimelineChart 
           history={profile.followUpHistory} 
           profile={profile} 
-          onUpdateHistory={handleUpdateHistory}
         />
       </div>
 
-      {/* P2-2: Blood Tumor Markers Monitoring & Reassurance */}
+      {/* P2-2: Blood Tumor Markers Monitoring & Reassurance (Read-Only) */}
       <div className="mb-6">
         <TumorMarkersCard 
           markers={profile.tumorMarkers} 
-          onUpdateMarkers={handleUpdateTumorMarkers}
         />
       </div>
 

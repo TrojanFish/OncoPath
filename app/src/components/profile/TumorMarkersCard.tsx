@@ -1,33 +1,19 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import type { TumorMarkersData } from "@/lib/types";
-import { evaluateTumorMarkers, TUMOR_MARKER_DEFINITIONS } from "@/lib/tumorMarkers";
+import { evaluateTumorMarkers } from "@/lib/tumorMarkers";
 import { GlossaryTooltip } from "@/components/common/GlossaryTooltip";
 
 interface TumorMarkersCardProps {
   markers?: TumorMarkersData | null;
-  onUpdateMarkers?: (newMarkers: TumorMarkersData) => void;
-  isEditable?: boolean;
 }
 
 export function TumorMarkersCard({
-  markers,
-  onUpdateMarkers,
-  isEditable = true
+  markers
 }: TumorMarkersCardProps) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [editForm, setEditForm] = useState<TumorMarkersData>(markers || {});
-
   const evaluations = evaluateTumorMarkers(markers);
   const hasData = evaluations.length > 0;
-
-  const handleSave = () => {
-    if (onUpdateMarkers) {
-      onUpdateMarkers(editForm);
-    }
-    setIsEditing(false);
-  };
 
   return (
     <div className="bg-white rounded-3xl p-5 sm:p-6 md:p-7 border border-slate-200 shadow-sm space-y-5 hover:border-indigo-300 transition-all">
@@ -46,33 +32,25 @@ export function TumorMarkersCard({
         </div>
 
         <div className="flex items-center gap-2 self-start sm:self-auto">
-          {hasData && (
+          {hasData ? (
             <span className="text-xs font-bold px-3 py-1 rounded-full bg-indigo-50 text-indigo-800 border border-indigo-200">
               已录入 {evaluations.length} 项生化指标
             </span>
-          )}
-          {isEditable && onUpdateMarkers && (
-            <button
-              type="button"
-              onClick={() => {
-                setEditForm(markers || {});
-                setIsEditing(!isEditing);
-              }}
-              className="text-xs font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-3 py-1 rounded-xl transition-colors cursor-pointer"
-            >
-              {isEditing ? "取消" : hasData ? "修改指标" : "+ 录入血检化验单"}
-            </button>
+          ) : (
+            <span className="text-xs font-medium px-3 py-1 rounded-full bg-slate-50 text-slate-500 border border-slate-200">
+              未录入血检数据
+            </span>
           )}
         </div>
       </div>
 
       {/* Main Content */}
-      {!hasData && !isEditing ? (
+      {!hasData ? (
         <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200 text-center space-y-2">
           <div className="text-2xl">🩸</div>
           <div className="text-xs font-bold text-slate-800">暂未录入血液肿瘤标志物</div>
           <p className="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
-            若您的体检或就诊化验单中包含 <strong>CEA (癌胚抗原)</strong> 或 <strong>CYFRA21-1</strong>，可点击右上角录入，系统将为您自动进行良恶性排雷与生理波动定性。
+            若您的体检或就诊化验单中包含 <strong>CEA (癌胚抗原)</strong>、<strong>CYFRA21-1</strong> 或 <strong>NSE</strong>，可点击页面顶部【修改/校准临床档案】进行录入，系统将为您自动进行良恶性排雷与生理波动定性。
           </p>
         </div>
       ) : (
@@ -148,81 +126,6 @@ export function TumorMarkersCard({
                 </div>
               );
             })}
-          </div>
-        </div>
-      )}
-
-      {/* Inline Edit Form */}
-      {isEditing && (
-        <div className="p-4 rounded-2xl bg-indigo-50 border border-indigo-200 space-y-3 animate-in fade-in">
-          <div className="text-xs font-bold text-indigo-950 flex items-center justify-between">
-            <span>📝 录入/修改血液肿瘤标志物数值</span>
-            <span className="text-[11px] font-normal text-indigo-700">（未检测的项可留空）</span>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div>
-              <label className="block text-[11px] font-semibold text-slate-600 mb-1">
-                CEA 癌胚抗原 (ng/mL，参考 0~5.0)
-              </label>
-              <input
-                type="number"
-                step="0.01"
-                placeholder="例如 2.8"
-                value={editForm.cea ?? ""}
-                onChange={(e) =>
-                  setEditForm({ ...editForm, cea: e.target.value ? parseFloat(e.target.value) : null })
-                }
-                className="w-full p-2 bg-white border border-slate-300 rounded-xl text-xs"
-              />
-            </div>
-            <div>
-              <label className="block text-[11px] font-semibold text-slate-600 mb-1">
-                CYFRA21-1 (ng/mL，参考 0~3.3)
-              </label>
-              <input
-                type="number"
-                step="0.01"
-                placeholder="例如 1.9"
-                value={editForm.cyfra211 ?? ""}
-                onChange={(e) =>
-                  setEditForm({ ...editForm, cyfra211: e.target.value ? parseFloat(e.target.value) : null })
-                }
-                className="w-full p-2 bg-white border border-slate-300 rounded-xl text-xs"
-              />
-            </div>
-            <div>
-              <label className="block text-[11px] font-semibold text-slate-600 mb-1">
-                NSE (ng/mL，参考 0~16.3)
-              </label>
-              <input
-                type="number"
-                step="0.01"
-                placeholder="例如 12.4"
-                value={editForm.nse ?? ""}
-                onChange={(e) =>
-                  setEditForm({ ...editForm, nse: e.target.value ? parseFloat(e.target.value) : null })
-                }
-                className="w-full p-2 bg-white border border-slate-300 rounded-xl text-xs"
-              />
-            </div>
-          </div>
-
-          <div className="flex justify-end gap-2 pt-1">
-            <button
-              type="button"
-              onClick={() => setIsEditing(false)}
-              className="px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-200 rounded-xl"
-            >
-              取消
-            </button>
-            <button
-              type="button"
-              onClick={handleSave}
-              className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-xs cursor-pointer"
-            >
-              保存标志物数据
-            </button>
           </div>
         </div>
       )}

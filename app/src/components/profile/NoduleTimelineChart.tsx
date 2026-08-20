@@ -1,28 +1,18 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import type { FollowUpRecord, PatientProfile } from "@/lib/types";
 import { calculateVdtAndGrowth } from "@/lib/vdtCalculator";
 
 interface NoduleTimelineChartProps {
   history?: FollowUpRecord[];
   profile?: PatientProfile | null;
-  onUpdateHistory?: (newHistory: FollowUpRecord[]) => void;
-  isEditable?: boolean;
 }
 
 export function NoduleTimelineChart({
   history = [],
-  profile,
-  onUpdateHistory,
-  isEditable = true
+  profile
 }: NoduleTimelineChartProps) {
-  const [isAddingNew, setIsAddingNew] = useState(false);
-  const [newDate, setNewDate] = useState("");
-  const [newTumorSize, setNewTumorSize] = useState("");
-  const [newSolidSize, setNewSolidSize] = useState("");
-  const [newNote, setNewNote] = useState("");
-
   // Build combined history dataset (including current profile if not in history)
   let combinedHistory = [...history];
   if (combinedHistory.length === 0 && profile?.tumorSize) {
@@ -35,7 +25,7 @@ export function NoduleTimelineChart({
         ctr: profile.ctr ?? 0.53,
         noduleType: profile.noduleType || "mixed_ggo",
         lungRads: profile.lungRads || undefined,
-        note: "当前检查记录"
+        note: "当前检查基线"
       }
     ];
   }
@@ -52,43 +42,6 @@ export function NoduleTimelineChart({
     profile?.ctr
   );
 
-  const handleAddRecord = () => {
-    if (!newDate || !newTumorSize) return;
-    const tumorSizeVal = parseFloat(newTumorSize);
-    const solidSizeVal = newSolidSize ? parseFloat(newSolidSize) : 0;
-    const ctrVal = tumorSizeVal > 0 ? Math.min(1, Math.round((solidSizeVal / tumorSizeVal) * 100) / 100) : 0;
-
-    const record: FollowUpRecord = {
-      id: Math.random().toString(36).substring(2, 9),
-      date: newDate,
-      tumorSize: tumorSizeVal,
-      solidSize: solidSizeVal,
-      ctr: ctrVal,
-      note: newNote || "历史随访复查"
-    };
-
-    const updated = [...history, record].sort(
-      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-    );
-
-    if (onUpdateHistory) {
-      onUpdateHistory(updated);
-    }
-
-    setIsAddingNew(false);
-    setNewDate("");
-    setNewTumorSize("");
-    setNewSolidSize("");
-    setNewNote("");
-  };
-
-  const handleDeleteRecord = (id: string) => {
-    const updated = history.filter((h) => h.id !== id);
-    if (onUpdateHistory) {
-      onUpdateHistory(updated);
-    }
-  };
-
   // SVG Chart Geometry
   const svgWidth = 540;
   const svgHeight = 180;
@@ -96,7 +49,6 @@ export function NoduleTimelineChart({
   const paddingY = 25;
 
   const maxTumor = Math.max(2.5, ...sortedHistory.map((h) => h.tumorSize || 1.5)) * 1.15;
-  const minTumor = 0;
 
   const getX = (index: number) => {
     if (sortedHistory.length <= 1) return svgWidth / 2;
@@ -138,15 +90,9 @@ export function NoduleTimelineChart({
           }`}>
             {vdtAnalysis.categoryLabel}
           </span>
-          {isEditable && onUpdateHistory && !isAddingNew && (
-            <button
-              type="button"
-              onClick={() => setIsAddingNew(true)}
-              className="text-xs font-bold text-sky-700 bg-sky-50 hover:bg-sky-100 border border-sky-200 px-2.5 py-1 rounded-xl transition-colors cursor-pointer"
-            >
-              + 补录历史老片
-            </button>
-          )}
+          <span className="text-[11px] text-slate-400 font-medium px-2.5 py-0.5 bg-slate-50 border border-slate-200 rounded-full">
+            已归档 {sortedHistory.length} 次检查
+          </span>
         </div>
       </div>
 
@@ -302,9 +248,17 @@ export function NoduleTimelineChart({
         </div>
       </div>
 
-      {/* History Node List & Management */}
+      {/* History Node List */}
       <div className="space-y-2">
-        <div className="text-xs font-bold text-slate-700">📅 随访节点明细清单：</div>
+        <div className="flex items-center justify-between text-xs font-bold text-slate-700">
+          <span>📅 历次随访检查节点明细：</span>
+          {sortedHistory.length <= 1 && (
+            <span className="text-[11px] font-normal text-slate-400">
+              （如需补录往年老片，可点击页面顶部【修改/校准临床档案】）
+            </span>
+          )}
+        </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
           {sortedHistory.map((item, idx) => (
             <div
@@ -324,95 +278,13 @@ export function NoduleTimelineChart({
                   {item.note && ` · ${item.note}`}
                 </div>
               </div>
-              {isEditable && onUpdateHistory && history.some((h) => h.id === item.id) && (
-                <button
-                  type="button"
-                  onClick={() => handleDeleteRecord(item.id)}
-                  className="text-slate-400 hover:text-rose-600 p-1 text-xs cursor-pointer"
-                  title="删除该条记录"
-                >
-                  ✕
-                </button>
-              )}
+              <span className="text-[10px] font-bold text-sky-700 bg-sky-50 px-2 py-0.5 rounded-md border border-sky-100">
+                已核验
+              </span>
             </div>
           ))}
         </div>
       </div>
-
-      {/* Add New Record Modal / Form */}
-      {isAddingNew && (
-        <div className="p-4 rounded-2xl bg-sky-50 border border-sky-200 space-y-3 animate-in fade-in">
-          <div className="text-xs font-bold text-sky-950 flex items-center justify-between">
-            <span>📝 补录历史 CT 影像节点</span>
-            <button
-              type="button"
-              onClick={() => setIsAddingNew(false)}
-              className="text-slate-400 hover:text-slate-700 text-xs"
-            >
-              取消
-            </button>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-            <div>
-              <label className="block text-[11px] font-semibold text-slate-600 mb-1">检查日期</label>
-              <input
-                type="date"
-                value={newDate}
-                onChange={(e) => setNewDate(e.target.value)}
-                className="w-full p-2 bg-white border border-slate-300 rounded-xl text-xs"
-              />
-            </div>
-            <div>
-              <label className="block text-[11px] font-semibold text-slate-600 mb-1">结节全径 (cm)</label>
-              <input
-                type="number"
-                step="0.1"
-                placeholder="例如 0.8"
-                value={newTumorSize}
-                onChange={(e) => setNewTumorSize(e.target.value)}
-                className="w-full p-2 bg-white border border-slate-300 rounded-xl text-xs"
-              />
-            </div>
-            <div>
-              <label className="block text-[11px] font-semibold text-slate-600 mb-1">实性成分 (cm，纯磨玻璃填0)</label>
-              <input
-                type="number"
-                step="0.1"
-                placeholder="例如 0"
-                value={newSolidSize}
-                onChange={(e) => setNewSolidSize(e.target.value)}
-                className="w-full p-2 bg-white border border-slate-300 rounded-xl text-xs"
-              />
-            </div>
-          </div>
-          <div>
-            <label className="block text-[11px] font-semibold text-slate-600 mb-1">备注说明 (选填)</label>
-            <input
-              type="text"
-              placeholder="例如：2023年体检首次发现，边界清晰"
-              value={newNote}
-              onChange={(e) => setNewNote(e.target.value)}
-              className="w-full p-2 bg-white border border-slate-300 rounded-xl text-xs"
-            />
-          </div>
-          <div className="flex justify-end gap-2 pt-1">
-            <button
-              type="button"
-              onClick={() => setIsAddingNew(false)}
-              className="px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-200 rounded-xl"
-            >
-              取消
-            </button>
-            <button
-              type="button"
-              onClick={handleAddRecord}
-              className="px-4 py-1.5 bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs rounded-xl shadow-xs cursor-pointer"
-            >
-              保存并加入生长曲线
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

@@ -80,6 +80,12 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
   const [newSecSize, setNewSecSize] = useState("");
   const [newSecType, setNewSecType] = useState("pure_ggo");
 
+  // Follow-up history records state
+  const [newHistDate, setNewHistDate] = useState("");
+  const [newHistTumorSize, setNewHistTumorSize] = useState("");
+  const [newHistSolidSize, setNewHistSolidSize] = useState("");
+  const [newHistNote, setNewHistNote] = useState("");
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Dynamic staging calculation result for human-in-the-loop preview
@@ -370,6 +376,45 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
       ...parsedData,
       isMultipleNodules: filtered.length > 0,
       secondaryNodules: filtered
+    });
+  };
+
+  const handleAddHistoryRecord = () => {
+    if (!newHistDate || !newHistTumorSize) return;
+    const tumorVal = parseFloat(newHistTumorSize) || 1.0;
+    const solidVal = newHistSolidSize ? parseFloat(newHistSolidSize) : 0;
+    const ctrVal = tumorVal > 0 ? Math.min(1, Math.round((solidVal / tumorVal) * 100) / 100) : 0;
+
+    const current = Array.isArray(parsedData.followUpHistory) ? parsedData.followUpHistory : [];
+    const newItem: FollowUpRecord = {
+      id: `hist_${Date.now()}`,
+      date: newHistDate,
+      tumorSize: tumorVal,
+      solidSize: solidVal,
+      ctr: ctrVal,
+      note: newHistNote.trim() || "历史随访复查"
+    };
+
+    const updated = [...current, newItem].sort(
+      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+    );
+
+    setParsedData({
+      ...parsedData,
+      followUpHistory: updated
+    });
+
+    setNewHistDate("");
+    setNewHistTumorSize("");
+    setNewHistSolidSize("");
+    setNewHistNote("");
+  };
+
+  const handleRemoveHistoryRecord = (id: string) => {
+    const current = Array.isArray(parsedData.followUpHistory) ? parsedData.followUpHistory : [];
+    setParsedData({
+      ...parsedData,
+      followUpHistory: current.filter((item: any) => item.id !== id)
     });
   };
 
@@ -750,6 +795,111 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
                 >
                   + 添加伴随结节
                 </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Section: Longitudinal CT Follow-up History Management (P0-2) */}
+          <div className="p-4 rounded-2xl bg-sky-50/70 border border-sky-200 space-y-3">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <div className="text-xs font-bold text-sky-950 uppercase tracking-wider flex items-center gap-1.5">
+                <span>📈 历次 CT 随访时序记录管理 (时序生长折线图与 VDT 测算数据源)</span>
+              </div>
+              <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-sky-100 text-sky-800 border border-sky-200">
+                已录入 {(parsedData.followUpHistory || []).length} 次检查记录
+              </span>
+            </div>
+
+            <p className="text-[11px] text-sky-800 leading-relaxed font-medium">
+              系统将按检查日期自动串联各次 CT 的全径与实性成分，计算<strong>体积倍增时间 (VDT)</strong> 并判定生长动力学。您可在此补录往年老片数据：
+            </p>
+
+            {/* List of existing records */}
+            <div className="space-y-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {(parsedData.followUpHistory || []).map((item: any) => (
+                  <div
+                    key={item.id}
+                    className="p-2.5 bg-white rounded-xl border border-sky-200 flex items-center justify-between gap-2 text-xs"
+                  >
+                    <div>
+                      <div className="font-bold text-slate-900 flex items-center gap-1.5">
+                        <span>{item.date}</span>
+                        <span className="text-[10px] px-1.5 py-0.2 bg-teal-50 text-teal-800 rounded font-semibold border border-teal-100">
+                          全径: {(item.tumorSize * 10).toFixed(0)}mm | 实性: {((item.solidSize || 0) * 10).toFixed(0)}mm
+                        </span>
+                      </div>
+                      <div className="text-[10px] text-slate-500 mt-0.5">
+                        CTR: {item.ctr != null ? (item.ctr * 100).toFixed(0) : "0"}%{item.note ? ` · ${item.note}` : ""}
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveHistoryRecord(item.id)}
+                      className="text-slate-400 hover:text-rose-600 p-1 text-xs cursor-pointer"
+                      title="移除该条记录"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              {/* Add history record form */}
+              <div className="p-3 bg-white/90 rounded-xl border border-sky-200 space-y-2 pt-2">
+                <div className="text-[11px] font-bold text-sky-900">+ 补录既往体检/复查老片数据：</div>
+                <div className="grid grid-cols-1 sm:grid-cols-4 gap-2">
+                  <div>
+                    <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">检查日期</label>
+                    <input
+                      type="date"
+                      value={newHistDate}
+                      onChange={(e) => setNewHistDate(e.target.value)}
+                      className="w-full p-1.5 bg-slate-50 border border-slate-300 rounded-lg text-xs"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">结节全径 (cm)</label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      placeholder="如: 0.8"
+                      value={newHistTumorSize}
+                      onChange={(e) => setNewHistTumorSize(e.target.value)}
+                      className="w-full p-1.5 bg-slate-50 border border-slate-300 rounded-lg text-xs"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">实性成分 (cm)</label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      placeholder="纯磨玻璃填0"
+                      value={newHistSolidSize}
+                      onChange={(e) => setNewHistSolidSize(e.target.value)}
+                      className="w-full p-1.5 bg-slate-50 border border-slate-300 rounded-lg text-xs"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">备注说明 (选填)</label>
+                    <input
+                      type="text"
+                      placeholder="如: 2024体检初查"
+                      value={newHistNote}
+                      onChange={(e) => setNewHistNote(e.target.value)}
+                      className="w-full p-1.5 bg-slate-50 border border-slate-300 rounded-lg text-xs"
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-end pt-1">
+                  <button
+                    type="button"
+                    onClick={handleAddHistoryRecord}
+                    className="px-3 py-1.5 bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs rounded-lg transition-colors cursor-pointer"
+                  >
+                    + 加入时序随访列表
+                  </button>
+                </div>
               </div>
             </div>
           </div>
