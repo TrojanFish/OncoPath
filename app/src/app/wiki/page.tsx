@@ -8,15 +8,12 @@ import { WikiScenarioEntry } from "@/components/wiki/WikiScenarioEntry";
 import { WikiSearchBar } from "@/components/wiki/WikiSearchBar";
 import { WikiTopicCard } from "@/components/wiki/WikiTopicCard";
 import { WikiFloatingNav } from "@/components/wiki/WikiFloatingNav";
-import { GgoEvolutionSimulator } from "@/components/wiki/visuals/GgoEvolutionSimulator";
-import { FleischnerDecisionTree } from "@/components/wiki/visuals/FleischnerDecisionTree";
 import type { PatientProfile } from "@/lib/types";
 
 export default function WikiPage() {
   const [activeCategory, setActiveCategory] = useState<WikiCategory | "all">("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedRisk, setSelectedRisk] = useState<RiskLevel | "all">("all");
-  const [activeLabTool, setActiveLabTool] = useState<"ggo" | "fleischner" | "none">("ggo");
   const [userProfile, setUserProfile] = useState<PatientProfile | null>(null);
   const [highlightedTopicId, setHighlightedTopicId] = useState<string | null>(null);
 
@@ -221,50 +218,7 @@ export default function WikiPage() {
           <WikiScenarioEntry activeCategory={activeCategory} onSelectCategory={handleSelectScenario} />
         </section>
 
-        {/* Act 2: Interactive Visual Lab (CTR Simulator & Fleischner Decision Tree) */}
-        <section id="wiki-visual-lab-section" className="space-y-4 pt-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-1">
-            <div>
-              <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-                <span>🎛️ 交互式视觉实验室</span>
-                <span className="text-xs font-normal text-slate-400">（动态交互与决策计算）</span>
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-                亲自动手调节参数，直观理解影像浸润演变与科学随访周期
-              </p>
-            </div>
-
-            {/* Lab Tool Tab Switcher */}
-            <div className="inline-flex bg-slate-200/80 p-1 rounded-2xl text-xs font-bold self-start sm:self-auto">
-              <button
-                onClick={() => setActiveLabTool("ggo")}
-                className={`px-3.5 py-1.5 rounded-xl transition-all cursor-pointer ${
-                  activeLabTool === "ggo"
-                    ? "bg-white text-blue-700 shadow-xs"
-                    : "text-slate-600 hover:text-slate-900"
-                }`}
-              >
-                🫁 磨玻璃 CTR 模拟器
-              </button>
-              <button
-                onClick={() => setActiveLabTool("fleischner")}
-                className={`px-3.5 py-1.5 rounded-xl transition-all cursor-pointer ${
-                  activeLabTool === "fleischner"
-                    ? "bg-white text-emerald-700 shadow-xs"
-                    : "text-slate-600 hover:text-slate-900"
-                }`}
-              >
-                🧭 结节随访决策树
-              </button>
-            </div>
-          </div>
-
-          {/* Render Selected Lab Component */}
-          {activeLabTool === "ggo" && <GgoEvolutionSimulator />}
-          {activeLabTool === "fleischner" && <FleischnerDecisionTree />}
-        </section>
-
-        {/* Act 3: Wiki Encyclopedia Topic Matrix */}
+        {/* Act 2: Wiki Encyclopedia Topic Matrix */}
         <section id="wiki-topics-section" className="space-y-6 pt-6">
           {/* Category Tabs */}
           <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 pb-4">

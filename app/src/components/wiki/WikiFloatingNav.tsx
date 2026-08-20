@@ -151,32 +151,6 @@ export function WikiFloatingNav({
       {/* Divider */}
       <div className="w-5 h-px bg-slate-200/90 my-0.5" />
 
-      {/* Quick Jump: Visual Interactive Lab */}
-      <div className="relative group">
-        <button
-          type="button"
-          onClick={() => scrollToSection("wiki-visual-lab-section")}
-          className="w-9 h-9 rounded-full aspect-square bg-amber-50/80 text-amber-700 hover:bg-amber-100 hover:scale-105 flex items-center justify-center transition-all cursor-pointer border border-amber-200/70 shadow-2xs active:scale-95"
-          aria-label="快速跳转至视觉实验室"
-        >
-          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M4 21v-7" />
-            <path d="M4 10V3" />
-            <path d="M12 21v-9" />
-            <path d="M12 8V3" />
-            <path d="M20 21v-5" />
-            <path d="M20 12V3" />
-            <path d="M1 14h6" />
-            <path d="M9 8h6" />
-            <path d="M17 16h6" />
-          </svg>
-        </button>
-        <div className="absolute right-full mr-3 top-1/2 -translate-y-1/2 px-3 py-1.5 rounded-xl bg-slate-900/95 text-white text-xs font-bold whitespace-nowrap shadow-xl opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-200 flex items-center gap-1.5 z-50">
-          <span>🎛️ 交互式视觉实验室</span>
-          <div className="absolute left-full top-1/2 -translate-y-1/2 border-4 border-transparent border-l-slate-900/95" />
-        </div>
-      </div>
-
       {/* Quick Jump: Scroll To Top */}
       <div className="relative group">
         <button
