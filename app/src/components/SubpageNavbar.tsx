@@ -144,11 +144,39 @@ export default function SubpageNavbar() {
                   <span>📋 患者临床数字档案</span>
                 </Link>
               </div>
+
+              {/* Secondary Trust & Ethical Mission Link */}
+              <div className="pt-1">
+                <Link
+                  href="/about"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`flex items-center justify-between p-3 rounded-2xl border transition-all text-xs font-semibold ${
+                    pathname === "/about"
+                      ? "bg-sky-50 text-sky-700 border-sky-200 font-bold"
+                      : "bg-slate-50 hover:bg-slate-100 text-slate-600 border-slate-200/80"
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm">💡</span>
+                    <span>关于我们与初衷</span>
+                  </div>
+                  <span className="text-[10px] text-slate-400">了解医学伦理 ➔</span>
+                </Link>
+              </div>
             </div>
 
             {/* Drawer Footer */}
-            <div className="pt-6 border-t border-slate-100 text-center">
-              <div className="text-[11px] text-slate-400">
+            <div className="pt-5 border-t border-slate-100 text-center space-y-2">
+              <div className="flex items-center justify-center gap-3 text-[11px] text-slate-400">
+                <Link href="/terms" onClick={() => setMobileMenuOpen(false)} className="hover:text-slate-600 transition-colors">
+                  免责声明
+                </Link>
+                <span>·</span>
+                <Link href="/privacy" onClick={() => setMobileMenuOpen(false)} className="hover:text-slate-600 transition-colors">
+                  隐私保护
+                </Link>
+              </div>
+              <div className="text-[10px] text-slate-400">
                 © 2026 OncoPath · 严格同行评审循证医学知识库
               </div>
             </div>
