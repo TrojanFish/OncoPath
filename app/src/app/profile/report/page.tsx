@@ -84,9 +84,13 @@ export default function EvidenceReportPage() {
     setIsLoadedFromCache(false);
 
     try {
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
       const reportRes = await fetch('/api/generate-report', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify(currentProfile)
       });
 
@@ -132,7 +136,10 @@ export default function EvidenceReportPage() {
       try {
         await fetch('/api/profile', {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
           body: JSON.stringify({
             profileId: currentProfile.id,
             userId: getGuestId(),
@@ -157,12 +164,15 @@ export default function EvidenceReportPage() {
       hasLoadedRef.current = true;
 
       try {
-        // 1. Fetch Profile from API/DB
-        const res = await fetch('/api/profile?userId=' + getGuestId());
+        const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+        // 1. Fetch Profile from API/DB (supports both logged-in account and guest)
+        const res = await fetch('/api/profile?userId=' + getGuestId(), {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        });
         const data = await res.json();
         
         if (!data.profile) {
-          setError("未找到患者档案，请先在档案页录入或上传病理报告。");
+          setError("未找到患者档案，请先在档案页录入或上传病理/CT报告。");
           return;
         }
         
@@ -611,11 +621,27 @@ export default function EvidenceReportPage() {
         )}
 
         {error && (
-          <div className="bg-rose-50 text-rose-700 p-6 rounded-2xl border border-rose-200 mb-6 print:hidden">
-            <h3 className="font-bold mb-1 flex items-center gap-2">
-              <span>⚠️</span> 生成遇到异常
+          <div className="bg-rose-50 text-rose-800 p-6 rounded-3xl border border-rose-200 mb-6 print:hidden shadow-xs space-y-3">
+            <h3 className="font-extrabold text-sm sm:text-base flex items-center gap-2 text-rose-900">
+              <span>⚠️</span> 提示信息
             </h3>
-            <p className="text-sm leading-relaxed">{error}</p>
+            <p className="text-xs sm:text-sm leading-relaxed">{error}</p>
+            <div className="pt-1 flex items-center gap-3 flex-wrap">
+              <Link
+                href="/profile"
+                className="btn-primary px-4 py-2 rounded-xl text-xs font-bold shadow-xs flex items-center gap-1.5"
+              >
+                <span>📋 前往患者临床档案页 ➔</span>
+              </Link>
+              {profile && (
+                <button
+                  onClick={() => startGeneratingReport(profile)}
+                  className="px-4 py-2 rounded-xl bg-white hover:bg-rose-100/60 text-rose-700 font-bold border border-rose-300 transition-colors text-xs cursor-pointer"
+                >
+                  🔄 重新尝试生成报告
+                </button>
+              )}
+            </div>
           </div>
         )}
 
