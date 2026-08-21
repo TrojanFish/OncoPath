@@ -20,10 +20,13 @@ FROM node:20-slim AS runner
 WORKDIR /app
 ENV NODE_ENV production
 ENV NEXT_TELEMETRY_DISABLED 1
+ENV HOME /tmp
+ENV npm_config_cache /tmp/.npm
 
 RUN apt-get update -y && apt-get install -y openssl
 RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+RUN adduser --system --uid 1001 --home /home/nextjs nextjs
+RUN mkdir -p /tmp/.npm && chown -R nextjs:nodejs /tmp
 
 COPY --from=builder /app/public ./public
 # Set the correct permission for prerender cache
