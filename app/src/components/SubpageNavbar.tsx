@@ -81,16 +81,28 @@ export default function SubpageNavbar() {
             ))}
           </div>
 
-          {/* Desktop Right Action Area: Clean & State-Driven */}
+          {/* Desktop Right Action Area: State-Driven */}
           <div className="hidden md:flex items-center">
             <UserAvatar />
           </div>
 
-          {/* Mobile Right Area: Single Clean Hamburger Button (No Cluttered Duplicate Avatar on Top) */}
-          <div className="flex md:hidden items-center">
+          {/* Mobile Right Area: When logged in, show 1-Tap Avatar to /profile + Hamburger Menu */}
+          <div className="flex md:hidden items-center gap-2">
+            {userEmail && (
+              <Link
+                href="/profile"
+                className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-600 to-teal-500 flex items-center justify-center text-white font-bold text-[11px] shadow-2xs relative"
+                title="直达我的临床数字档案"
+                aria-label="进入患者临床数字档案"
+              >
+                {userEmail.charAt(0).toUpperCase()}
+                <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-500 border border-white"></span>
+              </Link>
+            )}
+
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-xl text-slate-700 hover:bg-slate-100 border border-slate-200 transition-colors focus:outline-none cursor-pointer"
+              className="p-1.5 sm:p-2 rounded-xl text-slate-700 hover:bg-slate-100 border border-slate-200 transition-colors focus:outline-none cursor-pointer"
               aria-label="打开移动端导航菜单"
             >
               {mobileMenuOpen ? (
@@ -208,15 +220,34 @@ export default function SubpageNavbar() {
                 })}
               </div>
 
-              {/* Main Action CTA: Direct to Patient Clinical Profile */}
-              <div className="pt-2">
-                <Link
-                  href="/profile"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="w-full btn-primary py-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-md"
-                >
-                  <span>📋 患者临床数字档案 ➔</span>
-                </Link>
+              {/* Action CTAs: Direct access to Profile and Report */}
+              <div className="pt-2 space-y-1.5">
+                {userEmail ? (
+                  <>
+                    <Link
+                      href="/profile"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="w-full btn-primary py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 shadow-md"
+                    >
+                      <span>📋 我的临床数字档案 ➔</span>
+                    </Link>
+                    <Link
+                      href="/profile/report"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="w-full py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 bg-teal-50 hover:bg-teal-100 text-teal-700 border border-teal-200/90 transition-colors shadow-2xs"
+                    >
+                      <span>📑 我的专属循证报告 ➔</span>
+                    </Link>
+                  </>
+                ) : (
+                  <Link
+                    href="/profile"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="w-full btn-primary py-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-md"
+                  >
+                    <span>建立临床档案 ➔</span>
+                  </Link>
+                )}
               </div>
 
               {/* Secondary Trust & Ethical Mission Link */}
