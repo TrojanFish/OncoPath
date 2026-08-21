@@ -45,11 +45,21 @@ export default function SubpageNavbar() {
     return () => window.removeEventListener("auth-change", checkAuth);
   }, []);
 
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("email");
+    localStorage.removeItem("role");
+    localStorage.removeItem("oncopath_admin_token");
+    setUserEmail(null);
+    window.dispatchEvent(new Event("auth-change"));
+    setMobileMenuOpen(false);
+  };
+
   return (
     <>
       {/* Floating Island Navbar */}
       <div className="fixed top-2.5 sm:top-4 left-0 right-0 z-50 px-2 sm:px-6 pointer-events-none print:hidden">
-        <nav className="max-w-5xl mx-auto flex items-center justify-between px-3 sm:px-6 py-2 sm:py-2.5 rounded-2xl sm:rounded-full bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-lg shadow-slate-900/5 transition-all pointer-events-auto hover:border-slate-300">
+        <nav className="max-w-5xl mx-auto flex items-center justify-between px-3.5 sm:px-6 py-2 sm:py-2.5 rounded-2xl sm:rounded-full bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-lg shadow-slate-900/5 transition-all pointer-events-auto hover:border-slate-300">
           <Link href="/" className="flex-shrink-0 hover:opacity-85 transition-opacity">
             <LogoMark />
           </Link>
@@ -62,7 +72,7 @@ export default function SubpageNavbar() {
                 href={link.href}
                 className={`text-xs sm:text-sm font-semibold transition-colors ${
                   pathname === link.href
-                    ? "text-accent-blue"
+                    ? "text-accent-blue font-bold"
                     : "text-slate-600 hover:text-slate-900"
                 }`}
               >
@@ -71,21 +81,16 @@ export default function SubpageNavbar() {
             ))}
           </div>
 
-          {/* Right Action Area */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          {/* Desktop Right Action Area: Clean & State-Driven */}
+          <div className="hidden md:flex items-center">
             <UserAvatar />
-            
-            <Link
-              href="/profile"
-              className="hidden sm:inline-flex btn-primary px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-sm"
-            >
-              患者临床档案
-            </Link>
+          </div>
 
-            {/* Mobile Hamburger Button */}
+          {/* Mobile Right Area: Single Clean Hamburger Button (No Cluttered Duplicate Avatar on Top) */}
+          <div className="flex md:hidden items-center">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-xl text-slate-700 hover:bg-slate-100 border border-slate-200 transition-colors focus:outline-none cursor-pointer"
+              className="p-2 rounded-xl text-slate-700 hover:bg-slate-100 border border-slate-200 transition-colors focus:outline-none cursor-pointer"
               aria-label="打开移动端导航菜单"
             >
               {mobileMenuOpen ? (
@@ -128,7 +133,7 @@ export default function SubpageNavbar() {
                 </button>
               </div>
 
-              {/* Patient Identity Status Card */}
+              {/* Mobile Identity Card */}
               {userEmail ? (
                 <div className="p-2.5 rounded-2xl bg-gradient-to-r from-blue-50/90 via-sky-50/60 to-teal-50/90 border border-blue-100 flex items-center justify-between text-xs shadow-2xs">
                   <div className="flex items-center gap-2 truncate">
@@ -143,6 +148,12 @@ export default function SubpageNavbar() {
                       </div>
                     </div>
                   </div>
+                  <button
+                    onClick={handleLogout}
+                    className="text-[10px] text-rose-600 font-bold px-2 py-1 rounded-lg bg-white/80 border border-rose-100 hover:bg-rose-50 transition-colors cursor-pointer shrink-0 ml-1"
+                  >
+                    退出
+                  </button>
                 </div>
               ) : (
                 <button
