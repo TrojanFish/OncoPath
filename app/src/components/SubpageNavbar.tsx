@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import UserAvatar from "@/components/UserAvatar";
+import AuthModal from "@/components/AuthModal";
 
 export function LogoMark() {
   return (
@@ -19,16 +20,30 @@ export function LogoMark() {
 }
 
 const NAV_LINKS = [
-  { label: "首页", href: "/", icon: "🏠" },
-  { label: "循证百科", href: "/wiki", icon: "💡" },
-  { label: "知识图谱", href: "/knowledge", icon: "🗺️" },
-  { label: "国际研究库", href: "/studies", icon: "📚" },
-  { label: "学术导航", href: "/resources", icon: "📖" },
+  { label: "首页", href: "/", icon: "🏠", tag: "全景概览" },
+  { label: "循证百科", href: "/wiki", icon: "💡", tag: "40+词条破译" },
+  { label: "知识图谱", href: "/knowledge", icon: "🗺️", tag: "4D因果推演" },
+  { label: "国际研究库", href: "/studies", icon: "📚", tag: "顶刊效应量" },
+  { label: "学术导航", href: "/resources", icon: "📖", tag: "指南共识原文" },
 ];
 
 export default function SubpageNavbar() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+
+  const checkAuth = () => {
+    if (typeof window !== "undefined") {
+      setUserEmail(localStorage.getItem("email"));
+    }
+  };
+
+  useEffect(() => {
+    checkAuth();
+    window.addEventListener("auth-change", checkAuth);
+    return () => window.removeEventListener("auth-change", checkAuth);
+  }, []);
 
   return (
     <>
@@ -70,7 +85,7 @@ export default function SubpageNavbar() {
             {/* Mobile Hamburger Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-xl text-slate-700 hover:bg-slate-100 border border-slate-200 transition-colors focus:outline-none"
+              className="md:hidden p-2 rounded-xl text-slate-700 hover:bg-slate-100 border border-slate-200 transition-colors focus:outline-none cursor-pointer"
               aria-label="打开移动端导航菜单"
             >
               {mobileMenuOpen ? (
@@ -87,51 +102,99 @@ export default function SubpageNavbar() {
         </nav>
       </div>
 
-      {/* Mobile Slide-Over Drawer Menu */}
+      {/* Mobile Slide-Over Drawer Menu (Compact Width max-w-[310px]) */}
       {mobileMenuOpen && (
         <div className="fixed inset-0 z-[100] md:hidden">
-          {/* Backdrop */}
+          {/* Backdrop with Frosted Blur */}
           <div 
-            className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm animate-fade-in"
+            className="fixed inset-0 bg-slate-950/50 backdrop-blur-sm animate-fade-in"
             onClick={() => setMobileMenuOpen(false)}
           />
 
-          {/* Drawer Panel */}
-          <div className="fixed top-0 right-0 bottom-0 w-[85%] max-w-sm bg-white shadow-2xl p-6 flex flex-col justify-between animate-fade-in-up border-l border-slate-200">
-            <div className="space-y-6">
+          {/* Drawer Panel: w-[82%] max-w-[310px] */}
+          <div className="fixed top-0 right-0 bottom-0 w-[82%] max-w-[310px] bg-white/98 backdrop-blur-2xl shadow-2xl p-5 flex flex-col justify-between animate-fade-in-up border-l border-slate-200/90 overflow-y-auto">
+            <div className="space-y-4">
               {/* Drawer Header */}
-              <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                 <LogoMark />
                 <button
                   onClick={() => setMobileMenuOpen(false)}
-                  className="p-2 rounded-xl text-slate-500 hover:bg-slate-100 transition-colors"
+                  className="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 transition-colors flex items-center justify-center cursor-pointer"
+                  aria-label="关闭菜单"
                 >
-                  <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
               </div>
 
-              {/* Navigation Links */}
-              <div className="space-y-2">
-                <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-3 mb-2">
+              {/* Patient Identity Status Card */}
+              {userEmail ? (
+                <div className="p-2.5 rounded-2xl bg-gradient-to-r from-blue-50/90 via-sky-50/60 to-teal-50/90 border border-blue-100 flex items-center justify-between text-xs shadow-2xs">
+                  <div className="flex items-center gap-2 truncate">
+                    <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-600 to-teal-500 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs">
+                      {userEmail.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="truncate">
+                      <div className="font-bold text-slate-900 truncate leading-tight">{userEmail}</div>
+                      <div className="text-[10px] text-emerald-600 font-semibold flex items-center gap-1 mt-0.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span>已登录 · 云同步就绪</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    setShowAuthModal(true);
+                  }}
+                  className="w-full p-2.5 rounded-2xl bg-slate-50 hover:bg-slate-100 border border-slate-200/90 flex items-center justify-between text-xs transition-all text-left cursor-pointer shadow-2xs group"
+                >
+                  <div className="flex items-center gap-2 truncate">
+                    <div className="w-7 h-7 rounded-full bg-slate-200 group-hover:bg-blue-100 text-slate-600 group-hover:text-blue-600 flex items-center justify-center shrink-0 text-xs transition-colors">
+                      👤
+                    </div>
+                    <div>
+                      <div className="font-bold text-slate-800 leading-tight">游客模式</div>
+                      <div className="text-[10px] text-slate-500 mt-0.5">点击登录开启云同步 ➔</div>
+                    </div>
+                  </div>
+                  <span className="text-[11px] text-blue-600 font-bold px-2 py-0.5 rounded-lg bg-blue-50 border border-blue-100 shrink-0">
+                    登录/注册
+                  </span>
+                </button>
+              )}
+
+              {/* Navigation Links with Compact Mini-Tags */}
+              <div className="space-y-1 pt-1">
+                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-2 mb-1.5">
                   系统功能导航
                 </div>
-                {NAV_LINKS.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={`flex items-center gap-3 px-3.5 py-3 rounded-2xl text-sm font-semibold transition-all ${
-                      pathname === link.href
-                        ? "bg-blue-50 text-accent-blue border border-blue-100 font-bold"
-                        : "text-slate-700 hover:bg-slate-50"
-                    }`}
-                  >
-                    <span className="text-lg">{link.icon}</span>
-                    <span>{link.label}</span>
-                  </Link>
-                ))}
+                {NAV_LINKS.map((link) => {
+                  const isActive = pathname === link.href;
+                  return (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+                        isActive
+                          ? "bg-blue-50 text-blue-700 border border-blue-100 font-bold shadow-2xs"
+                          : "text-slate-700 hover:bg-slate-50 border border-transparent"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="text-base">{link.icon}</span>
+                        <span>{link.label}</span>
+                      </div>
+                      <span className={`text-[10px] font-mono ${isActive ? "text-blue-500 font-semibold" : "text-slate-400"}`}>
+                        {link.tag}
+                      </span>
+                    </Link>
+                  );
+                })}
               </div>
 
               {/* Main Action CTA: Direct to Patient Clinical Profile */}
@@ -139,34 +202,34 @@ export default function SubpageNavbar() {
                 <Link
                   href="/profile"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="w-full btn-primary py-3.5 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 shadow-md"
+                  className="w-full btn-primary py-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-md"
                 >
-                  <span>📋 患者临床数字档案</span>
+                  <span>📋 患者临床数字档案 ➔</span>
                 </Link>
               </div>
 
               {/* Secondary Trust & Ethical Mission Link */}
-              <div className="pt-1">
+              <div className="pt-0.5">
                 <Link
                   href="/about"
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center justify-between p-3 rounded-2xl border transition-all text-xs font-semibold ${
+                  className={`flex items-center justify-between p-2.5 rounded-xl border transition-all text-xs font-semibold ${
                     pathname === "/about"
                       ? "bg-sky-50 text-sky-700 border-sky-200 font-bold"
-                      : "bg-slate-50 hover:bg-slate-100 text-slate-600 border-slate-200/80"
+                      : "bg-slate-50/80 hover:bg-slate-100 text-slate-600 border-slate-200/80"
                   }`}
                 >
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5">
                     <span className="text-sm">💡</span>
                     <span>关于我们与初衷</span>
                   </div>
-                  <span className="text-[10px] text-slate-400">了解医学伦理 ➔</span>
+                  <span className="text-[10px] text-slate-400 font-mono">医学伦理 ➔</span>
                 </Link>
               </div>
             </div>
 
             {/* Drawer Footer */}
-            <div className="pt-5 border-t border-slate-100 text-center space-y-2">
+            <div className="pt-4 mt-4 border-t border-slate-100 text-center space-y-1.5">
               <div className="flex items-center justify-center gap-3 text-[11px] text-slate-400">
                 <Link href="/terms" onClick={() => setMobileMenuOpen(false)} className="hover:text-slate-600 transition-colors">
                   免责声明
@@ -177,11 +240,25 @@ export default function SubpageNavbar() {
                 </Link>
               </div>
               <div className="text-[10px] text-slate-400">
-                © 2026 OncoPath · 严格同行评审循证医学知识库
+                © 2026 OncoPath · 同行评审循证库
               </div>
             </div>
           </div>
         </div>
+      )}
+
+      {/* Auth Modal Trigger for Mobile Login Card */}
+      {showAuthModal && (
+        <AuthModal
+          onClose={() => setShowAuthModal(false)}
+          onSuccess={(token, email) => {
+            localStorage.setItem("token", token);
+            localStorage.setItem("email", email);
+            setUserEmail(email);
+            setShowAuthModal(false);
+            window.dispatchEvent(new Event("auth-change"));
+          }}
+        />
       )}
     </>
   );
