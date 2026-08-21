@@ -48,28 +48,31 @@ export default function UserAvatar() {
   return (
     <>
       {userEmail ? (
-        /* Logged-in State: Single Refined User Capsule (No Duplicate CTA Button) */
+        /* Logged-in State: Pure Round Avatar with Breathing Green Dot on Top-Right */
         <div className="relative flex items-center" ref={dropdownRef}>
           <button 
             onClick={() => setShowDropdown(!showDropdown)}
-            className="flex items-center gap-2 pl-1 pr-2.5 py-1 rounded-full bg-slate-50 hover:bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-800 transition-all cursor-pointer shadow-2xs hover:border-slate-300"
-            title={userEmail}
+            className="relative w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-gradient-to-br from-blue-600 via-indigo-600 to-teal-500 hover:opacity-90 flex items-center justify-center text-white font-bold text-xs sm:text-sm shadow-xs transition-all cursor-pointer ring-2 ring-white hover:ring-blue-200"
+            title={`已登录：${userEmail}`}
+            aria-label="打开患者档案与账号菜单"
           >
-            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-600 to-teal-500 flex items-center justify-center text-white font-bold text-[11px] shadow-2xs">
-              {userEmail.charAt(0).toUpperCase()}
-            </div>
-            <span className="max-w-[110px] truncate">{userEmail.split('@')[0]}</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" title="已云端同步"></span>
-            <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" className="text-slate-400">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-            </svg>
+            {userEmail.charAt(0).toUpperCase()}
+            
+            {/* Pulsing Breathing Green Light Indicator on Top-Right Corner */}
+            <span className="absolute -top-0.5 -right-0.5 flex h-3 w-3 pointer-events-none">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500 border-2 border-white shadow-2xs"></span>
+            </span>
           </button>
           
           {showDropdown && (
             <div className="absolute top-full right-0 mt-2.5 w-56 bg-white rounded-2xl shadow-xl border border-slate-200/90 overflow-hidden py-1.5 z-50 animate-fade-in-up">
               <div className="px-4 py-2.5 border-b border-slate-100 bg-slate-50/50">
                 <div className="flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                  </span>
                   <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">
                     已登录患者账号
                   </p>
@@ -116,10 +119,10 @@ export default function UserAvatar() {
         </div>
       ) : (
         /* Guest / Unauthenticated State: Circular Avatar Button + Pure Text CTA Button */
-        <div className="flex items-center gap-2.5 sm:gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <button
             onClick={() => setShowAuthModal(true)}
-            className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 border border-slate-200 flex items-center justify-center text-slate-600 hover:text-slate-900 transition-all cursor-pointer shadow-2xs"
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-slate-100 hover:bg-slate-200 border border-slate-200 flex items-center justify-center text-slate-600 hover:text-slate-900 transition-all cursor-pointer shadow-2xs"
             title="登录 / 注册"
             aria-label="登录或注册"
           >
@@ -130,7 +133,7 @@ export default function UserAvatar() {
 
           <Link
             href="/profile"
-            className="btn-primary px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-sm"
+            className="hidden sm:inline-flex btn-primary px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-sm whitespace-nowrap"
           >
             建立临床档案
           </Link>
