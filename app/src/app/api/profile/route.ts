@@ -1,10 +1,27 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { computeClinicalTnmStage } from '@/lib/staging';
+import { verifyUserToken } from '@/lib/userAuth';
+
+export const dynamic = 'force-dynamic';
+
+function getAuthenticatedUserId(request: Request): string | null {
+  const authHeader = request.headers.get('Authorization') || '';
+  if (authHeader.startsWith('Bearer ')) {
+    const token = authHeader.substring(7);
+    const verified = verifyUserToken(token);
+    if (verified) {
+      return verified.userId;
+    }
+  }
+  return null;
+}
 
 export async function POST(request: Request) {
   try {
     const data = await request.json();
+    const authenticatedUserId = getAuthenticatedUserId(request);
+    const targetUserId = authenticatedUserId || data.userId || 'anonymous';
     
     // Normalize boolean / string factors
     const isStas = data.stas === 'positive' || data.stas === true;
@@ -45,7 +62,7 @@ export async function POST(request: Request) {
     // Save to DB
     const profile = await prisma.patientProfile.create({
       data: {
-        userId: data.userId || 'anonymous',
+        userId: targetUserId,
         age: data.age ? parseInt(data.age) : 55,
         sex: data.sex || data.gender || 'male',
         organ: data.organ || 'lung',
@@ -118,6 +135,8 @@ export async function POST(request: Request) {
 export async function PUT(request: Request) {
   try {
     const { userId, profileId, reportMarkdown } = await request.json();
+    const authenticatedUserId = getAuthenticatedUserId(request);
+    const targetUserId = authenticatedUserId || userId;
 
     if (!reportMarkdown) {
       return NextResponse.json({ success: false, error: "缺少报告内容" }, { status: 400 });
@@ -128,9 +147,9 @@ export async function PUT(request: Request) {
       targetProfile = await prisma.patientProfile.findUnique({ where: { id: profileId } });
     }
 
-    if (!targetProfile && userId) {
+    if (!targetProfile && targetUserId) {
       targetProfile = await prisma.patientProfile.findFirst({
-        where: { userId },
+        where: { userId: targetUserId },
         orderBy: { createdAt: 'desc' }
       });
     }
@@ -156,11 +175,16 @@ export async function PUT(request: Request) {
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const userId = searchParams.get('userId') || 'anonymous';
+  const searchParamsUserId = searchParams.get('userId') || 'anonymous';
+  const authenticatedUserId = getAuthenticatedUserId(request);
   
   try {
+    const whereCondition = authenticatedUserId
+      ? { OR: [{ userId: authenticatedUserId }, { userId: searchParamsUserId }] }
+      : { userId: searchParamsUserId };
+
     const profile = await prisma.patientProfile.findFirst({
-      where: { userId },
+      where: whereCondition,
       orderBy: { createdAt: 'desc' }
     });
     
@@ -213,16 +237,23 @@ export async function GET(request: Request) {
 
 export async function DELETE(request: Request) {
   const { searchParams } = new URL(request.url);
-  const userId = searchParams.get('userId') || searchParams.get('id');
+  const searchParamsUserId = searchParams.get('userId') || searchParams.get('id');
+  const authenticatedUserId = getAuthenticatedUserId(request);
+  const targetUserId = authenticatedUserId || searchParamsUserId;
 
-  if (!userId) {
+  if (!targetUserId) {
     return NextResponse.json({ success: false, error: '缺少用户标识符' }, { status: 400 });
   }
 
   try {
     // Delete all records associated with this userId
     await prisma.patientProfile.deleteMany({
-      where: { userId }
+      where: {
+        OR: [
+          { userId: targetUserId },
+          ...(searchParamsUserId ? [{ userId: searchParamsUserId }] : [])
+        ]
+      }
     });
 
     return NextResponse.json({

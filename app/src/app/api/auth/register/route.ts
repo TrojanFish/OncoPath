@@ -5,7 +5,7 @@ import { hashPassword, generateUserToken } from '@/lib/userAuth';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { email, password } = body;
+    const { email, password, guestId } = body;
 
     if (!email || !email.trim()) {
       return NextResponse.json({ success: false, detail: "请输入账号或电子邮箱" }, { status: 400 });
@@ -36,6 +36,30 @@ export async function POST(request: Request) {
         role: "patient",
       }
     });
+
+    // Cloud Migration: Seamlessly bind all guest digital profiles & timeline events to the new user account
+    if (guestId && guestId !== newUser.id) {
+      try {
+        await prisma.patientProfile.updateMany({
+          where: { userId: guestId },
+          data: { userId: newUser.id }
+        });
+
+        await prisma.timelineEvent.updateMany({
+          where: {
+            OR: [
+              { userId: guestId },
+              { profileId: guestId }
+            ]
+          },
+          data: {
+            userId: newUser.id
+          }
+        });
+      } catch (migrateErr) {
+        console.warn("Guest data migration warning during register:", migrateErr);
+      }
+    }
 
     const token = generateUserToken(newUser.id, newUser.email);
 

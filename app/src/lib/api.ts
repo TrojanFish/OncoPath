@@ -1,10 +1,13 @@
+import { getGuestId } from "./guest";
+
 const API_BASE_URL = "/api";
 
 export async function register(email: string, password: string) {
+  const guestId = getGuestId();
   const response = await fetch(`${API_BASE_URL}/auth/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify({ email, password, guestId }),
   });
   
   const data = await response.json();
@@ -15,10 +18,11 @@ export async function register(email: string, password: string) {
 }
 
 export async function login(email: string, password: string) {
+  const guestId = getGuestId();
   const response = await fetch(`${API_BASE_URL}/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify({ email, password, guestId }),
   });
   
   const data = await response.json();
