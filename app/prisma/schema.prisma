@@ -198,3 +198,24 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model TimelineEvent {
+  id              String   @id @default(uuid())
+  userId          String?
+  profileId       String?
+  eventDate       DateTime
+  category        String   // "imaging" | "pathology" | "serology" | "milestone"
+  subType         String   // "CT" | "PET-CT" | "Pathology" | "NGS" | "TumorMarkers" | "Surgery" | "Medication"
+  hospital        String?
+  title           String
+  summary         String
+  keyFindings     Json?
+  tags            String?  // JSON string e.g. ["右肺上叶", "磨玻璃", "较前稳定"]
+  riskStatus      String?  @default("normal") // "normal" | "watch" | "warning"
+  reportFileUrl   String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([userId, eventDate])
+  @@index([profileId, category])
+}

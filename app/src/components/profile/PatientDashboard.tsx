@@ -148,6 +148,13 @@ export default function PatientDashboard() {
           </p>
         </div>
         <div className="flex items-center gap-2 self-start sm:self-center flex-wrap">
+          <Link
+            href="/timeline"
+            className="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs border border-indigo-200 shadow-xs transition-all flex items-center gap-1.5"
+          >
+            <span>📅 时间生命线</span>
+          </Link>
+
           <button 
             onClick={() => setShowDeleteModal(true)}
             className="px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs border border-rose-200 transition-all cursor-pointer flex items-center gap-1.5 group"
@@ -171,6 +178,33 @@ export default function PatientDashboard() {
             <span>修改/更新档案</span>
           </button>
         </div>
+      </div>
+
+      {/* Quick Entry Banner: Clinical Longitudinal Timeline */}
+      <div className="mb-6 p-4 sm:p-5 rounded-3xl bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 text-white shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center text-xl shrink-0">
+            📅
+          </div>
+          <div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <h3 className="font-extrabold text-sm text-white">检查报告全景时间生命线</h3>
+              <span className="px-2 py-0.5 rounded-full bg-blue-500/30 text-blue-200 text-[10px] font-bold border border-blue-400/30">
+                时序归集与生长演变
+              </span>
+            </div>
+            <p className="text-xs text-slate-300 mt-0.5">
+              按时间轴与临床类别归集历次 CT、病理与血液化验，查看病灶长程演变与生成名医汇报单
+            </p>
+          </div>
+        </div>
+
+        <Link
+          href="/timeline"
+          className="btn-primary px-4 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap self-start sm:self-center shadow-sm flex items-center gap-1.5 shrink-0"
+        >
+          <span>查看完整时序生命线 ➔</span>
+        </Link>
       </div>
 
       <JourneyMap 

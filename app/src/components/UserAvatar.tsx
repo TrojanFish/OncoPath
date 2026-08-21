@@ -87,6 +87,15 @@ export default function UserAvatar() {
               </Link>
 
               <Link 
+                href="/timeline"
+                onClick={() => setShowDropdown(false)}
+                className="w-full text-left px-4 py-2.5 text-xs text-slate-700 hover:text-indigo-600 hover:bg-indigo-50/60 font-semibold transition-colors flex items-center gap-2"
+              >
+                <span>📅</span>
+                <span>检查报告时间生命线</span>
+              </Link>
+
+              <Link 
                 href="/profile/report"
                 onClick={() => setShowDropdown(false)}
                 className="w-full text-left px-4 py-2.5 text-xs text-slate-700 hover:text-teal-600 hover:bg-teal-50/60 font-semibold transition-colors flex items-center gap-2"
