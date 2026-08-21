@@ -120,7 +120,7 @@ export default function AuthModal({ onClose, onSuccess }: AuthModalProps) {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-accent-blue focus:ring-2 focus:ring-accent-blue/10 transition-all"
-              placeholder="patient@example.com 或 管理员账号"
+              placeholder="patient@example.com"
               autoFocus
             />
           </div>
