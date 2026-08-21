@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
+const API_BASE_URL = "/api";
 
 export async function register(email: string, password: string) {
   const response = await fetch(`${API_BASE_URL}/auth/register`, {
@@ -7,11 +7,11 @@ export async function register(email: string, password: string) {
     body: JSON.stringify({ email, password }),
   });
   
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.detail || "Registration failed");
+  const data = await response.json();
+  if (!response.ok || !data.success) {
+    throw new Error(data.detail || data.error || "注册失败，请检查账号格式");
   }
-  return response.json();
+  return data;
 }
 
 export async function login(email: string, password: string) {
@@ -21,18 +21,18 @@ export async function login(email: string, password: string) {
     body: JSON.stringify({ email, password }),
   });
   
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.detail || "Login failed");
+  const data = await response.json();
+  if (!response.ok || !data.success) {
+    throw new Error(data.detail || data.error || "登录失败，账号或密码错误");
   }
-  return response.json();
+  return data;
 }
 
 export async function generateReport(profile: any) {
   const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
   const hasValidToken = token && token !== "null" && token !== "undefined" && token.trim() !== "";
   
-  const response = await fetch(`${API_BASE_URL}/analysis/generate`, {
+  const response = await fetch(`${API_BASE_URL}/generate-report`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -43,7 +43,7 @@ export async function generateReport(profile: any) {
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.detail || "Failed to generate report");
+    throw new Error(error.detail || error.error || "生成报告失败");
   }
   
   return response.json();
@@ -51,76 +51,27 @@ export async function generateReport(profile: any) {
 
 export async function getCases() {
   const token = localStorage.getItem("token");
-  const response = await fetch(`${API_BASE_URL}/cases/`, {
+  const response = await fetch(`${API_BASE_URL}/profile`, {
     headers: {
       "Authorization": `Bearer ${token}`
     }
   });
 
   if (!response.ok) {
-    throw new Error("Failed to fetch cases");
+    throw new Error("获取病例档案失败");
   }
   
   return response.json();
 }
 
 export async function fetchStats() {
-  const response = await fetch(`${API_BASE_URL}/stats`);
+  const response = await fetch(`${API_BASE_URL}/studies`);
   if (!response.ok) return null;
   return response.json();
 }
 
 export async function fetchFactors() {
-  const response = await fetch(`${API_BASE_URL}/evidence/factors`);
+  const response = await fetch(`${API_BASE_URL}/graph`);
   if (!response.ok) return [];
   return response.json();
-}
-
-export async function createCase(data: { age?: number; gender?: string; surgery_type?: string }) {
-  const token = localStorage.getItem("token");
-  const response = await fetch(`${API_BASE_URL}/cases/`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    body: JSON.stringify(data),
-  });
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.detail || "Failed to create case");
-  }
-  return response.json();
-}
-
-export async function updateCase(caseId: string, data: { age?: number; gender?: string; surgery_type?: string }) {
-  const token = localStorage.getItem("token");
-  const response = await fetch(`${API_BASE_URL}/cases/${caseId}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    body: JSON.stringify(data),
-  });
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.detail || "Failed to update case");
-  }
-  return response.json();
-}
-
-export async function deleteCase(caseId: string) {
-  const token = localStorage.getItem("token");
-  const response = await fetch(`${API_BASE_URL}/cases/${caseId}`, {
-    method: "DELETE",
-    headers: {
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-  });
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.detail || "Failed to delete case");
-  }
-  return response.ok;
 }
