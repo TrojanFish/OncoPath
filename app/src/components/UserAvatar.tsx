@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 import AuthModal from "@/components/AuthModal";
 
 export default function UserAvatar() {
@@ -49,10 +50,6 @@ export default function UserAvatar() {
     }
   };
 
-  const handleDashboard = () => {
-    window.location.href = "/?action=dashboard";
-  };
-
   return (
     <div className="relative flex items-center pr-3 mr-1 border-r border-slate-200 h-8" ref={dropdownRef}>
       {userEmail ? (
@@ -66,7 +63,7 @@ export default function UserAvatar() {
           </button>
           
           {showDropdown && (
-            <div className="absolute top-full right-0 mt-3 w-52 bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden py-1.5 z-50 animate-fade-in-up">
+            <div className="absolute top-full right-0 mt-3 w-56 bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden py-1.5 z-50 animate-fade-in-up">
               <div className="px-4 py-2.5 border-b border-slate-100">
                 <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-0.5">
                   {isAdmin ? "管理员已就绪" : "已登录患者账号"}
@@ -75,22 +72,33 @@ export default function UserAvatar() {
               </div>
 
               {isAdmin && (
-                <a 
+                <Link 
                   href="/admin"
+                  onClick={() => setShowDropdown(false)}
                   className="w-full text-left px-4 py-2.5 text-xs text-blue-600 font-semibold hover:bg-blue-50 transition-colors flex items-center gap-2"
                 >
                   <span>🛠️</span>
                   <span>进入证据管理中台</span>
-                </a>
+                </Link>
               )}
 
-              <button 
-                onClick={handleDashboard}
-                className="w-full text-left px-4 py-2 text-xs text-slate-700 hover:text-slate-900 hover:bg-slate-50 transition-colors flex items-center gap-2 cursor-pointer"
+              <Link 
+                href="/profile"
+                onClick={() => setShowDropdown(false)}
+                className="w-full text-left px-4 py-2.5 text-xs text-slate-700 hover:text-blue-600 hover:bg-blue-50/60 font-semibold transition-colors flex items-center gap-2"
               >
                 <span>📋</span>
-                <span>历史病例与报告</span>
-              </button>
+                <span>我的临床数字档案</span>
+              </Link>
+
+              <Link 
+                href="/profile/report"
+                onClick={() => setShowDropdown(false)}
+                className="w-full text-left px-4 py-2.5 text-xs text-slate-700 hover:text-teal-600 hover:bg-teal-50/60 font-semibold transition-colors flex items-center gap-2"
+              >
+                <span>📑</span>
+                <span>我的专属循证报告</span>
+              </Link>
 
               <button 
                 onClick={handleLogout}
