@@ -220,7 +220,7 @@ export default function SubpageNavbar() {
                 })}
               </div>
 
-              {/* Action CTAs: Direct access to Profile and Report */}
+              {/* Action CTAs: Direct access to Profile, Timeline and Report */}
               <div className="pt-2 space-y-1.5">
                 {userEmail ? (
                   <>
@@ -232,6 +232,13 @@ export default function SubpageNavbar() {
                       <span>📋 我的临床数字档案 ➔</span>
                     </Link>
                     <Link
+                      href="/timeline"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="w-full py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200/90 transition-colors shadow-2xs"
+                    >
+                      <span>📅 检查报告时间生命线 ➔</span>
+                    </Link>
+                    <Link
                       href="/profile/report"
                       onClick={() => setMobileMenuOpen(false)}
                       className="w-full py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 bg-teal-50 hover:bg-teal-100 text-teal-700 border border-teal-200/90 transition-colors shadow-2xs"
@@ -240,13 +247,22 @@ export default function SubpageNavbar() {
                     </Link>
                   </>
                 ) : (
-                  <Link
-                    href="/profile"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="w-full btn-primary py-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-md"
-                  >
-                    <span>建立临床档案 ➔</span>
-                  </Link>
+                  <>
+                    <Link
+                      href="/profile"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="w-full btn-primary py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-md"
+                    >
+                      <span>建立临床档案 ➔</span>
+                    </Link>
+                    <Link
+                      href="/timeline"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="w-full py-2 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200/90 transition-colors shadow-2xs"
+                    >
+                      <span>📅 检查报告时间生命线 ➔</span>
+                    </Link>
+                  </>
                 )}
               </div>
 

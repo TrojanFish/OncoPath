@@ -141,7 +141,7 @@ export default function ClinicalTimelineView() {
 
   // Earliest and latest date span calculation
   const timeSpan = useMemo(() => {
-    if (events.length === 0) return { start: "2026", end: "2026", totalYears: "1" };
+    if (events.length === 0) return { start: "2026", end: "2026", totalYears: "1", spanText: "暂无数据" };
     const dates = events.map((e) => new Date(e.eventDate).getTime());
     const minDate = new Date(Math.min(...dates));
     const maxDate = new Date(Math.max(...dates));
@@ -156,6 +156,23 @@ export default function ClinicalTimelineView() {
       end: maxDate.toISOString().split("T")[0],
       spanText: years > 0 ? `${years}年${months > 0 ? `${months}个月` : ""}` : `${months}个月`,
     };
+  }, [events]);
+
+  // Dynamic status indicators
+  const latestImagingEvent = useMemo(() => {
+    return [...events]
+      .filter((e) => e.category === "imaging")
+      .sort((a, b) => new Date(b.eventDate).getTime() - new Date(a.eventDate).getTime())[0];
+  }, [events]);
+
+  const latestSerologyEvent = useMemo(() => {
+    return [...events]
+      .filter((e) => e.category === "serology" && e.keyFindings?.cea !== undefined)
+      .sort((a, b) => new Date(b.eventDate).getTime() - new Date(a.eventDate).getTime())[0];
+  }, [events]);
+
+  const surgeryEvent = useMemo(() => {
+    return events.find((e) => e.subType === "Surgery" || e.category === "milestone");
   }, [events]);
 
   return (
@@ -193,7 +210,7 @@ export default function ClinicalTimelineView() {
           </div>
         </div>
 
-        {/* Stats Strip */}
+        {/* Dynamic Stats Strip */}
         <div className="relative z-10 grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-6 border-t border-white/10">
           <div className="bg-white/5 p-3 rounded-2xl border border-white/10">
             <span className="text-[10px] text-slate-400 font-bold uppercase">随访跨度</span>
@@ -209,15 +226,23 @@ export default function ClinicalTimelineView() {
           </div>
           <div className="bg-white/5 p-3 rounded-2xl border border-white/10">
             <span className="text-[10px] text-slate-400 font-bold uppercase">最新病灶状态</span>
-            <div className="text-sm sm:text-base font-extrabold text-emerald-400 mt-0.5 flex items-center gap-1">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span>术后完全缓解 (0 mm)</span>
+            <div className="text-sm sm:text-base font-extrabold text-emerald-400 mt-0.5 flex items-center gap-1 truncate">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0 animate-pulse"></span>
+              <span className="truncate">
+                {surgeryEvent
+                  ? "术后完全缓解 (0 mm)"
+                  : latestImagingEvent?.keyFindings?.sizeMm !== undefined
+                  ? `${latestImagingEvent.keyFindings.sizeMm} mm (随访中)`
+                  : "基线稳定"}
+              </span>
             </div>
           </div>
           <div className="bg-white/5 p-3 rounded-2xl border border-white/10">
             <span className="text-[10px] text-slate-400 font-bold uppercase">肿瘤标志物 (CEA)</span>
-            <div className="text-sm sm:text-base font-extrabold text-teal-300 mt-0.5 font-mono">
-              1.6 ng/mL (正常范围)
+            <div className="text-sm sm:text-base font-extrabold text-teal-300 mt-0.5 font-mono truncate">
+              {latestSerologyEvent?.keyFindings?.cea !== undefined
+                ? `${latestSerologyEvent.keyFindings.cea} ng/mL (${latestSerologyEvent.keyFindings.cea < 5.0 ? "正常" : "偏高"})`
+                : "基线正常"}
             </div>
           </div>
         </div>
