@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { verifyUserToken } from '@/lib/userAuth';
-import { DEFAULT_TIMELINE_EVENTS } from '@/lib/timelineData';
 
 export const dynamic = 'force-dynamic';
 
@@ -44,26 +43,20 @@ export async function GET(request: Request) {
       const formatted = events.map(e => ({
         ...e,
         eventDate: e.eventDate.toISOString().split('T')[0],
-        tags: e.tags ? JSON.parse(e.tags) : [],
+        tags: e.tags ? (typeof e.tags === 'string' ? JSON.parse(e.tags) : e.tags) : [],
         keyFindings: e.keyFindings ? (typeof e.keyFindings === 'string' ? JSON.parse(e.keyFindings) : e.keyFindings) : {},
       }));
       return NextResponse.json({ success: true, events: formatted, isDemo: false });
     }
 
-    // If no db events found, return default demo events filtered
-    let filteredDemo = DEFAULT_TIMELINE_EVENTS;
-    if (category && category !== 'all') {
-      filteredDemo = filteredDemo.filter(e => e.category === category);
-    }
-
-    return NextResponse.json({ success: true, events: filteredDemo, isDemo: true });
+    // If no events found in DB, return empty array (do NOT force fake demo data onto empty users)
+    return NextResponse.json({ success: true, events: [], isDemo: false });
   } catch (error: any) {
     console.error('Error fetching timeline events:', error);
     return NextResponse.json({
       success: true,
-      events: DEFAULT_TIMELINE_EVENTS,
-      isDemo: true,
-      warning: 'Fallback to demo dataset'
+      events: [],
+      isDemo: false,
     });
   }
 }
