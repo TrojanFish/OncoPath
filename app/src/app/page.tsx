@@ -16,135 +16,43 @@ import {
   FileText 
 } from "lucide-react";
 import SubpageNavbar from "@/components/SubpageNavbar";
-import ProfileForm from "@/components/ProfileForm";
-import EvidenceReport from "@/components/EvidenceReport";
 import KnowledgeMapPreview from "@/components/KnowledgeMapPreview";
-import AuthModal from "@/components/AuthModal";
 import ConsentModal from "@/components/ConsentModal";
 import StatsBanner from "@/components/StatsBanner";
 import StudyCard from "@/components/StudyCard";
-import DashboardView from "@/components/DashboardView";
 import { FEATURED_STUDIES } from "@/lib/evidence-data";
-import UserAvatar from "@/components/UserAvatar";
 import type { PatientProfile } from "@/lib/types";
 export type { PatientProfile };
 
-type AppState = "landing" | "input" | "report" | "dashboard";
-
 export default function HomePage() {
-  const [appState, setAppState] = useState<AppState>("landing");
-  const [patientProfile, setPatientProfile] = useState<PatientProfile | null>(null);
-  const [reportJson, setReportJson] = useState<any>(null);
   const [scrollY, setScrollY] = useState(0);
-  const [showAuthModal, setShowAuthModal] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [hasProfile, setHasProfile] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Check for existing session on page load
-    const savedUser = sessionStorage.getItem("oncopath_user");
-    if (savedUser) {
-      try {
-        const u = JSON.parse(savedUser);
-        setUserEmail(u.email || null);
-      } catch (e) {}
-    }
+    const checkUserAndProfile = () => {
+      if (typeof window === "undefined") return;
+      const email = localStorage.getItem("email") || sessionStorage.getItem("email");
+      const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+      const profile = localStorage.getItem("oncopath_profile");
+      setUserEmail(email || null);
+      setHasProfile(!!profile || !!email || !!token);
+    };
+
+    checkUserAndProfile();
+    window.addEventListener("auth-change", checkUserAndProfile);
 
     const handleScroll = () => {
       setScrollY(window.scrollY);
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("auth-change", checkUserAndProfile);
+      window.removeEventListener("scroll", handleScroll);
+    };
   }, []);
 
-  const handleProfileSubmit = (profile: PatientProfile) => {
-    setPatientProfile(profile);
-    setAppState("report");
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  const handleStartAnalysis = () => {
-    setAppState("input");
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  const handleBackToLanding = () => {
-    setAppState("landing");
-    setPatientProfile(null);
-    setReportJson(null);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  const handleAuthSuccess = (email: string) => {
-    setUserEmail(email);
-    setShowAuthModal(false);
-  };
-
-  const handleLogout = () => {
-    sessionStorage.removeItem("oncopath_user");
-    sessionStorage.removeItem("oncopath_token");
-    setUserEmail(null);
-    setAppState("landing");
-  };
-
-  // Profile Form View
-  if (appState === "input") {
-    return (
-      <div className="min-h-screen bg-slate-50 text-slate-900 selection:bg-blue-500 selection:text-white">
-        <SubpageNavbar />
-        <main className="max-w-4xl mx-auto px-4 pt-28 md:pt-32 pb-20">
-          <button
-            onClick={handleBackToLanding}
-            className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-slate-900 mb-8 py-2 px-3 rounded-xl hover:bg-slate-200/60 transition-all cursor-pointer"
-          >
-            <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-            返回平台主页
-          </button>
-          <ProfileForm
-            onSubmit={handleProfileSubmit}
-            initialData={patientProfile || undefined}
-          />
-        </main>
-      </div>
-    );
-  }
-
-  // Evidence Report View
-  if (appState === "report" && patientProfile) {
-    return (
-      <div className="min-h-screen bg-slate-50 text-slate-900 selection:bg-blue-500 selection:text-white">
-        <SubpageNavbar />
-        <main className="max-w-5xl mx-auto px-4 pt-28 md:pt-32 pb-20">
-          <div className="flex items-center justify-between mb-8">
-            <button
-              onClick={() => setAppState("input")}
-              className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-slate-900 py-2 px-3 rounded-xl hover:bg-slate-200/60 transition-all cursor-pointer"
-            >
-              <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-              修改临床档案
-            </button>
-            <button
-              onClick={handleBackToLanding}
-              className="text-sm font-semibold text-slate-500 hover:text-slate-900 py-2 px-3 rounded-xl hover:bg-slate-200/60 transition-all cursor-pointer"
-            >
-              返回主页
-            </button>
-          </div>
-          <EvidenceReport
-            profile={patientProfile}
-            reportJson={reportJson}
-            onEditProfile={() => setAppState("input")}
-          />
-        </main>
-      </div>
-    );
-  }
-
-  // Landing Page View
   return (
     <div className="min-h-screen overflow-x-hidden bg-slate-50 text-slate-900">
       <ConsentModal />
@@ -205,13 +113,13 @@ export default function HomePage() {
 
               {/* CTA Action Buttons */}
               <div className="flex flex-wrap items-center gap-3.5 pt-2 animate-fade-in-up stagger-3">
-                <button
-                  onClick={handleStartAnalysis}
+                <Link
+                  href="/profile"
                   className="btn-primary px-7 py-3.5 rounded-2xl text-base font-bold shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <FileText className="w-5 h-5" />
-                  <span>建立临床数字档案</span>
-                </button>
+                  <span>{hasProfile || userEmail ? "进入我的临床数字档案" : "建立临床数字档案"}</span>
+                </Link>
                 <Link
                   href="/wiki"
                   className="btn-secondary px-6 py-3.5 rounded-2xl text-base font-semibold border-slate-200 text-slate-700 hover:bg-slate-50 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-2xs"

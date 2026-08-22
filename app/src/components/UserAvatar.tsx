@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { FileText, Calendar, Sparkles, LogOut, User } from "lucide-react";
 import AuthModal from "@/components/AuthModal";
 
 export default function UserAvatar() {
@@ -85,7 +86,7 @@ export default function UserAvatar() {
                 onClick={() => setShowDropdown(false)}
                 className="w-full text-left px-4 py-2.5 text-xs text-slate-700 hover:text-blue-600 hover:bg-blue-50/60 font-semibold transition-colors flex items-center gap-2"
               >
-                <span>📋</span>
+                <FileText className="w-3.5 h-3.5 text-blue-600" />
                 <span>我的临床数字档案</span>
               </Link>
 
@@ -94,7 +95,7 @@ export default function UserAvatar() {
                 onClick={() => setShowDropdown(false)}
                 className="w-full text-left px-4 py-2.5 text-xs text-slate-700 hover:text-indigo-600 hover:bg-indigo-50/60 font-semibold transition-colors flex items-center gap-2"
               >
-                <span>📅</span>
+                <Calendar className="w-3.5 h-3.5 text-indigo-600" />
                 <span>检查报告时间生命线</span>
               </Link>
 
@@ -103,7 +104,7 @@ export default function UserAvatar() {
                 onClick={() => setShowDropdown(false)}
                 className="w-full text-left px-4 py-2.5 text-xs text-slate-700 hover:text-teal-600 hover:bg-teal-50/60 font-semibold transition-colors flex items-center gap-2"
               >
-                <span>📑</span>
+                <Sparkles className="w-3.5 h-3.5 text-teal-600" />
                 <span>我的专属循证报告</span>
               </Link>
 
@@ -111,7 +112,7 @@ export default function UserAvatar() {
                 onClick={handleLogout}
                 className="w-full text-left px-4 py-2.5 text-xs text-rose-600 hover:bg-rose-50 transition-colors flex items-center gap-2 cursor-pointer border-t border-slate-100 mt-1"
               >
-                <span>🚪</span>
+                <LogOut className="w-3.5 h-3.5 text-rose-600" />
                 <span>退出登录</span>
               </button>
             </div>
