@@ -1,6 +1,21 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
+import {
+  User,
+  BrainCircuit,
+  AlertTriangle,
+  BookOpen,
+  Bot,
+  BarChart2,
+  Microscope,
+  Calendar,
+  ShieldCheck,
+  Pill,
+  Search,
+  Network,
+  Info,
+} from "lucide-react";
 import type { PatientProfile } from "@/lib/types";
 import { analyzePatientProfile, EVIDENCE_FACTORS, FEATURED_STUDIES, STUDY_TYPE_LABELS, type PatientMatchResult } from "@/lib/evidence-data";
 import { generateReport } from "@/lib/api";
@@ -9,11 +24,22 @@ import KnowledgeMapPreview from "./KnowledgeMapPreview";
 
 interface EvidenceReportProps {
   profile: PatientProfile;
-  onBack: () => void;
+  onBack?: () => void;
+  onEditProfile?: () => void;
+  reportJson?: any;
   initialReportJson?: any;
 }
 
-export default function EvidenceReport({ profile, onBack, initialReportJson }: EvidenceReportProps) {
+export default function EvidenceReport({
+  profile,
+  onBack,
+  onEditProfile,
+  reportJson,
+  initialReportJson,
+}: EvidenceReportProps) {
+  const handleBack = onBack || onEditProfile || (() => {});
+  const effectiveReportJson = initialReportJson || reportJson || null;
+
   const result = useMemo(() => analyzePatientProfile({
       stage: profile.stage || "IA1",
       ctr: profile.ctr ?? 0.53,
@@ -26,11 +52,11 @@ export default function EvidenceReport({ profile, onBack, initialReportJson }: E
       lymphNodes: (profile.lymphNodes || profile.nStage || "N0") as any,
   }), [profile]);
 
-  const [loading, setLoading] = useState(!initialReportJson);
+  const [loading, setLoading] = useState(!effectiveReportJson);
   const [activeTab, setActiveTab] = useState<"overview" | "factors" | "studies" | "followup">("overview");
   const [showGraphOverlay, setShowGraphOverlay] = useState(false);
 
-  const [llmReport, setLlmReport] = useState<any>(initialReportJson || null);
+  const [llmReport, setLlmReport] = useState<any>(effectiveReportJson);
 
   useEffect(() => {
     // If we already have the report (e.g. from Dashboard history), don't fetch it again
@@ -112,7 +138,7 @@ export default function EvidenceReport({ profile, onBack, initialReportJson }: E
       <div className="bg-white border-b border-gray-200 sticky top-0 z-50 px-6 py-3 shadow-sm">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <button
-            onClick={onBack}
+            onClick={handleBack}
             id="report-back-btn"
             className="flex items-center gap-2 text-text-secondary hover:text-text-primary transition-colors"
           >
@@ -177,8 +203,8 @@ export default function EvidenceReport({ profile, onBack, initialReportJson }: E
           <div className="flex flex-col md:flex-row md:items-start gap-6">
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-accent-blue/30 to-accent-teal/30 flex items-center justify-center text-xl">
-                  👤
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-accent-blue/20 to-accent-teal/20 flex items-center justify-center text-accent-blue border border-accent-blue/30 shadow-xs">
+                  <User className="w-6 h-6" />
                 </div>
                 <div>
                   <h1 className="text-xl font-bold text-text-primary">循证分析结果</h1>
@@ -195,7 +221,8 @@ export default function EvidenceReport({ profile, onBack, initialReportJson }: E
                   </svg>
                 </div>
                 <h3 className="text-accent-blue font-medium mb-3 flex items-center gap-2">
-                  <span>🧠</span> 智能综合解析 (由 RAG 模型生成)
+                  <BrainCircuit className="w-4 h-4 text-accent-blue" />
+                  <span>智能综合解析 (由 RAG 模型生成)</span>
                 </h3>
                 <p className="text-text-secondary leading-relaxed whitespace-pre-wrap">
                   {llmReport?.evidence_summary || result.summaryZh}
@@ -241,18 +268,21 @@ export default function EvidenceReport({ profile, onBack, initialReportJson }: E
         {/* Authority & AI Disclaimer Banner */}
         <div className="rounded-xl mb-6 overflow-hidden border border-amber-200">
           <div className="bg-amber-50 px-5 py-3 border-b border-amber-200 flex items-center gap-2">
-            <span className="text-amber-400 text-base">⚠️</span>
-            <span className="text-amber-400 font-semibold text-sm">使用前请阅读重要声明</span>
+            <AlertTriangle className="w-4 h-4 text-amber-600" />
+            <span className="text-amber-700 font-semibold text-sm">使用前请阅读重要声明</span>
           </div>
           <div className="bg-amber-50/50 px-5 py-4 space-y-2 text-sm">
-            <p className="text-text-secondary leading-relaxed">
-              📚 <span className="text-text-primary font-medium">数据来源：</span>本报告中所有统计数据均来自 Lancet、NEJM、JCO、Chest 等权威期刊的已发表学术研究，并非本平台自行生成。
+            <p className="text-text-secondary leading-relaxed flex items-start gap-2">
+              <BookOpen className="w-4 h-4 text-slate-500 shrink-0 mt-0.5" />
+              <span><span className="text-text-primary font-medium">数据来源：</span>本报告中所有统计数据均来自 Lancet、NEJM、JCO、Chest 等权威期刊的已发表学术研究，并非本平台自行生成。</span>
             </p>
-            <p className="text-text-secondary leading-relaxed">
-              🤖 <span className="text-text-primary font-medium">本报告由 AI 辅助整理：</span>文字部分由大语言模型根据检索到的文献自动整理，不代表医生诊断意见。请务必和您的主治医生探讨。
+            <p className="text-text-secondary leading-relaxed flex items-start gap-2">
+              <Bot className="w-4 h-4 text-slate-500 shrink-0 mt-0.5" />
+              <span><span className="text-text-primary font-medium">本报告由 AI 辅助整理：</span>文字部分由大语言模型根据检索到的文献自动整理，不代表医生诊断意见。请务必和您的主治医生探讨。</span>
             </p>
-            <p className="text-text-secondary leading-relaxed">
-              📊 <span className="text-text-primary font-medium">RFS 数据说明：</span>无复发生存率（RFS）数据基于历史研究群体的统计结果，<strong className="text-text-primary">不代表您个人的预后判断</strong>。相同病理的患者在实际中结果可能差异很大。
+            <p className="text-text-secondary leading-relaxed flex items-start gap-2">
+              <BarChart2 className="w-4 h-4 text-slate-500 shrink-0 mt-0.5" />
+              <span><span className="text-text-primary font-medium">RFS 数据说明：</span>无复发生存率（RFS）数据基于历史研究群体的统计结果，<strong className="text-text-primary">不代表您个人的预后判断</strong>。相同病理的患者在实际中结果可能差异很大。</span>
             </p>
           </div>
         </div>
@@ -264,13 +294,17 @@ export default function EvidenceReport({ profile, onBack, initialReportJson }: E
               key={tab}
               id={`report-tab-${tab}`}
               onClick={() => setActiveTab(tab)}
-              className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${
+              className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
                 activeTab === tab
-                  ? "bg-accent-blue/20 text-accent-blue"
+                  ? "bg-accent-blue/20 text-accent-blue font-bold"
                   : "text-text-muted hover:text-text-secondary"
               }`}
             >
-              {tab === "overview" ? "📊 风险概览" : tab === "factors" ? "🔬 因素分析" : tab === "studies" ? "📚 匹配研究" : "📅 随访建议"}
+              {tab === "overview" && <BarChart2 className="w-4 h-4" />}
+              {tab === "factors" && <Microscope className="w-4 h-4" />}
+              {tab === "studies" && <BookOpen className="w-4 h-4" />}
+              {tab === "followup" && <Calendar className="w-4 h-4" />}
+              <span>{tab === "overview" ? "风险概览" : tab === "factors" ? "因素分析" : tab === "studies" ? "匹配研究" : "随访建议"}</span>
             </button>
           ))}
         </div>
@@ -390,11 +424,17 @@ function FactorsTab({ result }: { result: PatientMatchResult }) {
               <div className="flex items-start justify-between gap-4">
                 <div className="flex items-center gap-3">
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg ${
-                    factor.riskDirection === "protective" ? "bg-green-500/10"
-                    : factor.riskDirection === "risk" ? "bg-red-500/10"
-                    : "bg-gray-50"
+                    factor.riskDirection === "protective" ? "bg-emerald-500/10 text-emerald-600"
+                    : factor.riskDirection === "risk" ? "bg-rose-500/10 text-rose-600"
+                    : "bg-gray-50 text-slate-500"
                   }`}>
-                    {factor.riskDirection === "protective" ? "🛡️" : factor.riskDirection === "risk" ? "⚠️" : "ℹ️"}
+                    {factor.riskDirection === "protective" ? (
+                      <ShieldCheck className="w-5 h-5" />
+                    ) : factor.riskDirection === "risk" ? (
+                      <AlertTriangle className="w-5 h-5" />
+                    ) : (
+                      <Info className="w-5 h-5" />
+                    )}
                   </div>
                   <div>
                     <h3 className="font-medium text-text-primary">{factor.factorName}</h3>
@@ -483,7 +523,8 @@ function FollowupTab({ result, profile }: { result: PatientMatchResult; profile:
     <div className="space-y-4">
       <div className="bg-white rounded-2xl shadow-sm p-6 border border-white/5">
         <h3 className="font-semibold text-text-primary mb-2 flex items-center gap-2">
-          <span>📅</span> 随访建议参考
+          <Calendar className="w-4 h-4 text-slate-600" />
+          <span>随访建议参考</span>
         </h3>
         <p className="text-text-muted text-xs mb-4">
           以下建议基于 NCCN 2025 及相关国际指南，仅供参考。具体方案请与主治医生确认。
@@ -513,7 +554,8 @@ function FollowupTab({ result, profile }: { result: PatientMatchResult; profile:
 
       <div className="bg-white rounded-2xl shadow-sm p-6 border border-white/5">
         <h3 className="font-semibold text-text-primary mb-4 flex items-center gap-2">
-          <span>🔍</span> 需要特别关注的信号
+          <Search className="w-4 h-4 text-amber-600" />
+          <span>需要特别关注的信号</span>
         </h3>
         <div className="space-y-2">
           {[
@@ -524,7 +566,7 @@ function FollowupTab({ result, profile }: { result: PatientMatchResult; profile:
             "CT 上残余肺叶新发结节",
           ].map((s, i) => (
             <div key={i} className="flex items-start gap-3 text-sm">
-              <span className="text-accent-red mt-0.5">●</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-rose-500 mt-2 shrink-0" />
               <span className="text-text-secondary">{s}</span>
             </div>
           ))}
@@ -534,7 +576,8 @@ function FollowupTab({ result, profile }: { result: PatientMatchResult; profile:
       {profile.egfr === "positive" && (
         <div className="artifact-container p-6 border-blue-200">
           <h3 className="font-semibold text-text-primary mb-3 flex items-center gap-2">
-            <span>💊</span> EGFR 阳性辅助治疗参考
+            <Pill className="w-4 h-4 text-teal-600" />
+            <span>EGFR 阳性辅助治疗参考</span>
           </h3>
           <div className="bg-blue-50 rounded-xl p-4 border border-blue-100">
             <p className="text-text-secondary text-sm leading-relaxed">
@@ -542,8 +585,9 @@ function FollowupTab({ result, profile }: { result: PatientMatchResult; profile:
               IA 期患者的获益数据请咨询医生。
             </p>
           </div>
-          <p className="text-text-muted text-xs mt-3">
-            ⚠️ 辅助治疗决策需综合分期、基因状态、手术情况，由医生判断。
+          <p className="text-text-muted text-xs mt-3 flex items-center gap-1.5">
+            <AlertTriangle className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+            <span>辅助治疗决策需综合分期、基因状态、手术情况，由医生判断。</span>
           </p>
         </div>
       )}
@@ -557,7 +601,9 @@ function FollowupTab({ result, profile }: { result: PatientMatchResult; profile:
       {/* Personalized Knowledge Graph CTA */}
       <div className="artifact-container p-6 border-teal-200 bg-teal-50">
         <div className="flex items-start gap-4">
-          <div className="text-3xl flex-shrink-0">🕸️</div>
+          <div className="w-10 h-10 rounded-xl bg-teal-100/80 text-teal-700 flex items-center justify-center shrink-0">
+            <Network className="w-6 h-6" />
+          </div>
           <div className="flex-1">
             <h3 className="font-semibold text-text-primary mb-1">查看您的专属知识图谱</h3>
             <p className="text-text-secondary text-sm mb-4 leading-relaxed">
@@ -609,7 +655,7 @@ function LoadingScreen() {
           <div className="absolute inset-0 rounded-full border-2 border-accent-blue/20 animate-spin-slow" />
           <div className="absolute inset-2 rounded-full border-2 border-t-accent-blue border-transparent animate-spin" />
           <div className="absolute inset-4 rounded-full bg-accent-blue/10 flex items-center justify-center">
-            <span className="text-accent-blue text-xl">🔬</span>
+            <Microscope className="w-6 h-6 text-accent-blue" />
           </div>
         </div>
         <h2 className="text-xl font-semibold text-text-primary mb-2">正在生成循证报告</h2>

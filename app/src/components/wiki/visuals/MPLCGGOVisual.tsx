@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { ShieldCheck, AlertCircle, AlertTriangle, Dna, Target } from "lucide-react";
 
 type MplcType = "mplc" | "metastasis";
 
@@ -15,23 +16,25 @@ export function MPLCGGOVisual() {
       <div className="flex gap-2">
         <button
           onClick={() => setViewType("mplc")}
-          className={`flex-1 py-2 px-2 rounded-xl text-xs sm:text-sm font-bold border-2 transition-all duration-200 ${
+          className={`flex-1 py-2 px-2 rounded-xl text-xs sm:text-sm font-bold border-2 transition-all duration-200 cursor-pointer flex items-center justify-center gap-1.5 ${
             isMplc
               ? "border-emerald-400 bg-emerald-50 text-emerald-800 shadow-sm"
               : "border-slate-200 bg-white text-slate-500 hover:border-slate-300"
           }`}
         >
-          🌱 同步多原发肺癌 (MPLC - 绝大多数)
+          <ShieldCheck className="w-4 h-4 text-emerald-600" />
+          <span>同步多原发肺癌 (MPLC - 绝大多数)</span>
         </button>
         <button
           onClick={() => setViewType("metastasis")}
-          className={`flex-1 py-2 px-2 rounded-xl text-xs sm:text-sm font-bold border-2 transition-all duration-200 ${
+          className={`flex-1 py-2 px-2 rounded-xl text-xs sm:text-sm font-bold border-2 transition-all duration-200 cursor-pointer flex items-center justify-center gap-1.5 ${
             !isMplc
               ? "border-rose-400 bg-rose-50 text-rose-800 shadow-sm"
               : "border-slate-200 bg-white text-slate-500 hover:border-slate-300"
           }`}
         >
-          ⚠️ 肺内转移播散 (极少数/有明显原发灶)
+          <AlertCircle className="w-4 h-4 text-rose-600" />
+          <span>肺内转移播散 (极少数/有明显原发灶)</span>
         </button>
       </div>
 
@@ -67,7 +70,7 @@ export function MPLCGGOVisual() {
 
                   {/* Independent labels */}
                   <text x="110" y="20" fontSize="7.5" textAnchor="middle" fill="#047857" fontWeight="bold">
-                    各病灶基因/亚型不同 ➔ 各自极早期独立原发
+                    各病灶基因/亚型不同 → 各自极早期独立原发
                   </text>
                 </>
               ) : (
@@ -84,7 +87,7 @@ export function MPLCGGOVisual() {
                   <circle cx="85" cy="60" r="6" fill="#ef4444" opacity="0.8" />
                   <circle cx="120" cy="110" r="6" fill="#ef4444" opacity="0.8" />
                   <text x="110" y="20" fontSize="7.5" textAnchor="middle" fill="#b91c1c" fontWeight="bold">
-                    同源克隆 ➔ 伴淋巴结/血管血行转移通道
+                    同源克隆 → 伴淋巴结/血管血行转移通道
                   </text>
                 </>
               )}
@@ -103,16 +106,18 @@ export function MPLCGGOVisual() {
             {isMplc ? (
               <>
                 <div className="bg-white rounded-lg p-2.5 border border-emerald-200">
-                  <div className="text-xs font-bold text-emerald-800 flex items-center gap-1">
-                    <span>🔬 分子生物学真相：</span>
+                  <div className="text-xs font-bold text-emerald-800 flex items-center gap-1.5">
+                    <Dna className="w-3.5 h-3.5 text-emerald-700" />
+                    <span>分子生物学证据：</span>
                   </div>
                   <p className="text-[11px] text-slate-600 mt-1 leading-relaxed">
                     2022 IASLC 最新指南证实：双肺多发 GGO 各病灶多具有<strong>不同驱动基因突变或不同病理亚型</strong>，属于各自独立生长的早期病变，非转移扩散。
                   </p>
                 </div>
                 <div className="bg-white rounded-lg p-2.5 border border-emerald-200">
-                  <div className="text-xs font-bold text-emerald-800 flex items-center gap-1">
-                    <span>🎯 临床处理黄金法则：</span>
+                  <div className="text-xs font-bold text-emerald-800 flex items-center gap-1.5">
+                    <Target className="w-3.5 h-3.5 text-emerald-700" />
+                    <span>临床处理黄金法则：</span>
                   </div>
                   <p className="text-[11px] text-slate-600 mt-1 leading-relaxed">
                     <strong>抓大放小、保护肺功能：</strong>优先微创切除实性成分明显的主病灶（CTR&gt;0.5），对纯磨玻璃次结节长期薄层随访，绝不盲目做双侧大范围切除。
@@ -122,16 +127,18 @@ export function MPLCGGOVisual() {
             ) : (
               <>
                 <div className="bg-white rounded-lg p-2.5 border border-rose-200">
-                  <div className="text-xs font-bold text-rose-800 flex items-center gap-1">
-                    <span>⚠️ 转移灶特征：</span>
+                  <div className="text-xs font-bold text-rose-800 flex items-center gap-1.5">
+                    <AlertTriangle className="w-3.5 h-3.5 text-rose-700" />
+                    <span>转移灶特征鉴别：</span>
                   </div>
                   <p className="text-[11px] text-slate-600 mt-1 leading-relaxed">
                     转移灶多为快速长大的纯实性结节、相同基因型，常伴纵隔淋巴结肿大或胸水。而体检发现的双肺纯磨玻璃结节 <strong>95% 以上均为良性或独立 MPLC</strong>。
                   </p>
                 </div>
                 <div className="bg-white rounded-lg p-2.5 border border-rose-200">
-                  <div className="text-xs font-bold text-rose-800 flex items-center gap-1">
-                    <span>🛡️ 鉴别定心丸：</span>
+                  <div className="text-xs font-bold text-rose-800 flex items-center gap-1.5">
+                    <ShieldCheck className="w-3.5 h-3.5 text-rose-700" />
+                    <span>鉴别定心丸：</span>
                   </div>
                   <p className="text-[11px] text-slate-600 mt-1 leading-relaxed">
                     纯磨玻璃结节贴壁生长，没有侵入血管的能力，根本不可能在肺内播散！请彻底放下恐慌。

@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { TrendingUp, AlertTriangle, ShieldCheck, Lightbulb, Calendar } from "lucide-react";
 import type { FollowUpRecord, PatientProfile } from "@/lib/types";
 import { calculateVdtAndGrowth } from "@/lib/vdtCalculator";
 
@@ -70,7 +71,7 @@ export function NoduleTimelineChart({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-base">📈</span>
+            <TrendingUp className="w-4 h-4 text-sky-500" />
             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
               LONGITUDINAL CT TIMELINE · 结节随访时序生长轨迹
             </h3>
@@ -105,15 +106,20 @@ export function NoduleTimelineChart({
           : "bg-emerald-50/80 border-emerald-200 text-emerald-950"
       }`}>
         <div className="flex items-start gap-2.5 text-xs">
-          <span className="text-base mt-0.5">
-            {vdtAnalysis.growthCategory === "active_growth" ? "⚠️" : "🛡️"}
+          <span className="mt-0.5">
+            {vdtAnalysis.growthCategory === "active_growth" ? (
+              <AlertTriangle className="w-4 h-4 text-rose-600" />
+            ) : (
+              <ShieldCheck className="w-4 h-4 text-emerald-600" />
+            )}
           </span>
           <div className="space-y-1">
             <div className="font-extrabold text-slate-900">
               {vdtAnalysis.clinicalInterpretation}
             </div>
-            <div className="text-[11px] text-slate-600 font-medium">
-              💡 <strong>临床指引</strong>：{vdtAnalysis.actionGuidance}
+            <div className="text-[11px] text-slate-600 font-medium flex items-center gap-1">
+              <Lightbulb className="w-3.5 h-3.5 text-amber-500" />
+              <span><strong>临床指引</strong>：{vdtAnalysis.actionGuidance}</span>
             </div>
           </div>
         </div>
@@ -251,7 +257,10 @@ export function NoduleTimelineChart({
       {/* History Node List */}
       <div className="space-y-2">
         <div className="flex items-center justify-between text-xs font-bold text-slate-700">
-          <span>📅 历次随访检查节点明细：</span>
+          <span className="flex items-center gap-1.5">
+            <Calendar className="w-3.5 h-3.5 text-slate-500" />
+            <span>历次随访检查节点明细：</span>
+          </span>
           {sortedHistory.length <= 1 && (
             <span className="text-[11px] font-normal text-slate-400">
               （如需补录往年老片，可点击页面顶部【修改/校准临床档案】）

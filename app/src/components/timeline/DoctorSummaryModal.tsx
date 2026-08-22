@@ -1,6 +1,16 @@
 "use client";
 
 import { useMemo } from "react";
+import { 
+  Stethoscope, 
+  Printer, 
+  X, 
+  Scan, 
+  Microscope, 
+  Zap, 
+  TestTube2, 
+  Activity 
+} from "lucide-react";
 import { TimelineEventItem } from "@/lib/timelineTypes";
 
 interface DoctorSummaryModalProps {
@@ -38,7 +48,9 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
         {/* Actions Bar */}
         <div className="flex items-center justify-between pb-4 border-b border-slate-200 print:hidden">
           <div className="flex items-center gap-2">
-            <span className="text-xl">🩺</span>
+            <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+              <Stethoscope className="w-5 h-5" />
+            </div>
             <div>
               <h3 className="text-base font-extrabold text-slate-900">
                 门诊专家快速汇报清单 (Doctor Consultation Summary)
@@ -54,13 +66,15 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
               onClick={handlePrint}
               className="btn-primary px-4 py-2 rounded-xl text-xs font-bold shadow-sm flex items-center gap-1.5 cursor-pointer"
             >
-              <span>🖨️ 打印 / 导出 PDF</span>
+              <Printer className="w-3.5 h-3.5" />
+              <span>打印 / 导出 PDF</span>
             </button>
             <button
               onClick={onClose}
               className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center cursor-pointer"
+              aria-label="关闭"
             >
-              ✕
+              <X className="w-4 h-4" />
             </button>
           </div>
         </div>
@@ -118,7 +132,7 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
           {/* Section 1: Imaging Chronology */}
           <div className="space-y-2">
             <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5 pb-1 border-b border-slate-200">
-              <span>🩻</span>
+              <Scan className="w-3.5 h-3.5 text-blue-600" />
               <span>1. 历次影像学演变时序 (Imaging Timeline)</span>
             </h4>
             <table className="w-full text-xs text-left border-collapse">
@@ -155,22 +169,24 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
           {/* Section 2: Surgery & Pathology */}
           <div className="space-y-2">
             <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5 pb-1 border-b border-slate-200">
-              <span>🔬</span>
+              <Microscope className="w-3.5 h-3.5 text-purple-600" />
               <span>2. 手术干预与病理微观诊断 (Surgery & Pathology)</span>
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
               {surgeryMilestone && (
                 <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
-                  <div className="font-bold text-slate-900">
-                    ⚡ {surgeryMilestone.eventDate} 手术记录
+                  <div className="font-bold text-slate-900 flex items-center gap-1.5">
+                    <Zap className="w-3.5 h-3.5 text-amber-500" />
+                    <span>{surgeryMilestone.eventDate} 手术记录</span>
                   </div>
                   <div className="text-slate-600 mt-1">{surgeryMilestone.summary}</div>
                 </div>
               )}
               {latestPathology && (
                 <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
-                  <div className="font-bold text-purple-900">
-                    🔬 {latestPathology.eventDate} 病理组织学
+                  <div className="font-bold text-purple-900 flex items-center gap-1.5">
+                    <Microscope className="w-3.5 h-3.5 text-purple-600" />
+                    <span>{latestPathology.eventDate} 病理组织学</span>
                   </div>
                   <div className="text-slate-600 mt-1">{latestPathology.summary}</div>
                 </div>
@@ -181,7 +197,7 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
           {/* Section 3: Tumor Markers */}
           <div className="space-y-2">
             <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5 pb-1 border-b border-slate-200">
-              <span>🩸</span>
+              <TestTube2 className="w-3.5 h-3.5 text-rose-600" />
               <span>3. 血清肿瘤标志物随访轨迹 (Biomarkers)</span>
             </h4>
             <div className="flex gap-2 flex-wrap">

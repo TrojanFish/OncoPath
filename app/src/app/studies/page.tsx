@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { BookOpen, Search } from "lucide-react";
 import StudyCard, { StudyItem } from "@/components/StudyCard";
 import SubpageNavbar from "@/components/SubpageNavbar";
 
@@ -39,7 +40,8 @@ export default function StudiesPage() {
       <header className="pt-28 md:pt-32 pb-8 px-2.5 sm:px-6 max-w-4xl mx-auto text-center space-y-4">
         {/* Unified Top Pill Badge */}
         <div className="inline-flex items-center gap-2 bg-white px-4 py-1.5 rounded-full text-xs font-bold text-sky-700 border border-sky-200/80 shadow-xs">
-          <span>📚 国际顶刊同行评审文献库</span>
+          <BookOpen className="w-3.5 h-3.5 text-sky-600" />
+          <span>国际顶刊同行评审文献库</span>
           <span className="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse" />
           <span>100% DOI 原始出处可溯</span>
         </div>
@@ -87,9 +89,9 @@ export default function StudiesPage() {
                 className="w-full sm:w-auto px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-700 cursor-pointer focus:bg-white"
               >
                 <option value="all">全部证据等级</option>
-                <option value="5">⭐⭐⭐⭐⭐ (最高级 RCT/Meta)</option>
-                <option value="4">⭐⭐⭐⭐ (多中心高级别)</option>
-                <option value="3">⭐⭐⭐ (单中心临床研究)</option>
+                <option value="5">5星 · 最高证据 (RCT / Meta分析)</option>
+                <option value="4">4星 · 高级别 (前瞻性多中心)</option>
+                <option value="3">3星 · 中级别 (单中心临床研究)</option>
               </select>
             </div>
           </div>
@@ -106,7 +108,7 @@ export default function StudiesPage() {
           </div>
         ) : studies.length === 0 ? (
           <div className="py-20 text-center text-slate-400 text-sm bg-white rounded-2xl border border-slate-200 p-8">
-            <div className="text-3xl mb-2">🔍</div>
+            <Search className="w-8 h-8 text-slate-400 mx-auto mb-2" />
             <div className="font-semibold text-slate-700 mb-1">未找到符合条件的已收录研究</div>
             <p className="text-xs text-slate-400">请尝试更换检索关键词或重置筛选条件。</p>
           </div>

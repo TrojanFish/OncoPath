@@ -1,7 +1,9 @@
 "use client";
 
 import React from "react";
+import { Sparkles, Dna, TrendingDown, Pill, ExternalLink, Check } from "lucide-react";
 import { STUDY_TYPE_LABELS } from "@/lib/evidence-data";
+import { EvidenceRating } from "@/components/common/EvidenceRating";
 
 export interface StudyItem {
   id: string;
@@ -62,7 +64,7 @@ export default function StudyCard({ study, compact = false }: StudyCardProps) {
           </span>
           <div className="flex items-center gap-2 text-xs text-text-muted">
             <span>{study.patientN.toLocaleString()}例</span>
-            <EvidenceStars count={study.evidenceLevel} />
+            <EvidenceRating level={study.evidenceLevel} maxLevel={5} size="sm" />
           </div>
         </div>
       </div>
@@ -82,8 +84,9 @@ export default function StudyCard({ study, compact = false }: StudyCardProps) {
                 {STUDY_TYPE_LABELS[study.studyType as keyof typeof STUDY_TYPE_LABELS] || study.studyType}
               </span>
               {study.isIngested && (
-                <span className="text-[10px] bg-amber-50 text-amber-800 border border-amber-200 px-2 py-0.5 rounded-full font-bold">
-                  ✨ 官方最新录入
+                <span className="text-[10px] bg-amber-50 text-amber-800 border border-amber-200 px-2 py-0.5 rounded-full font-bold inline-flex items-center gap-1">
+                  <Sparkles className="w-3 h-3 text-amber-600" />
+                  <span>官方最新录入</span>
                 </span>
               )}
             </div>
@@ -97,7 +100,7 @@ export default function StudyCard({ study, compact = false }: StudyCardProps) {
 
         {/* Evidence level */}
         <div className="flex items-center gap-2 mb-4">
-          <EvidenceStars count={study.evidenceLevel} />
+          <EvidenceRating level={study.evidenceLevel} maxLevel={5} size="sm" />
           <span className="text-slate-500 text-xs font-medium">{evidenceLevelLabels[study.evidenceLevel] || `等级 ${study.evidenceLevel}`}</span>
         </div>
 
@@ -106,19 +109,20 @@ export default function StudyCard({ study, compact = false }: StudyCardProps) {
           <div className="mb-4 p-3 rounded-xl bg-blue-50/60 border border-blue-100 text-xs space-y-1.5">
             {study.biomarkerDetails && (
               <div className="text-blue-900 font-semibold flex items-center gap-1.5">
-                <span>🧬 靶点亚型:</span>
-                <span>{study.biomarkerDetails}</span>
+                <Dna className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                <span>靶点亚型: {study.biomarkerDetails}</span>
               </div>
             )}
             {study.riskReduction && (
               <div className="text-emerald-700 font-bold flex items-center gap-1.5">
-                <span>📉 临床获益:</span>
-                <span>{study.riskReduction}</span>
+                <TrendingDown className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                <span>临床获益: {study.riskReduction}</span>
               </div>
             )}
             {study.interventionArm && (
-              <div className="text-slate-600 text-[11px] truncate" title={study.interventionArm}>
-                <span>💊 {study.interventionArm}</span>
+              <div className="text-slate-600 text-[11px] truncate flex items-center gap-1.5" title={study.interventionArm}>
+                <Pill className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                <span>{study.interventionArm}</span>
               </div>
             )}
           </div>
@@ -129,7 +133,7 @@ export default function StudyCard({ study, compact = false }: StudyCardProps) {
           <h4 className="text-slate-400 text-xs font-semibold uppercase tracking-wider">核心临床结论</h4>
           {study.keyConclusions.map((c, i) => (
             <div key={i} className="flex items-start gap-2 text-xs">
-              <span className="text-accent-teal mt-0.5 flex-shrink-0 font-bold">✓</span>
+              <Check className="w-3.5 h-3.5 text-accent-teal mt-0.5 flex-shrink-0" />
               <span className="text-slate-700 leading-relaxed">{c}</span>
             </div>
           ))}
@@ -154,36 +158,16 @@ export default function StudyCard({ study, compact = false }: StudyCardProps) {
               href={sourceUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-accent-blue text-accent-blue hover:text-white border border-blue-200 rounded-xl text-xs font-bold transition-all shadow-xs"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-accent-blue text-accent-blue hover:text-white border border-blue-200 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
             >
-              <span>📖 查看原文出处</span>
-              <svg width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
+              <ExternalLink className="w-3.5 h-3.5" />
+              <span>查看原文出处</span>
             </a>
           ) : (
             <span className="text-[11px] text-slate-400">已收录于内部医学库</span>
           )}
         </div>
       </div>
-    </div>
-  );
-}
-
-function EvidenceStars({ count }: { count: number }) {
-  return (
-    <div className="flex gap-0.5">
-      {Array.from({ length: 5 }).map((_, i) => (
-        <svg
-          key={i}
-          width="12" height="12" viewBox="0 0 24 24"
-          fill={i < count ? "currentColor" : "none"}
-          stroke="currentColor"
-          className={i < count ? "text-amber-400" : "text-gray-200"}
-        >
-          <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" />
-        </svg>
-      ))}
     </div>
   );
 }

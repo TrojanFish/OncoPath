@@ -1,7 +1,18 @@
 "use client";
 
 import { useState } from "react";
+import { 
+  Calendar, 
+  X, 
+  AlertTriangle, 
+  Scan, 
+  TestTube2, 
+  Microscope, 
+  HeartPulse, 
+  Building2 
+} from "lucide-react";
 import { TimelineCategory, TimelineEventItem, TIMELINE_CATEGORIES } from "@/lib/timelineTypes";
+import TimelineCategoryIcon from "./TimelineCategoryIcon";
 
 interface AddEventModalProps {
   onClose: () => void;
@@ -99,20 +110,24 @@ export default function AddEventModal({ onClose, onAdd }: AddEventModalProps) {
       <div className="bg-white w-full max-w-xl rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-2xl relative z-10 animate-fade-in-up text-slate-900 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between pb-4 border-b border-slate-100">
           <div className="flex items-center gap-2">
-            <span className="text-xl">📅</span>
+            <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+              <Calendar className="w-4 h-4" />
+            </div>
             <h3 className="text-lg font-bold text-slate-900">录入检查报告 / 诊疗事件</h3>
           </div>
           <button
             onClick={onClose}
             className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center cursor-pointer"
+            aria-label="关闭"
           >
-            ✕
+            <X className="w-4 h-4" />
           </button>
         </div>
 
         {error && (
-          <div className="mt-4 p-3 rounded-xl bg-rose-50 text-rose-700 text-xs border border-rose-200">
-            ⚠️ {error}
+          <div className="mt-4 p-3 rounded-xl bg-rose-50 text-rose-700 text-xs border border-rose-200 flex items-center gap-1.5">
+            <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
+            <span>{error}</span>
           </div>
         )}
 
@@ -126,13 +141,13 @@ export default function AddEventModal({ onClose, onAdd }: AddEventModalProps) {
                   key={cat.key}
                   type="button"
                   onClick={() => handleCategoryChange(cat.key)}
-                  className={`p-2.5 rounded-xl border text-xs font-bold flex flex-col items-center gap-1 transition-all cursor-pointer ${
+                  className={`p-2.5 rounded-xl border text-xs font-bold flex flex-col items-center gap-1.5 transition-all cursor-pointer ${
                     category === cat.key
                       ? `${cat.lightBg} ring-2 ring-blue-500 font-extrabold shadow-2xs`
                       : "bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-600"
                   }`}
                 >
-                  <span className="text-base">{cat.icon}</span>
+                  <TimelineCategoryIcon category={cat.key} className="w-4 h-4" />
                   <span>{cat.label}</span>
                 </button>
               ))}
@@ -180,7 +195,10 @@ export default function AddEventModal({ onClose, onAdd }: AddEventModalProps) {
           {/* Category-specific fields */}
           {category === "imaging" && (
             <div className="p-3.5 rounded-2xl bg-blue-50/60 border border-blue-100 space-y-3">
-              <div className="text-xs font-bold text-blue-900">🩻 影像学指标提取</div>
+              <div className="text-xs font-bold text-blue-900 flex items-center gap-1.5">
+                <Scan className="w-3.5 h-3.5 text-blue-600" />
+                <span>影像学指标提取</span>
+              </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[11px] text-slate-600 mb-1">病灶长径 (mm)</label>
@@ -210,7 +228,10 @@ export default function AddEventModal({ onClose, onAdd }: AddEventModalProps) {
 
           {category === "serology" && (
             <div className="p-3.5 rounded-2xl bg-rose-50/60 border border-rose-100 space-y-3">
-              <div className="text-xs font-bold text-rose-900">🩸 肿瘤标志物指标</div>
+              <div className="text-xs font-bold text-rose-900 flex items-center gap-1.5">
+                <TestTube2 className="w-3.5 h-3.5 text-rose-600" />
+                <span>肿瘤标志物指标</span>
+              </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[11px] text-slate-600 mb-1">CEA 癌胚抗原 (ng/mL)</label>
@@ -240,7 +261,10 @@ export default function AddEventModal({ onClose, onAdd }: AddEventModalProps) {
 
           {category === "pathology" && (
             <div className="p-3.5 rounded-2xl bg-purple-50/60 border border-purple-100 space-y-3">
-              <div className="text-xs font-bold text-purple-900">🔬 病理与基因指标</div>
+              <div className="text-xs font-bold text-purple-900 flex items-center gap-1.5">
+                <Microscope className="w-3.5 h-3.5 text-purple-600" />
+                <span>病理与基因指标</span>
+              </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[11px] text-slate-600 mb-1">病理组织学结论</label>

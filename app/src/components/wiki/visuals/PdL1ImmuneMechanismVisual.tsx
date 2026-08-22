@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ShieldCheck, Activity, Zap, Info } from "lucide-react";
 
 export function PdL1ImmuneMechanismVisual() {
   const [isTreated, setIsTreated] = useState<boolean>(true);
@@ -8,7 +9,10 @@ export function PdL1ImmuneMechanismVisual() {
   return (
     <div className="bg-slate-900 rounded-2xl p-2.5 sm:p-4 text-white select-none border border-slate-800">
       <div className="flex items-center justify-between mb-2">
-        <span className="text-[11px] font-bold text-sky-400">🛡️ PD-1 / PD-L1 免疫检查点阻断机制图解</span>
+        <span className="text-[11px] font-bold text-sky-400 flex items-center gap-1">
+          <ShieldCheck className="w-3.5 h-3.5 text-sky-400" />
+          <span>PD-1 / PD-L1 免疫检查点阻断机制图解</span>
+        </span>
         <span className="text-[10px] text-slate-400">分子免疫学突触示意</span>
       </div>
 
@@ -16,7 +20,7 @@ export function PdL1ImmuneMechanismVisual() {
       <div className="flex gap-2 mb-3 bg-slate-950 p-1 rounded-xl border border-slate-800">
         <button
           onClick={() => setIsTreated(false)}
-          className={`flex-1 text-[11px] py-1.5 rounded-lg font-semibold transition-all ${
+          className={`flex-1 text-[11px] py-1.5 rounded-lg font-semibold transition-all cursor-pointer ${
             !isTreated ? "bg-rose-600 text-white shadow-sm" : "text-slate-400 hover:text-slate-200"
           }`}
         >
@@ -24,7 +28,7 @@ export function PdL1ImmuneMechanismVisual() {
         </button>
         <button
           onClick={() => setIsTreated(true)}
-          className={`flex-1 text-[11px] py-1.5 rounded-lg font-semibold transition-all ${
+          className={`flex-1 text-[11px] py-1.5 rounded-lg font-semibold transition-all cursor-pointer ${
             isTreated ? "bg-emerald-600 text-white shadow-sm" : "text-slate-400 hover:text-slate-200"
           }`}
         >
@@ -75,7 +79,7 @@ export function PdL1ImmuneMechanismVisual() {
             <line x1="96" y1="55" x2="142" y2="55" stroke="#ef4444" strokeWidth="2" strokeDasharray="2,2" />
             <rect x="98" y="70" width="44" height="24" rx="4" fill="#7f1d1d" opacity="0.8" />
             <text x="120" y="80" textAnchor="middle" fill="#fee2e2" fontSize="4" fontWeight="bold">
-              🚫 伪装结合成功
+              [ 结合抑制 ] 伪装成功
             </text>
             <text x="120" y="89" textAnchor="middle" fill="#fca5a5" fontSize="3.5">
               T细胞被抑制，无法杀癌
@@ -88,7 +92,7 @@ export function PdL1ImmuneMechanismVisual() {
             <circle cx="120" cy="50" r="10" fill="#f59e0b" opacity="0.3" />
             <rect x="94" y="72" width="52" height="25" rx="4" fill="#065f46" opacity="0.85" />
             <text x="120" y="81" textAnchor="middle" fill="#a7f3d0" fontSize="4" fontWeight="bold">
-              ⚡ 抗体阻断结合！
+              [ 抗体阻断 ] 结合受阻
             </text>
             <text x="120" y="90" textAnchor="middle" fill="#6ee7b7" fontSize="3.5">
               T细胞苏醒，强效歼灭肿瘤
@@ -99,8 +103,9 @@ export function PdL1ImmuneMechanismVisual() {
 
       {/* TPS Score Spectrum Bar */}
       <div className="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800 space-y-1.5">
-        <div className="text-[10px] font-bold text-slate-400">
-          📊 术后 PD-L1 表达（TPS 分层）临床获益图谱：
+        <div className="text-[10px] font-bold text-slate-400 flex items-center gap-1">
+          <Activity className="w-3.5 h-3.5 text-slate-400" />
+          <span>术后 PD-L1 表达（TPS 分层）临床获益图谱：</span>
         </div>
         <div className="grid grid-cols-3 gap-1 text-center">
           <div className="bg-slate-900 p-1.5 rounded-lg border border-slate-800">
@@ -113,7 +118,7 @@ export function PdL1ImmuneMechanismVisual() {
           </div>
           <div className="bg-emerald-950/40 p-1.5 rounded-lg border border-emerald-800/40">
             <div className="text-[10px] text-emerald-300 font-bold">TPS ≥ 50% (高表达)</div>
-            <div className="text-[9px] text-emerald-400 font-bold">复发风险降低 57% ⭐</div>
+            <div className="text-[9px] text-emerald-400 font-bold">复发风险降低 57% (1A级)</div>
           </div>
         </div>
       </div>

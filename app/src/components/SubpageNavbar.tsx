@@ -3,6 +3,17 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { 
+  Home, 
+  BookOpen, 
+  Network, 
+  FileText, 
+  Compass, 
+  Info, 
+  ArrowRight,
+  Menu,
+  X
+} from "lucide-react";
 import UserAvatar from "@/components/UserAvatar";
 
 export function LogoMark() {
@@ -19,11 +30,11 @@ export function LogoMark() {
 }
 
 const NAV_LINKS = [
-  { label: "首页", href: "/", icon: "🏠", tag: "全景概览" },
-  { label: "循证百科", href: "/wiki", icon: "💡", tag: "40+词条破译" },
-  { label: "知识图谱", href: "/knowledge", icon: "🗺️", tag: "4D因果推演" },
-  { label: "国际研究库", href: "/studies", icon: "📚", tag: "顶刊效应量" },
-  { label: "学术导航", href: "/resources", icon: "📖", tag: "指南共识原文" },
+  { label: "首页", href: "/", icon: Home, tag: "全景概览" },
+  { label: "循证百科", href: "/wiki", icon: BookOpen, tag: "40+词条破译" },
+  { label: "知识图谱", href: "/knowledge", icon: Network, tag: "4D因果推演" },
+  { label: "国际研究库", href: "/studies", icon: FileText, tag: "顶刊效应量" },
+  { label: "学术导航", href: "/resources", icon: Compass, tag: "指南共识原文" },
 ];
 
 export default function SubpageNavbar() {
@@ -114,6 +125,7 @@ export default function SubpageNavbar() {
                 </div>
                 {NAV_LINKS.map((link) => {
                   const isActive = pathname === link.href;
+                  const IconComp = link.icon;
                   return (
                     <Link
                       key={link.href}
@@ -126,7 +138,7 @@ export default function SubpageNavbar() {
                       }`}
                     >
                       <div className="flex items-center gap-2.5">
-                        <span className="text-base">{link.icon}</span>
+                        <IconComp className={`w-4 h-4 ${isActive ? "text-blue-600" : "text-slate-500"}`} />
                         <span>{link.label}</span>
                       </div>
                       <span className={`text-[10px] font-mono ${isActive ? "text-blue-500 font-semibold" : "text-slate-400"}`}>
@@ -149,10 +161,13 @@ export default function SubpageNavbar() {
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    <span className="text-sm">💡</span>
+                    <Info className="w-4 h-4 text-sky-600" />
                     <span>关于我们与初衷</span>
                   </div>
-                  <span className="text-[10px] text-slate-400 font-mono">医学伦理 ➔</span>
+                  <div className="flex items-center gap-1 text-[10px] text-slate-400 font-mono">
+                    <span>医学伦理</span>
+                    <ArrowRight className="w-3 h-3" />
+                  </div>
                 </Link>
               </div>
             </div>

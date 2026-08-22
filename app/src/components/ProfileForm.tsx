@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { Check, ClipboardList, Microscope, Scan, AlertTriangle } from "lucide-react";
 import type { PatientProfile } from "@/lib/types";
 
 interface ProfileFormProps {
   onSubmit: (profile: PatientProfile) => void;
+  initialData?: PatientProfile;
 }
 
 export default function ProfileForm({ onSubmit }: ProfileFormProps) {
@@ -31,9 +33,6 @@ export default function ProfileForm({ onSubmit }: ProfileFormProps) {
   };
 
   const canProceed = () => {
-    if (step === 1) return !!form.age && form.age > 0;
-    if (step === 2) return true;
-    if (step === 3) return form.tumorSize !== undefined && form.solidSize !== undefined && !isNaN(form.tumorSize) && !isNaN(form.solidSize);
     return true;
   };
 
@@ -67,7 +66,7 @@ export default function ProfileForm({ onSubmit }: ProfileFormProps) {
         <div className="flex justify-between items-center mb-2">
           <span className="text-text-secondary text-sm">步骤 {step} / {totalSteps}</span>
           <span className="text-text-muted text-xs hidden sm:inline">
-            {step === 1 ? "📋 你的基本情况" : step === 2 ? "🔬 医生告诉你的" : "🏥 CT报告上的"}
+            {step === 1 ? "你的基本情况" : step === 2 ? "医生告诉你的" : "CT报告上的"}
           </span>
         </div>
         <div className="progress-bar">
@@ -91,7 +90,7 @@ export default function ProfileForm({ onSubmit }: ProfileFormProps) {
                   : "bg-white text-gray-500 border border-gray-200"
               }`}
             >
-              {i + 1 < step ? "✓" : i + 1}
+              {i + 1 < step ? <Check className="w-4 h-4 text-white" /> : i + 1}
             </div>
             {i < totalSteps - 1 && (
               <div className={`h-px w-12 mx-1 ${i + 1 < step ? "bg-accent-teal" : "bg-border-color"}`} />
@@ -147,8 +146,9 @@ export default function ProfileForm({ onSubmit }: ProfileFormProps) {
       </div>
 
       {/* Disclaimer */}
-      <p className="mt-6 text-center text-text-muted text-xs leading-relaxed max-w-md mx-auto">
-        ⚠️ 本分析仅供教育参考，不构成医疗建议。所有结论均来自已发表的医学研究。请咨询您的主治医生做出医疗决策。
+      <p className="mt-6 text-center text-text-muted text-xs leading-relaxed max-w-md mx-auto flex items-center justify-center gap-1.5">
+        <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+        <span>本分析仅供教育参考，不构成医疗建议。所有结论均来自已发表的医学研究。请咨询您的主治医生做出医疗决策。</span>
       </p>
     </div>
   );
@@ -160,7 +160,10 @@ function Step1({ form, updateForm }: StepProps) {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-semibold text-text-primary mb-1">📋 你的基本情况</h2>
+        <h2 className="text-xl font-semibold text-text-primary mb-1 flex items-center gap-2">
+          <ClipboardList className="w-5 h-5 text-blue-600" />
+          <span>你的基本情况</span>
+        </h2>
         <p className="text-text-secondary text-sm">这些信息帮助系统在已发表的研究中找到与你情况相似的患者群体</p>
       </div>
 
@@ -190,7 +193,7 @@ function Step1({ form, updateForm }: StepProps) {
                     : "bg-white border border-gray-200 text-gray-500 hover:bg-gray-50"
                 }`}
               >
-                {g === "female" ? "👩 女性" : "👨 男性"}
+                {g === "female" ? "女性" : "男性"}
               </button>
             ))}
           </div>
@@ -226,7 +229,7 @@ function Step1({ form, updateForm }: StepProps) {
             >
               {n}
               <div className="text-xs mt-0.5 opacity-70">
-                {n === "N0" ? "无转移 ✓" : n === "N1" ? "同侧淋巴结" : "纵隔淋巴结"}
+                {n === "N0" ? "无转移" : n === "N1" ? "同侧淋巴结" : "纵隔淋巴结"}
               </div>
             </button>
           ))}
@@ -287,7 +290,10 @@ function Step2({ form, updateForm }: StepProps) {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-semibold text-text-primary mb-1">🔬 医生告诉你的</h2>
+        <h2 className="text-xl font-semibold text-text-primary mb-1 flex items-center gap-2">
+          <Microscope className="w-5 h-5 text-blue-600" />
+          <span>医生告诉你的</span>
+        </h2>
         <p className="text-text-secondary text-sm">这些来自手术后病理报告，不记得的项目可以选“未知”</p>
       </div>
 
@@ -440,7 +446,10 @@ function Step3({ form, updateForm }: StepProps) {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-semibold text-text-primary mb-1">🏥 CT 报告上的</h2>
+        <h2 className="text-xl font-semibold text-text-primary mb-1 flex items-center gap-2">
+          <Scan className="w-5 h-5 text-teal-600" />
+          <span>CT 报告上的</span>
+        </h2>
         <p className="text-text-secondary text-sm">这些数据在放射科报告中可以找到，对于精准评估复发风险至关重要</p>
       </div>
 
@@ -522,9 +531,9 @@ function Step3({ form, updateForm }: StepProps) {
             <span>纯GGO (0)</span>
             <span>
               {computedCTR <= 0.25
-                ? "极低风险 ✓"
+                ? "极低风险"
                 : computedCTR <= 0.5
-                ? "低风险 ✓"
+                ? "低风险"
                 : computedCTR <= 0.75
                 ? "中等风险"
                 : "较高风险"}
@@ -547,7 +556,10 @@ function Step3({ form, updateForm }: StepProps) {
 
       {/* Summary preview */}
       <div className="bg-teal-50 rounded-lg p-4 border border-teal-200">
-        <h4 className="text-accent-teal text-sm font-medium mb-3">📋 信息摘要预览</h4>
+        <h4 className="text-teal-800 text-sm font-bold mb-3 flex items-center gap-1.5">
+          <ClipboardList className="w-4 h-4 text-teal-700" />
+          <span>信息摘要预览</span>
+        </h4>
         <div className="grid grid-cols-2 gap-2 text-sm">
           <SummaryItem label="分期" value={form.stage || "—"} />
           <SummaryItem label="形态" value={form.morphology === "pure_ggo" ? "纯GGO" : form.morphology === "mixed_ggo" ? "混合GGO" : "纯实性"} />

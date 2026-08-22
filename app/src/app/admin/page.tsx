@@ -2,7 +2,28 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import {
+  BookOpen,
+  Users,
+  Award,
+  Globe,
+  Sliders,
+  LogOut,
+  FileText,
+  Upload,
+  Sparkles,
+  Search,
+  ShieldCheck,
+  Dna,
+  Pill,
+  ExternalLink,
+  Trash2,
+  AlertTriangle,
+  CheckCircle2,
+  Lock,
+} from "lucide-react";
 import SubpageNavbar from "@/components/SubpageNavbar";
+import { EvidenceRating } from "@/components/common/EvidenceRating";
 
 interface IngestedStudy {
   id: string;
@@ -155,7 +176,7 @@ export default function AdminPage() {
       if (data.success && data.token) {
         sessionStorage.setItem("oncopath_admin_token", data.token);
         setIsAuthenticated(true);
-        showToast("🎉 管理员身份验证成功，欢迎进入证据中台！");
+        showToast("管理员身份验证成功，欢迎进入证据中台！");
       } else {
         setLoginError(data.error || "登录失败，请检查账号密码。");
       }
@@ -243,7 +264,7 @@ export default function AdminPage() {
           const json = await res.json();
           if (json.success) {
             setExtractedData(json.data);
-            showToast("🎉 文献结构化指标抽取成功！请进行专家核验。");
+            showToast("文献结构化指标抽取成功！请进行专家核验。");
           } else {
             setParseError(json.error || "PDF 解析失败，请重试。");
           }
@@ -315,7 +336,7 @@ export default function AdminPage() {
       const data = await res.json();
       if (data.success) {
         setExtractedData(data.data);
-        showToast("🎉 已成功从 PubMed 摘要中提取结构化指标！");
+        showToast("已成功从 PubMed 摘要中提取结构化指标！");
       } else {
         alert("指标提取失败: " + data.error);
       }
@@ -338,7 +359,7 @@ export default function AdminPage() {
       });
       const data = await res.json();
       if (data.success) {
-        showToast(data.message || (data.isUpdate ? "✅ 检测到已收录文献，已自动去重并更新！" : "✅ 文献已成功入库并生成向量索引！"));
+        showToast(data.message || (data.isUpdate ? "检测到已收录文献，已自动去重并更新！" : "文献已成功入库并生成向量索引！"));
         setExtractedData(null);
         setPdfFile(null);
         if (fileInputRef.current) fileInputRef.current.value = "";
@@ -363,7 +384,7 @@ export default function AdminPage() {
       });
       const data = await res.json();
       if (data.success) {
-        showToast("🗑️ 文献已成功移除");
+        showToast("文献已成功移除");
         loadStudies();
       }
     } catch (err) {
@@ -396,8 +417,8 @@ export default function AdminPage() {
           <div className="max-w-md w-full bg-white border border-gray-200 rounded-3xl p-8 sm:p-10 shadow-lg relative animate-fade-in">
             {/* Header */}
             <div className="text-center mb-8">
-              <div className="w-14 h-14 rounded-2xl bg-blue-50 border border-blue-100 text-accent-blue flex items-center justify-center text-2xl mx-auto mb-4 shadow-xs">
-                🛡️
+              <div className="w-14 h-14 rounded-2xl bg-blue-50 border border-blue-100 text-accent-blue flex items-center justify-center mx-auto mb-4 shadow-xs">
+                <ShieldCheck className="w-7 h-7 text-accent-blue" />
               </div>
               <h1 className="text-2xl font-bold text-gray-900 tracking-tight">OncoPath 证据中台</h1>
               <p className="text-xs text-text-muted mt-1.5">管理员安全访问受控系统 · Medical Evidence CMS</p>
@@ -430,7 +451,7 @@ export default function AdminPage() {
 
               {loginError && (
                 <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-700 flex items-center gap-2">
-                  <span>⚠️</span>
+                  <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
                   <span>{loginError}</span>
                 </div>
               )}
@@ -486,7 +507,8 @@ export default function AdminPage() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold text-accent-blue bg-blue-50 border border-blue-200 mb-2.5">
-              <span>🛠️ OncoPath 证据中台</span>
+              <Sliders className="w-3.5 h-3.5 text-accent-blue" />
+              <span>OncoPath 证据中台</span>
               <span className="w-1.5 h-1.5 rounded-full bg-accent-blue animate-pulse"></span>
               <span>Admin Evidence Studio (已鉴权)</span>
             </div>
@@ -501,15 +523,17 @@ export default function AdminPage() {
           <div className="flex items-center gap-3">
             <Link
               href="/studies"
-              className="btn-secondary px-4 py-2 text-xs font-semibold rounded-xl transition-all shadow-xs"
+              className="btn-secondary px-4 py-2 text-xs font-semibold rounded-xl transition-all shadow-xs flex items-center gap-1.5"
             >
-              📖 前台证据库预览
+              <BookOpen className="w-3.5 h-3.5 text-slate-600" />
+              <span>前台证据库预览</span>
             </Link>
             <button
               onClick={handleLogout}
-              className="px-4 py-2 text-xs font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-xl transition-all shadow-xs cursor-pointer"
+              className="px-4 py-2 text-xs font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-xl transition-all shadow-xs cursor-pointer flex items-center gap-1.5"
             >
-              🔒 退出登录
+              <LogOut className="w-3.5 h-3.5" />
+              <span>退出登录</span>
             </button>
           </div>
         </div>
@@ -517,25 +541,25 @@ export default function AdminPage() {
         {/* Stats Metrics Cards */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mt-6 sm:mt-8">
           <StatCard 
-            icon="📚" 
+            icon={<BookOpen className="w-6 h-6 text-accent-blue" />} 
             title="已收录文献总数" 
             value={metrics.totalStudies} 
             subtitle="篇前沿期刊论文" 
           />
           <StatCard 
-            icon="👥" 
+            icon={<Users className="w-6 h-6 text-teal-600" />} 
             title="累积受试者规模" 
             value={metrics.totalPatients.toLocaleString()} 
             subtitle="例临床患者队列" 
           />
           <StatCard 
-            icon="🏆" 
+            icon={<Award className="w-6 h-6 text-amber-600" />} 
             title="前瞻性RCT/Meta" 
             value={metrics.rctMetaCount} 
             subtitle="最高等级循证证据" 
           />
           <StatCard 
-            icon="🌐" 
+            icon={<Globe className="w-6 h-6 text-indigo-600" />} 
             title="数据接入源" 
             value="双核驱动" 
             subtitle="PDF 多模态 + PubMed" 
@@ -560,7 +584,8 @@ export default function AdminPage() {
                     : "text-text-muted hover:text-text-primary"
                 }`}
               >
-                <span>📄 上传本地 PDF 论文</span>
+                <FileText className="w-3.5 h-3.5" />
+                <span>上传本地 PDF 论文</span>
               </button>
               <button
                 onClick={() => setActiveTab("pubmed")}
@@ -570,7 +595,8 @@ export default function AdminPage() {
                     : "text-text-muted hover:text-text-primary"
                 }`}
               >
-                <span>🌐 在线检索 PubMed / Europe PMC</span>
+                <Globe className="w-3.5 h-3.5" />
+                <span>在线检索 PubMed / Europe PMC</span>
               </button>
             </div>
           )}
@@ -609,7 +635,11 @@ export default function AdminPage() {
                   className="hidden" 
                 />
                 <div className="flex flex-col items-center">
-                  <span className="text-4xl mb-3">{pdfFile ? "📑" : "📤"}</span>
+                  {pdfFile ? (
+                    <FileText className="w-10 h-10 text-accent-blue mb-3" />
+                  ) : (
+                    <Upload className="w-10 h-10 text-gray-400 mb-3" />
+                  )}
                   {pdfFile ? (
                     <div>
                       <div className="font-bold text-gray-900 text-sm">{pdfFile.name}</div>
@@ -628,7 +658,7 @@ export default function AdminPage() {
 
               {parseError && (
                 <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-700 flex items-center gap-2">
-                  <span>⚠️</span>
+                  <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
                   <span>{parseError}</span>
                 </div>
               )}
@@ -652,7 +682,8 @@ export default function AdminPage() {
                       </>
                     ) : (
                       <>
-                        <span>🚀 开始 AI 智能结构化抽取</span>
+                        <Sparkles className="w-4 h-4" />
+                        <span>开始 AI 智能结构化抽取</span>
                       </>
                     )}
                   </button>
@@ -691,14 +722,17 @@ export default function AdminPage() {
                       <span>检索中...</span>
                     </>
                   ) : (
-                    <span>🔍 在线检索</span>
+                    <>
+                      <Search className="w-4 h-4" />
+                      <span>在线检索</span>
+                    </>
                   )}
                 </button>
               </form>
 
               {onlineError && (
                 <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-800 flex items-center gap-2">
-                  <span>⚠️</span>
+                  <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
                   <span>{onlineError}</span>
                 </div>
               )}
@@ -732,12 +766,13 @@ export default function AdminPage() {
                           >
                             {extractingId === item.id ? (
                               <>
-                                <span className="animate-spin text-xs">🌀</span>
+                                <span className="w-3.5 h-3.5 border-2 border-accent-blue border-t-transparent rounded-full animate-spin" />
                                 <span>AI 提取中...</span>
                               </>
                             ) : (
                               <>
-                                <span>⚡ 一键提取并核验</span>
+                                <Sparkles className="w-3.5 h-3.5" />
+                                <span>一键提取并核验</span>
                               </>
                             )}
                           </button>
@@ -755,7 +790,8 @@ export default function AdminPage() {
             <div className="space-y-6 animate-fade-in">
               <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 flex items-center justify-between">
                 <div className="flex items-center gap-2 font-medium">
-                  <span>🛡️ 专家核验屏障 (Human-in-the-Loop)</span>
+                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                  <span>专家核验屏障 (Human-in-the-Loop)</span>
                   <span className="text-emerald-700 font-normal">已完成 17 项指标智能提取，请核对并可微调表单数据，确认无误后录入数据库。</span>
                 </div>
                 <button
@@ -855,8 +891,9 @@ export default function AdminPage() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-text-secondary mb-1">
-                      📖 出处原文网页链接 (Source URL / Paper Link)
+                    <label className="block text-xs font-semibold text-text-secondary mb-1 flex items-center gap-1.5">
+                      <BookOpen className="w-3.5 h-3.5 text-slate-500" />
+                      <span>出处原文网页链接 (Source URL / Paper Link)</span>
                     </label>
                     <input 
                       type="url" 
@@ -894,11 +931,11 @@ export default function AdminPage() {
                         onChange={e => setExtractedData({...extractedData, evidenceLevel: parseInt(e.target.value) || 4})}
                         className="w-full p-2 bg-white border border-gray-300 rounded-lg text-sm text-amber-600 font-bold"
                       >
-                        <option value="5">⭐⭐⭐⭐⭐ (最高级 RCT/Meta)</option>
-                        <option value="4">⭐⭐⭐⭐ (多中心高级别)</option>
-                        <option value="3">⭐⭐⭐ (单中心临床研究)</option>
-                        <option value="2">⭐⭐ (小型病例观察)</option>
-                        <option value="1">⭐ (专家观点)</option>
+                        <option value="5">5星 · 最高级 (RCT/Meta)</option>
+                        <option value="4">4星 · 高级别 (多中心队列)</option>
+                        <option value="3">3星 · 中级别 (单中心临床研究)</option>
+                        <option value="2">2星 · 观察性 (小型病例观察)</option>
+                        <option value="1">1星 · 参考级 (专家观点)</option>
                       </select>
                     </div>
                   </div>
@@ -967,7 +1004,7 @@ export default function AdminPage() {
               {/* 3 Advanced Frontier Oncology Fields */}
               <div className="bg-blue-50/60 p-5 rounded-2xl border border-blue-100 space-y-4">
                 <div className="flex items-center gap-2">
-                  <span className="text-base">🧬</span>
+                  <Dna className="w-4 h-4 text-blue-600" />
                   <h4 className="text-xs font-bold text-gray-900 uppercase tracking-wider">前沿医学进阶指标 (Biomarkers & Interventions)</h4>
                   <span className="text-[10px] bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded-full">4D 图谱联动</span>
                 </div>
@@ -1044,7 +1081,7 @@ export default function AdminPage() {
                 <div className="flex gap-3">
                   <button
                     onClick={() => setExtractedData(null)}
-                    className="px-4 py-2.5 rounded-xl border border-gray-300 text-sm font-medium text-text-secondary hover:bg-gray-50"
+                    className="px-4 py-2.5 rounded-xl border border-gray-300 text-sm font-medium text-text-secondary hover:bg-gray-50 cursor-pointer"
                   >
                     取消
                   </button>
@@ -1053,7 +1090,14 @@ export default function AdminPage() {
                     disabled={isSaving}
                     className="btn-primary px-6 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 shadow-sm cursor-pointer"
                   >
-                    {isSaving ? "正在写入数据库..." : "💾 确认无误，正式录入知识库"}
+                    {isSaving ? (
+                      <span>正在写入数据库...</span>
+                    ) : (
+                      <>
+                        <ShieldCheck className="w-4 h-4" />
+                        <span>确认无误，正式录入知识库</span>
+                      </>
+                    )}
                   </button>
                 </div>
               </div>
@@ -1123,9 +1167,7 @@ export default function AdminPage() {
                       </td>
 
                       <td className="py-4 px-3 whitespace-nowrap">
-                        <span className="text-xs text-amber-500 font-bold">
-                          {"⭐".repeat(s.evidenceLevel || 4)}
-                        </span>
+                        <EvidenceRating rating={s.evidenceLevel || 4} />
                       </td>
 
                       <td className="py-4 px-3 whitespace-nowrap">
@@ -1150,13 +1192,15 @@ export default function AdminPage() {
                       <td className="py-4 px-3 max-w-[200px]">
                         <div className="space-y-1">
                           {s.biomarkerDetails && (
-                            <div className="text-[11px] font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded truncate">
-                              🧬 {s.biomarkerDetails}
+                            <div className="text-[11px] font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded truncate flex items-center gap-1">
+                              <Dna className="w-3 h-3 text-blue-600 shrink-0" />
+                              <span className="truncate">{s.biomarkerDetails}</span>
                             </div>
                           )}
                           {s.interventionArm && (
-                            <div className="text-[10px] text-text-secondary truncate" title={s.interventionArm}>
-                              💊 {s.interventionArm}
+                            <div className="text-[10px] text-text-secondary truncate flex items-center gap-1" title={s.interventionArm}>
+                              <Pill className="w-3 h-3 text-slate-500 shrink-0" />
+                              <span className="truncate">{s.interventionArm}</span>
                             </div>
                           )}
                           {!s.biomarkerDetails && !s.interventionArm && (
@@ -1172,16 +1216,18 @@ export default function AdminPage() {
                               href={s.url || `https://doi.org/${s.doi}`}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-xs text-accent-blue hover:underline px-2 py-1 bg-blue-50 rounded"
+                              className="text-xs text-accent-blue hover:underline px-2 py-1 bg-blue-50 rounded flex items-center gap-1"
                             >
-                              原文 ↗
+                              <span>原文</span>
+                              <ExternalLink className="w-3 h-3" />
                             </a>
                           )}
                           <button
                             onClick={() => handleDelete(s.id, s.title)}
-                            className="text-xs text-rose-500 hover:text-rose-700 px-2 py-1 hover:bg-rose-50 rounded transition-colors cursor-pointer"
+                            className="text-xs text-rose-500 hover:text-rose-700 px-2 py-1 hover:bg-rose-50 rounded transition-colors cursor-pointer flex items-center gap-1"
                           >
-                            删除
+                            <Trash2 className="w-3 h-3" />
+                            <span>删除</span>
                           </button>
                         </div>
                       </td>
@@ -1198,11 +1244,13 @@ export default function AdminPage() {
   );
 }
 
-function StatCard({ icon, title, value, subtitle }: { icon: string; title: string; value: string | number; subtitle: string }) {
+function StatCard({ icon, title, value, subtitle }: { icon: React.ReactNode; title: string; value: string | number; subtitle: string }) {
   return (
     <div className="bg-white rounded-2xl p-5 border border-gray-200 shadow-sm flex flex-col justify-between">
       <div className="flex items-center justify-between mb-2">
-        <span className="text-2xl">{icon}</span>
+        <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center border border-slate-100">
+          {icon}
+        </div>
         <span className="text-[11px] font-semibold text-text-muted">{title}</span>
       </div>
       <div>

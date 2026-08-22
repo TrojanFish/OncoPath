@@ -107,12 +107,12 @@ function LungSVG({ mode }: { mode: SurgicalMode }) {
       </g>
 
       {/* ================================================================= */}
-      {/* 🫁 1. 患者右肺 (图左侧，共 3 叶：右上叶、右中叶、右下叶) */}
+      {/* 1. 患者右肺 (图左侧，共 3 叶：右上叶、右中叶、右下叶) */}
       {/* ================================================================= */}
 
       {/* 【右上叶 (RUL)】 */}
       {isLobe ? (
-        // 🔵 肺叶切除：整叶切除高亮
+        // 肺叶切除：整叶切除高亮
         <g>
           <path
             d="M165,42 C135,20 85,20 62,54 C58,74 72,92 118,94 C145,94 165,72 165,42 Z"
@@ -138,7 +138,7 @@ function LungSVG({ mode }: { mode: SurgicalMode }) {
           </g>
         </g>
       ) : isSeg ? (
-        // 🟢 肺段切除：仅切除 S1 尖段，保留 S2/S3
+        // 肺段切除：仅切除 S1 尖段，保留 S2/S3
         <g>
           {/* 保留的 S2/S3 段 */}
           <path
@@ -180,7 +180,7 @@ function LungSVG({ mode }: { mode: SurgicalMode }) {
           </g>
         </g>
       ) : (
-        // 🟡 楔形切除：整叶完整，仅外周切除微小三角形
+        // 楔形切除：整叶完整，仅外周切除微小三角形
         <g>
           {/* 完整的右上叶 */}
           <path
@@ -250,7 +250,7 @@ function LungSVG({ mode }: { mode: SurgicalMode }) {
       </g>
 
       {/* ================================================================= */}
-      {/* 🫁 2. 患者左肺 (图右侧，共 2 叶：左上叶、左下叶 - 永远完好保留) */}
+      {/* 2. 患者左肺 (图右侧，共 2 叶：左上叶、左下叶 - 永远完好保留) */}
       {/* ================================================================= */}
 
       {/* 【左上叶 (LUL - 永远完好保留)】 */}
@@ -380,7 +380,9 @@ export function SurgicalApproachesVisual() {
 
           {/* JCOG0802 Trial Gold Standard Banner */}
           <div className="rounded-xl bg-gradient-to-r from-blue-50 to-sky-50 border border-blue-200 p-2 sm:p-2.5 text-xs text-blue-900 leading-relaxed shadow-xs">
-            <strong className="text-blue-950 block mb-0.5">🏆 JCOG0802（Lancet 2022 重磅循证）：</strong>
+            <strong className="text-blue-950 block mb-0.5 font-bold">
+              [ 循证里程碑 · JCOG0802 (Lancet 2022) ]
+            </strong>
             对于 ≤2cm 且 CTR≤0.5 的外周早期肺癌，肺段切除 5 年总生存率 <strong>94.3%</strong> 优于肺叶切除 91.1%，兼顾 100% 根治与极致保肺！
           </div>
         </div>

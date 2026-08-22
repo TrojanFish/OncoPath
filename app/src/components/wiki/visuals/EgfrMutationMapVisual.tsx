@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Dna, Target } from "lucide-react";
 
 type ExonId = "19del" | "L858R" | "20ins" | "rare";
 
@@ -47,7 +48,10 @@ export function EgfrMutationMapVisual() {
   return (
     <div className="bg-slate-900 rounded-2xl p-2.5 sm:p-4 text-white select-none border border-slate-800">
       <div className="flex items-center justify-between mb-2">
-        <span className="text-[11px] font-bold text-sky-400">🧬 EGFR 酪氨酸激酶区突变位点全景图谱</span>
+        <span className="text-[11px] font-bold text-sky-400 flex items-center gap-1">
+          <Dna className="w-3.5 h-3.5 text-sky-400" />
+          <span>EGFR 酪氨酸激酶区突变位点全景图谱</span>
+        </span>
         <span className="text-[10px] text-slate-400">外显子 18 ~ 21 靶点分布</span>
       </div>
 
@@ -145,7 +149,7 @@ export function EgfrMutationMapVisual() {
           <button
             key={key}
             onClick={() => setSelectedExon(key)}
-            className={`text-[11px] py-1 px-1 rounded-lg font-semibold transition-all ${
+            className={`text-[11px] py-1 px-1 rounded-lg font-semibold transition-all cursor-pointer ${
               selectedExon === key
                 ? "bg-slate-700 text-sky-300 shadow-sm ring-1 ring-sky-400"
                 : "bg-slate-800/60 text-slate-400 hover:bg-slate-800"
@@ -169,8 +173,9 @@ export function EgfrMutationMapVisual() {
           {active.features}
         </p>
 
-        <div className="text-[11px] bg-slate-900/90 p-2 rounded-lg border border-slate-800 text-sky-300">
-          🎯 <strong>首选用药策略：</strong> {active.drugs}
+        <div className="text-[11px] bg-slate-900/90 p-2 rounded-lg border border-slate-800 text-sky-300 flex items-start gap-1.5">
+          <Target className="w-3.5 h-3.5 text-sky-400 shrink-0 mt-0.5" />
+          <span><strong>首选用药策略：</strong> {active.drugs}</span>
         </div>
       </div>
     </div>

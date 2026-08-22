@@ -55,7 +55,7 @@ export const TIMELINE_CATEGORIES: TimelineCategoryMeta[] = [
   {
     key: "imaging",
     label: "影像随访",
-    icon: "🩻",
+    icon: "Scan",
     badgeColor: "bg-blue-500 text-white",
     lightBg: "bg-blue-50/80 text-blue-800 border-blue-200",
     borderColor: "border-blue-500",
@@ -64,7 +64,7 @@ export const TIMELINE_CATEGORIES: TimelineCategoryMeta[] = [
   {
     key: "pathology",
     label: "病理与基因",
-    icon: "🔬",
+    icon: "Microscope",
     badgeColor: "bg-purple-500 text-white",
     lightBg: "bg-purple-50/80 text-purple-800 border-purple-200",
     borderColor: "border-purple-500",
@@ -73,7 +73,7 @@ export const TIMELINE_CATEGORIES: TimelineCategoryMeta[] = [
   {
     key: "serology",
     label: "血液化验",
-    icon: "🩸",
+    icon: "TestTube2",
     badgeColor: "bg-rose-500 text-white",
     lightBg: "bg-rose-50/80 text-rose-800 border-rose-200",
     borderColor: "border-rose-500",
@@ -82,7 +82,7 @@ export const TIMELINE_CATEGORIES: TimelineCategoryMeta[] = [
   {
     key: "milestone",
     label: "诊疗里程碑",
-    icon: "💊",
+    icon: "HeartPulse",
     badgeColor: "bg-emerald-500 text-white",
     lightBg: "bg-emerald-50/80 text-emerald-800 border-emerald-200",
     borderColor: "border-emerald-500",

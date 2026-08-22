@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
+import { BookOpen, User, Search, Layers, Compass, Sparkles, Lightbulb } from "lucide-react";
 import SubpageNavbar from "@/components/SubpageNavbar";
 import { WIKI_TOPICS, WIKI_CATEGORIES, type WikiCategory, type RiskLevel } from "@/lib/wikiData";
 import { WikiScenarioEntry } from "@/components/wiki/WikiScenarioEntry";
@@ -167,7 +168,7 @@ export default function WikiPage() {
         {/* Distinction Banner: Patient Wiki vs Academic Navigation (/resources) */}
         <div className="bg-gradient-to-r from-blue-50 via-sky-50 to-indigo-50 border border-blue-200/80 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs shadow-xs">
           <div className="flex items-start sm:items-center gap-2.5">
-            <span className="text-xl leading-none">💡</span>
+            <Lightbulb className="w-5 h-5 text-blue-700 shrink-0 mt-0.5 sm:mt-0" />
             <div>
               <span className="font-black text-blue-950 text-sm">OncoWiki 循证视觉百科定位：</span>
               <span className="text-slate-600 ml-1">面向患者与家属的生活化大白话破译、结节消恐与微观图解。</span>
@@ -177,14 +178,16 @@ export default function WikiPage() {
             href="/resources"
             className="flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-blue-200 text-blue-700 font-bold hover:bg-blue-50 transition-colors cursor-pointer text-xs"
           >
-            <span>📖 查阅医生临床指南</span>
+            <BookOpen className="w-3.5 h-3.5" />
+            <span>查阅医生临床指南</span>
           </Link>
         </div>
 
         {/* Hero Section */}
         <section className="text-center space-y-4 pt-2 pb-4">
           <div className="inline-flex items-center gap-2 bg-white px-4 py-1.5 rounded-full text-xs font-bold text-sky-700 border border-sky-200 shadow-xs">
-            <span>📚 肺结节与肺癌全景循证视觉百科</span>
+            <BookOpen className="w-3.5 h-3.5 text-sky-600" />
+            <span>肺结节与肺癌全景循证视觉百科</span>
             <span className="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse" />
             <span>按风险优先级排序</span>
           </div>
@@ -201,7 +204,7 @@ export default function WikiPage() {
           {userProfile && (
             <div className="max-w-2xl mx-auto bg-teal-50/90 border border-teal-300 p-3.5 rounded-2xl text-xs text-teal-950 flex items-center justify-between gap-3 shadow-xs">
               <div className="flex items-center gap-2 text-left">
-                <span className="text-base">👤</span>
+                <User className="w-4 h-4 text-teal-700 shrink-0" />
                 <span>
                   已识别到您的个人数字档案（<strong>{userProfile.stage}期 · {userProfile.gender === "female" ? "女性" : "男性"} · {userProfile.age}岁</strong>），已为您智能置顶关联词条。
                 </span>
@@ -229,13 +232,14 @@ export default function WikiPage() {
                   window.history.replaceState(null, "", window.location.pathname);
                 }
               }}
-              className={`px-4 py-2 rounded-2xl text-xs sm:text-sm font-black transition-all cursor-pointer ${
+              className={`px-4 py-2 rounded-2xl text-xs sm:text-sm font-black transition-all cursor-pointer flex items-center gap-1.5 ${
                 activeCategory === "all"
                   ? "bg-blue-600 text-white shadow-sm"
                   : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-100"
               }`}
             >
-              🌐 全部专区 ({WIKI_TOPICS.length})
+              <Layers className="w-3.5 h-3.5" />
+              <span>全部专区 ({WIKI_TOPICS.length})</span>
             </button>
 
             {(Object.keys(WIKI_CATEGORIES) as WikiCategory[]).map((catKey) => {
@@ -256,7 +260,6 @@ export default function WikiPage() {
                       : "bg-white border-slate-200 text-slate-700 hover:bg-slate-100"
                   }`}
                 >
-                  <span>{cat.icon}</span>
                   <span>{cat.label}</span>
                   <span className="text-[11px] opacity-70 font-mono">({count})</span>
                 </button>
@@ -288,7 +291,9 @@ export default function WikiPage() {
             </div>
           ) : (
             <div className="bg-white rounded-3xl p-12 text-center border border-slate-200 space-y-3">
-              <div className="text-4xl">🔍</div>
+              <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mx-auto text-slate-400">
+                <Search className="w-6 h-6" />
+              </div>
               <h3 className="text-base font-bold text-slate-800">未找到与 &quot;{searchQuery}&quot; 相关的破译词条</h3>
               <p className="text-xs text-slate-400">
                 请尝试更换关键词，或点击上方「全部」重置筛选条件
@@ -341,7 +346,7 @@ export default function WikiPage() {
         </div>
       </footer>
 
-      {/* Right Side Desktop Floating Elevator Navigation Dock (Scheme A) */}
+      {/* Right Side Desktop Floating Elevator Navigation Dock */}
       <WikiFloatingNav
         activeCategory={activeCategory}
         onSelectCategory={(cat) => {

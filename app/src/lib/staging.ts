@@ -118,7 +118,7 @@ export function computeClinicalTnmStage(input: StagingInput): StagingResult {
   // 2. Visceral Pleural Invasion (VPI) Upstaging Rule (PL1/PL2 automatically upstages T1 to T2a)
   if (isVpi && (effectiveT === "Tis" || effectiveT === "T1mi" || effectiveT === "T1a" || effectiveT === "T1b" || effectiveT === "T1c")) {
     effectiveT = "T2a";
-    explanation += ` (⚠️ 伴有脏层胸膜侵犯 VPI+，依据指南自动升期为 T2a)`;
+    explanation += ` (提示：伴有脏层胸膜侵犯 VPI+，依据指南自动升期为 T2a)`;
   }
 
   // 3. Compute Group TNM Stage

@@ -1,10 +1,16 @@
 "use client";
 
+import React from "react";
+import { Sparkles, Info } from "lucide-react";
+
 export function SpiculationVisual() {
   return (
     <div className="bg-slate-900 rounded-2xl p-2.5 sm:p-4 text-white select-none border border-slate-800">
       <div className="flex items-center justify-between mb-2">
-        <span className="text-[11px] font-bold text-amber-400">🦔 毛刺征 (Spiculation) 影像原理解析</span>
+        <span className="text-[11px] font-bold text-amber-400 flex items-center gap-1">
+          <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+          <span>毛刺征 (Spiculation) 影像原理解析</span>
+        </span>
         <span className="text-[10px] text-slate-400">标注：仅为原理解释，非真实解剖</span>
       </div>
 
@@ -74,7 +80,11 @@ export function SpiculationVisual() {
       </svg>
 
       <div className="mt-2 text-[11px] text-slate-300 leading-relaxed bg-slate-800/80 p-2.5 rounded-xl border border-slate-700">
-        💡 <strong>图解要点：</strong> 毛刺不能一概而论。<strong>长而粗的索条状毛刺（&gt;5mm）绝大多数是以前肺炎或结核好了之后留下的纤维瘢痕</strong>；只有周边密集的“短细放射状毛刺（&lt;3mm）”才提示需要结合结节大小和 CTR 重点关注。
+        <span className="inline-flex items-center gap-1 font-bold text-amber-300 mr-1">
+          <Info className="w-3.5 h-3.5" />
+          <span>图解要点：</span>
+        </span>
+        毛刺不能一概而论。<strong>长而粗的索条状毛刺（&gt;5mm）绝大多数是以前肺炎或结核好了之后留下的纤维瘢痕</strong>；只有周边密集的“短细放射状毛刺（&lt;3mm）”才提示需要结合结节大小和 CTR 重点关注。
       </div>
     </div>
   );

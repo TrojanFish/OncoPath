@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Network, Sparkles, FileText, BookOpen } from "lucide-react";
 
 type StageOption = "IA" | "IB" | "IIA_IIB" | "IIIA";
 type MutationOption = "EGFR" | "ALK" | "WILDTYPE";
@@ -93,11 +94,11 @@ export function AdjuvantDecisionTreeVisual() {
       };
     } else {
       return {
-        strategy: "含铂双药辅助化疗 4 周期 ➔ 序贯 1 年 PD-(L)1 免疫辅助治疗",
+        strategy: "含铂双药辅助化疗 4 周期 → 序贯 1 年 PD-(L)1 免疫辅助治疗",
         badge: "化疗联合免疫长尾防线",
         badgeColor: "bg-rose-500/20 text-rose-300 border-rose-500/40",
         summary: "驱动基因野生型（阴性）II~IIIA 期患者的金标准方案。含铂化疗快速歼灭微残留细胞，序贯阿替利珠单抗（IMpower010）或帕博利珠单抗（KEYNOTE-091）建立持久免疫哨兵巡逻。",
-        regimen: "培美曲塞/吉西他滨 + 顺铂/卡铂 4 周期 ➔ 阿替利珠/帕博利珠单抗 1 年",
+        regimen: "培美曲塞/吉西他滨 + 顺铂/卡铂 4 周期 → 阿替利珠/帕博利珠单抗 1 年",
         evidence: "IMpower010 (Lancet) & KEYNOTE-091 (Lancet Oncol)",
         riskReduction: "PD-L1≥50% 人群复发风险降低 57% (HR = 0.43)",
       };
@@ -109,8 +110,11 @@ export function AdjuvantDecisionTreeVisual() {
   return (
     <div className="bg-slate-900 rounded-2xl p-2.5 sm:p-4 text-white select-none border border-slate-800">
       <div className="flex items-center justify-between mb-3">
-        <span className="text-[11px] font-bold text-sky-400">🗺️ 术后辅助治疗科学决策模拟器</span>
-        <span className="text-[10px] text-slate-400">基于 NCCN 2024 / CSCO 肺癌指南</span>
+        <span className="text-[11px] font-bold text-sky-400 flex items-center gap-1">
+          <Network className="w-3.5 h-3.5 text-sky-400" />
+          <span>术后辅助治疗科学决策模拟器</span>
+        </span>
+        <span className="text-[10px] text-slate-400">基于 NCCN / CSCO 肺癌指南</span>
       </div>
 
       {/* Interactive Controls */}
@@ -125,7 +129,7 @@ export function AdjuvantDecisionTreeVisual() {
               <button
                 key={stage}
                 onClick={() => setSelectedStage(stage)}
-                className={`text-[11px] py-1.5 rounded-lg font-semibold transition-all ${
+                className={`text-[11px] py-1.5 rounded-lg font-semibold transition-all cursor-pointer ${
                   selectedStage === stage
                     ? "bg-blue-600 text-white shadow-md shadow-blue-500/30"
                     : "bg-slate-800 text-slate-300 hover:bg-slate-700"
@@ -147,7 +151,7 @@ export function AdjuvantDecisionTreeVisual() {
               <button
                 key={mut}
                 onClick={() => setSelectedMutation(mut)}
-                className={`text-[11px] py-1.5 rounded-lg font-semibold transition-all ${
+                className={`text-[11px] py-1.5 rounded-lg font-semibold transition-all cursor-pointer ${
                   selectedMutation === mut
                     ? "bg-purple-600 text-white shadow-md shadow-purple-500/30"
                     : "bg-slate-800 text-slate-300 hover:bg-slate-700"
@@ -171,13 +175,13 @@ export function AdjuvantDecisionTreeVisual() {
           </div>
           <button
             onClick={() => setHasHighRisk(!hasHighRisk)}
-            className={`text-[10px] px-2.5 py-1 rounded-md font-bold transition-all ${
+            className={`text-[10px] px-2.5 py-1 rounded-md font-bold transition-all cursor-pointer ${
               hasHighRisk
                 ? "bg-amber-500 text-slate-950 shadow-sm"
                 : "bg-slate-800 text-slate-400 hover:bg-slate-700"
             }`}
           >
-            {hasHighRisk ? "存在高危因素 ✓" : "无高危因素 ✕"}
+            {hasHighRisk ? "存在高危因素" : "无高危因素"}
           </button>
         </div>
       )}
@@ -188,8 +192,9 @@ export function AdjuvantDecisionTreeVisual() {
           <span className={`text-[10px] px-2.5 py-0.5 rounded-full border font-bold ${decision.badgeColor}`}>
             {decision.badge}
           </span>
-          <span className="text-[10px] text-emerald-400 font-medium">
-            🎯 {decision.riskReduction}
+          <span className="text-[10px] text-emerald-400 font-medium inline-flex items-center gap-1">
+            <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+            <span>{decision.riskReduction}</span>
           </span>
         </div>
 
@@ -204,11 +209,17 @@ export function AdjuvantDecisionTreeVisual() {
 
         <div className="bg-slate-900/90 rounded-lg p-2.5 border border-slate-800 text-[11px] space-y-1">
           <div className="flex items-start gap-1.5 text-slate-300">
-            <span className="text-slate-500 font-bold shrink-0">📋 执行细则:</span>
+            <span className="text-slate-500 font-bold shrink-0 inline-flex items-center gap-1">
+              <FileText className="w-3 h-3 text-slate-400" />
+              <span>执行细则:</span>
+            </span>
             <span>{decision.regimen}</span>
           </div>
           <div className="flex items-start gap-1.5 text-slate-400 text-[10px]">
-            <span className="text-slate-500 font-bold shrink-0">📚 循证出处:</span>
+            <span className="text-slate-500 font-bold shrink-0 inline-flex items-center gap-1">
+              <BookOpen className="w-3 h-3 text-slate-400" />
+              <span>循证出处:</span>
+            </span>
             <span className="italic">{decision.evidence}</span>
           </div>
         </div>

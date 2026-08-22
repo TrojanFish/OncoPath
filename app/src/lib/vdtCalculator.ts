@@ -76,7 +76,7 @@ export function calculateVdtAndGrowth(history?: FollowUpRecord[] | null, current
 
   let vdtDays: number | null = null;
   let category: VdtAnalysisResult["growthCategory"] = "stable";
-  let label = "🟢 稳定期 (极度惰性)";
+  let label = "稳定期 (极度惰性)";
   let badgeColor = "emerald";
   let interpretation = "";
   let guidance = "";
@@ -84,14 +84,14 @@ export function calculateVdtAndGrowth(history?: FollowUpRecord[] | null, current
   if (d2Mm < d1Mm - 1.5) {
     // Shrinking / absorption (inflammatory)
     category = "shrinking";
-    label = "🟢 明显吸收缩小 (炎性倾向)";
+    label = "明显吸收缩小 (炎性倾向)";
     badgeColor = "emerald";
     interpretation = `前后相隔 ${days} 天，结节最大径缩小了 ${Math.abs(sizeDiffMm)} mm。此种短期内明显缩小吸收的形态高度提示既往良性炎性渗出或感染后吸收。`;
     guidance = "炎性吸收属于极其良好的良性转归信号，建议继续保持健康生活习惯，遵医嘱按常规周期复查。";
   } else if (Math.abs(sizeDiffMm) <= 1.0 && Math.abs(solidDiffMm) <= 0.8) {
     // Truly stable
     category = "stable";
-    label = "🟢 高度稳定期 (VDT > 800天)";
+    label = "高度稳定期 (VDT > 800天)";
     badgeColor = "emerald";
     interpretation = `相隔 ${days} 天（约 ${(days / 30).toFixed(1)} 个月），结节总径变化仅 ${sizeDiffMm > 0 ? '+' : ''}${sizeDiffMm} mm，实性成分无明显进展，处于完全惰性静止状态。`;
     guidance = "结节长期保持稳定是磨玻璃结节最常见的良性或惰性生物学特征。完全处于安全随访区间，无需急于手术！";
@@ -103,13 +103,13 @@ export function calculateVdtAndGrowth(history?: FollowUpRecord[] | null, current
 
     if (solidDiffMm >= 2.0 || ctrDiff >= 0.25 || (vdtDays !== null && vdtDays < 365)) {
       category = "active_growth";
-      label = "🔴 活跃进展期 (实性增多)";
+      label = "活跃进展期 (实性增多)";
       badgeColor = "rose";
       interpretation = `相隔 ${days} 天，结节实性成分增多 ${solidDiffMm} mm (CTR 上升 ${(ctrDiff * 100).toFixed(0)}%)。实性成分的明确增长提示肿瘤细胞侵袭性有所增强。`;
       guidance = "建议近期携带完整前后对比影像至三甲胸外科门诊评估，探讨胸腔镜解剖性肺段/肺叶微创手术的适宜时机。";
     } else {
       category = "slow_indolent";
-      label = "🟡 慢速惰性演进期 (VDT 400~800天)";
+      label = "慢速惰性演进期 (VDT 400~800天)";
       badgeColor = "amber";
       interpretation = `相隔 ${days} 天，结节出现微量慢速增大 (${sizeDiffMm > 0 ? '+' : ''}${sizeDiffMm} mm)，但实性成分未见爆发性增多，属于典型的早早期磨玻璃慢速惰性生长。`;
       guidance = "建议适当缩短薄层 CT 随访间隔（如由 12 个月调整为 3~6 个月），重点关注实性成分与边缘征象变化。";

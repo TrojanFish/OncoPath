@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { AlertCircle, ShieldCheck } from "lucide-react";
 
 type PeriodId = "y12" | "y35" | "y5plus";
 
@@ -87,7 +88,7 @@ export function FollowupTimelineVisual() {
             <button
               key={p.id}
               onClick={() => setSelectedPeriod(p.id)}
-              className={`p-2 sm:p-3 rounded-xl border-2 text-left transition-all duration-200 ${
+              className={`p-2 sm:p-3 rounded-xl border-2 text-left transition-all duration-200 cursor-pointer ${
                 isSelected
                   ? `${p.statusBorder} ${p.statusBg} shadow-sm scale-[1.02]`
                   : "border-slate-200 bg-white hover:border-slate-300"
@@ -137,11 +138,13 @@ export function FollowupTimelineVisual() {
 
         {/* Caution and Cure banner */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
-          <div className="bg-amber-50/80 border border-amber-200 rounded-lg p-2 text-xs text-amber-800 leading-relaxed">
-            <span className="font-bold">⚠️ 避坑提醒：</span>{curr.avoid}
+          <div className="bg-amber-50/80 border border-amber-200 rounded-lg p-2 text-xs text-amber-800 leading-relaxed flex items-start gap-1.5">
+            <AlertCircle className="w-3.5 h-3.5 text-amber-700 shrink-0 mt-0.5" />
+            <div><span className="font-bold">避坑提醒：</span>{curr.avoid}</div>
           </div>
-          <div className="bg-emerald-50/80 border border-emerald-200 rounded-lg p-2 text-xs text-emerald-800 leading-relaxed">
-            <span className="font-bold">🎉 治愈信心：</span>{curr.cureRate}
+          <div className="bg-emerald-50/80 border border-emerald-200 rounded-lg p-2 text-xs text-emerald-800 leading-relaxed flex items-start gap-1.5">
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-700 shrink-0 mt-0.5" />
+            <div><span className="font-bold">治愈信心：</span>{curr.cureRate}</div>
           </div>
         </div>
       </div>

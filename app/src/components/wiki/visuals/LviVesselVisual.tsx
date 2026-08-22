@@ -1,10 +1,16 @@
 "use client";
 
+import React from "react";
+import { GitCommitHorizontal, Info } from "lucide-react";
+
 export function LviVesselVisual() {
   return (
     <div className="bg-slate-900 rounded-2xl p-2.5 sm:p-4 text-white select-none border border-slate-800">
       <div className="flex items-center justify-between mb-2">
-        <span className="text-[11px] font-bold text-rose-400">🚗 脉管通道与全身药物防护机制</span>
+        <span className="text-[11px] font-bold text-rose-400 flex items-center gap-1">
+          <GitCommitHorizontal className="w-3.5 h-3.5 text-rose-400" />
+          <span>脉管通道与全身药物防护机制</span>
+        </span>
         <span className="text-[10px] text-slate-400">标注：仅为原理解释，非真实解剖</span>
       </div>
 
@@ -57,7 +63,11 @@ export function LviVesselVisual() {
       </svg>
 
       <div className="mt-2 text-[11px] text-slate-300 leading-relaxed bg-slate-800/80 p-2.5 rounded-xl border border-slate-700">
-        💡 <strong>图解要点：</strong> 脉管癌栓是指极少数细胞企图进入微米级毛细血管。现代术后辅助治疗（如第三代靶向药或辅助化疗）就像在全身血液通道布设了<strong>严密的精准巡逻网</strong>，能在微小细胞生长前将其迅速杀灭！
+        <span className="inline-flex items-center gap-1 font-bold text-rose-300 mr-1">
+          <Info className="w-3.5 h-3.5" />
+          <span>图解要点：</span>
+        </span>
+        脉管癌栓是指极少数细胞企图进入微米级毛细血管。现代术后辅助治疗（如第三代靶向药或辅助化疗）就像在全身血液通道布设了<strong>严密的精准巡逻网</strong>，能在微小细胞生长前将其迅速杀灭。
       </div>
     </div>
   );

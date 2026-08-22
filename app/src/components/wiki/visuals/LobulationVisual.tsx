@@ -1,10 +1,16 @@
 "use client";
 
+import React from "react";
+import { Spline, Info } from "lucide-react";
+
 export function LobulationVisual() {
   return (
     <div className="bg-slate-900 rounded-2xl p-2.5 sm:p-4 text-white select-none border border-slate-800">
       <div className="flex items-center justify-between mb-2">
-        <span className="text-[11px] font-bold text-sky-400">🌊 分叶征 (Lobulation) 影像原理解析</span>
+        <span className="text-[11px] font-bold text-sky-400 flex items-center gap-1">
+          <Spline className="w-3.5 h-3.5 text-sky-400" />
+          <span>分叶征 (Lobulation) 影像原理解析</span>
+        </span>
         <span className="text-[10px] text-slate-400">标注：仅为原理解释，非真实解剖</span>
       </div>
 
@@ -59,7 +65,11 @@ export function LobulationVisual() {
       </svg>
 
       <div className="mt-2 text-[11px] text-slate-300 leading-relaxed bg-slate-800/80 p-2.5 rounded-xl border border-slate-700">
-        💡 <strong>图解要点：</strong> 分叶是肿瘤各区域细胞增殖速度不同、受周围支气管/血管阻力不均留下的波浪边缘。<strong>浅分叶多见于良性错构瘤或炎性假瘤</strong>，只有伴随实性成分生长的深分叶才提示需要临床重点随访评估。
+        <span className="inline-flex items-center gap-1 font-bold text-sky-300 mr-1">
+          <Info className="w-3.5 h-3.5" />
+          <span>图解要点：</span>
+        </span>
+        分叶是病灶各区域增殖速度不同、受周围支气管/血管阻力不均留下的波浪边缘。<strong>浅分叶多见于良性错构瘤或炎性假瘤</strong>，只有伴随实性成分生长的深分叶才提示需要临床重点随访评估。
       </div>
     </div>
   );

@@ -1,10 +1,16 @@
 "use client";
 
+import React from "react";
+import { Triangle, Info } from "lucide-react";
+
 export function PleuralIndentationVisual() {
   return (
     <div className="bg-slate-900 rounded-2xl p-2.5 sm:p-4 text-white select-none border border-slate-800">
       <div className="flex items-center justify-between mb-2">
-        <span className="text-[11px] font-bold text-sky-400">⛺ 胸膜凹陷/牵拉征 (Pleural Indentation) 原理解析</span>
+        <span className="text-[11px] font-bold text-sky-400 flex items-center gap-1">
+          <Triangle className="w-3.5 h-3.5 text-sky-400" />
+          <span>胸膜凹陷/牵拉征 (Pleural Indentation) 原理解析</span>
+        </span>
         <span className="text-[10px] text-slate-400">标注：仅为原理解释，非真实解剖</span>
       </div>
 
@@ -56,15 +62,19 @@ export function PleuralIndentationVisual() {
         {/* Inverted V-Shaped Tent Annotation */}
         <path d="M 172 36 L 150 55 L 172 74" fill="none" stroke="#f59e0b" strokeWidth="1.4" />
         <text x="135" y="32" textAnchor="middle" fill="#fbbf24" fontSize="5.5" fontWeight="bold">
-          “小帐篷”三角形凹陷
+          三角形牵拉凹陷
         </text>
         <text x="135" y="39" textAnchor="middle" fill="#fde68a" fontSize="4.5">
-          (结节收缩向内牵拉)
+          (纤维收缩向内牵拉)
         </text>
       </svg>
 
       <div className="mt-2 text-[11px] text-slate-300 leading-relaxed bg-slate-800/80 p-2.5 rounded-xl border border-slate-700">
-        💡 <strong>图解要点：</strong> 胸膜牵拉是结节内部成纤维细胞像“瘢痕收缩”一样，把靠近肺表面的薄膜向内拉扯出了一个<strong>三角形小帐篷凹坑</strong>。它是一种纯粹的<strong>物理力学收缩现象</strong>，绝不代表癌细胞长到了胸壁上，陈旧性结核灶也极易造成胸膜牵拉！
+        <span className="inline-flex items-center gap-1 font-bold text-sky-300 mr-1">
+          <Info className="w-3.5 h-3.5" />
+          <span>图解要点：</span>
+        </span>
+        胸膜牵拉是结节内部成纤维细胞像“瘢痕收缩”一样，把靠近肺表面的薄膜向内拉扯出了一个<strong>三角形凹坑</strong>。它是一种纯粹的<strong>物理力学收缩现象</strong>，绝不代表癌细胞长到了胸壁上，陈旧性炎症或结核灶也极易造成胸膜牵拉。
       </div>
     </div>
   );

@@ -1,10 +1,16 @@
 "use client";
 
+import React from "react";
+import { CircleDot, Info } from "lucide-react";
+
 export function VacuoleSignVisual() {
   return (
     <div className="bg-slate-900 rounded-2xl p-2.5 sm:p-4 text-white select-none border border-slate-800">
       <div className="flex items-center justify-between mb-2">
-        <span className="text-[11px] font-bold text-teal-400">🧀 空泡征与支气管充气征 (Vacuole / Air Bronchogram)</span>
+        <span className="text-[11px] font-bold text-teal-400 flex items-center gap-1">
+          <CircleDot className="w-3.5 h-3.5 text-teal-400" />
+          <span>空泡征与支气管充气征 (Vacuole / Air Bronchogram)</span>
+        </span>
         <span className="text-[10px] text-slate-400">标注：仅为原理解释，非真实解剖</span>
       </div>
 
@@ -70,7 +76,11 @@ export function VacuoleSignVisual() {
       </svg>
 
       <div className="mt-2 text-[11px] text-slate-300 leading-relaxed bg-slate-800/80 p-2.5 rounded-xl border border-slate-700">
-        💡 <strong>图解要点：</strong> 空泡征就像瑞士奶酪里的气孔。它代表肿瘤细胞沿着肺泡壁“单层贴壁爬行”，<strong>并没有把肺泡完全填实堵死，内部依然保留着正常含气的呼吸微结构</strong>。在磨玻璃结节中出现空泡征，往往提示病灶处于极其早期的惰性生长阶段！
+        <span className="inline-flex items-center gap-1 font-bold text-teal-300 mr-1">
+          <Info className="w-3.5 h-3.5" />
+          <span>图解要点：</span>
+        </span>
+        空泡征代表肿瘤细胞沿着肺泡壁“单层贴壁爬行”，<strong>并没有把肺泡完全填实堵死，内部依然保留着正常含气的呼吸微结构</strong>。在磨玻璃结节中出现空泡征，往往提示病灶处于极其早期的惰性生长阶段。
       </div>
     </div>
   );

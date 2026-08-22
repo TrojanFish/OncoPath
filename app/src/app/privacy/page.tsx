@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import { ShieldCheck, Lock } from "lucide-react";
 
 export default function PrivacyPage() {
   return (
@@ -25,7 +26,8 @@ export default function PrivacyPage() {
           {/* Header */}
           <div className="space-y-4 border-b border-slate-100 pb-8">
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-teal-50 border border-teal-200 text-teal-800 text-xs font-bold">
-              <span>🛡️ 个人信息保护法 (PIPL) 合规认证</span>
+              <ShieldCheck className="w-3.5 h-3.5 text-teal-700" />
+              <span>个人信息保护法 (PIPL) 合规认证</span>
             </div>
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 tracking-tight leading-tight">
               OncoPath 隐私政策与医疗数据安全说明
@@ -74,7 +76,8 @@ export default function PrivacyPage() {
               </p>
               <div className="bg-sky-50/70 p-4 sm:p-5 rounded-2xl border border-sky-200/80 text-xs sm:text-sm text-sky-950 space-y-1.5">
                 <div className="font-bold flex items-center gap-1.5 text-sky-900">
-                  <span>🔒 自动掩码规则示例</span>
+                  <Lock className="w-3.5 h-3.5 text-sky-700" />
+                  <span>自动掩码规则示例</span>
                 </div>
                 <p className="text-sky-800 leading-relaxed">
                   身份证号自动处理为 <code>110101********1234</code>，手机号处理为 <code>138****5678</code>，真实姓名处理为 <code>张*峰</code>。发送给 AI 循证引擎的所有上下文均为去标识化后的纯粹临床参数。

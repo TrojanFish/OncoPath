@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Layers } from "lucide-react";
 
 type PlGrade = "PL0" | "PL1" | "PL2" | "PL3";
 
@@ -39,7 +40,10 @@ export function PleuralLayersVisual() {
   return (
     <div className="bg-slate-900 rounded-2xl p-2.5 sm:p-4 text-white select-none border border-slate-800">
       <div className="flex items-center justify-between mb-2">
-        <span className="text-[11px] font-bold text-sky-400">🚪 胸膜解剖层次与 PL0 ~ PL3 侵犯深度</span>
+        <span className="text-[11px] font-bold text-sky-400 flex items-center gap-1">
+          <Layers className="w-3.5 h-3.5 text-sky-400" />
+          <span>胸膜解剖层次与 PL0 ~ PL3 侵犯深度</span>
+        </span>
         <span className="text-[10px] text-slate-400">AJCC 第 8/9 版分期标准</span>
       </div>
 
@@ -74,7 +78,7 @@ export function PleuralLayersVisual() {
         {/* 5. Parietal Pleura (PL3 Entrance) */}
         <line x1="10" y1="50" x2="230" y2="50" stroke="#f43f5e" strokeWidth="1.8" />
         <text x="18" y="47" fill="#fb7185" fontSize="4" fontWeight="bold">
-          壁层胸膜 (Parietal Pleura) ➔ PL3 起点
+          壁层胸膜 (Parietal Pleura) → PL3 起点
         </text>
 
         {/* 6. Chest Wall Muscles & Ribs (PL3 Deep) */}
@@ -114,7 +118,7 @@ export function PleuralLayersVisual() {
           <button
             key={pl}
             onClick={() => setSelectedPl(pl)}
-            className={`text-[11px] py-1 rounded-lg font-semibold transition-all ${
+            className={`text-[11px] py-1 rounded-lg font-semibold transition-all cursor-pointer ${
               selectedPl === pl
                 ? pl === "PL3"
                   ? "bg-rose-600 text-white ring-1 ring-rose-400"

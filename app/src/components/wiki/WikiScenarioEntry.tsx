@@ -1,5 +1,7 @@
 "use client";
 
+import React from "react";
+import { CircleDot, Microscope, Dna, HeartPulse, ArrowRight, MessageSquare } from "lucide-react";
 import type { WikiCategory } from "@/lib/wikiData";
 
 interface WikiScenarioEntryProps {
@@ -11,7 +13,7 @@ export function WikiScenarioEntry({ activeCategory = "all", onSelectCategory }: 
   const scenarios = [
     {
       category: "nodule" as WikiCategory,
-      icon: "🫁",
+      iconComponent: CircleDot,
       title: "我刚体检查出肺结节",
       subtitle: "体检报告提示磨玻璃结节、实性结节或毛刺，我很慌，该怎么办？",
       badge: "结节消恐 · 随访时间表",
@@ -23,7 +25,7 @@ export function WikiScenarioEntry({ activeCategory = "all", onSelectCategory }: 
     },
     {
       category: "pathology" as WikiCategory,
-      icon: "🔬",
+      iconComponent: Microscope,
       title: "我刚拿到术后病理报告",
       subtitle: "报告上写着 STAS、VPI、LVI、微乳头、切缘等各种生僻词，不知吉凶？",
       badge: "病理密码破译 · 战术武器",
@@ -35,7 +37,7 @@ export function WikiScenarioEntry({ activeCategory = "all", onSelectCategory }: 
     },
     {
       category: "genetics" as WikiCategory,
-      icon: "🧬",
+      iconComponent: Dna,
       title: "医生让我做基因检测/靶向",
       subtitle: "EGFR、ALK、KRAS 是什么意思？第三代靶向药（奥希替尼）怎么帮我？",
       badge: "驱动基因 · 83% 复发阻断",
@@ -47,7 +49,7 @@ export function WikiScenarioEntry({ activeCategory = "all", onSelectCategory }: 
     },
     {
       category: "recovery" as WikiCategory,
-      icon: "🌿",
+      iconComponent: HeartPulse,
       title: "术后身体恢复与长期随访",
       subtitle: "术后咳喘、胸闷正常吗？肿瘤标志物轻微波动是不是复发了？",
       badge: "康复调适 · 标志物真相",
@@ -63,7 +65,8 @@ export function WikiScenarioEntry({ activeCategory = "all", onSelectCategory }: 
     <div className="space-y-3">
       <div className="flex items-center justify-between text-xs sm:text-sm font-bold text-slate-700 px-1">
         <span className="flex items-center gap-1.5">
-          <span>💬 请选择最符合您当前处境的情景，直达破译专区：</span>
+          <MessageSquare className="w-4 h-4 text-sky-600" />
+          <span>请选择最符合您当前处境的情景，直达破译专区：</span>
         </span>
         {activeCategory !== "all" && (
           <span className="text-xs text-blue-600 font-semibold hidden sm:inline-flex items-center gap-1">
@@ -76,6 +79,7 @@ export function WikiScenarioEntry({ activeCategory = "all", onSelectCategory }: 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
         {scenarios.map((s) => {
           const isActive = activeCategory === s.category;
+          const IconComp = s.iconComponent;
           return (
             <button
               key={s.category}
@@ -94,8 +98,8 @@ export function WikiScenarioEntry({ activeCategory = "all", onSelectCategory }: 
 
               <div>
                 <div className="flex items-center justify-between gap-2 mb-3">
-                  <div className="w-10 h-10 rounded-2xl bg-white/90 border border-slate-200/60 flex items-center justify-center text-xl shadow-2xs">
-                    {s.icon}
+                  <div className="w-10 h-10 rounded-2xl bg-white/90 border border-slate-200/60 flex items-center justify-center shadow-2xs">
+                    <IconComp className="w-5 h-5 text-slate-700" />
                   </div>
                   <span
                     className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border transition-colors ${
@@ -117,12 +121,12 @@ export function WikiScenarioEntry({ activeCategory = "all", onSelectCategory }: 
                 {isActive ? (
                   <span className="text-blue-900 font-black flex items-center gap-1">
                     <span>正在浏览该专区</span>
-                    <span className="text-xs">●</span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-600" />
                   </span>
                 ) : (
                   <>
                     <span>立即查看该专区</span>
-                    <span className="text-sm transition-transform group-hover:translate-x-0.5">➔</span>
+                    <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
                   </>
                 )}
               </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { TestTube2, ShieldCheck } from "lucide-react";
 import type { TumorMarkersData } from "@/lib/types";
 import { evaluateTumorMarkers } from "@/lib/tumorMarkers";
 import { GlossaryTooltip } from "@/components/common/GlossaryTooltip";
@@ -21,7 +22,7 @@ export function TumorMarkersCard({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-base">🧪</span>
+            <TestTube2 className="w-4 h-4 text-indigo-600" />
             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
               TUMOR BIOMARKERS · 血液肿瘤标志物监测与排雷
             </h3>
@@ -47,7 +48,9 @@ export function TumorMarkersCard({
       {/* Main Content */}
       {!hasData ? (
         <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200 text-center space-y-2">
-          <div className="text-2xl">🩸</div>
+          <div className="flex justify-center mb-1">
+            <TestTube2 className="w-8 h-8 text-slate-400" />
+          </div>
           <div className="text-xs font-bold text-slate-800">暂未录入血液肿瘤标志物</div>
           <p className="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
             若您的体检或就诊化验单中包含 <strong>CEA (癌胚抗原)</strong>、<strong>CYFRA21-1</strong> 或 <strong>NSE</strong>，可点击页面顶部【修改/校准临床档案】进行录入，系统将为您自动进行良恶性排雷与生理波动定性。
@@ -58,7 +61,8 @@ export function TumorMarkersCard({
           {/* Key Medical Principle Banner */}
           <div className="p-3.5 rounded-2xl bg-indigo-50/80 border border-indigo-200 text-xs text-indigo-950 space-y-1">
             <div className="font-bold flex items-center gap-1.5">
-              <span>🛡️ 临床定心丸黄金铁律：</span>
+              <ShieldCheck className="w-3.5 h-3.5 text-indigo-700" />
+              <span>临床定心丸黄金铁律：</span>
             </div>
             <p className="text-[11px] text-indigo-800 leading-relaxed font-medium">
               在正常参考区间（如 CEA &lt; 5.0 ng/mL）内的任何数值变化均属于<strong>人体正常生理代谢波动</strong>（吸烟、轻微胃肠炎、感冒均可引起轻度起伏），绝不代表病情恶化或复发！临床决策始终以<strong>胸部薄层 CT 影像为金标准</strong>。

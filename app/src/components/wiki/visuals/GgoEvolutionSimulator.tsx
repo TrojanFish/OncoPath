@@ -1,18 +1,17 @@
 "use client";
 
 import { useState } from "react";
+import { Microscope, Stethoscope, HeartPulse } from "lucide-react";
 
 export function GgoEvolutionSimulator() {
-  // ctr value from 0.0 to 1.0 (step 0.05)
   const [ctr, setCtr] = useState<number>(0.35);
 
-  // Derived classification
   let ggoType = "纯磨玻璃结节 (pGGN)";
   let stageLabel = "不典型腺瘤样增生 (AAH) / 原位腺癌 (AIS)";
   let invasiveness = "极低侵袭性 (惰性阶段)";
   let prognosis = "5年无复发生存率接近 100%";
   let followUpAdvice = "无需急于手术！建议 6~12 个月低剂量薄层 CT 复查，观察体积倍增趋势";
-  let themeColor = "#10b981"; // emerald
+  let themeColor = "#10b981";
 
   if (ctr === 0) {
     ggoType = "纯磨玻璃结节 (pGGN)";
@@ -27,24 +26,23 @@ export function GgoEvolutionSimulator() {
     invasiveness = "微浸润 (实性成分 ≤ 5mm)";
     prognosis = "JCOG0804 5年无复发率 99.7%";
     followUpAdvice = "根据生长速度评估：若持续稳定可继续随访；若手术首选微创亚肺叶（段切/楔切）保全肺功能";
-    themeColor = "#0ea5e9"; // sky blue
+    themeColor = "#0ea5e9";
   } else if (ctr < 0.8) {
     ggoType = "实性为主型结节 (mGGO / 浸润期)";
     stageLabel = "浸润性肺腺癌 (IAC) 早期";
     invasiveness = "明确浸润 (实性成分 > 50%)";
     prognosis = "早期根治性手术后预后优良";
     followUpAdvice = "建议胸外科专科评估手术指征，完善术前分期并评估规范切除";
-    themeColor = "#f59e0b"; // amber
+    themeColor = "#f59e0b";
   } else {
     ggoType = "纯实性结节 / 高实性结节";
     stageLabel = "浸润性肺腺癌 (IAC)";
     invasiveness = "实性浸润 (完全致密)";
     prognosis = "依病理 TNM 分期及高危因素决定";
     followUpAdvice = "积极行增强 CT 或 PET-CT 评估，多学科 MDT 制定手术与综合诊疗方案";
-    themeColor = "#ef4444"; // rose
+    themeColor = "#ef4444";
   }
 
-  // Radius for outer GGO halo & inner solid core
   const outerR = 48;
   const innerR = Math.max(0, outerR * Math.sqrt(ctr));
   const solidOpacity = ctr === 0 ? 0 : Math.min(1, 0.4 + ctr * 0.6);
@@ -55,8 +53,9 @@ export function GgoEvolutionSimulator() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-5 border-b border-slate-100">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-sky-50 text-sky-700 border border-sky-200 mb-2">
-            <span>🔬 交互式影像演变实验室</span>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-sky-50 text-sky-700 border border-sky-200 mb-2">
+            <Microscope className="w-3.5 h-3.5" />
+            <span>交互式影像演变实验室</span>
           </div>
           <h3 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
             磨玻璃结节演变与实性成分比 (CTR) 模拟器
@@ -173,8 +172,9 @@ export function GgoEvolutionSimulator() {
 
           {/* Expert Clinical Action Guide */}
           <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200">
-            <div className="flex items-center gap-2 text-xs font-bold text-slate-700 mb-1.5">
-              <span>🩺 权威胸外科临床对策</span>
+            <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 mb-1.5">
+              <Stethoscope className="w-3.5 h-3.5 text-sky-600" />
+              <span>权威胸外科临床对策</span>
             </div>
             <p className="text-xs sm:text-sm text-slate-700 leading-relaxed">
               {followUpAdvice}
@@ -183,7 +183,7 @@ export function GgoEvolutionSimulator() {
 
           {/* Warm Reassurance Box */}
           <div className="bg-emerald-50/70 p-3.5 rounded-2xl border border-emerald-200 flex items-start gap-2.5">
-            <span className="text-emerald-600 text-base leading-none mt-0.5">💚</span>
+            <HeartPulse className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
             <div className="text-xs text-emerald-900 leading-relaxed">
               <strong>定心丸寄语：</strong>
               {ctr <= 0.5 ? (

@@ -1,10 +1,16 @@
 "use client";
 
+import React from "react";
+import { ShieldCheck, Info } from "lucide-react";
+
 export function CalcificationVisual() {
   return (
     <div className="bg-slate-900 rounded-2xl p-2.5 sm:p-4 text-white select-none border border-slate-800">
       <div className="flex items-center justify-between mb-2">
-        <span className="text-[11px] font-bold text-amber-400">🛡️ 钙化结节良性特征与爆米花样钙化</span>
+        <span className="text-[11px] font-bold text-amber-400 flex items-center gap-1">
+          <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
+          <span>钙化结节良性特征与爆米花样钙化</span>
+        </span>
         <span className="text-[10px] text-slate-400">CT 影像学特征</span>
       </div>
 
@@ -31,7 +37,7 @@ export function CalcificationVisual() {
             散在致密高亮钙化点
           </text>
           <text x="47.5" y="85" textAnchor="middle" fill="#d1fae5" fontSize="4">
-            (良性错构瘤 100% 特征)
+            (良性错构瘤典型特征)
           </text>
         </g>
 
@@ -48,16 +54,20 @@ export function CalcificationVisual() {
           <circle cx="47.5" cy="52" r="4" fill="#cbd5e1" />
 
           <text x="47.5" y="78" textAnchor="middle" fill="#6ee7b7" fontSize="4.5" fontWeight="bold">
-            “小石头”完全石化
+            完全致密石化结节
           </text>
           <text x="47.5" y="85" textAnchor="middle" fill="#a7f3d0" fontSize="4">
-            (既往结核/感染已愈合)
+            (既往炎症/结核已痊愈)
           </text>
         </g>
       </svg>
 
       <div className="mt-2 text-[11px] text-slate-300 leading-relaxed bg-slate-800/80 p-2.5 rounded-xl border border-slate-700">
-        💡 <strong>图解要点：</strong> 钙化是机体将病变组织“包裹石化”的愈合结痂反应。<strong>爆米花样钙化、同心圆层状钙化以及中心完全钙化，是医学上公认的 100% 良性金标准特征</strong>（如错构瘤或已痊愈的结核球），绝非恶性癌变，无需频繁复查！
+        <span className="inline-flex items-center gap-1 font-bold text-amber-300 mr-1">
+          <Info className="w-3.5 h-3.5" />
+          <span>图解要点：</span>
+        </span>
+        钙化是机体将病变组织“包裹石化”的愈合结痂反应。<strong>爆米花样钙化、同心圆层状钙化以及中心完全钙化，是医学上公认的良性特征</strong>（如错构瘤或已痊愈的结核球），绝非恶性癌变，无需频繁复查。
       </div>
     </div>
   );

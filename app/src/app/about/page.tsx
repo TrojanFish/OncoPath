@@ -2,11 +2,26 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { 
+  HeartHandshake, 
+  BookOpen, 
+  Microscope, 
+  ClipboardList, 
+  AlertTriangle, 
+  MessageCircle, 
+  QrCode, 
+  Coffee, 
+  Mail, 
+  Check, 
+  Copy, 
+  X, 
+  ZoomIn 
+} from "lucide-react";
 
 export default function AboutPage() {
   const [copied, setCopied] = useState(false);
   const [previewImage, setPreviewImage] = useState<{ src: string; title: string } | null>(null);
-  const contactEmail = "contact@oncopath.org"; // 可以在此修改为您实际使用的邮箱
+  const contactEmail = "contact@oncopath.org";
 
   const handleCopyEmail = () => {
     navigator.clipboard.writeText(contactEmail);
@@ -35,7 +50,8 @@ export default function AboutPage() {
           {/* Header Banner */}
           <div className="space-y-4 border-b border-slate-100 pb-8">
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-800 text-xs font-bold">
-              <span>🕊️ 创作者自白 · 致同行者</span>
+              <HeartHandshake className="w-3.5 h-3.5 text-blue-600" />
+              <span>创作者自白 · 致同行者</span>
             </div>
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 tracking-tight leading-tight">
               因为淋过雨，<br className="hidden sm:inline" />
@@ -90,16 +106,25 @@ export default function AboutPage() {
                 作为一名技术开发者，我决定搭建 <strong>OncoPath</strong> 这个纯粹的公益工具：
               </p>
               <div className="grid sm:grid-cols-3 gap-3 pt-1">
-                <div className="bg-slate-50/80 p-4 rounded-2xl border border-slate-200/80">
-                  <div className="text-xs font-bold text-blue-800 mb-1">📖 医学信息平权</div>
+                <div className="bg-slate-50/80 p-4 rounded-2xl border border-slate-200/80 space-y-1">
+                  <div className="text-xs font-bold text-blue-800 flex items-center gap-1.5">
+                    <BookOpen className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                    <span>医学信息平权</span>
+                  </div>
                   <div className="text-xs text-slate-600 leading-relaxed">把晦涩的顶刊论文翻译成患者和家属能轻松看懂的白话解读。</div>
                 </div>
-                <div className="bg-slate-50/80 p-4 rounded-2xl border border-slate-200/80">
-                  <div className="text-xs font-bold text-teal-800 mb-1">🔬 杜绝算命式推测</div>
+                <div className="bg-slate-50/80 p-4 rounded-2xl border border-slate-200/80 space-y-1">
+                  <div className="text-xs font-bold text-teal-800 flex items-center gap-1.5">
+                    <Microscope className="w-3.5 h-3.5 text-teal-600 shrink-0" />
+                    <span>杜绝算命式推测</span>
+                  </div>
                   <div className="text-xs text-slate-600 leading-relaxed">每一个风险指标均可追溯至公开的 PubMed 顶刊文献，拒绝主观臆断。</div>
                 </div>
-                <div className="bg-slate-50/80 p-4 rounded-2xl border border-slate-200/80">
-                  <div className="text-xs font-bold text-sky-800 mb-1">📝 赋能门诊高效沟通</div>
+                <div className="bg-slate-50/80 p-4 rounded-2xl border border-slate-200/80 space-y-1">
+                  <div className="text-xs font-bold text-sky-800 flex items-center gap-1.5">
+                    <ClipboardList className="w-3.5 h-3.5 text-sky-600 shrink-0" />
+                    <span>赋能门诊高效沟通</span>
+                  </div>
                   <div className="text-xs text-slate-600 leading-relaxed">生成一目了然的便签卡与问诊清单，让患者在面诊时不漏掉任何关键决策点。</div>
                 </div>
               </div>
@@ -117,8 +142,11 @@ export default function AboutPage() {
               <p>
                 尽管平台内的所有病理分期逻辑、影像 CTR 计算模型与文献均经过权威指南的严格校验，但医学领域浩瀚深邃，个体病情千差万别，平台内容难免存在理解局限或需要改进之处。
               </p>
-              <div className="bg-amber-50/80 p-4 sm:p-5 rounded-2xl border border-amber-200/80 text-xs sm:text-sm text-amber-900">
-                <strong>⚠️ 重要声明</strong>：本平台提供的所有数据与建议<strong>仅供患者知情参考与就医辅助，绝不构成任何个性化临床诊断结论或处方指令</strong>。具体的治疗方案与随访检查，请务必以线下正规三甲医院主治医生的综合研判为准。
+              <div className="bg-amber-50/80 p-4 sm:p-5 rounded-2xl border border-amber-200/80 text-xs sm:text-sm text-amber-900 flex items-start gap-2">
+                <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                <div>
+                  <strong>重要声明</strong>：本平台提供的所有数据与建议<strong>仅供患者知情参考与就医辅助，绝不构成任何个性化临床诊断结论或处方指令</strong>。具体的治疗方案与随访检查，请务必以线下正规三甲医院主治医生的综合研判为准。
+                </div>
               </div>
             </section>
 
@@ -139,7 +167,8 @@ export default function AboutPage() {
               <div className="bg-slate-50 rounded-2xl p-6 border border-slate-200 text-center flex flex-col items-center justify-between space-y-4 hover:border-teal-300 transition-colors">
                 <div className="space-y-1">
                   <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-teal-100 text-teal-800 text-[11px] font-bold">
-                    💬 病友交流与互助
+                    <MessageCircle className="w-3.5 h-3.5" />
+                    <span>病友交流与互助</span>
                   </div>
                   <h4 className="text-sm font-bold text-slate-900">微信扫码入群 / 添加作者</h4>
                   <p className="text-xs text-slate-500">与同路人互相打气、分享康复经验，抗癌路上不再孤单</p>
@@ -162,12 +191,15 @@ export default function AboutPage() {
                     }}
                   />
                   <div id="wechat-qr-placeholder" className="hidden flex-col items-center justify-center text-slate-400 text-center p-2">
-                    <span className="text-3xl mb-1.5">📱</span>
+                    <QrCode className="w-10 h-10 text-slate-400 mb-1.5" />
                     <span className="text-xs font-bold text-slate-600">微信交流二维码</span>
                     <span className="text-[10px] text-slate-400 mt-1">（待添加 wechat_qr.png）</span>
                   </div>
                   <div className="absolute inset-0 bg-teal-900/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
-                    <span className="bg-white/90 text-teal-800 text-[10px] font-bold px-2 py-1 rounded-full shadow-xs backdrop-blur-xs">🔍 点击放大</span>
+                    <span className="bg-white/90 text-teal-800 text-[10px] font-bold px-2.5 py-1 rounded-full shadow-xs backdrop-blur-xs flex items-center gap-1">
+                      <ZoomIn className="w-3 h-3" />
+                      <span>点击放大</span>
+                    </span>
                   </div>
                 </div>
 
@@ -180,7 +212,8 @@ export default function AboutPage() {
               <div className="bg-slate-50 rounded-2xl p-6 border border-slate-200 text-center flex flex-col items-center justify-between space-y-4 hover:border-blue-300 transition-colors">
                 <div className="space-y-1">
                   <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[11px] font-bold">
-                    ☕ 支持服务器与算力支出
+                    <Coffee className="w-3.5 h-3.5" />
+                    <span>支持服务器与算力支出</span>
                   </div>
                   <h4 className="text-sm font-bold text-slate-900">自愿赞助一杯清茶</h4>
                   <p className="text-xs text-slate-500">所有赞助将全部用于覆盖 VPS 服务器、域名与大模型 Token 成本</p>
@@ -203,12 +236,15 @@ export default function AboutPage() {
                     }}
                   />
                   <div id="sponsor-qr-placeholder" className="hidden flex-col items-center justify-center text-slate-400 text-center p-2">
-                    <span className="text-3xl mb-1.5">☕</span>
+                    <Coffee className="w-10 h-10 text-slate-400 mb-1.5" />
                     <span className="text-xs font-bold text-slate-600">自愿赞赏支持码</span>
                     <span className="text-[10px] text-slate-400 mt-1">（待添加 sponsor_qr.png）</span>
                   </div>
                   <div className="absolute inset-0 bg-amber-900/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
-                    <span className="bg-white/90 text-amber-800 text-[10px] font-bold px-2 py-1 rounded-full shadow-xs backdrop-blur-xs">🔍 点击放大</span>
+                    <span className="bg-white/90 text-amber-800 text-[10px] font-bold px-2.5 py-1 rounded-full shadow-xs backdrop-blur-xs flex items-center gap-1">
+                      <ZoomIn className="w-3 h-3" />
+                      <span>点击放大</span>
+                    </span>
                   </div>
                 </div>
 
@@ -223,7 +259,8 @@ export default function AboutPage() {
             <div className="bg-gradient-to-r from-blue-50/70 to-teal-50/70 p-5 rounded-2xl border border-blue-100 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
               <div className="space-y-0.5">
                 <div className="text-xs font-bold text-blue-900 flex items-center justify-center sm:justify-start gap-1.5">
-                  <span>📮 专业建议与纠错反馈</span>
+                  <Mail className="w-3.5 h-3.5 text-blue-700" />
+                  <span>专业建议与纠错反馈</span>
                 </div>
                 <p className="text-xs text-slate-600">
                   欢迎胸外科、病理科、肿瘤内科医师及病友提出宝贵指正。每一封邮件我都会认真研读并持续迭代系统。
@@ -235,7 +272,17 @@ export default function AboutPage() {
                   onClick={handleCopyEmail}
                   className="px-4 py-2 rounded-xl bg-white hover:bg-slate-50 text-blue-700 text-xs font-bold border border-blue-200 shadow-2xs transition-all cursor-pointer flex items-center gap-1.5"
                 >
-                  <span>{copied ? "✅ 已复制邮箱" : "📋 复制联系邮箱"}</span>
+                  {copied ? (
+                    <>
+                      <Check className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>已复制邮箱</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-3.5 h-3.5" />
+                      <span>复制联系邮箱</span>
+                    </>
+                  )}
                 </button>
               </div>
             </div>
@@ -270,9 +317,10 @@ export default function AboutPage() {
               <span className="text-sm font-bold text-slate-900">{previewImage.title}</span>
               <button 
                 onClick={() => setPreviewImage(null)}
-                className="w-7 h-7 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center text-sm font-bold cursor-pointer"
+                className="w-7 h-7 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center cursor-pointer"
+                aria-label="关闭预览"
               >
-                ✕
+                <X className="w-4 h-4" />
               </button>
             </div>
             

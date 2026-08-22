@@ -774,7 +774,7 @@ export const WIKI_TOPICS: WikiTopic[] = [
     tactics: [
       "推荐使用包含 DNA+RNA 的大 Panel NGS 基因检测，一次性覆盖 EGFR/ALK/ROS1/KRAS/RET/MET/HER2/BRAF/NTRK 全部核心驱动基因",
       "ALK 阳性患者根据 ALINA 试验（NEJM 2024 成熟数据）：术后口服阿来替尼辅助治疗（2年），4年DFS高达 76.4% vs 化疗组 41.3%（HR=0.24，复发降低 76%）",
-      "⚠️ 重要提示：KRAS G12C 抑制剂（sotorasib / adagrasib / 氟泽雷塞）目前适应症主要为晚期二线治疗，术后辅助阶段尚无 III 期 RCT 支持，请勿自行购药使用",
+      "【重要提示】KRAS G12C 抑制剂（sotorasib / adagrasib / 氟泽雷塞）目前适应症主要为晚期二线治疗，术后辅助阶段尚无 III 期 RCT 支持，请勿自行购药使用",
       "驱动基因全阴性患者（野生型）重点评估 PD-L1 表达，积极储备免疫联合化疗治疗依据",
     ],
     reassurance: "无论检测出哪种基因突变，现代精准肿瘤学都拥有层出不穷的靶向新药武器。即使所有基因均为阴性（野生型），免疫治疗（如 PD-1/PD-L1 抑制剂）联合化疗也为患者带来了前所未有的长期生存与临床治愈奇迹！",

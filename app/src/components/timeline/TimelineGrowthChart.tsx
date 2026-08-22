@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { TrendingUp, Zap } from "lucide-react";
 import { TimelineEventItem } from "@/lib/timelineTypes";
 
 interface TimelineGrowthChartProps {
@@ -45,8 +46,8 @@ export default function TimelineGrowthChart({ events }: TimelineGrowthChartProps
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 font-bold flex items-center justify-center text-base">
-            📈
+          <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 font-bold flex items-center justify-center">
+            <TrendingUp className="w-4 h-4 text-blue-600" />
           </div>
           <div>
             <h3 className="text-sm font-extrabold text-slate-900">
@@ -60,8 +61,8 @@ export default function TimelineGrowthChart({ events }: TimelineGrowthChartProps
 
         {surgeryEvent && (
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold shrink-0">
-            <span>⚡ {surgeryEvent.eventDate}</span>
-            <span>已行微创根治术</span>
+            <Zap className="w-3.5 h-3.5 text-emerald-600" />
+            <span>{surgeryEvent.eventDate} 已行微创根治术</span>
           </div>
         )}
       </div>

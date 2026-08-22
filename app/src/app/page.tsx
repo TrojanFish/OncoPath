@@ -2,6 +2,19 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { 
+  Check, 
+  BookOpen, 
+  TrendingUp, 
+  XCircle, 
+  CheckCircle2, 
+  Scan, 
+  Microscope, 
+  Dna, 
+  HeartPulse, 
+  Compass, 
+  FileText 
+} from "lucide-react";
 import SubpageNavbar from "@/components/SubpageNavbar";
 import ProfileForm from "@/components/ProfileForm";
 import EvidenceReport from "@/components/EvidenceReport";
@@ -28,68 +41,110 @@ export default function HomePage() {
   const heroRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const checkAuth = () => {
-      setUserEmail(localStorage.getItem("email"));
-    };
-    checkAuth();
-    window.addEventListener("auth-change", checkAuth);
-    return () => window.removeEventListener("auth-change", checkAuth);
-  }, []);
+    // Check for existing session on page load
+    const savedUser = sessionStorage.getItem("oncopath_user");
+    if (savedUser) {
+      try {
+        const u = JSON.parse(savedUser);
+        setUserEmail(u.email || null);
+      } catch (e) {}
+    }
 
-  useEffect(() => {
-    const handleScroll = () => setScrollY(window.scrollY);
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+    };
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const handleProfileSubmit = (profile: PatientProfile) => {
     setPatientProfile(profile);
-    setReportJson(null);
     setAppState("report");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  if (appState === "report" && patientProfile) {
-    return (
-      <EvidenceReport
-        profile={patientProfile}
-        initialReportJson={reportJson}
-        onBack={() => {
-          setAppState("input");
-          setPatientProfile(null);
-          setReportJson(null);
-        }}
-      />
-    );
-  }
+  const handleStartAnalysis = () => {
+    setAppState("input");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
-  if (appState === "dashboard") {
-    return (
-      <DashboardView
-        onBack={() => setAppState("landing")}
-        onViewReport={(profile, json) => {
-          setPatientProfile(profile);
-          setReportJson(json);
-          setAppState("report");
-        }}
-      />
-    );
-  }
+  const handleBackToLanding = () => {
+    setAppState("landing");
+    setPatientProfile(null);
+    setReportJson(null);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
+  const handleAuthSuccess = (email: string) => {
+    setUserEmail(email);
+    setShowAuthModal(false);
+  };
+
+  const handleLogout = () => {
+    sessionStorage.removeItem("oncopath_user");
+    sessionStorage.removeItem("oncopath_token");
+    setUserEmail(null);
+    setAppState("landing");
+  };
+
+  // Profile Form View
   if (appState === "input") {
     return (
-      <div className="min-h-screen bg-gray-50 overflow-x-hidden">
+      <div className="min-h-screen bg-slate-50 text-slate-900 selection:bg-blue-500 selection:text-white">
         <SubpageNavbar />
-        <div className="pt-28 md:pt-32 pb-16 flex justify-center w-full">
-          <div className="w-full">
-            <ProfileForm onSubmit={handleProfileSubmit} />
-          </div>
-        </div>
+        <main className="max-w-4xl mx-auto px-4 pt-28 md:pt-32 pb-20">
+          <button
+            onClick={handleBackToLanding}
+            className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-slate-900 mb-8 py-2 px-3 rounded-xl hover:bg-slate-200/60 transition-all cursor-pointer"
+          >
+            <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            返回平台主页
+          </button>
+          <ProfileForm
+            onSubmit={handleProfileSubmit}
+            initialData={patientProfile || undefined}
+          />
+        </main>
       </div>
     );
   }
 
-  // Landing page
+  // Evidence Report View
+  if (appState === "report" && patientProfile) {
+    return (
+      <div className="min-h-screen bg-slate-50 text-slate-900 selection:bg-blue-500 selection:text-white">
+        <SubpageNavbar />
+        <main className="max-w-5xl mx-auto px-4 pt-28 md:pt-32 pb-20">
+          <div className="flex items-center justify-between mb-8">
+            <button
+              onClick={() => setAppState("input")}
+              className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-slate-900 py-2 px-3 rounded-xl hover:bg-slate-200/60 transition-all cursor-pointer"
+            >
+              <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              修改临床档案
+            </button>
+            <button
+              onClick={handleBackToLanding}
+              className="text-sm font-semibold text-slate-500 hover:text-slate-900 py-2 px-3 rounded-xl hover:bg-slate-200/60 transition-all cursor-pointer"
+            >
+              返回主页
+            </button>
+          </div>
+          <EvidenceReport
+            profile={patientProfile}
+            reportJson={reportJson}
+            onEditProfile={() => setAppState("input")}
+          />
+        </main>
+      </div>
+    );
+  }
+
+  // Landing Page View
   return (
     <div className="min-h-screen overflow-x-hidden bg-slate-50 text-slate-900">
       <ConsentModal />
@@ -118,7 +173,6 @@ export default function HomePage() {
               transform: `translateY(${scrollY * -0.04}px)`,
             }}
           />
-          <FloatingParticles />
         </div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-3.5 sm:px-6 w-full">
@@ -129,7 +183,9 @@ export default function HomePage() {
               
               {/* Trust Badge */}
               <div className="inline-flex items-center gap-2 bg-white px-3.5 py-1.5 rounded-full text-xs font-bold text-sky-700 border border-sky-200/80 shadow-xs animate-fade-in-up">
-                <span className="w-4 h-4 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center text-[10px]">✓</span>
+                <span className="w-4 h-4 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center">
+                  <Check className="w-3 h-3 text-sky-600" />
+                </span>
                 <span>已收录 500,000+ 例临床病例 · 100% 顶刊出处可溯</span>
               </div>
 
@@ -149,22 +205,19 @@ export default function HomePage() {
 
               {/* CTA Action Buttons */}
               <div className="flex flex-wrap items-center gap-3.5 pt-2 animate-fade-in-up stagger-3">
-                <Link
-                  href="/profile"
-                  id="hero-start-btn"
+                <button
+                  onClick={handleStartAnalysis}
                   className="btn-primary px-7 py-3.5 rounded-2xl text-base font-bold shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                    <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
+                  <FileText className="w-5 h-5" />
                   <span>建立临床数字档案</span>
-                </Link>
+                </button>
                 <Link
                   href="/wiki"
-                  id="hero-wiki-btn"
                   className="btn-secondary px-6 py-3.5 rounded-2xl text-base font-semibold border-slate-200 text-slate-700 hover:bg-slate-50 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-2xs"
                 >
-                  <span>💡 探索循证百科</span>
+                  <BookOpen className="w-4 h-4 text-slate-600" />
+                  <span>探索循证百科</span>
                 </Link>
               </div>
 
@@ -239,8 +292,8 @@ export default function HomePage() {
 
               {/* Secondary Floating Mini Metric Card */}
               <div className="hidden sm:flex absolute -bottom-6 -left-6 bg-white p-3.5 rounded-2xl border border-slate-200 shadow-xl items-center gap-3 z-20">
-                <div className="w-10 h-10 rounded-xl bg-blue-50 text-accent-blue flex items-center justify-center text-xl shrink-0">
-                  📊
+                <div className="w-10 h-10 rounded-xl bg-blue-50 text-accent-blue flex items-center justify-center shrink-0">
+                  <TrendingUp className="w-5 h-5 text-accent-blue" />
                 </div>
                 <div>
                   <div className="text-[10px] font-bold text-slate-400 uppercase">JCOG0804 5年无复发率</div>
@@ -317,7 +370,7 @@ export default function HomePage() {
               {/* General AI box */}
               <div className="bg-white/80 p-6 rounded-2xl border border-rose-200/80 space-y-3">
                 <div className="flex items-center gap-2 text-rose-700 font-bold text-sm">
-                  <span>❌</span>
+                  <XCircle className="w-4 h-4 text-rose-500 shrink-0" />
                   <span>普通通用大模型 (如 ChatGPT / 聊天AI)</span>
                 </div>
                 <ul className="space-y-2 text-xs text-slate-600 leading-relaxed">
@@ -339,20 +392,20 @@ export default function HomePage() {
               {/* OncoPath Box */}
               <div className="bg-white p-6 rounded-2xl border border-emerald-300 shadow-sm space-y-3">
                 <div className="flex items-center gap-2 text-emerald-800 font-bold text-sm">
-                  <span>✅</span>
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                   <span>OncoPath 严谨循证医学决策系统</span>
                 </div>
                 <ul className="space-y-2 text-xs text-slate-700 leading-relaxed font-medium">
                   <li className="flex items-start gap-2">
-                    <span className="text-emerald-600">✓</span>
+                    <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
                     <span><strong>100% 文献可溯</strong>：每一句话均带有 DOI 与 PubMed 直达链接。</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-emerald-600">✓</span>
+                    <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
                     <span><strong>严密效应量统计</strong>：依据 HR (95% CI) 与多中心 5yr RFS 真实患者队列。</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-emerald-600">✓</span>
+                    <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
                     <span><strong>知情同意与门诊协同</strong>：输出红绿灯矩阵与医生问诊清单，科学赋能医患沟通。</span>
                   </li>
                 </ul>
@@ -422,8 +475,8 @@ export default function HomePage() {
             >
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center text-2xl border border-emerald-100 group-hover:scale-110 transition-transform">
-                    🫁
+                  <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center border border-emerald-100 group-hover:scale-110 transition-transform">
+                    <Scan className="w-6 h-6 text-emerald-600" />
                   </div>
                   <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
                     结节消恐 · 7个词条
@@ -450,8 +503,8 @@ export default function HomePage() {
             >
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center text-2xl border border-blue-100 group-hover:scale-110 transition-transform">
-                    🔬
+                  <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center border border-blue-100 group-hover:scale-110 transition-transform">
+                    <Microscope className="w-6 h-6 text-blue-600" />
                   </div>
                   <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
                     病理破译 · 6个词条
@@ -478,8 +531,8 @@ export default function HomePage() {
             >
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <div className="w-12 h-12 rounded-2xl bg-purple-50 text-purple-700 flex items-center justify-center text-2xl border border-purple-100 group-hover:scale-110 transition-transform">
-                    🧬
+                  <div className="w-12 h-12 rounded-2xl bg-purple-50 text-purple-700 flex items-center justify-center border border-purple-100 group-hover:scale-110 transition-transform">
+                    <Dna className="w-6 h-6 text-purple-600" />
                   </div>
                   <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-purple-50 text-purple-700 border border-purple-200">
                     驱动基因 · 83%阻断
@@ -506,8 +559,8 @@ export default function HomePage() {
             >
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-700 flex items-center justify-center text-2xl border border-amber-100 group-hover:scale-110 transition-transform">
-                    🌿
+                  <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-700 flex items-center justify-center border border-amber-100 group-hover:scale-110 transition-transform">
+                    <HeartPulse className="w-6 h-6 text-amber-600" />
                   </div>
                   <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
                     康复调适 · 科学心安
@@ -534,13 +587,15 @@ export default function HomePage() {
               href="/wiki"
               className="btn-primary px-8 py-3.5 rounded-2xl text-sm font-bold shadow-md hover:shadow-lg transition-all inline-flex items-center gap-2 cursor-pointer"
             >
-              <span>💡 探索循证百科</span>
+              <BookOpen className="w-4 h-4" />
+              <span>探索循证百科</span>
             </Link>
             <Link
               href="/resources"
               className="px-6 py-3.5 rounded-2xl text-sm font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition-all inline-flex items-center gap-2 shadow-2xs cursor-pointer"
             >
-              <span>📖 查阅学术导航</span>
+              <Compass className="w-4 h-4 text-slate-600" />
+              <span>查阅学术导航</span>
             </Link>
           </div>
         </div>
@@ -583,7 +638,8 @@ export default function HomePage() {
                 href="/profile"
                 className="inline-flex items-center gap-2 bg-white text-blue-700 hover:bg-blue-50 px-8 py-4 rounded-2xl font-extrabold text-base shadow-lg transition-all transform hover:-translate-y-0.5 cursor-pointer"
               >
-                <span>📋 建立患者临床档案</span>
+                <FileText className="w-5 h-5 text-blue-700" />
+                <span>建立患者临床档案</span>
               </Link>
             </div>
           </div>

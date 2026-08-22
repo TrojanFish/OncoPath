@@ -2,6 +2,17 @@
 
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
+import { 
+  Sparkles, 
+  Calendar, 
+  Plus, 
+  FileText, 
+  Camera, 
+  TrendingUp, 
+  Search, 
+  X, 
+  Bookmark 
+} from "lucide-react";
 import { TimelineCategory, TimelineEventItem, TIMELINE_CATEGORIES } from "@/lib/timelineTypes";
 import { DEFAULT_TIMELINE_EVENTS } from "@/lib/timelineData";
 import TimelineEventCard from "./TimelineEventCard";
@@ -9,6 +20,7 @@ import TimelineGrowthChart from "./TimelineGrowthChart";
 import TumorMarkerTrendChart from "./TumorMarkerTrendChart";
 import AddEventModal from "./AddEventModal";
 import DoctorSummaryModal from "./DoctorSummaryModal";
+import TimelineCategoryIcon from "./TimelineCategoryIcon";
 
 export default function ClinicalTimelineView() {
   const [events, setEvents] = useState<TimelineEventItem[]>([]);
@@ -218,7 +230,7 @@ export default function ClinicalTimelineView() {
       {isDemoMode && (
         <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-xs">
           <div className="flex items-center gap-2">
-            <span className="text-base">✨</span>
+            <Sparkles className="w-4 h-4 text-amber-600 shrink-0" />
             <span className="font-semibold">
               当前正在预览「3年随访典型微浸润腺癌 (MIA) 临床时序演示数据」，仅供功能体验与参考。
             </span>
@@ -237,7 +249,7 @@ export default function ClinicalTimelineView() {
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2 max-w-xl">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-100/70 border border-blue-200 text-blue-800 text-xs font-bold">
-              <span>📅</span>
+              <Calendar className="w-3.5 h-3.5 text-blue-700" />
               <span>长程随访全景档案编年史</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
@@ -254,13 +266,15 @@ export default function ClinicalTimelineView() {
               onClick={() => setShowAddModal(true)}
               className="btn-primary px-5 py-3 rounded-2xl text-xs sm:text-sm font-bold shadow-md flex items-center justify-center gap-2 cursor-pointer"
             >
-              <span>➕ 录入新检查报告</span>
+              <Plus className="w-4 h-4" />
+              <span>录入新检查报告</span>
             </button>
             <button
               onClick={() => setShowSummaryModal(true)}
               className="px-4 sm:px-5 py-3 rounded-2xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
             >
-              <span>📑 生成名医就诊清单</span>
+              <FileText className="w-4 h-4 text-slate-600" />
+              <span>生成名医就诊清单</span>
             </button>
           </div>
         </div>
@@ -312,8 +326,8 @@ export default function ClinicalTimelineView() {
       {/* 2. Empty State (When user has 0 records) */}
       {events.length === 0 ? (
         <div className="bg-white rounded-3xl p-8 sm:p-14 text-center border border-slate-200/90 shadow-sm space-y-6">
-          <div className="w-16 h-16 rounded-3xl bg-blue-50 text-accent-blue text-3xl flex items-center justify-center mx-auto shadow-xs border border-blue-100">
-            🗓️
+          <div className="w-16 h-16 rounded-3xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto shadow-xs border border-blue-100">
+            <Calendar className="w-8 h-8 text-blue-600" />
           </div>
           <div className="space-y-2 max-w-md mx-auto">
             <h3 className="text-lg sm:text-xl font-extrabold text-slate-900">
@@ -329,19 +343,22 @@ export default function ClinicalTimelineView() {
               onClick={() => setShowAddModal(true)}
               className="w-full sm:w-auto btn-primary px-6 py-3 rounded-2xl text-xs sm:text-sm font-bold shadow-md cursor-pointer flex items-center justify-center gap-2"
             >
-              <span>➕ 录入第一份检查报告</span>
+              <Plus className="w-4 h-4" />
+              <span>录入第一份检查报告</span>
             </button>
             <Link
               href="/profile"
               className="w-full sm:w-auto px-5 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2"
             >
-              <span>📸 拍照上传智能识别</span>
+              <Camera className="w-4 h-4 text-slate-600" />
+              <span>拍照上传智能识别</span>
             </Link>
             <button
               onClick={handleLoadDemo}
               className="w-full sm:w-auto px-5 py-3 rounded-2xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center justify-center gap-2"
             >
-              <span>✨ 体验 3年随访演示数据</span>
+              <Sparkles className="w-4 h-4 text-amber-600" />
+              <span>体验 3年随访演示数据</span>
             </button>
           </div>
         </div>
@@ -360,7 +377,8 @@ export default function ClinicalTimelineView() {
                       : "text-slate-600 hover:text-slate-900"
                   }`}
                 >
-                  <span>📅 垂直时序生命线</span>
+                  <Calendar className="w-3.5 h-3.5 text-slate-700" />
+                  <span>垂直时序生命线</span>
                 </button>
                 <button
                   onClick={() => setViewMode("charts")}
@@ -370,7 +388,8 @@ export default function ClinicalTimelineView() {
                       : "text-slate-600 hover:text-slate-900"
                   }`}
                 >
-                  <span>📈 多维指标演变图谱</span>
+                  <TrendingUp className="w-3.5 h-3.5 text-slate-700" />
+                  <span>多维指标演变图谱</span>
                 </button>
               </div>
 
@@ -383,15 +402,16 @@ export default function ClinicalTimelineView() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:bg-white focus:outline-none focus:border-blue-600"
                 />
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs">
-                  🔍
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                  <Search className="w-3.5 h-3.5" />
                 </span>
                 {searchQuery && (
                   <button
                     onClick={() => setSearchQuery("")}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 text-xs"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700"
+                    aria-label="清除搜索"
                   >
-                    ✕
+                    <X className="w-3.5 h-3.5" />
                   </button>
                 )}
               </div>
@@ -423,7 +443,7 @@ export default function ClinicalTimelineView() {
                         : "bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200"
                     }`}
                   >
-                    <span>{cat.icon}</span>
+                    <TimelineCategoryIcon category={cat.key} className="w-3.5 h-3.5" />
                     <span>{cat.label}</span>
                     <span className="text-[10px] opacity-75 font-mono">({count})</span>
                   </button>
@@ -447,7 +467,7 @@ export default function ClinicalTimelineView() {
 
               {Object.keys(groupedByYear).length === 0 ? (
                 <div className="bg-white rounded-3xl p-12 text-center border border-slate-200 shadow-sm text-slate-500 space-y-3">
-                  <span className="text-3xl">🔍</span>
+                  <Search className="w-8 h-8 text-slate-400 mx-auto" />
                   <p className="text-sm font-semibold">未找到符合当前筛选条件的检查记录</p>
                   <button
                     onClick={() => {
@@ -467,7 +487,7 @@ export default function ClinicalTimelineView() {
                       {/* Year Anchor Header */}
                       <div className="sticky top-16 z-20 flex items-center gap-3">
                         <div className="px-3.5 py-1.5 rounded-full bg-slate-900 text-white font-extrabold text-xs shadow-md font-mono flex items-center gap-1.5 border border-slate-700">
-                          <span>📌</span>
+                          <Bookmark className="w-3.5 h-3.5 text-slate-400" />
                           <span>{year} 年度</span>
                         </div>
                         <div className="h-px bg-slate-200 flex-1" />

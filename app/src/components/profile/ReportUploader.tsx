@@ -1,6 +1,31 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import {
+  FileText,
+  Scan,
+  Globe,
+  Microscope,
+  Camera,
+  Dna,
+  User,
+  Lightbulb,
+  AlertTriangle,
+  BookOpen,
+  X,
+  CircleDot,
+  ShieldCheck,
+  TrendingUp,
+  Activity,
+  BrainCircuit,
+  Stethoscope,
+  Sparkles,
+  Check,
+  Info,
+  Layers,
+  TestTube2,
+  Award,
+} from "lucide-react";
 import type { PatientProfile, SecondaryNodule, FollowUpRecord, TumorMarkersData } from "@/lib/types";
 import { computeClinicalTnmStage } from "@/lib/staging";
 import { GlossaryTooltip } from "@/components/common/GlossaryTooltip";
@@ -437,16 +462,33 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-6 pb-4 border-b border-slate-100">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold mb-1.5">
-              <span>{initialData ? "📝 档案核对与微调模式" : "✓ 全模态结构化提取就绪"}</span>
+              <span className="flex items-center gap-1">
+                {initialData ? <FileText className="w-3 h-3 text-emerald-700" /> : <Check className="w-3 h-3 text-emerald-700" />}
+                <span>{initialData ? "档案核对与微调模式" : "全模态结构化提取就绪"}</span>
+              </span>
               <span className="text-slate-400">·</span>
-              <span>
-                {parsedData.reportType === 'ct_imaging' 
-                  ? '🩻 放射科胸部 CT 报告' 
-                  : parsedData.reportType === 'systemic_staging'
-                  ? '🌐 全身转移排查报告 (MRI/超声/骨扫描)'
-                  : parsedData.reportType === 'comprehensive'
-                  ? '📑 综合多模态联合报告 (CT + 病理 + 全身排查)'
-                  : '🔬 术后组织病理报告'}
+              <span className="flex items-center gap-1">
+                {parsedData.reportType === 'ct_imaging' ? (
+                  <>
+                    <Scan className="w-3 h-3 text-sky-600" />
+                    <span>放射科胸部 CT 报告</span>
+                  </>
+                ) : parsedData.reportType === 'systemic_staging' ? (
+                  <>
+                    <Globe className="w-3 h-3 text-teal-600" />
+                    <span>全身转移排查报告 (MRI/超声/骨扫描)</span>
+                  </>
+                ) : parsedData.reportType === 'comprehensive' ? (
+                  <>
+                    <Layers className="w-3 h-3 text-indigo-600" />
+                    <span>综合多模态联合报告 (CT + 病理 + 全身排查)</span>
+                  </>
+                ) : (
+                  <>
+                    <Microscope className="w-3 h-3 text-purple-600" />
+                    <span>术后组织病理报告</span>
+                  </>
+                )}
               </span>
             </div>
             <h2 className="text-xl font-extrabold text-slate-900">
@@ -462,9 +504,10 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
             <button 
               type="button"
               onClick={() => setParsedData(null)}
-              className="text-xs text-slate-600 hover:text-purple-700 font-semibold px-3 py-1.5 rounded-xl border border-slate-200 hover:bg-purple-50 transition-colors cursor-pointer flex items-center gap-1"
+              className="text-xs text-slate-600 hover:text-purple-700 font-semibold px-3 py-1.5 rounded-xl border border-slate-200 hover:bg-purple-50 transition-colors cursor-pointer flex items-center gap-1.5"
             >
-              <span>📸 改为拍照上传新报告</span>
+              <Camera className="w-3.5 h-3.5 text-slate-500" />
+              <span>改为拍照上传新报告</span>
             </button>
             {onCancel && (
               <button 
@@ -483,7 +526,7 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
           <div className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-emerald-50 via-teal-50 to-sky-50 border-2 border-teal-300/80 shadow-xs">
             <div className="flex items-center justify-between gap-3 mb-1.5">
               <div className="flex items-center gap-2">
-                <span className="text-base">🧬</span>
+                <Dna className="w-4 h-4 text-teal-700" />
                 <span className="text-xs font-bold text-teal-900 uppercase tracking-wide">
                   AJCC 8th/9th 临床分期智能校准
                 </span>
@@ -503,7 +546,10 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
           {/* Section 1: Patient Demographics & Surgery Status (Clinical Anchor & Primary Switch) */}
           <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200">
             <div className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3 flex items-center justify-between">
-              <span>👤 患者基本画像与诊疗状态</span>
+              <span className="flex items-center gap-1.5">
+                <User className="w-3.5 h-3.5 text-slate-600" />
+                <span>患者基本画像与诊疗状态</span>
+              </span>
               <span className="text-[11px] font-normal text-slate-400">决定分期计算基准与临床路径分流</span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
@@ -531,8 +577,9 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
               <div>
                 <label className="block text-xs font-semibold text-slate-600 mb-1">当前诊疗状态 / 手术术式</label>
                 {parsedData.reportType === 'ct_imaging' && parsedData.surgeryType === 'unknown' ? (
-                  <div className="p-2.5 bg-sky-50 border border-sky-200 rounded-xl text-xs font-bold text-sky-900 flex items-center h-[42px]">
-                    🌱 尚未手术 (随访观察 / 术前评估)
+                  <div className="p-2.5 bg-sky-50 border border-sky-200 rounded-xl text-xs font-bold text-sky-900 flex items-center h-[42px] gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-sky-500" />
+                    <span>尚未手术 (随访观察 / 术前评估)</span>
                   </div>
                 ) : (
                   <select 
@@ -553,7 +600,10 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
           {/* Section 2: Nodule Morphology & Solid Size & Accurate CTR */}
           <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
             <div className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3 flex items-center justify-between">
-              <span>🫁 结节形态与 CT 实性成分 (CTR 核心分期依据)</span>
+              <span className="flex items-center gap-1.5">
+                <Scan className="w-3.5 h-3.5 text-teal-700" />
+                <span>结节形态与 CT 实性成分 (CTR 核心分期依据)</span>
+              </span>
               <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-teal-100 text-teal-800 border border-teal-200">
                 当前 CTR: {currentCtr}
               </span>
@@ -604,13 +654,23 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
 
             <div className="text-[11px] text-slate-600 bg-white p-2.5 rounded-xl border border-slate-200 flex items-center justify-between flex-wrap gap-2">
               <span className="flex items-center gap-1.5">
-                <span>💡</span>
+                <Lightbulb className="w-3.5 h-3.5 text-amber-500" />
                 <span>
                   <strong>CTR 计算公式</strong>：<strong>CT 实性成分最大径 ({solidVal}cm) ÷ 磨玻璃最大径 ({tumorVal}cm) = {currentCtr}</strong>
                 </span>
               </span>
-              <span className="text-teal-700 font-semibold">
-                {currentCtr <= 0.5 ? "✓ CTR ≤ 0.5 (惰性浸润，5年无复发率高达99.7%)" : "⚠️ CTR > 0.5 (浸润成分较高，需重点评估切缘)"}
+              <span className="text-teal-700 font-semibold flex items-center gap-1">
+                {currentCtr <= 0.5 ? (
+                  <>
+                    <Check className="w-3 h-3 text-teal-600" />
+                    <span>CTR ≤ 0.5 (惰性浸润，5年无复发率高达99.7%)</span>
+                  </>
+                ) : (
+                  <>
+                    <AlertTriangle className="w-3 h-3 text-amber-600" />
+                    <span>CTR &gt; 0.5 (浸润成分较高，需重点评估切缘)</span>
+                  </>
+                )}
               </span>
             </div>
           </div>
@@ -618,8 +678,9 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
           {/* Section 3: CT Malignant Imaging Signs with Plain-Language Definitions */}
           <div className="p-4 rounded-2xl bg-sky-50/60 border border-sky-200 space-y-3">
             <div className="flex items-center justify-between flex-wrap gap-2">
-              <div className="text-xs font-bold text-sky-900 uppercase tracking-wider flex items-center gap-1.5">
-                <span>🩻 CT 影像恶性征象（点击切换 & 悬浮/点击查看通俗释义）</span>
+              <div className="text-xs font-bold text-sky-900 uppercase tracking-wide flex items-center gap-1.5">
+                <Scan className="w-3.5 h-3.5 text-sky-700" />
+                <span>CT 影像恶性征象（点击切换 & 悬浮/点击查看通俗释义）</span>
               </div>
               {parsedData.lungRads && (
                 <span className="px-2 py-0.5 bg-sky-200/80 text-sky-900 rounded-md font-extrabold text-[11px]">
@@ -675,39 +736,16 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
                       }}
                       className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer flex items-center gap-1.5 ${
                         isSelected 
-                          ? 'bg-amber-100 border-amber-300 text-amber-950 shadow-2xs' 
-                          : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'
+                          ? 'bg-amber-100 border-amber-300 text-amber-950 shadow-xs' 
+                          : 'bg-white border-slate-200 text-slate-700 hover:border-slate-300'
                       }`}
                     >
-                      <span>{isSelected ? '✓' : '+'}</span>
+                      <AlertTriangle className="w-3 h-3 text-amber-600" />
                       <span>{sign}</span>
-                      <span className="text-[10px] text-slate-400">ℹ️</span>
                     </button>
                   );
                 })}
               </div>
-
-              {/* Active Sign Definition Callout */}
-              {activeSignTooltip && CT_SIGN_DEFINITIONS[activeSignTooltip] && (
-                <div className="p-3 bg-white rounded-xl border border-sky-200 text-xs shadow-2xs space-y-1 animate-fade-in">
-                  <div className="font-bold text-sky-950 flex items-center justify-between">
-                    <span>📖 {CT_SIGN_DEFINITIONS[activeSignTooltip].label} ({CT_SIGN_DEFINITIONS[activeSignTooltip].enName})</span>
-                    <button 
-                      type="button"
-                      onClick={() => setActiveSignTooltip(null)} 
-                      className="text-slate-400 hover:text-slate-600 text-[11px]"
-                    >
-                      关闭 ✕
-                    </button>
-                  </div>
-                  <p className="text-slate-600 leading-relaxed">
-                    {CT_SIGN_DEFINITIONS[activeSignTooltip].desc}
-                  </p>
-                  <p className="text-amber-800 font-medium">
-                    💡 临床意义：{CT_SIGN_DEFINITIONS[activeSignTooltip].clinicalMeaning}
-                  </p>
-                </div>
-              )}
             </div>
           </div>
 
@@ -715,7 +753,8 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
           <div className="p-4 rounded-2xl bg-teal-50/60 border border-teal-200 space-y-3">
             <div className="flex items-center justify-between flex-wrap gap-2">
               <div className="text-xs font-bold text-teal-900 uppercase tracking-wider flex items-center gap-1.5">
-                <span>🫁 双肺多发病灶协同管理 (主病灶 vs 伴随微小病灶)</span>
+                <CircleDot className="w-3.5 h-3.5 text-teal-700" />
+                <span>双肺多发病灶协同管理 (主病灶 vs 伴随微小病灶)</span>
               </div>
               <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${
                 parsedData.isMultipleNodules
@@ -728,8 +767,9 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
 
             {/* Reassurance text */}
             <div className="p-3 bg-white rounded-xl border border-teal-200 text-xs text-teal-950 space-y-1">
-              <div className="font-bold flex items-center gap-1">
-                <span>🛡️ 多发结节良性定心丸：</span>
+              <div className="font-bold flex items-center gap-1.5">
+                <ShieldCheck className="w-3.5 h-3.5 text-teal-700" />
+                <span>多发结节良性定心丸：</span>
               </div>
               <p className="text-[11px] text-teal-800 leading-relaxed">
                 体检中超过 30% 的人群伴有双肺多发微小结节，绝大多数为既往隐匿性感染留下的陈旧良性疤痕，<strong>绝不等于转移扩散</strong>！临床以【主病灶】作为手术或干预评估基准，次要微小灶以常规薄层 CT 随访观察即可。
@@ -756,7 +796,7 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
                       onClick={() => handleRemoveSecondaryNodule(sec.id)}
                       className="text-slate-400 hover:text-rose-600 p-1 text-xs cursor-pointer"
                     >
-                      ✕
+                      <X className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 ))}
@@ -803,7 +843,8 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
           <div className="p-4 rounded-2xl bg-sky-50/70 border border-sky-200 space-y-3">
             <div className="flex items-center justify-between flex-wrap gap-2">
               <div className="text-xs font-bold text-sky-950 uppercase tracking-wider flex items-center gap-1.5">
-                <span>📈 历次 CT 随访时序记录管理 (时序生长折线图与 VDT 测算数据源)</span>
+                <TrendingUp className="w-3.5 h-3.5 text-sky-700" />
+                <span>历次 CT 随访时序记录管理 (时序生长折线图与 VDT 测算数据源)</span>
               </div>
               <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-sky-100 text-sky-800 border border-sky-200">
                 已录入 {(parsedData.followUpHistory || []).length} 次检查记录
@@ -839,7 +880,7 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
                       className="text-slate-400 hover:text-rose-600 p-1 text-xs cursor-pointer"
                       title="移除该条记录"
                     >
-                      ✕
+                      <X className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 ))}
@@ -908,7 +949,10 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
           {(parsedData.reportType === 'pathology' || parsedData.reportType === 'comprehensive' || parsedData.surgeryType !== 'unknown') && (
             <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3.5">
               <div className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center justify-between">
-                <span>🚦 术后高危病理特征 (红绿灯指标)</span>
+                <span className="flex items-center gap-1.5">
+                  <Activity className="w-3.5 h-3.5 text-slate-600" />
+                  <span>术后高危病理特征 (红绿灯指标)</span>
+                </span>
                 <span className="text-[11px] font-normal text-slate-400">决定辅助治疗与复发风险分层</span>
               </div>
               
@@ -1101,8 +1145,9 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
               <div className="bg-white p-3.5 sm:p-4 rounded-xl border border-purple-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
                 <div className="space-y-0.5">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-slate-800 flex items-center gap-1">
-                      <span>🔬 Ki-67 细胞增殖指数</span>
+                    <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                      <Activity className="w-3.5 h-3.5 text-purple-600" />
+                      <span>Ki-67 细胞增殖指数</span>
                     </span>
                     <span className="text-[10px] text-purple-700 bg-purple-50 px-2 py-0.5 rounded-md border border-purple-200 font-bold">
                       免疫组化 IHC 选填
@@ -1157,7 +1202,7 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
           <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-indigo-50/70 via-slate-50 to-teal-50/70 border-2 border-indigo-200/80 space-y-3.5 shadow-xs">
             <div className="flex items-center justify-between flex-wrap gap-2">
               <div className="flex items-center gap-2">
-                <span className="text-lg">🌐</span>
+                <Layers className="w-5 h-5 text-indigo-700" />
                 <div>
                   <h3 className="text-xs font-bold text-indigo-950 uppercase tracking-wider">
                     全身转移排查与 M0 早期根治窗口确认矩阵
@@ -1169,8 +1214,9 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
               </div>
 
               {isSystemicM0 && (
-                <span className="px-3 py-1 bg-emerald-600 text-white font-extrabold text-xs rounded-full shadow-2xs flex items-center gap-1">
-                  <span>🏆 全身排查阴性 · 确立 M0 根治窗口</span>
+                <span className="px-3 py-1 bg-emerald-600 text-white font-extrabold text-xs rounded-full shadow-2xs flex items-center gap-1.5">
+                  <Award className="w-3.5 h-3.5 text-white" />
+                  <span>全身排查阴性 · 确立 M0 根治窗口</span>
                 </span>
               )}
             </div>
@@ -1181,7 +1227,10 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
               {/* 1. Brain MRI */}
               <div className="bg-white p-3.5 rounded-xl border border-slate-200 flex flex-col justify-between h-[96px] shadow-2xs">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-800">🧠 脑部增强 MRI</span>
+                  <span className="text-xs font-bold text-slate-800 flex items-center gap-1">
+                    <BrainCircuit className="w-3.5 h-3.5 text-slate-600" />
+                    <span>脑部增强 MRI</span>
+                  </span>
                   <span className="text-[11px] text-slate-400">排除中枢脑转移</span>
                 </div>
                 <div className="flex gap-1.5 h-[34px]">
@@ -1213,7 +1262,10 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
               {/* 2. Abdominal Ultrasound / CT */}
               <div className="bg-white p-3.5 rounded-xl border border-slate-200 flex flex-col justify-between h-[96px] shadow-2xs">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-800">🩺 腹部与肾上腺超声</span>
+                  <span className="text-xs font-bold text-slate-800 flex items-center gap-1">
+                    <Stethoscope className="w-3.5 h-3.5 text-slate-600" />
+                    <span>腹部与肾上腺超声</span>
+                  </span>
                   <span className="text-[11px] text-slate-400">排除肝/肾上腺</span>
                 </div>
                 <div className="flex gap-1.5 h-[34px]">
@@ -1245,7 +1297,10 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
               {/* 3. Bone Scan ECT */}
               <div className="bg-white p-3.5 rounded-xl border border-slate-200 flex flex-col justify-between h-[96px] shadow-2xs">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-800">🦴 全身骨显像 ECT</span>
+                  <span className="text-xs font-bold text-slate-800 flex items-center gap-1">
+                    <Activity className="w-3.5 h-3.5 text-slate-600" />
+                    <span>全身骨显像 ECT</span>
+                  </span>
                   <span className="text-[11px] text-slate-400">排除骨代谢破坏</span>
                 </div>
                 <div className="flex gap-1.5 h-[34px]">
@@ -1277,7 +1332,10 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
               {/* 4. Neck / Supraclavicular Lymph Nodes */}
               <div className="bg-white p-3.5 rounded-xl border border-slate-200 flex flex-col justify-between h-[96px] shadow-2xs">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-800">🩺 锁骨上淋巴结B超</span>
+                  <span className="text-xs font-bold text-slate-800 flex items-center gap-1">
+                    <Stethoscope className="w-3.5 h-3.5 text-slate-600" />
+                    <span>锁骨上淋巴结B超</span>
+                  </span>
                   <span className="text-[11px] text-slate-400">排除 N3 远处淋巴</span>
                 </div>
                 <div className="flex gap-1.5 h-[34px]">
@@ -1309,7 +1367,10 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
               {/* 5. Whole Body PET-CT */}
               <div className="bg-white p-3.5 rounded-xl border border-slate-200 flex flex-col justify-between h-[96px] shadow-2xs">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-800">🌟 全身 PET-CT</span>
+                  <span className="text-xs font-bold text-slate-800 flex items-center gap-1">
+                    <Scan className="w-3.5 h-3.5 text-slate-600" />
+                    <span>全身 PET-CT</span>
+                  </span>
                   <span className="text-[11px] text-slate-400">全身代谢一站式</span>
                 </div>
                 <div className="flex gap-1.5 h-[34px]">
@@ -1341,7 +1402,10 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
               {/* 6. Benign Findings Management Card (Symmetrically Completes the 3x2 Grid!) */}
               <div className="bg-white p-3.5 rounded-xl border border-slate-200 flex flex-col justify-between h-[96px] shadow-2xs">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-800">🛡️ 伴发良性发现</span>
+                  <span className="text-xs font-bold text-slate-800 flex items-center gap-1">
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>伴发良性发现</span>
+                  </span>
                   <span className="text-[11px] text-emerald-600 font-semibold">非肿瘤转移</span>
                 </div>
                 
@@ -1349,13 +1413,13 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
                   <div className="flex-1 flex gap-1 overflow-x-auto py-0.5 no-scrollbar">
                     {(parsedData.benignFindings || ["肝囊肿", "钙化点"]).map((item: string) => (
                       <span key={item} className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-800 text-[10px] font-medium shrink-0">
-                        <span>✓ {item}</span>
+                        <span>{item}</span>
                         <button 
                           type="button" 
                           onClick={() => handleRemoveBenignFinding(item)}
                           className="text-emerald-400 hover:text-emerald-700 cursor-pointer"
                         >
-                          ✕
+                          <X className="w-3 h-3" />
                         </button>
                       </span>
                     ))}
@@ -1371,7 +1435,7 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
                       className="w-16 px-1.5 py-1 bg-slate-50 border border-slate-200 rounded-lg text-[10px] outline-none focus:bg-white focus:border-blue-400"
                     />
                     <button 
-                      type="button"
+                      type="button" 
                       onClick={handleAddBenignFinding}
                       className="px-1.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px] font-bold rounded-lg cursor-pointer"
                     >
@@ -1388,7 +1452,8 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
           <div className="p-4 rounded-2xl bg-indigo-50/60 border border-indigo-200 space-y-3">
             <div className="flex items-center justify-between flex-wrap gap-2">
               <div className="text-xs font-bold text-indigo-900 uppercase tracking-wider flex items-center gap-1.5">
-                <span>🩸 血液肿瘤标志物 (选填 · 结合影像综合排雷)</span>
+                <TestTube2 className="w-3.5 h-3.5 text-indigo-700" />
+                <span>血液肿瘤标志物 (选填 · 结合影像综合排雷)</span>
               </div>
               <span className="text-[11px] text-indigo-700">正常范围内波动属生理正常代谢</span>
             </div>
@@ -1508,7 +1573,7 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
 
       <div className="flex items-center gap-3.5 mb-3">
         <div className="w-11 h-11 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-2xl border border-blue-100 flex-shrink-0">
-          🤖
+          <Sparkles className="w-6 h-6 text-blue-600" />
         </div>
         <div>
           <h2 className="text-lg font-bold text-slate-900">AI 医疗报告多模态智能提取</h2>
@@ -1518,13 +1583,31 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
 
       {/* Supported Modality Strip (Clean & Compact) */}
       <div className="flex items-center gap-1.5 flex-wrap text-xs text-slate-600 bg-slate-50/80 p-2.5 px-3 rounded-2xl border border-slate-200/80 mb-5">
-        <span className="font-bold text-slate-700 text-[11px] mr-0.5">📋 支持类型：</span>
-        <span className="px-2 py-0.5 rounded-lg bg-white border border-slate-200 text-slate-600 text-[11px]">🩻 薄层 CT</span>
-        <span className="px-2 py-0.5 rounded-lg bg-white border border-slate-200 text-slate-600 text-[11px]">🔬 术后病理 / IHC</span>
-        <span className="px-2 py-0.5 rounded-lg bg-white border border-slate-200 text-slate-600 text-[11px]">🧠 脑部增强 MRI</span>
-        <span className="px-2 py-0.5 rounded-lg bg-white border border-slate-200 text-slate-600 text-[11px]">🩺 腹部与浅表超声</span>
-        <span className="px-2 py-0.5 rounded-lg bg-white border border-slate-200 text-slate-600 text-[11px]">🦴 骨显像 ECT</span>
-        <span className="px-2 py-0.5 rounded-lg bg-white border border-slate-200 text-slate-600 text-[11px]">🌟 全身 PET-CT</span>
+        <span className="font-bold text-slate-700 text-[11px] mr-0.5">支持类型：</span>
+        <span className="px-2 py-0.5 rounded-lg bg-white border border-slate-200 text-slate-600 text-[11px] flex items-center gap-1">
+          <Scan className="w-3 h-3 text-sky-600" />
+          <span>薄层 CT</span>
+        </span>
+        <span className="px-2 py-0.5 rounded-lg bg-white border border-slate-200 text-slate-600 text-[11px] flex items-center gap-1">
+          <Microscope className="w-3 h-3 text-purple-600" />
+          <span>术后病理 / IHC</span>
+        </span>
+        <span className="px-2 py-0.5 rounded-lg bg-white border border-slate-200 text-slate-600 text-[11px] flex items-center gap-1">
+          <BrainCircuit className="w-3 h-3 text-indigo-600" />
+          <span>脑部增强 MRI</span>
+        </span>
+        <span className="px-2 py-0.5 rounded-lg bg-white border border-slate-200 text-slate-600 text-[11px] flex items-center gap-1">
+          <Stethoscope className="w-3 h-3 text-teal-600" />
+          <span>腹部与浅表超声</span>
+        </span>
+        <span className="px-2 py-0.5 rounded-lg bg-white border border-slate-200 text-slate-600 text-[11px] flex items-center gap-1">
+          <Activity className="w-3 h-3 text-amber-600" />
+          <span>骨显像 ECT</span>
+        </span>
+        <span className="px-2 py-0.5 rounded-lg bg-white border border-slate-200 text-slate-600 text-[11px] flex items-center gap-1">
+          <Scan className="w-3 h-3 text-blue-600" />
+          <span>全身 PET-CT</span>
+        </span>
       </div>
 
       <div className="space-y-4">
@@ -1534,7 +1617,8 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
             <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                  <span>📑 已添加 {images.length} 张报告图片</span>
+                  <FileText className="w-3.5 h-3.5 text-slate-600" />
+                  <span>已添加 {images.length} 张报告图片</span>
                 </span>
                 <button
                   onClick={clearAllImages}
@@ -1557,7 +1641,7 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
                       className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-rose-600 text-white flex items-center justify-center text-xs font-bold shadow-md hover:bg-rose-700 transition-colors cursor-pointer"
                       title="移除此图片"
                     >
-                      ✕
+                      <X className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 ))}
@@ -1588,8 +1672,8 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                 disabled={isParsing}
               />
-              <div className="text-center py-3 pointer-events-none">
-                <div className="text-3xl mb-2">📷</div>
+              <div className="text-center py-3 pointer-events-none flex flex-col items-center">
+                <Camera className="w-8 h-8 text-blue-500 mb-2" />
                 <div className="text-sm font-bold text-slate-700">点击拍照或从相册选择报告（支持一次多选）</div>
                 <div className="text-xs text-slate-400 mt-1">支持同时选择多张不同报告，AI 自动跨模态联合提取</div>
               </div>
@@ -1616,7 +1700,7 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
 
         {error && (
           <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs flex items-center gap-2">
-            <span>⚠️</span>
+            <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
             <span>{error}</span>
           </div>
         )}
@@ -1637,7 +1721,8 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
             </>
           ) : (
             <>
-              <span>✨ 开始 AI 跨模态智能提取</span>
+              <Sparkles className="w-4 h-4 text-white" />
+              <span>开始 AI 跨模态智能提取</span>
             </>
           )}
         </button>

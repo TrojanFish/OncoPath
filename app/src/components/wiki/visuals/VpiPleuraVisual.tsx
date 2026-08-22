@@ -1,10 +1,16 @@
 "use client";
 
+import React from "react";
+import { Layers, Info } from "lucide-react";
+
 export function VpiPleuraVisual() {
   return (
     <div className="bg-slate-900 rounded-2xl p-2.5 sm:p-4 text-white select-none border border-slate-800">
       <div className="flex items-center justify-between mb-2">
-        <span className="text-[11px] font-bold text-amber-400">🚪 胸膜分层侵犯 (PL0 - PL2) 原理解析</span>
+        <span className="text-[11px] font-bold text-amber-400 flex items-center gap-1">
+          <Layers className="w-3.5 h-3.5 text-amber-400" />
+          <span>胸膜分层侵犯 (PL0 - PL2) 原理解析</span>
+        </span>
         <span className="text-[10px] text-slate-400">标注：仅为原理解释，非真实解剖</span>
       </div>
 
@@ -58,7 +64,11 @@ export function VpiPleuraVisual() {
       </svg>
 
       <div className="mt-2 text-[11px] text-slate-300 leading-relaxed bg-slate-800/80 p-2.5 rounded-xl border border-slate-700">
-        💡 <strong>图解要点：</strong> VPI 只是肿瘤触碰或穿过了脏层胸膜的“内层壁纸”（内弹力层），导致 T 分期升为 T2a。但手术切除范围包括了整个脏层胸膜，<strong>已经在物理上完整取出了受侵犯的组织</strong>，它绝不等于晚期胸壁转移！
+        <span className="inline-flex items-center gap-1 font-bold text-amber-300 mr-1">
+          <Info className="w-3.5 h-3.5" />
+          <span>图解要点：</span>
+        </span>
+        VPI 只是肿瘤触碰或穿过了脏层胸膜的内弹力层，导致 T 分期升为 T2a。但手术切除范围包括了整个脏层胸膜，<strong>已经在物理上完整取出了受侵犯的组织</strong>，它绝不等于晚期胸壁转移。
       </div>
     </div>
   );

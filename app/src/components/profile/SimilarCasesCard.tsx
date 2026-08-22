@@ -1,6 +1,15 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import {
+  Lightbulb,
+  BookOpen,
+  Sun,
+  Apple,
+  HeartPulse,
+  ShieldCheck,
+  Sparkles,
+} from "lucide-react";
 import type { PatientProfile } from "@/lib/types";
 
 interface SimilarCasesCardProps {
@@ -72,7 +81,10 @@ export default function SimilarCasesCard({ profile }: SimilarCasesCardProps) {
         <div className="sm:text-right flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-1.5">
           <div className="text-[11px] text-slate-400 font-medium">循证置信度 (Confidence)</div>
           <div className="flex items-center gap-1.5">
-            <span className="text-amber-500 text-sm font-bold">{cohort.confidenceRating}</span>
+            <span className="text-amber-500 text-xs font-bold flex items-center gap-1">
+              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+              <span>{cohort.confidenceRating}</span>
+            </span>
             <span className="text-xs font-bold text-teal-800 bg-teal-50 px-2.5 py-0.5 rounded-full border border-teal-200">
               {cohort.confidenceLevel}
             </span>
@@ -108,8 +120,9 @@ export default function SimilarCasesCard({ profile }: SimilarCasesCardProps) {
           {/* RFS Tooltip Hover Popup */}
           {hoveredTerm === "RFS" && (
             <div className="absolute -top-2 left-4 right-4 -translate-y-full z-30 p-3.5 bg-slate-900/95 text-white rounded-2xl shadow-xl text-xs leading-relaxed border border-slate-700 animate-fade-in-up">
-              <div className="font-bold text-sky-400 mb-1 flex items-center gap-1">
-                <span>💡 什么是 5年无复发生存率 (RFS)？</span>
+              <div className="font-bold text-sky-400 mb-1 flex items-center gap-1.5">
+                <Lightbulb className="w-3.5 h-3.5 text-sky-400" />
+                <span>什么是 5年无复发生存率 (RFS)？</span>
               </div>
               <p className="text-slate-200 text-[11px] leading-relaxed">
                 <strong>RFS (Relapse-Free Survival)</strong> 指手术完全切除后，5 年内身体<strong>未出现任何局部复发或远处转移</strong>的患者比例。在肿瘤医学中，肺癌术后 5 年未复发通常在临床上视为达到“临床治愈”。
@@ -143,8 +156,9 @@ export default function SimilarCasesCard({ profile }: SimilarCasesCardProps) {
           {/* OS Tooltip Hover Popup */}
           {hoveredTerm === "OS" && (
             <div className="absolute -top-2 left-4 right-4 -translate-y-full z-30 p-3.5 bg-slate-900/95 text-white rounded-2xl shadow-xl text-xs leading-relaxed border border-slate-700 animate-fade-in-up">
-              <div className="font-bold text-emerald-400 mb-1 flex items-center gap-1">
-                <span>💡 什么是 5年总生存率 (OS)？</span>
+              <div className="font-bold text-emerald-400 mb-1 flex items-center gap-1.5">
+                <Lightbulb className="w-3.5 h-3.5 text-emerald-400" />
+                <span>什么是 5年总生存率 (OS)？</span>
               </div>
               <p className="text-slate-200 text-[11px] leading-relaxed">
                 <strong>OS (Overall Survival)</strong> 指从确诊或手术开始，<strong>5 年后依然健在的患者百分比</strong>。这是国际公认衡量肿瘤整体长期治疗效果最高权威的“硬终点”。
@@ -162,8 +176,9 @@ export default function SimilarCasesCard({ profile }: SimilarCasesCardProps) {
         </p>
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-xs text-slate-400 font-medium">真实队列来源:</span>
-          <span className="text-xs font-bold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200">
-            📚 {cohort.source}
+          <span className="text-xs font-bold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200 flex items-center gap-1.5">
+            <BookOpen className="w-3.5 h-3.5 text-slate-500" />
+            <span>{cohort.source}</span>
           </span>
         </div>
       </div>
@@ -173,7 +188,7 @@ export default function SimilarCasesCard({ profile }: SimilarCasesCardProps) {
         {/* Title Row with Compact Inline Sun Badge */}
         <div className="flex items-center gap-2.5 mb-2.5">
           <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-amber-100/90 text-amber-600 flex items-center justify-center text-sm sm:text-base shadow-2xs flex-shrink-0 border border-amber-300/70">
-            ☀️
+            <Sun className="w-4 h-4 text-amber-600" />
           </div>
           <h4 className="text-xs sm:text-sm font-extrabold text-slate-900 leading-snug">
             给每一位勇敢抗癌伙伴的温暖寄语：数据是群体的历史，而奇迹由您亲自书写
@@ -189,7 +204,7 @@ export default function SimilarCasesCard({ profile }: SimilarCasesCardProps) {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
           <div className="bg-white/90 p-3 rounded-xl border border-amber-200/70 shadow-2xs">
             <div className="text-[12px] font-bold text-amber-900 mb-1 flex items-center gap-1.5">
-              <span>🥦</span>
+              <Apple className="w-3.5 h-3.5 text-amber-700" />
               <span>营养与强健体魄</span>
             </div>
             <div className="text-[11px] text-slate-600 leading-relaxed">
@@ -199,7 +214,7 @@ export default function SimilarCasesCard({ profile }: SimilarCasesCardProps) {
 
           <div className="bg-white/90 p-3 rounded-xl border border-teal-200/70 shadow-2xs">
             <div className="text-[12px] font-bold text-teal-900 mb-1 flex items-center gap-1.5">
-              <span>🌈</span>
+              <HeartPulse className="w-3.5 h-3.5 text-teal-700" />
               <span>乐观心境与神经免疫</span>
             </div>
             <div className="text-[11px] text-slate-600 leading-relaxed">
@@ -209,7 +224,7 @@ export default function SimilarCasesCard({ profile }: SimilarCasesCardProps) {
 
           <div className="bg-white/90 p-3 rounded-xl border border-blue-200/70 shadow-2xs">
             <div className="text-[12px] font-bold text-blue-900 mb-1 flex items-center gap-1.5">
-              <span>🕊️</span>
+              <ShieldCheck className="w-3.5 h-3.5 text-blue-700" />
               <span>规律随访，坦然从容</span>
             </div>
             <div className="text-[11px] text-slate-600 leading-relaxed">

@@ -1,10 +1,16 @@
 "use client";
 
+import React from "react";
+import { BarChart2, Info } from "lucide-react";
+
 export function IaslcSubtypeVisual() {
   return (
     <div className="bg-slate-900 rounded-2xl p-2.5 sm:p-4 text-white select-none border border-slate-800">
       <div className="flex items-center justify-between mb-3">
-        <span className="text-[11px] font-bold text-purple-400">📊 IASLC 肺腺癌组织学亚型预后阶梯</span>
+        <span className="text-[11px] font-bold text-purple-400 flex items-center gap-1">
+          <BarChart2 className="w-3.5 h-3.5 text-purple-400" />
+          <span>IASLC 肺腺癌组织学亚型预后阶梯</span>
+        </span>
         <span className="text-[10px] text-slate-400">基于 IASLC / WHO 国际标准</span>
       </div>
 
@@ -56,7 +62,11 @@ export function IaslcSubtypeVisual() {
       </div>
 
       <div className="mt-2.5 text-[11px] text-slate-300 leading-relaxed bg-slate-800/80 p-2.5 rounded-xl border border-slate-700">
-        💡 <strong>图解要点：</strong> 绝大多数肺腺癌是混合亚型（如 60% 腺泡 + 20% 贴壁）。微乳头和实体型成分只要占比不高（&lt;20%），就不会被判定为 Grade 3 高危分级，请结合病理报告具体百分比理性看待。
+        <span className="inline-flex items-center gap-1 font-bold text-purple-300 mr-1">
+          <Info className="w-3.5 h-3.5" />
+          <span>图解要点：</span>
+        </span>
+        绝大多数肺腺癌是混合亚型（如 60% 腺泡 + 20% 贴壁）。微乳头和实体型成分只要占比不高（&lt;20%），就不会被判定为 Grade 3 高危分级，请结合病理报告具体百分比理性看待。
       </div>
     </div>
   );

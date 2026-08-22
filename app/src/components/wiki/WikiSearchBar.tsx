@@ -1,7 +1,7 @@
 "use client";
 
+import { Search, X, ShieldCheck } from "lucide-react";
 import type { RiskLevel } from "@/lib/wikiData";
-import { RISK_LEVEL_CONFIG } from "@/lib/wikiData";
 
 interface WikiSearchBarProps {
   searchQuery: string;
@@ -24,8 +24,8 @@ export function WikiSearchBar({
     <div className="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200 shadow-sm space-y-3.5">
       {/* Main Search Input */}
       <div className="relative">
-        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 text-base">
-          🔍
+        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+          <Search className="w-4 h-4" />
         </div>
         <input
           type="text"
@@ -37,9 +37,10 @@ export function WikiSearchBar({
         {searchQuery && (
           <button
             onClick={() => onSearchChange("")}
-            className="absolute inset-y-0 right-3 px-2 flex items-center text-xs text-slate-400 hover:text-slate-600 cursor-pointer"
+            className="absolute inset-y-0 right-3 px-2 flex items-center gap-1 text-xs text-slate-400 hover:text-slate-600 cursor-pointer"
           >
-            清空 ✕
+            <span>清空</span>
+            <X className="w-3.5 h-3.5" />
           </button>
         )}
       </div>
@@ -62,46 +63,50 @@ export function WikiSearchBar({
 
           <button
             onClick={() => onRiskChange("high")}
-            className={`px-3 py-1.5 rounded-xl font-bold border transition-all cursor-pointer ${
+            className={`px-3 py-1.5 rounded-xl font-bold border transition-all cursor-pointer flex items-center gap-1.5 ${
               selectedRisk === "high"
                 ? "bg-rose-600 text-white border-rose-600 shadow-xs"
                 : "bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100"
             }`}
           >
-            🔴 高危指标优先
+            <span className="w-2 h-2 rounded-full bg-rose-500" />
+            <span>高危指标优先</span>
           </button>
 
           <button
             onClick={() => onRiskChange("moderate")}
-            className={`px-3 py-1.5 rounded-xl font-bold border transition-all cursor-pointer ${
+            className={`px-3 py-1.5 rounded-xl font-bold border transition-all cursor-pointer flex items-center gap-1.5 ${
               selectedRisk === "moderate"
                 ? "bg-amber-600 text-white border-amber-600 shadow-xs"
                 : "bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100"
             }`}
           >
-            🟡 中危关注
+            <span className="w-2 h-2 rounded-full bg-amber-500" />
+            <span>中危关注</span>
           </button>
 
           <button
             onClick={() => onRiskChange("low")}
-            className={`px-3 py-1.5 rounded-xl font-bold border transition-all cursor-pointer ${
+            className={`px-3 py-1.5 rounded-xl font-bold border transition-all cursor-pointer flex items-center gap-1.5 ${
               selectedRisk === "low"
                 ? "bg-emerald-600 text-white border-emerald-600 shadow-xs"
                 : "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100"
             }`}
           >
-            🟢 低危/惰性
+            <span className="w-2 h-2 rounded-full bg-emerald-500" />
+            <span>低危/惰性</span>
           </button>
 
           <button
             onClick={() => onRiskChange("safe")}
-            className={`px-3 py-1.5 rounded-xl font-bold border transition-all cursor-pointer ${
+            className={`px-3 py-1.5 rounded-xl font-bold border transition-all cursor-pointer flex items-center gap-1.5 ${
               selectedRisk === "safe"
                 ? "bg-teal-700 text-white border-teal-700 shadow-xs"
                 : "bg-teal-50 text-teal-700 border-teal-200 hover:bg-teal-100"
             }`}
           >
-            🛡️ 安全基石
+            <ShieldCheck className="w-3.5 h-3.5 text-teal-600" />
+            <span>安全基石</span>
           </button>
         </div>
 

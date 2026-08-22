@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Compass, Calendar, Stethoscope, HeartPulse, CheckCircle2 } from "lucide-react";
 
 type NoduleType = "pggn" | "mggo" | "solid";
 type NoduleSize = "small" | "medium" | "large";
@@ -11,8 +12,6 @@ export function FleischnerDecisionTree() {
   const [size, setSize] = useState<NoduleSize>("medium");
   const [isHighRisk, setIsHighRisk] = useState<RiskLevel>("low");
 
-  // Calculate recommendation based on Fleischner 2017 & Chinese Guidelines
-  let actionTitle = "建议定期随访薄层 CT";
   let interval = "6 ~ 12 个月后复查";
   let malignantRisk = "< 1% (良性率 > 99%)";
   let treatmentAction = "无需手术，无需穿刺，低剂量薄层 CT 随访观察";
@@ -20,19 +19,16 @@ export function FleischnerDecisionTree() {
 
   if (type === "pggn") {
     if (size === "small") {
-      // < 6mm pGGN
       interval = "无需常规随访 / 可在 2~4 年后体检复查";
       malignantRisk = "< 1% (极大概率良性或极惰性)";
       treatmentAction = "不推荐过度检查或干预，常规年度体检即可";
       reassuranceQuote = "<6mm 孤立纯磨玻璃结节几乎不具备侵袭力，把心放宽！";
     } else if (size === "medium") {
-      // 6-8mm pGGN
       interval = "6 ~ 12 个月首次薄层 CT 复查";
       malignantRisk = "约 1 ~ 3% (极早期惰性)";
       treatmentAction = "若稳定，后续改为每 2 年一次随访直至 5 年";
       reassuranceQuote = "6~8mm 纯磨玻璃即使是极早期病灶，观察 1~2 年也完全不会延误根治时机。";
     } else {
-      // > 8mm pGGN
       interval = "3 ~ 6 个月首次薄层 CT 复查";
       malignantRisk = "约 5 ~ 10% (需动态对比)";
       treatmentAction = "复查若持续存在且有实性成分萌芽，建议胸外科专科评估微创亚肺叶切除";
@@ -40,26 +36,22 @@ export function FleischnerDecisionTree() {
     }
   } else if (type === "mggo") {
     if (size === "small") {
-      // < 6mm mGGO
       interval = "无需常规随访，或 12 个月后薄层 CT 复查";
       malignantRisk = "约 2 ~ 5%";
       treatmentAction = "通常为炎性渗出吸收期，复查观察是否吸收消失";
       reassuranceQuote = "微小混合结节很多是局部感染炎症，几个月后常自行吸收消失。";
     } else if (size === "medium") {
-      // 6-8mm mGGO
       interval = "3 ~ 6 个月薄层 CT 复查";
       malignantRisk = "约 15 ~ 35%";
       treatmentAction = "若持续存在且实性成分无缩小，建议胸外科评估微创手术";
       reassuranceQuote = "此阶段多为微浸润早期，微创切除后治愈率依然接近 100%。";
     } else {
-      // > 8mm mGGO
       interval = "积极胸外科专科会诊评估 / 3个月复查";
       malignantRisk = "约 40 ~ 60%";
       treatmentAction = "建议完善增强 CT 或 PET-CT 评估，多学科 MDT 制定微创手术计划";
       reassuranceQuote = "现代微创胸腔镜手术创伤极小（3-5天出院），早发现早切除即可彻底治愈！";
     }
   } else {
-    // Solid
     if (size === "small") {
       interval = isHighRisk === "high" ? "12 个月后复查" : "无需常规随访";
       malignantRisk = "< 1%";
@@ -82,8 +74,9 @@ export function FleischnerDecisionTree() {
     <div className="bg-white rounded-3xl p-5 sm:p-7 border border-slate-200/80 shadow-md shadow-slate-900/5">
       {/* Title Header */}
       <div className="pb-5 border-b border-slate-100">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 mb-2">
-          <span>🧭 科学随访决策树</span>
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 mb-2">
+          <Compass className="w-3.5 h-3.5" />
+          <span>科学随访决策树</span>
         </div>
         <h3 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
           国际 Fleischner 肺结节科学随访计算器
@@ -183,7 +176,7 @@ export function FleischnerDecisionTree() {
       <div className="bg-gradient-to-r from-sky-50 via-blue-50 to-indigo-50 p-5 rounded-2xl border border-blue-200/80 space-y-3">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <span className="text-xl">🎯</span>
+            <CheckCircle2 className="w-5 h-5 text-blue-700" />
             <span className="font-black text-slate-900 text-base">国际权威临床裁决结果</span>
           </div>
           <div className="inline-flex items-center gap-2 bg-white px-3 py-1 rounded-full text-xs font-bold text-blue-700 border border-blue-200 shadow-2xs">
@@ -193,18 +186,24 @@ export function FleischnerDecisionTree() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
           <div className="bg-white/90 p-3.5 rounded-xl border border-blue-100">
-            <div className="text-[11px] font-bold text-slate-400 mb-0.5">📅 建议复查随访周期</div>
+            <div className="text-[11px] font-bold text-slate-400 mb-0.5 flex items-center gap-1">
+              <Calendar className="w-3.5 h-3.5 text-slate-400" />
+              <span>建议复查随访周期</span>
+            </div>
             <div className="text-base font-black text-blue-900">{interval}</div>
           </div>
           <div className="bg-white/90 p-3.5 rounded-xl border border-blue-100">
-            <div className="text-[11px] font-bold text-slate-400 mb-0.5">🩺 推荐临床处置策略</div>
+            <div className="text-[11px] font-bold text-slate-400 mb-0.5 flex items-center gap-1">
+              <Stethoscope className="w-3.5 h-3.5 text-slate-400" />
+              <span>推荐临床处置策略</span>
+            </div>
             <div className="text-xs font-bold text-slate-800">{treatmentAction}</div>
           </div>
         </div>
 
         {/* Comfort Box */}
         <div className="bg-white/95 p-3 rounded-xl border border-emerald-200/80 flex items-start gap-2 text-xs text-emerald-900">
-          <span className="text-base leading-none">💚</span>
+          <HeartPulse className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
           <p className="leading-relaxed">
             <strong>定心丸：</strong> {reassuranceQuote}
           </p>

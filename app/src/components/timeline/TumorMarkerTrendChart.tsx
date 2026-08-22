@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { TestTube2 } from "lucide-react";
 import { TimelineEventItem } from "@/lib/timelineTypes";
 
 interface TumorMarkerTrendChartProps {
@@ -37,8 +38,8 @@ export default function TumorMarkerTrendChart({ events }: TumorMarkerTrendChartP
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 font-bold flex items-center justify-center text-base">
-            🩸
+          <div className="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 font-bold flex items-center justify-center">
+            <TestTube2 className="w-4 h-4 text-rose-600" />
           </div>
           <div>
             <h3 className="text-sm font-extrabold text-slate-900">

@@ -1,14 +1,15 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { BookOpen, Users, FileBarChart, Award } from "lucide-react";
 
 export default function StatsBanner() {
   const [animated, setAnimated] = useState(false);
   const [stats, setStats] = useState([
-    { label: "已收录顶刊文献", value: 24, suffix: "篇+", icon: "📚" },
-    { label: "累计队列样本", value: 528000, suffix: "例", icon: "👥" },
-    { label: "Meta分析汇总", value: 12, suffix: "项", icon: "🔬" },
-    { label: "前瞻性RCT试验", value: 9, suffix: "项", icon: "⚡" },
+    { label: "已收录顶刊文献", value: 24, suffix: "篇+", icon: BookOpen, color: "text-blue-600 bg-blue-50" },
+    { label: "累计队列样本", value: 528000, suffix: "例", icon: Users, color: "text-teal-600 bg-teal-50" },
+    { label: "Meta分析汇总", value: 12, suffix: "项", icon: FileBarChart, color: "text-indigo-600 bg-indigo-50" },
+    { label: "前瞻性RCT试验", value: 9, suffix: "项", icon: Award, color: "text-amber-600 bg-amber-50" },
   ]);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -36,10 +37,10 @@ export default function StatsBanner() {
           const rctCount = data.studies.filter((s: any) => s.studyType === "rct" || s.studyType === "prospective_multicenter").length + 5;
 
           setStats([
-            { label: "已收录顶刊文献", value: Math.max(totalStudies, 24), suffix: "篇+", icon: "📚" },
-            { label: "累计队列样本", value: Math.max(totalPatients, 528000), suffix: "例", icon: "👥" },
-            { label: "Meta分析汇总", value: Math.max(metaCount, 12), suffix: "项", icon: "🔬" },
-            { label: "前瞻性RCT试验", value: Math.max(rctCount, 9), suffix: "项", icon: "⚡" },
+            { label: "已收录顶刊文献", value: Math.max(totalStudies, 24), suffix: "篇+", icon: BookOpen, color: "text-blue-600 bg-blue-50" },
+            { label: "累计队列样本", value: Math.max(totalPatients, 528000), suffix: "例", icon: Users, color: "text-teal-600 bg-teal-50" },
+            { label: "Meta分析汇总", value: Math.max(metaCount, 12), suffix: "项", icon: FileBarChart, color: "text-indigo-600 bg-indigo-50" },
+            { label: "前瞻性RCT试验", value: Math.max(rctCount, 9), suffix: "项", icon: Award, color: "text-amber-600 bg-amber-50" },
           ]);
         }
       } catch (err) {
@@ -67,10 +68,11 @@ function AnimatedStat({
   stat,
   animate,
 }: {
-  stat: { label: string; value: number; suffix: string; icon: string };
+  stat: { label: string; value: number; suffix: string; icon: any; color: string };
   animate: boolean;
 }) {
   const [displayed, setDisplayed] = useState(0);
+  const IconComp = stat.icon;
 
   useEffect(() => {
     if (!animate) return;
@@ -92,8 +94,10 @@ function AnimatedStat({
 
   return (
     <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/80 shadow-xs hover:shadow-sm hover:border-slate-300 transition-all text-center group">
-      <div className="text-2xl mb-2 group-hover:scale-110 transition-transform duration-300">
-        {stat.icon}
+      <div className="flex justify-center mb-2.5">
+        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${stat.color} group-hover:scale-110 transition-transform duration-300`}>
+          <IconComp className="w-5 h-5" />
+        </div>
       </div>
       <div className="text-2xl sm:text-3xl font-black text-slate-900 mb-1 tabular-nums tracking-tight">
         {animate ? displayed.toLocaleString() : 0}
