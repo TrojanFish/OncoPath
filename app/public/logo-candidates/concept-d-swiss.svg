@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="gradSwiss" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0284c7" />
+      <stop offset="100%" stop-color="#0d9488" />
+    </linearGradient>
+  </defs>
+
+  <g transform="translate(0, 0)">
+    <!-- Perfect Open Torus / Breathing Lung -->
+    <circle cx="256" cy="256" r="140" fill="none" stroke="url(#gradSwiss)" stroke-width="54" stroke-linecap="round" stroke-dasharray="720 180" />
+    
+    <!-- Upward Navigation Stem (Letter P + Spine) -->
+    <line x1="256" y1="116" x2="256" y2="396" stroke="url(#gradSwiss)" stroke-width="54" stroke-linecap="round" />
+
+    <!-- Pure Beacon Node -->
+    <circle cx="256" cy="116" r="32" fill="#0284c7" />
+  </g>
+</svg>

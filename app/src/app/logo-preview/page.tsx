@@ -1,40 +1,52 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import SubpageNavbar from "@/components/SubpageNavbar";
-import { Check, Copy, ArrowRight, ShieldCheck, Sparkles, Compass } from "lucide-react";
+import { Check, Sparkles } from "lucide-react";
 
 export default function LogoPreviewPage() {
-  const [selectedConcept, setSelectedConcept] = useState<number>(1);
-  const [copied, setCopied] = useState(false);
+  const [selectedConcept, setSelectedConcept] = useState<string>("a");
 
   const concepts = [
     {
-      id: 1,
-      name: "方案一：双叶导航光环 (Luminous Lung & Guidance Path)",
-      tag: "推荐 · 最契合 OncoPath 品牌定义",
-      desc: "将肺叶轮廓解构为两条向上延伸的治愈青绿（Healing Teal）与信赖蓝（Trust Blue）柔光莫比乌斯航道，中央镶嵌一颗循证决策导航星标。象征平台带领患者穿越病理迷雾，走向 5 年临床治愈。",
-      file: "/logo-candidates/concept-1-path.svg",
-      highlights: ["Apple iOS 级圆角 Squircle", "青蓝渐变呼吸微光", "向上升腾的治愈感与确定性"],
+      id: "a",
+      name: "方案 A：莫比乌斯呼吸环 (The Mobius Breath · OP Monogram)",
+      tag: "推荐 · 最纯粹现代主义",
+      desc: "由一笔流畅、粗细平滑的加粗莫比乌斯回环构成。巧妙将 O 与 P 字母融合，自然勾勒出一侧饱满透亮的肺叶轮廓与核心航标星点。在极小尺寸下依然清晰可辨。",
+      file: "/logo-candidates/concept-a.png",
+      svg: "/logo-candidates/concept-a-mobius.svg",
+      highlights: ["一笔连贯莫比乌斯环", "O 与 P 极简字母同构", "极小尺寸依然极度清晰"],
     },
     {
-      id: 2,
-      name: "方案二：循证罗盘与神经支气管 (Evidence Compass & Bronchial Tree)",
-      tag: "科技感 · 顶刊科研公信力",
-      desc: "深邃蓝黑底色融合 4D 循证导航罗盘与支气管神经网络光节点。突出 JTO / Lancet 顶刊真实世界队列计算与 IASLC 9th 分期标准算法的严密科学性。",
-      file: "/logo-candidates/concept-2-compass.svg",
-      highlights: ["深海科技深邃蓝背景", "光纤节点与神经网络", "4D 导航罗盘同心环"],
+      id: "b",
+      name: "方案 B：双叶几何交叠 (The Intersecting Breath · 双色几何)",
+      tag: "先锋 · Linear/Stripe 几何风",
+      desc: "治愈青绿与信赖湛蓝两个纯净水滴几何形错落交叠，正中自然留白出一条呼吸气道与纯白智核。象征多学科会诊（MDT）与病理/影像双重循证验证。",
+      file: "/logo-candidates/concept-b.png",
+      svg: "/logo-candidates/concept-b-intersect.svg",
+      highlights: ["双色水滴纯几何重叠", "中央负空间气道留白", "顶级国际 SaaS 极简质感"],
     },
     {
-      id: 3,
-      name: "方案三：守护之盾与生命之翼 (Protective Shield & Healing Wings)",
-      tag: "极简纯白 · 安全守护感",
-      desc: "极简几何黄金分割。将肺部抽象为向外舒展的生命之翼，并环抱中央的 OncoPath (O-P) 品牌路径盾牌，传达全病程安全防护与抗焦虑心理铠甲。",
-      file: "/logo-candidates/concept-3-shield.svg",
-      highlights: ["极简现代扁平矢量", "安全防护盾牌构图", "O-P 品牌字母微标"],
+      id: "c",
+      name: "方案 C：极简双弧信标 (Minimalist Beacon · 包豪斯线条)",
+      tag: "端庄 · 心理安全感",
+      desc: "左侧青绿柔弧 + 右侧湛蓝上扬弧线，左右对称环抱，中央托起一颗菱形航标。构图如同双臂守护生命，又如肺叶舒展呼吸，极具包豪斯建筑美感。",
+      file: "/logo-candidates/concept-c.png",
+      svg: "/logo-candidates/concept-c-beacon.svg",
+      highlights: ["包豪斯极简线条构图", "中央菱形指路信标", "极致克制抗焦虑设计"],
+    },
+    {
+      id: "d",
+      name: "方案 D：瑞士先锋单环 (Swiss OP Mark · 极简点线)",
+      tag: "极致 · 点线面先锋构成",
+      desc: "极简主义终极形态：优雅开口呼吸圆环 + 垂直上升中轴导航线 + 启明航标。纯粹由点、线、圆黄金比例构成，象征由混乱到清晰的确定性决策。",
+      file: "/logo-candidates/concept-d.png",
+      svg: "/logo-candidates/concept-d-swiss.svg",
+      highlights: ["纯粹点、线、圆构成", "瑞士现代主义先锋美学", "极高辨识度与现代性"],
     },
   ];
+
+  const currentConcept = concepts.find((c) => c.id === selectedConcept) || concepts[0];
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 pb-20 selection:bg-blue-500 selection:text-white">
@@ -45,25 +57,25 @@ export default function LogoPreviewPage() {
         <div className="text-center space-y-3 max-w-3xl mx-auto">
           <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 px-3.5 py-1 rounded-full text-xs font-bold border border-blue-200">
             <Sparkles className="w-3.5 h-3.5 text-blue-600" />
-            <span>OncoPath 全新品牌 Logo 设计候选方案</span>
+            <span>OncoPath 极致简约（Minimalist）Logo 设计展</span>
           </div>
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900">
-            请预览并确认您偏好的 Logo 设计
+            重新设计的 4 款极致简约 Logo 方案
           </h1>
           <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
-            为您定制了 3 款兼具<strong>医学严谨度、抗焦虑治愈感与苹果/现代科技质感</strong>的矢量 Logo 方案。请点击卡片选择您最中意的一款。
+            摒弃繁复背景与多余装饰，采用<strong>纯粹几何、负空间与现代单线条</strong>构图，打造国际顶级先锋科技与医疗美学品牌标识。
           </p>
         </div>
 
-        {/* 3 Candidates Grid */}
-        <div className="grid md:grid-cols-3 gap-8">
+        {/* 4 Candidates Grid */}
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {concepts.map((c) => {
             const isSelected = selectedConcept === c.id;
             return (
               <div
                 key={c.id}
                 onClick={() => setSelectedConcept(c.id)}
-                className={`bg-white rounded-3xl p-6 border-2 transition-all cursor-pointer flex flex-col justify-between relative group ${
+                className={`bg-white rounded-3xl p-5 border-2 transition-all cursor-pointer flex flex-col justify-between relative group ${
                   isSelected
                     ? "border-blue-600 shadow-xl ring-4 ring-blue-100 -translate-y-1"
                     : "border-slate-200 hover:border-slate-300 hover:shadow-md"
@@ -71,30 +83,30 @@ export default function LogoPreviewPage() {
               >
                 {/* Selection Badge */}
                 {isSelected && (
-                  <div className="absolute top-4 right-4 w-7 h-7 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-md">
-                    <Check className="w-4 h-4" />
+                  <div className="absolute top-3.5 right-3.5 w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-md">
+                    <Check className="w-3.5 h-3.5" />
                   </div>
                 )}
 
-                <div className="space-y-5">
+                <div className="space-y-4">
                   {/* Tag */}
-                  <span className="inline-block text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700">
+                  <span className="inline-block text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700">
                     {c.tag}
                   </span>
 
                   {/* Logo Display (Square) */}
-                  <div className="aspect-square w-full rounded-2xl overflow-hidden bg-slate-100 p-6 flex items-center justify-center border border-slate-200/80 shadow-inner group-hover:scale-102 transition-transform duration-300">
-                    <img src={c.file} alt={c.name} className="w-full h-full object-contain drop-shadow-md" />
+                  <div className="aspect-square w-full rounded-2xl overflow-hidden bg-white p-4 flex items-center justify-center border border-slate-100 shadow-inner group-hover:scale-103 transition-transform duration-300">
+                    <img src={c.file} alt={c.name} className="w-full h-full object-contain drop-shadow-sm" />
                   </div>
 
                   {/* Info */}
                   <div>
-                    <h3 className="text-base font-bold text-slate-900">{c.name}</h3>
-                    <p className="text-xs text-slate-600 mt-2 leading-relaxed">{c.desc}</p>
+                    <h3 className="text-sm font-bold text-slate-900 line-clamp-2">{c.name}</h3>
+                    <p className="text-xs text-slate-600 mt-1.5 leading-relaxed">{c.desc}</p>
                   </div>
 
                   {/* Highlights */}
-                  <ul className="space-y-1 pt-3 border-t border-slate-100 text-xs text-slate-500">
+                  <ul className="space-y-1 pt-2 border-t border-slate-100 text-[11px] text-slate-500">
                     {c.highlights.map((h, i) => (
                       <li key={i} className="flex items-center gap-1.5">
                         <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
@@ -104,15 +116,15 @@ export default function LogoPreviewPage() {
                   </ul>
                 </div>
 
-                <div className="mt-6 pt-4 border-t border-slate-100">
+                <div className="mt-5 pt-3 border-t border-slate-100">
                   <button
-                    className={`w-full py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                    className={`w-full py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
                       isSelected
                         ? "bg-blue-600 text-white shadow-sm"
                         : "bg-slate-100 text-slate-700 hover:bg-slate-200"
                     }`}
                   >
-                    <span>{isSelected ? "已选定当前方案" : "点击选择该方案"}</span>
+                    <span>{isSelected ? "已选定" : "选择该方案"}</span>
                   </button>
                 </div>
               </div>
@@ -124,21 +136,21 @@ export default function LogoPreviewPage() {
         <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-base font-bold text-slate-900">实景应用效果预览（导航栏 Navbar 尺寸模拟）</h3>
-              <p className="text-xs text-slate-500 mt-0.5">当前选定方案在顶部导航栏 32x32px 尺寸下的实际呈现效果：</p>
+              <h3 className="text-base font-bold text-slate-900">实景导航栏应用效果预览（Navbar 32×32px 微标测试）</h3>
+              <p className="text-xs text-slate-500 mt-0.5">当前选定方案在顶部导航栏极小尺寸下的清晰度呈现：</p>
             </div>
             <span className="text-xs font-mono font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-200">
-              方案 {selectedConcept}
+              方案 {currentConcept.id.toUpperCase()}
             </span>
           </div>
 
-          <div className="p-4 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-between max-w-lg mx-auto shadow-inner">
+          <div className="p-4 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-between max-w-md mx-auto shadow-inner">
             <div className="flex items-center gap-2.5 bg-white px-4 py-2 rounded-full border border-slate-200 shadow-sm">
-              <div className="w-8 h-8 rounded-xl overflow-hidden flex items-center justify-center shadow-xs bg-white">
+              <div className="w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center p-1 bg-white">
                 <img
-                  src={concepts.find((c) => c.id === selectedConcept)?.file}
+                  src={currentConcept.file}
                   alt="Navbar Logo Preview"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-contain"
                 />
               </div>
               <span className="font-bold text-slate-900 tracking-tight text-base">
@@ -146,7 +158,7 @@ export default function LogoPreviewPage() {
               </span>
             </div>
 
-            <span className="text-xs text-slate-400 font-medium">← 真实导航栏展示模拟</span>
+            <span className="text-xs text-slate-400 font-medium">← 真实导航栏微标效果</span>
           </div>
         </div>
       </main>
