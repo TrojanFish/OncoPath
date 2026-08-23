@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import { BookOpen } from "lucide-react";
 import { findGlossaryTerm, type GlossaryTerm } from "@/lib/glossaryData";
 
 interface GlossaryTooltipProps {
@@ -81,7 +82,9 @@ export function GlossaryTooltip({ term, children, className = "", showBadge = fa
           {/* Header */}
           <div className="flex items-center justify-between gap-2 pb-2.5 mb-2.5 border-b border-slate-100">
             <div className="flex items-center gap-2">
-              <span className="text-base">📖</span>
+              <div className="w-6 h-6 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center shrink-0">
+                <BookOpen className="w-3.5 h-3.5" />
+              </div>
               <div>
                 <h4 className="text-xs sm:text-sm font-extrabold text-slate-900">{termData.term}</h4>
                 <div className="text-[10px] font-mono text-slate-400">{termData.enName}</div>
