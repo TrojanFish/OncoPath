@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import { Scale, ChevronLeft } from "lucide-react";
 
 export default function TermsPage() {
   return (
@@ -14,6 +15,7 @@ export default function TermsPage() {
             href="/"
             className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-slate-600 hover:text-blue-600 transition-colors"
           >
+            <ChevronLeft className="w-4 h-4 text-slate-500" />
             <span>返回首页</span>
           </Link>
           <span className="text-xs text-slate-400 font-mono">版本：2026-V1.0</span>
@@ -25,7 +27,8 @@ export default function TermsPage() {
           {/* Header */}
           <div className="space-y-4 border-b border-slate-100 pb-8">
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-800 text-xs font-bold">
-              <span>⚖️ 平台服务协议与临床知情同意书</span>
+              <Scale className="w-3.5 h-3.5 text-blue-700" />
+              <span>平台服务协议与临床知情同意书</span>
             </div>
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 tracking-tight leading-tight">
               OncoPath 用户服务协议与医疗免责声明
