@@ -263,14 +263,14 @@ export default function HomePage() {
           {/* Core Differentiation vs General LLMs Box */}
           <div id="difference" className="mt-16 bg-gradient-to-br from-blue-50/80 via-white to-teal-50/50 rounded-3xl p-8 sm:p-12 border border-blue-200/80 shadow-sm">
             <div className="max-w-3xl mx-auto text-center mb-10">
-              <span className="text-xs font-bold text-blue-600 uppercase tracking-wider bg-blue-100/80 px-3 py-1 rounded-full">
-                EBM VS GENERAL AI · 为什么超越通用大模型？
+              <span className="text-xs font-bold text-blue-700 uppercase tracking-wider bg-blue-100/80 px-3.5 py-1 rounded-full border border-blue-200/60">
+                ONCOPATH VS GENERAL AI · 为什么超越通用大模型？
               </span>
               <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-3">
-                这与直接问 ChatGPT 有何本质区别？
+                这与直接问通用大模型有何本质区别？
               </h3>
               <p className="text-slate-600 text-sm mt-2">
-                医疗决策不容容忍 AI 幻觉与概率瞎猜，每一句解释都必须能够追溯到原始同行评审论文。
+                医疗决策不容容忍 AI 幻觉与概率猜测，每一句解释都必须能够追溯到原始同行评审论文。
               </p>
             </div>
 
