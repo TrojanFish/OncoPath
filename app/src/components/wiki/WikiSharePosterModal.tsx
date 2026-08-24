@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useRef } from "react";
-import { X, Download, Share2, Check, Sparkles, HeartPulse, ShieldCheck } from "lucide-react";
+import React, { useState, useRef, useEffect } from "react";
+import { X, Download, Share2, Check, Sparkles, HeartPulse, ShieldCheck, BookOpen, HelpCircle } from "lucide-react";
 import { toPng } from "html-to-image";
 import type { WikiTopic } from "@/lib/wikiData";
 import { RISK_LEVEL_CONFIG, WIKI_CATEGORIES } from "@/lib/wikiData";
@@ -14,46 +14,86 @@ interface WikiSharePosterModalProps {
 export default function WikiSharePosterModal({ topic, onClose }: WikiSharePosterModalProps) {
   const [isExporting, setIsExporting] = useState(false);
   const [exportedImageUrl, setExportedImageUrl] = useState<string | null>(null);
-  const posterRef = useRef<HTMLDivElement>(null);
+  const offscreenPosterRef = useRef<HTMLDivElement>(null);
+  const [generationError, setGenerationError] = useState<string | null>(null);
 
   const riskCfg = RISK_LEVEL_CONFIG[topic.riskLevel];
   const catCfg = WIKI_CATEGORIES[topic.category];
 
   const handleGenerateImage = async () => {
-    if (!posterRef.current || isExporting) return;
+    if (!offscreenPosterRef.current || isExporting) return;
     try {
       setIsExporting(true);
+      setGenerationError(null);
+
+      const element = offscreenPosterRef.current;
+      
+      // Ensure fonts and DOM styles are completely resolved
+      await new Promise((r) => setTimeout(r, 150));
+
+      const fullWidth = 520;
+      const fullHeight = element.scrollHeight;
+
       let imgData = "";
       try {
-        imgData = await toPng(posterRef.current, {
+        imgData = await toPng(element, {
           quality: 0.98,
           pixelRatio: 2,
+          width: fullWidth,
+          height: fullHeight,
+          canvasWidth: fullWidth * 2,
+          canvasHeight: fullHeight * 2,
           backgroundColor: "#0f172a",
           cacheBust: true,
+          style: {
+            position: "static",
+            display: "block",
+            overflow: "visible",
+            maxHeight: "none",
+            height: "auto",
+            transform: "none",
+          },
         });
       } catch (primaryErr) {
-        console.warn("Primary html-to-image failed, falling back to html2canvas:", primaryErr);
+        console.warn("Primary html-to-image failed, trying html2canvas fallback:", primaryErr);
         const html2canvas = (await import("html2canvas")).default;
-        const canvas = await html2canvas(posterRef.current, {
+        const canvas = await html2canvas(element, {
           scale: 2,
           useCORS: true,
           allowTaint: true,
           backgroundColor: "#0f172a",
           logging: false,
+          width: fullWidth,
+          height: fullHeight,
+          windowWidth: fullWidth,
+          windowHeight: fullHeight,
+          x: 0,
+          y: 0,
+          scrollY: 0,
         });
         imgData = canvas.toDataURL("image/png");
       }
 
       if (imgData) {
         setExportedImageUrl(imgData);
+      } else {
+        throw new Error("生成图片数据为空");
       }
-    } catch (err) {
-      console.error("Failed to generate wiki share poster:", err);
-      alert("生成微信分享图遇到浏览器限制，请长按文本复制或直接截图。");
+    } catch (err: any) {
+      console.error("Failed to generate full wiki share poster:", err);
+      setGenerationError("生成微信分享长图遇到浏览器限制，请长按下方卡片文本或使用系统截图。");
     } finally {
       setIsExporting(false);
     }
   };
+
+  // Automatically trigger image generation when modal opens
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      handleGenerateImage();
+    }, 200);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleDownload = () => {
     if (!exportedImageUrl) return;
@@ -66,14 +106,155 @@ export default function WikiSharePosterModal({ topic, onClose }: WikiSharePoster
   };
 
   return (
-    <div className="fixed inset-0 z-[9999] bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fade-in">
+    <div className="fixed inset-0 z-[9999] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fade-in">
+      {/* 1. Offscreen Unconstrained Rendering Container (Never Clipped) */}
+      <div
+        style={{
+          position: "fixed",
+          left: "-9999px",
+          top: "0",
+          width: "520px",
+          overflow: "visible",
+          zIndex: -100,
+          pointerEvents: "none",
+        }}
+      >
+        <div
+          ref={offscreenPosterRef}
+          className="w-[520px] bg-slate-900 text-white rounded-3xl p-7 shadow-2xl border border-slate-800 space-y-5 font-sans relative"
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-500 to-teal-400 flex items-center justify-center text-white font-black text-sm shadow-md">
+                OP
+              </div>
+              <div>
+                <div className="text-xs font-black tracking-wider text-white">OncoPath · 肺癌循证决策系统</div>
+                <div className="text-[10px] text-slate-400">权威医学百科 · 100% 顶刊出处可溯</div>
+              </div>
+            </div>
+            <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
+              {topic.subcategory || catCfg.label}
+            </span>
+          </div>
+
+          {/* Title & Badge */}
+          <div className="space-y-2">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/20 text-blue-300 border border-blue-400/30">
+              <span>{riskCfg.label}</span>
+            </div>
+            <h2 className="text-xl font-black text-white leading-snug">
+              {topic.title}
+            </h2>
+            {topic.subtitle && (
+              <p className="text-[11px] text-slate-400 font-mono">
+                {topic.subtitle}
+              </p>
+            )}
+          </div>
+
+          {/* Section 1: Metaphor */}
+          <div className="p-4 rounded-2xl bg-amber-950/40 border border-amber-500/40 text-xs text-amber-100 space-y-1.5 leading-relaxed">
+            <div className="text-xs font-bold text-amber-400 flex items-center gap-1">
+              <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+              <span>生活比喻直观破译：</span>
+            </div>
+            <p className="text-[11px] leading-relaxed">{topic.metaphor}</p>
+          </div>
+
+          {/* Section 2: Clinical Truth */}
+          <div className="p-4 rounded-2xl bg-slate-800/80 border border-slate-700 space-y-2 text-xs">
+            <div className="font-bold text-sky-300 flex items-center gap-1.5">
+              <BookOpen className="w-3.5 h-3.5 text-sky-400 shrink-0" />
+              <span>临床真相深度解读：</span>
+            </div>
+            <div className="space-y-1.5 text-[11px] text-slate-200 leading-relaxed">
+              {topic.clinicalTruth.split("\n").map((line, idx) => {
+                const trimmed = line.trim();
+                if (!trimmed) return null;
+                if (trimmed.startsWith("• ") || trimmed.startsWith("· ")) {
+                  return (
+                    <div key={idx} className="flex items-start gap-1.5 pl-0.5">
+                      <span className="text-sky-400 font-bold leading-none mt-0.5">•</span>
+                      <span className="flex-1 text-slate-300">{trimmed.substring(2)}</span>
+                    </div>
+                  );
+                }
+                return <p key={idx} className="text-slate-300">{line}</p>;
+              })}
+            </div>
+          </div>
+
+          {/* Section 3: Tactics */}
+          <div className="p-4 rounded-2xl bg-slate-800/60 border border-slate-700/80 space-y-2 text-xs">
+            <div className="font-bold text-emerald-400 flex items-center gap-1.5">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+              <span>现代医学精准拦截武器：</span>
+            </div>
+            <ul className="space-y-1.5 pl-0.5 text-[11px] text-slate-200">
+              {topic.tactics.map((tactic, idx) => (
+                <li key={idx} className="flex items-start gap-1.5 leading-snug">
+                  <span className="text-emerald-400 font-bold">•</span>
+                  <span className="text-slate-300">{tactic}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Section 4: Key Evidence Metric */}
+          {topic.keyMetric && (
+            <div className="p-3 rounded-2xl bg-blue-950/40 border border-blue-500/40 flex items-center justify-between text-xs font-mono">
+              <span className="text-blue-300 font-bold">
+                {topic.keyMetric.label}: <strong className="text-white">{topic.keyMetric.value}</strong>
+              </span>
+              <span className="text-[10px] text-slate-400 truncate max-w-[220px]">
+                出处: {topic.keyMetric.source}
+              </span>
+            </div>
+          )}
+
+          {/* Section 5: Top FAQ */}
+          {topic.faq && topic.faq.length > 0 && (
+            <div className="p-4 rounded-2xl bg-slate-800/50 border border-slate-700/60 space-y-2 text-xs">
+              <div className="font-bold text-slate-300 flex items-center gap-1.5">
+                <HelpCircle className="w-3.5 h-3.5 text-sky-400 shrink-0" />
+                <span>患者高频疑问速答：</span>
+              </div>
+              {topic.faq.slice(0, 2).map((item, idx) => (
+                <div key={idx} className="space-y-1 text-[11px] border-t border-slate-800/80 pt-1.5 first:border-0 first:pt-0">
+                  <div className="font-bold text-sky-200">问：{item.question}</div>
+                  <div className="text-slate-300 leading-relaxed">答：{item.answer}</div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Section 6: Reassurance Box */}
+          <div className="p-4 rounded-2xl bg-gradient-to-br from-teal-950/80 to-emerald-950/80 border border-teal-500/50 space-y-1.5 text-xs text-teal-100 leading-relaxed">
+            <div className="font-bold text-teal-300 flex items-center gap-1.5">
+              <HeartPulse className="w-4 h-4 text-teal-400 shrink-0" />
+              <span>暖心定心丸：</span>
+            </div>
+            <p className="text-[11px] leading-relaxed text-teal-100">{topic.reassurance}</p>
+          </div>
+
+          {/* Footer */}
+          <div className="pt-3 border-t border-slate-800 flex items-center justify-between text-[10px] text-slate-400">
+            <span>© 2026 OncoPath · 严格同行评审临床证据库</span>
+            <span>长按识别 / 扫码阅读完整临床指引</span>
+          </div>
+        </div>
+      </div>
+
+      {/* 2. Interactive Modal Dialog for User Inspection & Download */}
       <div className="bg-white rounded-3xl max-w-xl w-full border border-slate-200 shadow-2xl overflow-hidden my-auto flex flex-col text-slate-900 animate-fade-in-up">
-        {/* Top Modal Header */}
+        {/* Modal Header */}
         <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
           <div className="flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-accent-blue" />
             <h3 className="text-sm font-bold text-slate-900">
-              生成 2x 视网膜高清微信科普长图
+              微信高清科普长图（2x 视网膜无损）
             </h3>
           </div>
           <button
@@ -84,125 +265,60 @@ export default function WikiSharePosterModal({ topic, onClose }: WikiSharePoster
           </button>
         </div>
 
-        {/* Poster Scrollable Preview Area */}
-        <div className="p-4 sm:p-6 max-h-[70vh] overflow-y-auto bg-slate-950 flex flex-col items-center">
-          {/* Offscreen / Printable Poster DOM Container */}
-          <div
-            ref={posterRef}
-            className="w-full max-w-[500px] bg-slate-900 text-white rounded-3xl p-6 sm:p-7 shadow-2xl border border-slate-800 space-y-5 relative font-sans overflow-hidden"
-          >
-            {/* Poster Header */}
-            <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-500 to-teal-400 flex items-center justify-center text-white font-black text-sm shadow-md">
-                  OP
-                </div>
-                <div>
-                  <div className="text-xs font-black tracking-wider text-white">OncoPath · 肺癌循证决策系统</div>
-                  <div className="text-[10px] text-slate-400">权威医学百科 · 100% 顶刊出处可溯</div>
-                </div>
-              </div>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
-                {catCfg.label}
-              </span>
+        {/* Scrollable Preview Area */}
+        <div className="p-4 sm:p-6 max-h-[65vh] overflow-y-auto bg-slate-950 flex flex-col items-center">
+          {isExporting && (
+            <div className="py-16 flex flex-col items-center justify-center text-slate-300 space-y-3">
+              <span className="w-8 h-8 border-3 border-blue-500 border-t-transparent rounded-full animate-spin" />
+              <p className="text-xs font-bold">正在全量渲染高清长图，请稍候...</p>
             </div>
+          )}
 
-            {/* Title & Badge */}
-            <div className="space-y-1.5">
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/20 text-blue-300 border border-blue-400/30">
-                <span>{riskCfg.label}</span>
-              </div>
-              <h2 className="text-lg sm:text-xl font-extrabold text-white leading-snug">
-                {topic.title}
-              </h2>
-              {topic.subtitle && (
-                <p className="text-[11px] text-slate-400 font-mono">
-                  {topic.subtitle}
-                </p>
-              )}
+          {generationError && (
+            <div className="p-4 rounded-xl bg-rose-950/60 border border-rose-600/50 text-xs text-rose-200 text-center">
+              {generationError}
             </div>
+          )}
 
-            {/* Metaphor Box */}
-            <div className="p-3.5 rounded-2xl bg-slate-800/80 border border-slate-700/80 text-xs text-slate-200 space-y-1 leading-relaxed">
-              <div className="text-[11px] font-bold text-amber-400 flex items-center gap-1">
-                <span>💡 通俗生活比喻：</span>
+          {exportedImageUrl && !isExporting && (
+            <div className="w-full flex flex-col items-center space-y-3">
+              <div className="w-full max-w-[460px] rounded-2xl overflow-hidden shadow-2xl border border-slate-800 bg-slate-900">
+                <img
+                  src={exportedImageUrl}
+                  alt={topic.title}
+                  className="w-full h-auto object-contain block"
+                />
               </div>
-              <p>{topic.metaphor}</p>
+              <p className="text-[11px] text-slate-400 text-center">
+                💡 <strong>长图已全量生成完毕（无截断）</strong>：长按上方图片可直接存入相册或发送微信群。
+              </p>
             </div>
-
-            {/* Tactics Box */}
-            <div className="p-3.5 rounded-2xl bg-slate-800/60 border border-slate-700/60 space-y-2 text-xs">
-              <div className="font-bold text-emerald-400 flex items-center gap-1">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                <span>现代医学精准拦截武器：</span>
-              </div>
-              <ul className="space-y-1 pl-1 text-[11px] text-slate-300">
-                {topic.tactics.slice(0, 3).map((t, i) => (
-                  <li key={i} className="flex items-start gap-1.5 leading-snug">
-                    <span className="text-emerald-400 font-bold">•</span>
-                    <span>{t}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Reassurance Box */}
-            <div className="p-3.5 rounded-2xl bg-gradient-to-br from-teal-950/60 to-emerald-950/60 border border-teal-500/40 space-y-1 text-xs text-teal-200 leading-relaxed">
-              <div className="font-bold text-teal-300 flex items-center gap-1">
-                <HeartPulse className="w-3.5 h-3.5 text-teal-400" />
-                <span>暖心定心丸：</span>
-              </div>
-              <p className="text-[11px]">{topic.reassurance}</p>
-            </div>
-
-            {/* Key Metric if present */}
-            {topic.keyMetric && (
-              <div className="p-2.5 rounded-xl bg-slate-800/40 border border-slate-700/40 flex items-center justify-between text-[10px] text-slate-400 font-mono">
-                <span className="text-blue-300 font-bold">{topic.keyMetric.label}: {topic.keyMetric.value}</span>
-                <span className="truncate max-w-[200px]">出处: {topic.keyMetric.source}</span>
-              </div>
-            )}
-
-            {/* Footer Disclaimer */}
-            <div className="pt-2 border-t border-slate-800 flex items-center justify-between text-[9px] text-slate-500">
-              <span>© 2026 OncoPath 肿瘤循证决策导航</span>
-              <span>长按识别 / 扫码阅读完整临床指引</span>
-            </div>
-          </div>
+          )}
         </div>
 
-        {/* Modal Bottom Actions */}
+        {/* Bottom Actions */}
         <div className="p-4 sm:p-5 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-50">
           <p className="text-xs text-slate-500 text-center sm:text-left">
-            已生成高分辨率 2x 视网膜图像，可保存至相册或直接发送到微信群。
+            包含生活比喻、临床真相、拦截武器、高频问答与暖心定心丸。
           </p>
 
           <div className="flex items-center gap-2 w-full sm:w-auto">
-            {!exportedImageUrl ? (
-              <button
-                onClick={handleGenerateImage}
-                disabled={isExporting}
-                className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
-              >
-                {isExporting ? (
-                  <>
-                    <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    <span>正在渲染高清长图...</span>
-                  </>
-                ) : (
-                  <>
-                    <Share2 className="w-3.5 h-3.5" />
-                    <span>生成高清微信长图</span>
-                  </>
-                )}
-              </button>
-            ) : (
+            {exportedImageUrl ? (
               <button
                 onClick={handleDownload}
                 className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md transition-all cursor-pointer flex items-center justify-center gap-2"
               >
                 <Download className="w-3.5 h-3.5" />
-                <span>保存图片至本地</span>
+                <span>保存图片至相册 / 本地</span>
+              </button>
+            ) : (
+              <button
+                onClick={handleGenerateImage}
+                disabled={isExporting}
+                className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
+              >
+                <Share2 className="w-3.5 h-3.5" />
+                <span>重新渲染长图</span>
               </button>
             )}
           </div>
