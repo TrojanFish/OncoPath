@@ -11,6 +11,7 @@
 
   <p>
     <img src="https://img.shields.io/badge/Next.js-16.2.12-blue?style=flat-square&logo=next.js" alt="Next.js" />
+    <img src="https://img.shields.io/badge/Vitest-34_Unit_Tests_Passed-success?style=flat-square&logo=vitest" alt="Vitest" />
     <img src="https://img.shields.io/badge/PostgreSQL-16-336791?style=flat-square&logo=postgresql" alt="PostgreSQL" />
     <img src="https://img.shields.io/badge/Nginx-SSE_Streaming-009639?style=flat-square&logo=nginx" alt="Nginx" />
     <img src="https://img.shields.io/badge/TailwindCSS-v4-38bdf8?style=flat-square&logo=tailwindcss" alt="TailwindCSS" />
@@ -27,18 +28,60 @@
 OncoPath bridges the communication gap between complex oncology literature and patients by strictly adhering to the **"Evidence-First, AI-Second"** standard:
 1. **Zero Hallucinations & Deterministic Rules**: Core staging, hazard ratios, and clinical paths are hard-coded. Large Language Models (LLMs) are strictly restricted from making arbitrary prognostic guesses or writing prescriptions.
 2. **100% Peer-Reviewed Traceability**: Every Hazard Ratio (HR) and 5-year Recurrence-Free Survival (RFS) rate is directly linked to seminal studies (e.g., JTO, Lancet Oncology, JCO, Chest, JCOG0804, ADAURA) with active DOI and PubMed hyperlinks.
-3. **Informed Consent & Clinical Collaboration**: Generates structured consultation pocket cards empowering patients and families to communicate effectively with their attending oncologists.
+3. **Informed Consent & Clinical Collaboration**: Generates structured consultation pocket cards and A4 prescription-grade checklists empowering patients and families to communicate effectively with their attending oncologists.
 
 ---
 
 ## ✨ Key Features & Architecture
 
+### 1. 🏥 Clinical Workstation & Multimodal AI
 - 🩺 **Telemedicine Clinical Workstation**: Modern healthcare interface with interactive simulation sandboxes and real-time data boards.
 - 🔬 **Multimodal AI Pathology Parser**: Extracts TNM staging, Spread Through Air Spaces (STAS), Visceral Pleural Invasion (VPI), Lymphovascular Invasion (LVI), IASLC grades, and driver mutations via photo or text.
 - 🗺️ **4D Dynamic Oncology Knowledge Graph**: Interactive visual canvas linking pathological risk factors to recurrence pathways and targeted therapy nodes.
-- 🖼️ **Instant 2x Retina Consultation Pocket Card**: Dedicated standalone rasterization template generating crisp, WeChat-ready and album-friendly consultation checklists in milliseconds.
+- ⚡ **AI Evidence Reasoning Ticker (`ReasoningTicker`)**: Progressive 4-step streaming MDT consensus engine with sub-second elapsed timers.
+
+### 2. 🛡️ Clinical Reassurance & Longitudinal Tracking
+- 🟢 **Tumor Marker Physiological Safety Band**: Semi-transparent 0~5.0 ng/mL green safe floating bands for CEA & CYFRA21-1 with reassuring golden principle banners.
+- ⏱️ **VDT Speedometer & Dual-Phase CT Comparison Lens (`VdtGauge` & `CtComparisonLens`)**: Driven by the Schwartz volume doubling formula with clear indolent/active growth categorization and absolute delta tracking (Δ mm & Δ %).
+- 🚦 **Post-Op Tri-Color Symptom Triage (`PostOpSymptomTriage`)**: Covers post-operative cough, intercostal numbness/pain, exertional dyspnea, and benign hemoptysis with 24-hour home recovery guidance.
+
+### 3. 📚 Evidence Visual Encyclopedia (Wiki) & Social Sharing
+- 📖 **38 Deeply Structured Clinical Topics**: Comprehensive coverage from GGN evolution to pathology risk factors, targeted immunotherapy, and long-term recovery.
+- 🧬 **4 Advanced Frontier Topics**: Post-op ctDNA/MRD dynamic surveillance, HER2/ADC breakthroughs (T-DXd), 3rd-Gen EGFR resistance overcoming roadmaps, and nodule microwave ablation/SBRT.
+- 📝 **Clinic Questions Cheat-sheet Sync**: One-click bookmarking of Wiki questions that seamlessly populate the Doctor Consultation Card and printable checklists.
+- 🖼️ **2x Retina WeChat Poster Generator (`WikiSharePosterModal`)**: Standalone unconstrained offscreen rasterization engine producing full-length, unclipped shareable infographics.
+
+### 4. 🔒 Production Security & Compliance
 - 🛡️ **PIPL Privacy & Right-to-be-Forgotten**: Built-in PII sanitizer automatically masking ID numbers, phone numbers, and hospital IDs; one-click permanent profile destruction.
+- 🔐 **PBKDF2 Password Hashing & Anti-Tampering HMAC Session Cookies**: Secure authentication guarding against credential forgery.
 - ⚡ **Production-Tuned Nginx SSE Streaming**: Zero-buffering reverse proxy for smooth typewriter report streaming, 1-year immutable caching for static assets, and IP rate limiting.
+
+---
+
+## 🧪 Automated Testing & Quality Assurance
+
+Run the comprehensive unit test and clinical safety suite with `npm test`:
+
+```bash
+cd app && npm test
+```
+
+```text
+ ✓ src/__tests__/staging.test.ts        (18 tests) - AJCC/IASLC 9th TNM & mGGO Solid Core Staging
+ ✓ src/__tests__/vdtCalculator.test.ts  (6 tests)  - Schwartz Volume Doubling Time & Growth Trajectory
+ ✓ src/__tests__/userAuth.test.ts       (5 tests)  - PBKDF2 Password Hashing & HMAC Session Anti-Tampering
+ ✓ src/__tests__/tumorMarkers.test.ts   (5 tests)  - CEA / CYFRA21-1 Physiological Metabolic Safety Bands
+
+=== OncoPath Production Readiness & Guardrails Test ===
+✅ [PASS] [PII Privacy Sanitization] - Mask ID, Phone, Name & Inpatient ID
+✅ [PASS] [Security & Anti-Abuse Rate Limiter] - Sliding Window Enforcement
+✅ [PASS] [IA1 Low-Risk Overtreatment Prevention] - Early Low-Risk Protection
+✅ [PASS] [Stage IIIA / N2 & STAS+ Precision Targeting] - High-Risk ADAURA Targeting
+✅ [PASS] [Auth & Session Security (P1)] - HMAC Signatures & Cookie Extraction
+✅ [PASS] [Deterministic Staging Engine (P0)] - mGGO Solid Staging & VPI Upstaging
+
+🎉 ALL 40 UNIT & GUARDRAIL TESTS PASSED! System is ready for production.
+```
 
 ---
 
@@ -127,10 +170,6 @@ docker compose -f docker-compose.prod.yml up -d --build
 docker image prune -f
 ```
 
-> 💡 **Core Difference: `up -d --build` vs `up -d`**:
-> - **`up -d --build` (with `--build`)**: **Required after pulling new code!** Forces Next.js compilation so your updated UI/API code is baked into the new Docker container.
-> - **`up -d` (without `--build`)**: Reuses the existing local image for instant startup (use when rebooting the server or only changing `.env` variables without code changes).
-
 ---
 
 ### 3. Operations & Disaster Recovery CheatSheet
@@ -140,7 +179,7 @@ docker image prune -f
 | **View full production logs** | `docker compose -f docker-compose.prod.yml logs -f` | Real-time monitoring across Nginx, App, and DB |
 | **View app telemetry logs** | `docker compose -f docker-compose.prod.yml logs -f app` | Inspect JSON telemetry, latencies, and errors |
 | **Run automated DB backup** | `bash scripts/backup-db.sh` | Exports compressed gzip snapshot, 30-day rotation |
-| **Run safety guardrail tests**| `cd app && npm test` | Executes clinical guardrails & PII sanitization tests |
+| **Run test & guardrail suite**| `cd app && npm test` | Executes 34 unit tests & 6 clinical guardrails |
 | **Restart cluster** | `docker compose -f docker-compose.prod.yml restart` | Quick container restart without rebuilding |
 | **Stop cluster** | `docker compose -f docker-compose.prod.yml down` | Stops services (preserves `pgdata_prod` volume) |
 
@@ -156,7 +195,7 @@ cd app
 npm install
 npm run dev
 
-# 3. Run guardrail test suite
+# 3. Run automated tests
 npm test
 ```
 Visit `http://localhost:3000` to start developing.

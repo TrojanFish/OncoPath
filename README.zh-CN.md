@@ -11,6 +11,7 @@
 
   <p>
     <img src="https://img.shields.io/badge/Next.js-16.2.12-blue?style=flat-square&logo=next.js" alt="Next.js" />
+    <img src="https://img.shields.io/badge/Vitest-34_Unit_Tests_Passed-success?style=flat-square&logo=vitest" alt="Vitest" />
     <img src="https://img.shields.io/badge/PostgreSQL-16-336791?style=flat-square&logo=postgresql" alt="PostgreSQL" />
     <img src="https://img.shields.io/badge/Nginx-SSE_Streaming-009639?style=flat-square&logo=nginx" alt="Nginx" />
     <img src="https://img.shields.io/badge/TailwindCSS-v4-38bdf8?style=flat-square&logo=tailwindcss" alt="TailwindCSS" />
@@ -27,18 +28,60 @@
 OncoPath 旨在打破医学前沿与患者理解之间的信息壁垒，坚持 **“循证优先，AI 辅助 (Evidence-First, AI-Second)”** 铁律：
 1. **杜绝 AI 幻觉与确定性算命**：核心分期与风险规则硬编码入库，严禁大模型擅自预测患者寿命或下达越权处方。
 2. **100% 顶刊出处可溯**：所有风险比（HR）、5年无复发生存率（RFS）均来自 JTO、Lancet、JCO、Chest 等同行评审真实队列研究，每条结论均带 DOI/PubMed 直达链接。
-3. **知情同意与门诊协同**：输出标准化就医问诊便签卡，助力患者与家属在门诊复查时与主管医生高效沟通。
+3. **知情同意与门诊协同**：输出标准化名医门诊便签卡与 A4 处方级打印清单，助力患者与家属在门诊复查时与主管医生高效沟通。
 
 ---
 
 ## ✨ 核心特性与生产架构 (Key Features)
 
+### 1. 🏥 临床就医与多模态智能工作台
 - 🩺 **Telemedicine 黄金比例就医工作台**：现代医疗天青色高亮风格，内置实景多模态推演沙盘与实时数据看板。
 - 🔬 **AI 多模态病理智能提取**：支持手机拍照上传或文本粘贴，毫秒级提取 TNM、STAS、VPI、LVI、IASLC 分级与分子靶点。
 - 🗺️ **4D 肺癌循证知识图谱**：动态可视化病理危险因子与临床预后之间的因果推演网络。
-- 🖼️ **极速 2x Retina 门诊问诊便签卡**：基于独立矢量卡片模板，毫秒级生成适配微信发送与相册保存的就诊便签卡。
+- ⚡ **AI 循证推演记录器 (`ReasoningTicker`)**：报告生成时提供 MDT 多学科会诊式 4 步流式透明推演与毫秒级计时。
+
+### 2. 🛡️ 临床指标解读与心理安抚矩阵
+- 🟢 **肿瘤标志物“正常生理代谢波动安全带”**：绘制 CEA（0~5.0 ng/mL）与 CYFRA21-1 半透明绿色安全浮动带与临床定心丸黄金铁律。
+- ⏱️ **VDT 速度表盘与双期 CT 浸润透视器 (`VdtGauge` & `CtComparisonLens`)**：Schwartz 倍增公式精准驱动指针分区，直观呈现全径、实性径与 CTR 绝对差值（Δ mm & Δ %）。
+- 🚦 **术后常见症状红绿灯自查分诊器 (`PostOpSymptomTriage`)**：覆盖术后干咳、肋间神经刺痛、活动后气促与偶发血丝，提供出院居家 24 小时安心指导。
+
+### 3. 📚 循证视觉百科 (Wiki) 与社交传播
+- 📖 **38 篇深度结构化临床词条**：覆盖结节演化、病理高危、靶向免疫、术后康复全周期。
+- 🧬 **4 大前沿热点词条**：术后 ctDNA / MRD 动态监测、HER2 / ADC 德曲妥珠单抗生物导弹、三代 EGFR 靶向耐药后对策、结节微波消融与 SBRT。
+- 📝 **一键加入门诊提问小抄 (`Clinic Cheat-sheet Sync`)**：Wiki 词条疑问一键收藏，无缝汇入名医门诊便签卡与 A4 打印单。
+- 🖼️ **2x 视网膜无损微信科普长图生成器 (`WikiSharePosterModal`)**：一键生成全量不截断的高清微信海报长图。
+
+### 4. 🔒 安全防护与合规保障
 - 🛡️ **PIPL 个人隐私脱敏与被遗忘权**：内置 PII 脱敏引擎自动屏蔽身份证/手机号/住院号；提供一键彻底销毁与注销档案闭环。
+- 🔐 **PBKDF2 安全哈希与防篡改 Session Cookie**：客户端鉴权安全加固，防止凭证泄露。
 - ⚡ **生产级 Nginx 流式代理调优**：专为 Server-Sent Events 流式打字机关闭内部缓冲，配置 1 年静态资源强缓存与 IP 防刷限流。
+
+---
+
+## 🧪 自动化测试体系 (Testing & Quality Assurance)
+
+项目内置严格的自动化单元测试与临床安全红线测试（运行 `npm test` 自动执行）：
+
+```bash
+cd app && npm test
+```
+
+```text
+ ✓ src/__tests__/staging.test.ts        (18 tests) - AJCC/IASLC 第九版 TNM 与 mGGO 实性成分折算
+ ✓ src/__tests__/vdtCalculator.test.ts  (6 tests)  - Schwartz 肿瘤体积倍增时间与生长演化
+ ✓ src/__tests__/userAuth.test.ts       (5 tests)  - PBKDF2 密码哈希与 HMAC 会话防伪
+ ✓ src/__tests__/tumorMarkers.test.ts   (5 tests)  - CEA/CYFRA21-1 生理代谢安全带判定
+
+=== OncoPath Production Readiness & Guardrails Test ===
+✅ [PASS] [PII Privacy Sanitization] - 身份脱敏
+✅ [PASS] [Security & Anti-Abuse Rate Limiter] - 速率限制
+✅ [PASS] [IA1 Low-Risk Overtreatment Prevention] - 极早期低危防过度医疗
+✅ [PASS] [Stage IIIA / N2 & STAS+ Precision Targeting] - 高危精准推荐
+✅ [PASS] [Auth & Session Security (P1)] - 会话安全
+✅ [PASS] [Deterministic Staging Engine (P0)] - 确定性分期引擎
+
+🎉 ALL 40 UNIT & GUARDRAIL TESTS PASSED! System is ready for production.
+```
 
 ---
 
@@ -147,19 +190,9 @@ docker image prune -f
 | **查看生产全量日志** | `docker compose -f docker-compose.prod.yml logs -f` | 实时追踪 Nginx、Next.js 与数据库状态 |
 | **仅查看 Web 应用日志**| `docker compose -f docker-compose.prod.yml logs -f app` | 查看遥测 JSON、API 耗时与报错 |
 | **执行数据库自动备份** | `bash scripts/backup-db.sh` | 自动导出 gzip 压缩快照，保留 30 天轮转 |
-| **运行 AI 安全红线测试**| `cd app && npm test` | 执行 PII 脱敏与临床指南合规断言测试 |
+| **运行自动化与红线测试**| `cd app && npm test` | 执行 34 项单元测试与 6 项安全红线验证 |
 | **重启生产集群** | `docker compose -f docker-compose.prod.yml restart` | 快速重启所有生产服务 |
 | **停止生产集群** | `docker compose -f docker-compose.prod.yml down` | 停止服务（数据卷 `pgdata_prod` 依然安全保留） |
-
----
-
-### 四、 生产安全与合规保障 (10 大加固维度)
-
-* **🔐 接口限流与防刷**：`/api/generate-report` 限制单 IP 5次/分钟，防止恶意消耗 Token。
-* **🛡️ 隐私去标识化 (PIPL)**：自动对身份证号、手机号、病案号执行不可逆掩码脱敏。
-* **⚖️ 知情同意与免责声明**：内置 [`/terms`](/terms) 与 [`/privacy`](/privacy) 法律闭环。
-* **⚡ Nginx SSE 优化**：关闭代理缓冲，保证打字机流式输出零延迟。
-* **🩺 健康探针**：提供 `/api/health` 实时报告系统负载、内存与数据库连通性。
 
 ---
 
@@ -173,7 +206,7 @@ cd app
 npm install
 npm run dev
 
-# 3. 运行安全回归测试
+# 3. 运行自动化测试套件
 npm test
 ```
 访问 `http://localhost:3000` 即可开始本地开发与调试。
