@@ -14,7 +14,7 @@ import {
   Bookmark 
 } from "lucide-react";
 import { TimelineCategory, TimelineEventItem, TIMELINE_CATEGORIES } from "@/lib/timelineTypes";
-import { DEFAULT_TIMELINE_EVENTS } from "@/lib/timelineData";
+import { DEFAULT_TIMELINE_EVENTS, deriveTimelineEventsFromProfile } from "@/lib/timelineData";
 import TimelineEventCard from "./TimelineEventCard";
 import TimelineGrowthChart from "./TimelineGrowthChart";
 import TumorMarkerTrendChart from "./TumorMarkerTrendChart";
@@ -32,7 +32,7 @@ export default function ClinicalTimelineView() {
   const [showSummaryModal, setShowSummaryModal] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // Load from API or LocalStorage
+  // Load from API or LocalStorage (or derive from user's active Profile)
   const loadEvents = async () => {
     setLoading(true);
     try {
@@ -45,26 +45,65 @@ export default function ClinicalTimelineView() {
         setEvents(data.events);
         setIsDemoMode(false);
       } else {
-        // Fallback to local storage (do NOT auto-populate fake data)
+        // Fallback to local storage (or derive from patient profile)
         const local = localStorage.getItem("oncopath_timeline_events");
         if (local) {
           const parsed = JSON.parse(local);
-          setEvents(parsed);
-          setIsDemoMode(localStorage.getItem("oncopath_timeline_is_demo") === "true");
-        } else {
-          setEvents([]);
-          setIsDemoMode(false);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setEvents(parsed);
+            setIsDemoMode(localStorage.getItem("oncopath_timeline_is_demo") === "true");
+            return;
+          }
         }
+        
+        // Auto-derive from saved profile if available
+        const savedProfileStr = localStorage.getItem("oncopath_profile");
+        if (savedProfileStr) {
+          try {
+            const savedProfile = JSON.parse(savedProfileStr);
+            const derived = deriveTimelineEventsFromProfile(savedProfile);
+            if (derived.length > 0) {
+              setEvents(derived);
+              setIsDemoMode(false);
+              localStorage.setItem("oncopath_timeline_events", JSON.stringify(derived));
+              return;
+            }
+          } catch {}
+        }
+
+        setEvents([]);
+        setIsDemoMode(false);
       }
     } catch {
       const local = localStorage.getItem("oncopath_timeline_events");
       if (local) {
-        setEvents(JSON.parse(local));
-        setIsDemoMode(localStorage.getItem("oncopath_timeline_is_demo") === "true");
-      } else {
-        setEvents([]);
-        setIsDemoMode(false);
+        try {
+          const parsed = JSON.parse(local);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setEvents(parsed);
+            setIsDemoMode(localStorage.getItem("oncopath_timeline_is_demo") === "true");
+            return;
+          }
+        } catch {}
       }
+
+      // Auto-derive from saved profile if available
+      const savedProfileStr = localStorage.getItem("oncopath_profile");
+      if (savedProfileStr) {
+        try {
+          const savedProfile = JSON.parse(savedProfileStr);
+          const derived = deriveTimelineEventsFromProfile(savedProfile);
+          if (derived.length > 0) {
+            setEvents(derived);
+            setIsDemoMode(false);
+            localStorage.setItem("oncopath_timeline_events", JSON.stringify(derived));
+            return;
+          }
+        } catch {}
+      }
+
+      setEvents([]);
+      setIsDemoMode(false);
     } finally {
       setLoading(false);
     }

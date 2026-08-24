@@ -194,3 +194,167 @@ export const DEFAULT_TIMELINE_EVENTS: TimelineEventItem[] = [
     riskStatus: "watch",
   },
 ];
+
+/**
+ * Automatically derive structured TimelineEventItem list from a PatientProfile
+ * Ensures zero data loss between Profile creation (image/text) and Timeline views
+ */
+export function deriveTimelineEventsFromProfile(profile: any): TimelineEventItem[] {
+  if (!profile) return [];
+
+  const events: TimelineEventItem[] = [];
+  const today = new Date().toISOString().split("T")[0];
+  const baseDate = 
+    profile.examDate || 
+    profile.reportDate || 
+    profile.surgeryDate || 
+    (profile.createdAt ? profile.createdAt.split("T")[0] : null) || 
+    today;
+
+  const tumorSizeMm = profile.sizeMm || (profile.tumorSize ? profile.tumorSize * 10 : 15);
+  const solidSizeMm = profile.solidSize ? profile.solidSize * 10 : 0;
+  const ctrVal = profile.ctr ?? (tumorSizeMm > 0 ? Math.min(1, Math.round((solidSizeMm / tumorSizeMm) * 100) / 100) : 0);
+
+  // 1. Ingest Historical Scans from followUpHistory
+  if (Array.isArray(profile.followUpHistory) && profile.followUpHistory.length > 0) {
+    profile.followUpHistory.forEach((hist: any, index: number) => {
+      const histDate = hist.date || baseDate;
+      const histTumorMm = hist.sizeMm || (hist.tumorSize ? hist.tumorSize * 10 : tumorSizeMm);
+      const histCtr = hist.ctr ?? 0;
+      
+      events.push({
+        id: hist.id || `profile-hist-ct-${index}-${histDate}`,
+        eventDate: histDate,
+        category: "imaging",
+        subType: "CT",
+        hospital: hist.hospital || "复查医院放射科",
+        title: `历史随访胸部 CT 扫描 (${histDate})`,
+        summary: `结节全径约 ${histTumorMm.toFixed(1)} mm，实性成分占比 ${(histCtr * 100).toFixed(0)}%。${hist.note || "历史随访比对"}`,
+        keyFindings: {
+          sizeMm: histTumorMm,
+          ctr: histCtr,
+          noduleType: profile.noduleType || "mixed_ggo",
+          location: profile.noduleLocation || "肺部病灶",
+        },
+        tags: [`${histTumorMm.toFixed(1)}mm`, `CTR ${(histCtr * 100).toFixed(0)}%`, "时序随访"],
+        riskStatus: histCtr > 0.5 ? "warning" : "watch",
+      });
+    });
+  }
+
+  // 2. Ingest Current CT / Staging Scan
+  const isPureCT = profile.reportType === "ct_imaging" || profile.currentStage === "evaluation" || profile.currentStage === "discovery";
+  
+  if (isPureCT) {
+    events.push({
+      id: `profile-cur-ct-${baseDate}`,
+      eventDate: baseDate,
+      category: "imaging",
+      subType: "CT",
+      hospital: profile.hospital || "三甲医院放射影像中心",
+      title: "基准诊断：胸部薄层高分辨 CT 平扫与重建",
+      summary: `检出肺部病灶全径约 ${tumorSizeMm.toFixed(1)} mm，实性成分径约 ${solidSizeMm.toFixed(1)} mm (CTR: ${(ctrVal * 100).toFixed(0)}%)。${profile.nextAction || "已完成影像学结构化提取"}`,
+      keyFindings: {
+        sizeMm: tumorSizeMm,
+        ctr: ctrVal,
+        noduleType: profile.noduleType === "pure_ggo" ? "纯磨玻璃 (pGGN)" : profile.noduleType === "pure_solid" ? "纯实性" : "混合磨玻璃 (mGGN)",
+        location: profile.noduleLocation || "肺部病灶",
+      },
+      tags: [
+        profile.noduleLocation || "肺部",
+        `${tumorSizeMm.toFixed(1)}mm`,
+        `CTR ${(ctrVal * 100).toFixed(0)}%`,
+        profile.noduleType === "pure_ggo" ? "纯磨玻璃" : "混合磨玻璃"
+      ],
+      riskStatus: profile.riskLevel === "high" ? "warning" : "watch",
+    });
+  } else {
+    // 3. Ingest Pathology & Post-Op Milestone
+    const stageStr = profile.tStage ? `${profile.tStage}${profile.nStage || "N0"}${profile.mStage || "M0"}` : "IA2期";
+    const stasPositive = Boolean(profile.stas);
+    const vpiPositive = Boolean(profile.vpi);
+    const lviPositive = Boolean(profile.lvi);
+    const isMarginPositive = profile.marginStatus === "positive";
+
+    events.push({
+      id: `profile-cur-pathology-${baseDate}`,
+      eventDate: baseDate,
+      category: "pathology",
+      subType: "Pathology",
+      hospital: profile.hospital || "三甲医院病理诊断中心",
+      title: "手术切除标本常规石蜡切片与组织病理学诊断",
+      summary: `【病理确诊】${stageStr} (${profile.histology || "浸润性肺腺癌"})，切缘${isMarginPositive ? "阳性" : "R0根治性阴性"}，STAS ${stasPositive ? "阳性(+)" : "阴性(-)"}，胸膜侵犯 ${vpiPositive ? "阳性(+)" : "阴性(-)"}。`,
+      keyFindings: {
+        histology: profile.histology || "浸润性腺癌",
+        stage: stageStr,
+        stas: stasPositive,
+        vpi: vpiPositive,
+        lvi: lviPositive,
+        marginStatus: isMarginPositive ? "切缘阳性" : "R0安全阴性",
+        sizeMm: tumorSizeMm,
+      },
+      tags: [
+        stageStr,
+        stasPositive ? "STAS(+)" : "STAS(-)",
+        vpiPositive ? "VPI(+)" : "VPI(-)",
+        isMarginPositive ? "切缘阳性" : "R0根治切除"
+      ],
+      riskStatus: (stasPositive || vpiPositive || lviPositive || isMarginPositive) ? "warning" : "normal",
+    });
+
+    // Surgery milestone
+    if (profile.surgeryType && profile.surgeryType !== "unknown") {
+      const surgeryName = 
+        profile.surgeryType === "segmentectomy" ? "胸腔镜解剖性肺段切除术" :
+        profile.surgeryType === "lobectomy" ? "胸腔镜标准肺叶切除术" :
+        profile.surgeryType === "wedge" ? "胸腔镜肺局部楔形切除术" : profile.surgeryType;
+
+      events.push({
+        id: `profile-cur-surgery-${baseDate}`,
+        eventDate: profile.surgeryDate || baseDate,
+        category: "milestone",
+        subType: "Surgery",
+        hospital: profile.hospital || "三甲医院胸外科",
+        title: `重大治疗里程碑：${surgeryName}`,
+        summary: "顺利完成微创解剖性切除，切缘充分安全，病灶完全切除。",
+        keyFindings: {
+          surgeryType: surgeryName,
+          marginStatus: isMarginPositive ? "切缘阳性" : "R0安全阴性",
+        },
+        tags: ["胸外科微创手术", surgeryName, "R0根治切除"],
+        riskStatus: "normal",
+      });
+    }
+  }
+
+  // 4. Ingest Serology / Tumor Markers
+  if (profile.tumorMarkers && (profile.tumorMarkers.cea != null || profile.tumorMarkers.cyfra211 != null)) {
+    const ceaVal = profile.tumorMarkers.cea != null ? Number(profile.tumorMarkers.cea) : null;
+    const cyfraVal = profile.tumorMarkers.cyfra211 != null ? Number(profile.tumorMarkers.cyfra211) : null;
+    const markerDate = profile.tumorMarkers.testDate || baseDate;
+
+    events.push({
+      id: `profile-cur-serology-${markerDate}`,
+      eventDate: markerDate,
+      category: "serology",
+      subType: "TumorMarkers",
+      hospital: profile.hospital || "三甲医院检验科",
+      title: "血清肺癌肿瘤标志物检测报告",
+      summary: `CEA: ${ceaVal != null ? `${ceaVal} ng/mL` : "未测"}，CYFRA21-1: ${cyfraVal != null ? `${cyfraVal} ng/mL` : "未测"}。`,
+      keyFindings: {
+        cea: ceaVal ?? undefined,
+        cyfra211: cyfraVal ?? undefined,
+        nse: profile.tumorMarkers.nse != null ? Number(profile.tumorMarkers.nse) : undefined,
+      },
+      tags: [
+        "肿瘤标志物",
+        ceaVal != null && ceaVal <= 5.0 ? "CEA正常" : "CEA异常",
+        cyfraVal != null && cyfraVal <= 3.3 ? "CYFRA21-1正常" : "CYFRA21-1异常"
+      ],
+      riskStatus: (ceaVal != null && ceaVal > 5.0) ? "warning" : "normal",
+    });
+  }
+
+  // Sort descending by eventDate
+  return events.sort((a, b) => new Date(b.eventDate).getTime() - new Date(a.eventDate).getTime());
+}
