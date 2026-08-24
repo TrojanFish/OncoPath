@@ -36,8 +36,8 @@ export default function ConsentModal({ onConsentAccepted }: ConsentModalProps) {
       <div className="bg-white rounded-3xl max-w-xl w-full border border-slate-200 shadow-2xl overflow-hidden flex flex-col max-h-[90vh] text-slate-900 animate-fade-in-up">
         {/* Header */}
         <div className="p-6 border-b border-slate-100 flex items-center gap-3 bg-gradient-to-r from-blue-50/70 to-teal-50/70">
-          <div className="w-10 h-10 rounded-2xl bg-blue-100/80 text-accent-blue flex items-center justify-center text-xl flex-shrink-0 shadow-xs">
-            🛡️
+          <div className="w-10 h-10 rounded-2xl overflow-hidden shadow-xs flex items-center justify-center flex-shrink-0 bg-white border border-slate-200">
+            <img src="/logo.png" alt="OncoPath Logo" className="w-full h-full object-cover" />
           </div>
           <div>
             <h2 className="text-base sm:text-lg font-bold text-slate-900">使用知情同意与医学免责声明</h2>

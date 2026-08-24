@@ -238,7 +238,7 @@ export async function POST(request: Request) {
           }
 
           // Safety Appendix
-          const safetyFooter = `\n\n---\n\n> 🛡️ **OncoPath 循证医学与安全免责声明**：\n> 本报告由 OncoPath 循证 AI 引擎根据您提供的病理/影像档案特征与国际已发表临床研究文献（NCCN/CSCO 指南、Fleischner 学会指南、IASLC、JCOG 系列研究等）汇总生成，仅供患者健康科普与就医参考，**绝不构成任何个性化临床诊断结论或处方指令**。具体的随访检查安排及辅助治疗方案，请务必携带完整影像/病理报告以主管医师或多学科会诊 (MDT) 团队的综合意见为准。\n`;
+          const safetyFooter = `\n\n---\n\n> **【OncoPath 循证医学与安全免责声明】**：\n> 本报告由 OncoPath 循证 AI 引擎根据您提供的病理/影像档案特征与国际已发表临床研究文献（NCCN/CSCO 指南、Fleischner 学会指南、IASLC、JCOG 系列研究等）汇总生成，仅供患者健康科普与就医参考，**绝不构成任何个性化临床诊断结论或处方指令**。具体的随访检查安排及辅助治疗方案，请务必携带完整影像/病理报告以主管医师或多学科会诊 (MDT) 团队的综合意见为准。\n`;
           controller.enqueue(new TextEncoder().encode(safetyFooter));
 
           controller.close();

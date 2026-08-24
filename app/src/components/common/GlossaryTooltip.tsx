@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { BookOpen } from "lucide-react";
+import { BookOpen, ShieldCheck } from "lucide-react";
 import { findGlossaryTerm, type GlossaryTerm } from "@/lib/glossaryData";
 
 interface GlossaryTooltipProps {
@@ -113,8 +113,9 @@ export function GlossaryTooltip({ term, children, className = "", showBadge = fa
 
             {/* Reassurance Pill */}
             <div className="p-2.5 rounded-xl bg-emerald-50/90 border border-emerald-200 text-emerald-900">
-              <div className="flex items-center gap-1 font-bold text-[11px] text-emerald-800 mb-0.5">
-                <span>🛡️ 患者定心丸：</span>
+              <div className="flex items-center gap-1.5 font-bold text-[11px] text-emerald-800 mb-0.5">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                <span>患者定心丸：</span>
               </div>
               <p className="text-[11px] text-emerald-700 leading-relaxed font-medium">
                 {termData.plainLanguageReassurance}
