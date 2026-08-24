@@ -26,8 +26,8 @@ import ReportUploader from "./ReportUploader";
 import SimilarCasesCard from "./SimilarCasesCard";
 import { NoduleTimelineChart } from "./NoduleTimelineChart";
 import { TumorMarkersCard } from "./TumorMarkersCard";
-import PostOpSymptomTriage from "./PostOpSymptomTriage";
 import { GlossaryTooltip } from "@/components/common/GlossaryTooltip";
+
 
 import ConsentModal from "@/components/ConsentModal";
 import type { PatientProfile, FollowUpRecord, TumorMarkersData } from "@/lib/types";
@@ -605,13 +605,8 @@ export default function PatientDashboard() {
         <SimilarCasesCard profile={profile} />
       </div>
 
-      {/* Post-Op Symptom Tri-Color Triage (24h Home Recovery Reassurance) */}
-      <div className="mb-6">
-        <PostOpSymptomTriage />
-      </div>
-
-
       {/* Profile Update Intent Router Modal (方案 A: 意图分流弹窗) */}
+
       {showUpdateModal && (
         <div className="fixed inset-0 z-[9999] bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 animate-fade-in">
           <div className="bg-white rounded-3xl max-w-lg w-full border border-slate-200 shadow-2xl overflow-hidden flex flex-col p-6 sm:p-7 text-slate-900 animate-fade-in-up space-y-5">
