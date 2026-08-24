@@ -160,9 +160,6 @@ export default function EvidenceReportPage() {
   // Initial Load: Check Local Cache & Database Persistence First (0ms Instant Load)
   useEffect(() => {
     async function loadData() {
-      if (hasLoadedRef.current) return;
-      hasLoadedRef.current = true;
-
       try {
         const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
         // 1. Fetch Profile from API/DB (supports both logged-in account and guest)
@@ -178,6 +175,7 @@ export default function EvidenceReportPage() {
         
         const fetchedProfile = data.profile;
         setProfile(fetchedProfile);
+        setError("");
 
         // 2. Check Cloud Database for existing report
         if (fetchedProfile.reportMarkdown) {
@@ -216,6 +214,18 @@ export default function EvidenceReportPage() {
     }
 
     loadData();
+
+    const handleAuthChange = () => {
+      hasLoadedRef.current = false;
+      loadData();
+    };
+
+    window.addEventListener("auth-change", handleAuthChange);
+    window.addEventListener("storage", handleAuthChange);
+    return () => {
+      window.removeEventListener("auth-change", handleAuthChange);
+      window.removeEventListener("storage", handleAuthChange);
+    };
   }, []);
 
   const handlePrint = () => {

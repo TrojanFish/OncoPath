@@ -41,27 +41,60 @@ export default function PatientDashboard() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  useEffect(() => {
-    async function loadProfile() {
-      try {
-        const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-        const res = await fetch('/api/profile?userId=' + getGuestId(), {
-          headers: token ? { Authorization: `Bearer ${token}` } : {},
-        });
-        const data = await res.json();
-        if (data.profile) {
-          setProfile(data.profile);
-        } else {
-          setShowUploader(true);
+  const loadProfile = async (showLoadingSpinner = true) => {
+    try {
+      if (showLoadingSpinner) setLoading(true);
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      const res = await fetch('/api/profile?userId=' + getGuestId(), {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      const data = await res.json();
+      if (data && data.profile) {
+        setProfile(data.profile);
+        setShowUploader(false);
+        setEditMode(null);
+        setShowUpdateModal(false);
+        if (typeof window !== "undefined") {
+          localStorage.setItem("oncopath_profile", JSON.stringify(data.profile));
         }
-      } catch (err) {
-        console.error("Failed to load profile", err);
+      } else {
+        // Fallback: check local storage cached profile
+        const localCached = typeof window !== "undefined" ? localStorage.getItem("oncopath_profile") : null;
+        if (localCached) {
+          try {
+            const parsed = JSON.parse(localCached);
+            if (parsed && (parsed.stage || parsed.noduleType || parsed.tumorSize || parsed.organ)) {
+              setProfile(parsed);
+              setShowUploader(false);
+              setEditMode(null);
+              return;
+            }
+          } catch {}
+        }
+        setProfile(null);
         setShowUploader(true);
-      } finally {
-        setLoading(false);
       }
+    } catch (err) {
+      console.error("Failed to load profile", err);
+      setShowUploader(true);
+    } finally {
+      if (showLoadingSpinner) setLoading(false);
     }
-    loadProfile();
+  };
+
+  useEffect(() => {
+    loadProfile(true);
+
+    const handleAuthChange = () => {
+      loadProfile(true);
+    };
+
+    window.addEventListener("auth-change", handleAuthChange);
+    window.addEventListener("storage", handleAuthChange);
+    return () => {
+      window.removeEventListener("auth-change", handleAuthChange);
+      window.removeEventListener("storage", handleAuthChange);
+    };
   }, []);
 
   const handleParsed = async (parsedData: any) => {
@@ -80,6 +113,10 @@ export default function PatientDashboard() {
         setProfile(dbData.profile);
         setShowUploader(false);
         setEditMode(null);
+        setShowUpdateModal(false);
+        if (typeof window !== "undefined") {
+          localStorage.setItem("oncopath_profile", JSON.stringify(dbData.profile));
+        }
       }
     } catch (err) {
       console.error("Failed to save parsed profile", err);
@@ -90,8 +127,12 @@ export default function PatientDashboard() {
     try {
       setIsDeleting(true);
       const guestId = getGuestId();
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
       // 1. Delete on server
-      await fetch(`/api/profile?userId=${guestId}`, { method: 'DELETE' }).catch(() => {});
+      await fetch(`/api/profile?userId=${guestId}`, { 
+        method: 'DELETE',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      }).catch(() => {});
       
       // 2. Clear LocalStorage
       localStorage.removeItem("oncopath_profile");

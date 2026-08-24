@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
+import { User, AlertCircle, X } from "lucide-react";
 import { login, register } from "@/lib/api";
 
 interface AuthModalProps {
@@ -86,15 +87,13 @@ export default function AuthModal({ onClose, onSuccess }: AuthModalProps) {
           className="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-900 transition-colors flex items-center justify-center cursor-pointer"
           aria-label="关闭窗口"
         >
-          <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/>
-          </svg>
+          <X className="w-4 h-4" />
         </button>
 
         {/* Brand Header */}
         <div className="text-center mb-6">
-          <div className="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-100 text-accent-blue flex items-center justify-center text-xl mx-auto mb-3 shadow-xs">
-            👤
+          <div className="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-100 text-blue-600 flex items-center justify-center mx-auto mb-3 shadow-xs">
+            <User className="w-6 h-6" />
           </div>
           <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
             {isLogin ? "登录 OncoPath" : "注册新账号"}
@@ -106,7 +105,7 @@ export default function AuthModal({ onClose, onSuccess }: AuthModalProps) {
 
         {error && (
           <div className="bg-rose-50 border border-rose-200 text-rose-700 text-xs p-3.5 rounded-xl mb-5 flex items-center gap-2">
-            <span>⚠️</span>
+            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
             <span>{error}</span>
           </div>
         )}
