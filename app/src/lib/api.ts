@@ -7,6 +7,7 @@ export async function register(email: string, password: string) {
   const response = await fetch(`${API_BASE_URL}/auth/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
+    credentials: "same-origin",
     body: JSON.stringify({ email, password, guestId }),
   });
   
@@ -22,6 +23,7 @@ export async function login(email: string, password: string) {
   const response = await fetch(`${API_BASE_URL}/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
+    credentials: "same-origin",
     body: JSON.stringify({ email, password, guestId }),
   });
   
@@ -32,12 +34,44 @@ export async function login(email: string, password: string) {
   return data;
 }
 
+export async function logout() {
+  try {
+    await fetch(`${API_BASE_URL}/auth/logout`, {
+      method: "POST",
+      credentials: "same-origin",
+    });
+  } catch (err) {
+    console.warn("Logout request failed:", err);
+  }
+}
+
+export async function getCurrentUser() {
+  try {
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    const hasValidToken = token && token !== "null" && token !== "undefined" && token.trim() !== "";
+
+    const response = await fetch(`${API_BASE_URL}/auth/me`, {
+      credentials: "same-origin",
+      headers: {
+        ...(hasValidToken ? { "Authorization": `Bearer ${token}` } : {})
+      }
+    });
+    if (!response.ok) return null;
+    const data = await response.json();
+    return data.authenticated ? data.user : null;
+  } catch (err) {
+    console.warn("Failed to check current user session:", err);
+    return null;
+  }
+}
+
 export async function generateReport(profile: any) {
   const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
   const hasValidToken = token && token !== "null" && token !== "undefined" && token.trim() !== "";
   
   const response = await fetch(`${API_BASE_URL}/generate-report`, {
     method: "POST",
+    credentials: "same-origin",
     headers: {
       "Content-Type": "application/json",
       ...(hasValidToken ? { "Authorization": `Bearer ${token}` } : {})
@@ -54,10 +88,13 @@ export async function generateReport(profile: any) {
 }
 
 export async function getCases() {
-  const token = localStorage.getItem("token");
+  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  const hasValidToken = token && token !== "null" && token !== "undefined" && token.trim() !== "";
+
   const response = await fetch(`${API_BASE_URL}/profile`, {
+    credentials: "same-origin",
     headers: {
-      "Authorization": `Bearer ${token}`
+      ...(hasValidToken ? { "Authorization": `Bearer ${token}` } : {})
     }
   });
 
@@ -69,13 +106,18 @@ export async function getCases() {
 }
 
 export async function fetchStats() {
-  const response = await fetch(`${API_BASE_URL}/studies`);
+  const response = await fetch(`${API_BASE_URL}/studies`, {
+    credentials: "same-origin"
+  });
   if (!response.ok) return null;
   return response.json();
 }
 
 export async function fetchFactors() {
-  const response = await fetch(`${API_BASE_URL}/graph`);
+  const response = await fetch(`${API_BASE_URL}/graph`, {
+    credentials: "same-origin"
+  });
   if (!response.ok) return [];
   return response.json();
 }
+

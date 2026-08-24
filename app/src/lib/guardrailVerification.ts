@@ -154,5 +154,103 @@ export function runAllGuardrailTests(): GuardrailTestResult[] {
       : '高危患者未能正确触发辅助治疗证据指引'
   });
 
+  // ==========================================
+  // Test Suite 5: P1 User Authentication & Session Security
+  // ==========================================
+  try {
+    const { generateUserToken, verifyUserToken, extractTokenFromRequest, AUTH_COOKIE_NAME } = require('./userAuth');
+    const testUserId = 'test-patient-uuid-12345';
+    const testEmail = 'patient@example.com';
+    const validToken = generateUserToken(testUserId, testEmail);
+
+    const verified = verifyUserToken(validToken);
+    const validTokenPassed = verified && verified.userId === testUserId && verified.email === testEmail;
+
+    // Test Tampered Token Rejection
+    const tamperedToken = validToken.slice(0, -6) + 'AAAAAA';
+    const tamperedRejected = verifyUserToken(tamperedToken) === null;
+
+    // Test Cookie Header Extraction
+    const mockRequestWithCookie = {
+      headers: {
+        get: (name: string) => {
+          if (name.toLowerCase() === 'cookie') {
+            return `session_pref=dark; ${AUTH_COOKIE_NAME}=${encodeURIComponent(validToken)}; other=1`;
+          }
+          return null;
+        }
+      }
+    };
+    const extractedFromCookie = extractTokenFromRequest(mockRequestWithCookie as any);
+    const cookieExtractionPassed = extractedFromCookie === validToken;
+
+    const authSuitePassed = validTokenPassed && tamperedRejected && cookieExtractionPassed;
+
+    results.push({
+      suite: 'Auth & Session Security (P1)',
+      name: 'HMAC Signature, Cookie Extraction & Anti-Tampering',
+      passed: authSuitePassed,
+      message: authSuitePassed
+        ? '会话 Token 生成、HttpOnly Cookie 提取及伪造/篡改拦截均 100% 验证通过'
+        : '认证安全校验失败，请核查签名算法与 Cookie 解析',
+      details: { validTokenPassed, tamperedRejected, cookieExtractionPassed }
+    });
+  } catch (err: any) {
+    results.push({
+      suite: 'Auth & Session Security (P1)',
+      name: 'Auth Security Execution',
+      passed: false,
+      message: `认证加固套件异常: ${err.message}`
+    });
+  }
+
+  // ==========================================
+  // Test Suite 6: P0 AJCC Subsolid Staging & Pleural Upstaging
+  // ==========================================
+  try {
+    const { computeClinicalTnmStage } = require('./staging');
+
+    // Case A: 2.0cm mGGO with 0.8cm solid component -> T1a (solid <= 1.0cm) -> IA1
+    const mGgoResult = computeClinicalTnmStage({
+      noduleType: 'mixed_ggo',
+      tumorSize: 2.0,
+      solidSize: 0.8,
+      nStage: 'N0',
+      mStage: 'M0',
+      vpi: false,
+    });
+    const mGgoPassed = mGgoResult.tStage === 'T1a' && mGgoResult.stage === 'IA1';
+
+    // Case B: 1.0cm nodule with VPI+ -> Automatically upstages T1a to T2a -> IB
+    const vpiUpstagingResult = computeClinicalTnmStage({
+      noduleType: 'pure_solid',
+      tumorSize: 1.0,
+      nStage: 'N0',
+      mStage: 'M0',
+      vpi: true,
+    });
+    const vpiPassed = vpiUpstagingResult.tStage === 'T2a' && vpiUpstagingResult.stage === 'IB';
+
+    const stagingSuitePassed = mGgoPassed && vpiPassed;
+
+    results.push({
+      suite: 'Deterministic Staging Engine (P0)',
+      name: 'mGGO Solid Component Staging & VPI Upstaging Rules',
+      passed: stagingSuitePassed,
+      message: stagingSuitePassed
+        ? '磨玻璃实性成分折算 (T1a/IA1) 与胸膜侵犯自动升期 (T2a/IB) 逻辑严密验证通过'
+        : '分期公式计算不符合 AJCC/IASLC 规范',
+      details: { mGgoResult, vpiUpstagingResult }
+    });
+  } catch (err: any) {
+    results.push({
+      suite: 'Deterministic Staging Engine (P0)',
+      name: 'Staging Rules Execution',
+      passed: false,
+      message: `分期引擎异常: ${err.message}`
+    });
+  }
+
   return results;
 }
+

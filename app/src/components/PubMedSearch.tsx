@@ -21,18 +21,20 @@ export default function PubMedSearch() {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState("");
 
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
+  const API_BASE_URL = "/api";
 
   const handleSearch = async () => {
     if (!query) return;
     setIsLoading(true);
     setMessage("");
     try {
-      const res = await fetch(`${API_BASE_URL}/evidence/search?q=${encodeURIComponent(query)}`);
+      const res = await fetch(`${API_BASE_URL}/evidence/search?q=${encodeURIComponent(query)}`, {
+        credentials: "same-origin",
+      });
       if (res.ok) {
         const data = await res.json();
-        setResults(data);
-        if (data.length === 0) {
+        setResults(Array.isArray(data) ? data : []);
+        if (!Array.isArray(data) || data.length === 0) {
           setMessage("本地数据库未找到相关论文，请尝试从外部库抓取。");
         }
       }
@@ -52,11 +54,15 @@ export default function PubMedSearch() {
       const endpoint = source === "europe_pmc" ? "fetch-europe-pmc" : "fetch-pubmed";
       const res = await fetch(`${API_BASE_URL}/evidence/${endpoint}?query=${encodeURIComponent(query)}`, {
         method: "POST",
+        credentials: "same-origin",
       });
       if (res.ok) {
-        setMessage(`已触发后台 ${source === "europe_pmc" ? "Europe PMC" : "PubMed"} 抓取任务，请稍后刷新检索结果。`);
+        const data = await res.json();
+        setMessage(data.message || `已完成 ${source === "europe_pmc" ? "Europe PMC" : "PubMed"} 抓取，请点击“本地检索”查看最新结果。`);
+        // Automatically re-run local search to refresh results
+        handleSearch();
       } else {
-        setMessage("抓取请求失败");
+        setMessage("抓取请求失败，请检查网络后重试。");
       }
     } catch (error) {
       console.error(error);
@@ -65,6 +71,7 @@ export default function PubMedSearch() {
       setIsLoading(false);
     }
   };
+
 
   return (
     <div className="mt-16 mb-8">

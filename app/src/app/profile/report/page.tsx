@@ -8,6 +8,8 @@ import { toPng } from "html-to-image";
 import type { PatientProfile } from "@/lib/types";
 import { getGuestId } from "@/lib/guest";
 import { GlossaryTooltip } from "@/components/common/GlossaryTooltip";
+import ReasoningTicker from "@/components/profile/ReasoningTicker";
+
 
 export default function EvidenceReportPage() {
   const [profile, setProfile] = useState<PatientProfile | null>(null);
@@ -56,6 +58,32 @@ export default function EvidenceReportPage() {
       }
     }
 
+    // Incorporate custom questions saved by user from Wiki encyclopedia
+    if (typeof window !== "undefined") {
+      try {
+        const savedCustom = localStorage.getItem("oncopath_clinic_questions");
+        if (savedCustom) {
+          const parsed = JSON.parse(savedCustom);
+          if (Array.isArray(parsed)) {
+            parsed.forEach((customItem: any) => {
+              if (customItem && customItem.question) {
+                // Prevent duplicates
+                const exists = items.some((it) => it.content === customItem.question);
+                if (!exists) {
+                  items.push({
+                    title: customItem.title ? `[百科] ${customItem.title}` : "百科关注疑问",
+                    content: customItem.question,
+                  });
+                }
+              }
+            });
+          }
+        }
+      } catch (e) {
+        console.error("Failed to load custom clinic questions from wiki", e);
+      }
+    }
+
     if (items.length === 0) {
       return [
         { title: "随访影像规划", content: "请教主治医生第一次胸部薄层 CT 推荐在术后第几个月复查？" },
@@ -69,6 +97,7 @@ export default function EvidenceReportPage() {
   };
 
   const checklistItems = extractChecklistItems(reportMarkdown);
+
 
   useEffect(() => {
     if (isGenerating && contentEndRef.current) {
@@ -663,14 +692,11 @@ export default function EvidenceReportPage() {
           
           <div className="p-3.5 sm:p-7 md:p-9 print:p-0">
             {!reportMarkdown && isGenerating && (
-              <div className="flex flex-col items-center gap-3.5 text-accent-blue font-medium py-16 justify-center animate-pulse print:hidden">
-                <svg className="animate-spin h-8 w-8 text-accent-blue" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                <span className="text-sm">正在为您检索海量前瞻性临床研究文献并生成个性化循证报告...</span>
+              <div className="py-4 print:hidden">
+                <ReasoningTicker isGenerating={isGenerating} />
               </div>
             )}
+
             
             {/* Custom Enhanced Medical ReactMarkdown Rendering Engine */}
             <div className="prose prose-slate max-w-none 

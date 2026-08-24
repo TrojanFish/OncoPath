@@ -1,6 +1,9 @@
 import crypto from 'crypto';
+import { NextResponse } from 'next/server';
 
 const AUTH_SECRET = process.env.ADMIN_SECRET || 'oncopath_patient_auth_secret_key_2026';
+export const AUTH_COOKIE_NAME = 'oncopath_auth_token';
+export const AUTH_COOKIE_MAX_AGE = 30 * 24 * 60 * 60; // 30 days in seconds
 
 /**
  * Hash a password using PBKDF2 with a random salt
@@ -28,7 +31,9 @@ export function verifyPassword(password: string, storedHash: string, salt: strin
  * Generate a signed JWT-like token for user session
  */
 export function generateUserToken(userId: string, email: string): string {
-  const payload = `${userId}:${email.toLowerCase().trim()}:${Date.now()}`;
+  const cleanEmail = email.toLowerCase().trim();
+  const timestamp = Date.now();
+  const payload = `${userId}:${cleanEmail}:${timestamp}`;
   const signature = crypto.createHmac('sha256', AUTH_SECRET).update(payload).digest('hex');
   return Buffer.from(`${payload}:${signature}`).toString('base64');
 }
@@ -69,3 +74,70 @@ export function verifyUserToken(token: string | null | undefined): { userId: str
     return null;
   }
 }
+
+/**
+ * Extract token from either HttpOnly cookie or Authorization Bearer header
+ */
+export function extractTokenFromRequest(request: Request): string | null {
+  // 1. Priority: Check HttpOnly / Standard Cookie
+  const cookieHeader = request.headers.get('cookie') || '';
+  const match = cookieHeader.match(new RegExp(`(?:^|;\\s*)${AUTH_COOKIE_NAME}=([^;]+)`));
+  if (match && match[1]) {
+    try {
+      return decodeURIComponent(match[1].trim());
+    } catch {
+      return match[1].trim();
+    }
+  }
+
+  // 2. Secondary: Check Authorization Bearer header (for mobile / API clients)
+  const authHeader = request.headers.get('Authorization') || request.headers.get('authorization') || '';
+  if (authHeader.startsWith('Bearer ')) {
+    return authHeader.substring(7).trim();
+  }
+
+  return null;
+}
+
+/**
+ * High-level helper to get authenticated user from incoming Request
+ */
+export function getAuthenticatedUser(request: Request): { userId: string; email: string } | null {
+  const token = extractTokenFromRequest(request);
+  return verifyUserToken(token);
+}
+
+/**
+ * Attach secure HttpOnly session cookie to outgoing NextResponse
+ */
+export function setAuthCookie(response: NextResponse, token: string): NextResponse {
+  const isProd = process.env.NODE_ENV === 'production';
+  response.cookies.set({
+    name: AUTH_COOKIE_NAME,
+    value: token,
+    httpOnly: true,
+    secure: isProd,
+    sameSite: 'lax',
+    path: '/',
+    maxAge: AUTH_COOKIE_MAX_AGE,
+  });
+  return response;
+}
+
+/**
+ * Clear session cookie on logout
+ */
+export function clearAuthCookie(response: NextResponse): NextResponse {
+  const isProd = process.env.NODE_ENV === 'production';
+  response.cookies.set({
+    name: AUTH_COOKIE_NAME,
+    value: '',
+    httpOnly: true,
+    secure: isProd,
+    sameSite: 'lax',
+    path: '/',
+    maxAge: 0,
+  });
+  return response;
+}
+

@@ -58,11 +58,10 @@ export default function AuthModal({ onClose, onSuccess }: AuthModalProps) {
         const data = await login(email, password);
         onSuccess(data.access_token, email);
       } else {
-        await register(email, password);
-        // Auto-login after registration
-        const data = await login(email, password);
+        const data = await register(email, password);
         onSuccess(data.access_token, email);
       }
+
     } catch (err: any) {
       setError(err.message || "登录或注册失败，请检查网络或凭据");
     } finally {

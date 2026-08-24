@@ -26,7 +26,9 @@ import ReportUploader from "./ReportUploader";
 import SimilarCasesCard from "./SimilarCasesCard";
 import { NoduleTimelineChart } from "./NoduleTimelineChart";
 import { TumorMarkersCard } from "./TumorMarkersCard";
+import PostOpSymptomTriage from "./PostOpSymptomTriage";
 import { GlossaryTooltip } from "@/components/common/GlossaryTooltip";
+
 import ConsentModal from "@/components/ConsentModal";
 import type { PatientProfile, FollowUpRecord, TumorMarkersData } from "@/lib/types";
 import { getGuestId } from "@/lib/guest";
@@ -599,7 +601,15 @@ export default function PatientDashboard() {
       </div>
 
       {/* Similar Cases & Cohorts Prognosis (5-Yr RFS/OS & Warm Empathy Words) */}
-      <SimilarCasesCard profile={profile} />
+      <div className="mb-6">
+        <SimilarCasesCard profile={profile} />
+      </div>
+
+      {/* Post-Op Symptom Tri-Color Triage (24h Home Recovery Reassurance) */}
+      <div className="mb-6">
+        <PostOpSymptomTriage />
+      </div>
+
 
       {/* Profile Update Intent Router Modal (方案 A: 意图分流弹窗) */}
       {showUpdateModal && (

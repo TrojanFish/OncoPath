@@ -10,21 +10,38 @@ export default function KnowledgePage() {
   const [profileLoaded, setProfileLoaded] = useState(false);
 
   useEffect(() => {
-    // Attempt to read profile from URL hash (e.g., /knowledge#profile=<base64>)
+    // 1. Attempt to read profile from URL hash (e.g., /knowledge#profile=<base64>)
     if (typeof window !== "undefined") {
+      let loadedFromHash = false;
       try {
         const hash = window.location.hash;
         const match = hash.match(/profile=([^&]+)/);
         if (match) {
           const decoded = JSON.parse(atob(decodeURIComponent(match[1])));
           setProfile(decoded);
+          loadedFromHash = true;
         }
       } catch {
         // Silently ignore malformed hash
       }
+
+      // 2. Fallback to localStorage saved profile if no URL hash provided
+      if (!loadedFromHash) {
+        try {
+          const cached = localStorage.getItem("oncopath_profile") || localStorage.getItem("patient_profile");
+          if (cached) {
+            const parsed = JSON.parse(cached);
+            if (parsed && (parsed.stage || parsed.noduleType || parsed.tumorSize || parsed.organ)) {
+              setProfile(parsed);
+            }
+          }
+        } catch {}
+      }
+
       setProfileLoaded(true);
     }
   }, []);
+
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 pb-24 selection:bg-blue-500 selection:text-white">

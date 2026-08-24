@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { FileText, Calendar, Sparkles, LogOut, User } from "lucide-react";
 import AuthModal from "@/components/AuthModal";
+import { getCurrentUser, logout } from "@/lib/api";
 
 export default function UserAvatar() {
   const [userEmail, setUserEmail] = useState<string | null>(null);
@@ -11,9 +12,24 @@ export default function UserAvatar() {
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const checkAuth = () => {
-    const email = localStorage.getItem("email");
-    setUserEmail(email);
+  const checkAuth = async () => {
+    // 1. Immediate local check for instant UI rendering
+    const localEmail = typeof window !== "undefined" ? localStorage.getItem("email") : null;
+    if (localEmail) {
+      setUserEmail(localEmail);
+    }
+
+    // 2. Server verification & Session hydration via HttpOnly Cookie
+    const user = await getCurrentUser();
+    if (user && user.email) {
+      setUserEmail(user.email);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("email", user.email);
+        localStorage.setItem("role", user.role || "patient");
+      }
+    } else if (!user && !localEmail) {
+      setUserEmail(null);
+    }
   };
 
   useEffect(() => {
@@ -33,7 +49,8 @@ export default function UserAvatar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await logout();
     localStorage.removeItem("token");
     localStorage.removeItem("email");
     localStorage.removeItem("role");
@@ -45,6 +62,7 @@ export default function UserAvatar() {
       window.location.href = "/";
     }
   };
+
 
   return (
     <>

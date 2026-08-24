@@ -1,7 +1,7 @@
 "use client";
 
-import React from "react";
-import { TestTube2, ShieldCheck } from "lucide-react";
+import React, { useState } from "react";
+import { TestTube2, ShieldCheck, ChevronDown, ChevronUp, AlertCircle } from "lucide-react";
 import type { TumorMarkersData } from "@/lib/types";
 import { evaluateTumorMarkers } from "@/lib/tumorMarkers";
 import { GlossaryTooltip } from "@/components/common/GlossaryTooltip";
@@ -13,8 +13,10 @@ interface TumorMarkersCardProps {
 export function TumorMarkersCard({
   markers
 }: TumorMarkersCardProps) {
+  const [showFactors, setShowFactors] = useState(false);
   const evaluations = evaluateTumorMarkers(markers);
   const hasData = evaluations.length > 0;
+  const isAllNormal = hasData && evaluations.every((item) => item.status === "normal");
 
   return (
     <div className="bg-white rounded-3xl p-5 sm:p-6 md:p-7 border border-slate-200 shadow-sm space-y-5 hover:border-indigo-300 transition-all">
@@ -22,20 +24,28 @@ export function TumorMarkersCard({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
         <div>
           <div className="flex items-center gap-2">
-            <TestTube2 className="w-4 h-4 text-indigo-600" />
-            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-              TUMOR BIOMARKERS · 血液肿瘤标志物监测与排雷
-            </h3>
+            <div className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 font-bold flex items-center justify-center">
+              <TestTube2 className="w-4 h-4 text-indigo-600" />
+            </div>
+            <div>
+              <h3 className="text-sm font-extrabold text-slate-900">
+                TUMOR BIOMARKERS · 血液肿瘤标志物生理安全带排雷
+              </h3>
+              <p className="text-xs text-slate-500">
+                结构化分析 CEA、CYFRA21-1、NSE 等生化指标 · 区分良恶性与代谢波动
+              </p>
+            </div>
           </div>
-          <p className="text-xs text-slate-500 mt-1">
-            结构化分析 CEA、CYFRA21-1、NSE 等血检指标，排查生理性波动因素
-          </p>
         </div>
 
         <div className="flex items-center gap-2 self-start sm:self-auto">
           {hasData ? (
-            <span className="text-xs font-bold px-3 py-1 rounded-full bg-indigo-50 text-indigo-800 border border-indigo-200">
-              已录入 {evaluations.length} 项生化指标
+            <span className={`text-xs font-bold px-3 py-1 rounded-full border ${
+              isAllNormal 
+                ? "bg-emerald-50 text-emerald-800 border-emerald-200" 
+                : "bg-amber-50 text-amber-900 border-amber-200"
+            }`}>
+              {isAllNormal ? "✓ 全部处于生理安全带" : `已录入 ${evaluations.length} 项生化指标`}
             </span>
           ) : (
             <span className="text-xs font-medium px-3 py-1 rounded-full bg-slate-50 text-slate-500 border border-slate-200">
@@ -59,14 +69,40 @@ export function TumorMarkersCard({
       ) : (
         <div className="space-y-4">
           {/* Key Medical Principle Banner */}
-          <div className="p-3.5 rounded-2xl bg-indigo-50/80 border border-indigo-200 text-xs text-indigo-950 space-y-1">
-            <div className="font-bold flex items-center gap-1.5">
-              <ShieldCheck className="w-3.5 h-3.5 text-indigo-700" />
-              <span>临床定心丸黄金铁律：</span>
+          <div className="p-3.5 sm:p-4 rounded-2xl bg-emerald-50/80 border border-emerald-200 text-xs text-emerald-950 space-y-1.5 shadow-2xs">
+            <div className="font-bold flex items-center justify-between">
+              <div className="flex items-center gap-1.5">
+                <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span className="text-emerald-900 font-extrabold">临床定心丸黄金铁律：</span>
+              </div>
+              <button 
+                onClick={() => setShowFactors(!showFactors)}
+                className="text-[11px] font-semibold text-emerald-700 hover:text-emerald-900 flex items-center gap-0.5 cursor-pointer bg-white/80 px-2 py-0.5 rounded-md border border-emerald-200"
+              >
+                <span>{showFactors ? "收起良性排查" : "查看良性波动原因"}</span>
+                {showFactors ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+              </button>
             </div>
-            <p className="text-[11px] text-indigo-800 leading-relaxed font-medium">
-              在正常参考区间（如 CEA &lt; 5.0 ng/mL）内的任何数值变化均属于<strong>人体正常生理代谢波动</strong>（吸烟、轻微胃肠炎、感冒均可引起轻度起伏），绝不代表病情恶化或复发！临床决策始终以<strong>胸部薄层 CT 影像为金标准</strong>。
+            <p className="text-[11px] sm:text-xs text-emerald-800 leading-relaxed font-medium">
+              在正常参考区间（如 CEA &lt; 5.0 ng/mL，CYFRA21-1 &lt; 3.3 ng/mL）内的任何轻微数值起伏，<strong>均属于人体正常生理代谢波动</strong>（吸烟、轻微胃肠炎、感冒均可引起轻度起伏），绝不代表病情恶化或复发！临床决策始终以<strong>胸部薄层 CT 影像为金标准</strong>。
             </p>
+
+            {showFactors && (
+              <div className="pt-2.5 mt-2 border-t border-emerald-200/80 grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px] text-emerald-900 animate-fade-in">
+                <div className="bg-white/80 p-2 rounded-xl border border-emerald-100">
+                  <span className="font-bold block text-emerald-800">🚬 吸烟与生活习惯</span>
+                  <span>长期吸烟者 CEA 生理基线通常为 3.0~5.0 ng/mL，属正常良性状态。</span>
+                </div>
+                <div className="bg-white/80 p-2 rounded-xl border border-emerald-100">
+                  <span className="font-bold block text-emerald-800">🫁 呼吸道与消化道炎症</span>
+                  <span>支气管炎、胃炎、结肠息肉均可能引起 CYFRA21-1 或 CEA 轻微上浮。</span>
+                </div>
+                <div className="bg-white/80 p-2 rounded-xl border border-emerald-100">
+                  <span className="font-bold block text-emerald-800">🧪 检验机台批次差</span>
+                  <span>不同医院化验设备及检测试剂存在 ±1.0 ng/mL 正常系统误差。</span>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Marker Gauges Grid */}
@@ -79,7 +115,11 @@ export function TumorMarkersCard({
               return (
                 <div
                   key={evalItem.key}
-                  className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-2.5"
+                  className={`p-4 rounded-2xl border space-y-2.5 transition-all ${
+                    isNormal 
+                      ? "bg-slate-50/80 border-slate-200 hover:border-emerald-300" 
+                      : "bg-amber-50/40 border-amber-200 hover:border-amber-300"
+                  }`}
                 >
                   <div className="flex items-center justify-between gap-2">
                     <div>
@@ -88,7 +128,7 @@ export function TumorMarkersCard({
                           <span>{evalItem.nameZh}</span>
                         </GlossaryTooltip>
                       </div>
-                      <div className="text-[10px] font-mono text-slate-400">参考范围: {evalItem.refRange}</div>
+                      <div className="text-[10px] font-mono text-slate-400">生理安全带范围: {evalItem.refRange}</div>
                     </div>
                     <div className="text-right">
                       <div className={`text-base font-black font-mono ${
@@ -106,9 +146,10 @@ export function TumorMarkersCard({
                     </div>
                   </div>
 
-                  {/* Visual Range Bar */}
+                  {/* Visual Range Bar with Safety Band Highlight */}
                   <div className="space-y-1">
-                    <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden relative">
+                    <div className="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden relative border border-slate-200/80">
+                      {/* Safety Band Marker */}
                       <div
                         className={`h-full rounded-full transition-all ${
                           isNormal ? "bg-emerald-500" : "bg-amber-500"
@@ -118,7 +159,7 @@ export function TumorMarkersCard({
                     </div>
                     <div className="flex justify-between text-[9px] font-mono text-slate-400">
                       <span>0</span>
-                      <span className="text-emerald-700 font-bold">参考上限: {evalItem.refMax}</span>
+                      <span className="text-emerald-700 font-bold">生理安全上限: {evalItem.refMax}</span>
                       <span>{maxGauge.toFixed(1)}</span>
                     </div>
                   </div>

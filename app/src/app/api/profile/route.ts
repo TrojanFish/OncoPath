@@ -1,21 +1,15 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { computeClinicalTnmStage } from '@/lib/staging';
-import { verifyUserToken } from '@/lib/userAuth';
+import { getAuthenticatedUser } from '@/lib/userAuth';
 
 export const dynamic = 'force-dynamic';
 
 function getAuthenticatedUserId(request: Request): string | null {
-  const authHeader = request.headers.get('Authorization') || '';
-  if (authHeader.startsWith('Bearer ')) {
-    const token = authHeader.substring(7);
-    const verified = verifyUserToken(token);
-    if (verified) {
-      return verified.userId;
-    }
-  }
-  return null;
+  const auth = getAuthenticatedUser(request);
+  return auth ? auth.userId : null;
 }
+
 
 export async function POST(request: Request) {
   try {

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { verifyUserToken } from '@/lib/userAuth';
+import { getAuthenticatedUser } from '@/lib/userAuth';
 
 export const dynamic = 'force-dynamic';
 
@@ -10,16 +10,9 @@ export async function GET(request: Request) {
     const category = searchParams.get('category');
     const profileId = searchParams.get('profileId');
     
-    // Check for user authentication token
-    const authHeader = request.headers.get('Authorization') || '';
-    let authenticatedUserId: string | null = null;
-    if (authHeader.startsWith('Bearer ')) {
-      const token = authHeader.substring(7);
-      const verified = verifyUserToken(token);
-      if (verified) {
-        authenticatedUserId = verified.userId;
-      }
-    }
+    // Check for user authentication token (Cookie or Header)
+    const auth = getAuthenticatedUser(request);
+    const authenticatedUserId = auth ? auth.userId : null;
 
     // Build filter
     const where: any = {};
@@ -38,6 +31,7 @@ export async function GET(request: Request) {
         eventDate: 'desc',
       },
     });
+
 
     if (events && events.length > 0) {
       const formatted = events.map(e => ({
@@ -70,16 +64,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: '请提供事件日期、类别和标题' }, { status: 400 });
     }
 
-    // Check user auth token
-    const authHeader = request.headers.get('Authorization') || '';
-    let authenticatedUserId: string | null = null;
-    if (authHeader.startsWith('Bearer ')) {
-      const token = authHeader.substring(7);
-      const verified = verifyUserToken(token);
-      if (verified) {
-        authenticatedUserId = verified.userId;
-      }
-    }
+    // Check user auth token (Cookie or Header)
+    const auth = getAuthenticatedUser(request);
+    const authenticatedUserId = auth ? auth.userId : null;
+
 
     const newEvent = await prisma.timelineEvent.create({
       data: {

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { hashPassword, generateUserToken } from '@/lib/userAuth';
+import { hashPassword, generateUserToken, setAuthCookie } from '@/lib/userAuth';
 
 export async function POST(request: Request) {
   try {
@@ -63,7 +63,7 @@ export async function POST(request: Request) {
 
     const token = generateUserToken(newUser.id, newUser.email);
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       access_token: token,
       token: token,
@@ -73,8 +73,12 @@ export async function POST(request: Request) {
         role: newUser.role,
       }
     });
+
+    setAuthCookie(response, token);
+    return response;
   } catch (error: any) {
     console.error("Error during user registration:", error);
     return NextResponse.json({ success: false, detail: error.message || "注册服务异常，请稍后重试" }, { status: 500 });
   }
 }
+

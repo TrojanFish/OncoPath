@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { validateAdminCredentials, generateAdminToken, verifyAdminToken } from '@/lib/adminAuth';
+import { validateAdminCredentials, generateAdminToken, verifyAdminRequest, setAdminCookie } from '@/lib/adminAuth';
 import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
 
 export async function POST(request: Request) {
@@ -27,7 +27,7 @@ export async function POST(request: Request) {
 
     const token = generateAdminToken(username.trim());
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       token,
       message: "管理员身份验证成功",
@@ -36,6 +36,9 @@ export async function POST(request: Request) {
         role: "admin"
       }
     });
+
+    setAdminCookie(response, token);
+    return response;
   } catch (error: any) {
     console.error("Error in admin login:", error);
     return NextResponse.json({ success: false, error: "登录处理异常" }, { status: 500 });
@@ -43,12 +46,10 @@ export async function POST(request: Request) {
 }
 
 export async function GET(request: Request) {
-  const authHeader = request.headers.get('Authorization') || '';
-  const token = authHeader.startsWith('Bearer ') ? authHeader.substring(7) : null;
-
-  if (verifyAdminToken(token)) {
+  if (verifyAdminRequest(request)) {
     return NextResponse.json({ success: true, authenticated: true });
   } else {
     return NextResponse.json({ success: false, authenticated: false }, { status: 401 });
   }
 }
+

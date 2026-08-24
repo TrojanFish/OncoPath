@@ -9,7 +9,9 @@ import { WikiScenarioEntry } from "@/components/wiki/WikiScenarioEntry";
 import { WikiSearchBar } from "@/components/wiki/WikiSearchBar";
 import { WikiTopicCard } from "@/components/wiki/WikiTopicCard";
 import { WikiFloatingNav } from "@/components/wiki/WikiFloatingNav";
+import PostOpSymptomTriage from "@/components/profile/PostOpSymptomTriage";
 import type { PatientProfile } from "@/lib/types";
+
 
 export default function WikiPage() {
   const [activeCategory, setActiveCategory] = useState<WikiCategory | "all">("all");
@@ -21,7 +23,7 @@ export default function WikiPage() {
   // Load patient profile from localStorage if present
   useEffect(() => {
     try {
-      const savedProfile = localStorage.getItem("patient_profile");
+      const savedProfile = localStorage.getItem("oncopath_profile") || localStorage.getItem("patient_profile");
       if (savedProfile) {
         setUserProfile(JSON.parse(savedProfile));
       }
@@ -29,6 +31,7 @@ export default function WikiPage() {
       console.error("Failed to load local profile:", e);
     }
   }, []);
+
 
   // Deep Linking Handler: Listen to URL Search Params & Hash for direct navigation (#topic-stas or ?category=pathology)
   useEffect(() => {
@@ -221,8 +224,14 @@ export default function WikiPage() {
           <WikiScenarioEntry activeCategory={activeCategory} onSelectCategory={handleSelectScenario} />
         </section>
 
+        {/* Post-Op Symptom Tri-Color Triage Section (24h Home Recovery Reassurance) */}
+        <section className="pt-4">
+          <PostOpSymptomTriage />
+        </section>
+
         {/* Act 2: Wiki Encyclopedia Topic Matrix */}
         <section id="wiki-topics-section" className="space-y-6 pt-6">
+
           {/* Category Tabs */}
           <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 pb-4">
             <button

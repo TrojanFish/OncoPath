@@ -55,7 +55,12 @@ export interface WikiTopic {
     | "PdL1ImmuneMechanismVisual"
     | "SurgicalApproachesVisual"
     | "FollowupTimelineVisual"
-    | "MPLCGGOVisual";
+    | "MPLCGGOVisual"
+    | "MrdCtdnaVisual"
+    | "Her2AdcVisual"
+    | "EgfrResistanceVisual"
+    | "AblationSbrtVisual";
+
   
   // 关联知识图谱节点 ID
   graphNodeId?: string;
@@ -1268,4 +1273,145 @@ export const WIKI_TOPICS: WikiTopic[] = [
     ],
     searchKeywords: ["术前检查", "脑核磁", "腹部B超", "骨扫描", "PET-CT", "M0分期", "肝囊肿非转移", "supraclavicular", "全身排查", "shuqianjiancha"],
   },
+  {
+    id: "mrd-ctdna",
+    category: "recovery",
+    subcategory: "前沿分子监测",
+    title: "术后 ctDNA / MRD 微小残留病灶监测：超早期分子扫雷雷达",
+    subtitle: "Circulating Tumor DNA & Minimal Residual Disease (MRD) Surveillance",
+    icon: "dna",
+    riskLevel: "moderate",
+    priorityOrder: 55,
+    visualComponent: "MrdCtdnaVisual",
+    metaphor: "像在扫雷完毕的航道上开启高灵敏声呐探测器——哪怕肉眼（CT 影像）看不见任何礁石，高灵敏度分子探针也能在血液中检测出极微量的游离肿瘤 DNA 碎片，提供比传统 CT 提前数月的超早期分子预警！",
+    clinicalTruth: "根据近年来发表于《Cancer Discovery》及国际多中心 LUNG-MRD 前瞻性临床研究成果：\n• 术后定义：根治性切除后体内残存但常规影像学（薄层 CT / PET-CT）无法探及的亚临床微小肿瘤细胞负荷；\n• 黄金阴性预测值：术后血浆连续 2~3 次 ctDNA MRD 监测均为阴性（Negative）的患者，其 2 年无复发生存率 (DFS) 高达 95% 以上，提示肿瘤已获得彻底分子级根治，常规辅助治疗可避免盲目过度升级；\n• 领先影像窗口：若术后 MRD 检测呈现阳性（Positive），其复发风险显著升高，但关键在于该信号通常比胸部 CT 发现复发病灶【提前 3 ~ 6 个月】发出警报；\n• 临床指导价值：为临床医生提供了宝贵的精准干预时间窗口，可及时启动靶向药物维持或前瞻性干预，逆转复发态势。",
+    tactics: [
+      "I期低危（如 IA1/IA2 纯磨玻璃或微浸润）患者无需常规盲目自费检测 MRD，规范定期薄层 CT 随访即可",
+      "伴有 STAS、VPI 阳性或 II~IIIA 期高危患者，可在术后 1 个月及后续每 3~6 个月抽血随访评估 MRD 动态演变",
+      "MRD 阳性时不必惊慌，应及时结合胸部增强 CT、脑部 MRI 复查，并在主治医生指导下评估开启靶向辅助治疗",
+    ],
+    reassurance: "如果您的术后病理是极早期（IA期、切缘R0、无淋巴结转移），恭喜您，物理切除已经帮您扫除了绝大部分隐患！MRD 技术是现代医学赋予我们的一道额外高科技安全防线，阴性结果将给您带来百分之百的安心，哪怕微量阳性也有丰富的靶向武器在前方为您保驾护航！",
+    keyMetric: {
+      label: "MRD 阴性人群 2年 DFS",
+      value: "> 95.8% (极低复发率)",
+      source: "Nature Medicine & Cancer Discovery: Dynamic ctDNA MRD in Early-Stage NSCLC",
+    },
+    faq: [
+      {
+        question: "我是 IA1 期原位/微浸润腺癌，有必要做几千块钱的 MRD 抽血吗？",
+        answer: "常规不推荐！IA1 期极早期微浸润手术完全切除后治愈率接近 100%，血液中几乎不可能存在微小残留，盲目做 MRD 属于过度医疗与经济浪费，只需遵医嘱定期做低剂量薄层 CT 即可。"
+      },
+      {
+        question: "抽血查 MRD 显示阳性，是不是等于癌症马上复发了？",
+        answer: "不等于临床肉眼复发！MRD 阳性只是在超微观分子层面检测到游离信号，这正是它的最大价值所在——给医生争取到了‘比 CT 提前数月’的黄金干预窗口，此时通过针对性靶向药或适度辅助治疗，完全有机会将微小残留彻底清除。"
+      }
+    ],
+    searchKeywords: ["MRD", "ctDNA", "微小残留病灶", "液体活检", "分子复发", "weixiaocanliu", "yitihuojian", "早预警", "超深度测序"],
+  },
+  {
+    id: "her2-adc",
+    category: "genetics",
+    subcategory: "前沿新型靶向与ADC",
+    title: "HER2 突变与新型 ADC 药物破局：装载 GPS 导航的微型集束生物导弹",
+    subtitle: "HER2 Exon 20 Insertions & Next-Gen ADC Breakthroughs (T-DXd)",
+    icon: "dna",
+    riskLevel: "moderate",
+    priorityOrder: 75,
+    visualComponent: "Her2AdcVisual",
+    metaphor: "像给高威力炸药装上了军用级 GPS 卫星制导雷达——单克隆抗体（雷达）精准锁定癌细胞表面的 HER2 目标，将高浓度强效化疗毒素（集束炸药）直接送入癌细胞内部定点引爆，同时最大程度保护周围正常健康组织！",
+    clinicalTruth: "关于非小细胞肺癌 HER2 突变与最新抗体偶联药物 (ADC) 的临床前沿突破：\n• 突变分布：HER2 基因突变（主要为 20号外显子插入突变，Exon 20 ins）约占非小细胞肺腺癌的 2%~4%，多见于女性、不吸烟的腺癌患者；\n• 传统化疗困境：传统一代/二代 TKI 靶向药及常规化疗对 HER2 突变疗效有限（ORR 通常 <20%）；\n• ADC 里程碑突破：以德曲妥珠单抗 (Trastuzumab Deruxtecan / T-DXd / Enhertu) 为代表的新型抗体偶联药物在 DESTINY-Lung02 全球多中心前瞻性 II 期临床试验中取得革命性成果：\n• 客观缓解率 (ORR) 高达 49%~53.8%，中位无进展生存期 (PFS) 达到 9.9~14.0 个月；\n• 旁观者效应（Bystander Effect）：T-DXd 的高细胞膜渗透性弹头能穿透扩散杀伤周围邻近的异质性癌细胞，彻底改写了 HER2 突变肺癌的治疗指南格局。",
+    tactics: [
+      "基因检测 Panel 建议覆盖 HER2 20号外显子等罕见变异，避免错失高响应靶向治疗机会",
+      "对于确诊 HER2 突变的晚期或术后复发患者，积极在专科医生指导下申请 ADC 创新药物或临床试验通道",
+      "使用 ADC 药物期间注意监测间质性肺炎 (ILD) 与血常规，早发现早管理通常安全可控",
+    ],
+    reassurance: "如果您的基因检测查出了少见的 HER2 突变，请千万不要气馁！现代肿瘤药理学发展日新月异，以 T-DXd 为代表的 ADC 生物导弹已经为该靶点带来了前所未有的超高缓解率与生存获益，罕见突变已不再是无法逾越的困境！",
+    keyMetric: {
+      label: "T-DXd 治疗 HER2 肺癌客观缓解率",
+      value: "ORR 49% ~ 53.8%",
+      source: "Journal of Clinical Oncology (JCO) & DESTINY-Lung02 Clinical Trial",
+    },
+    faq: [
+      {
+        question: "ADC 药物是化疗还是靶向药？",
+        answer: "ADC 药物是‘靶向抗体’与‘超强化疗毒素’的完美结合体，兼具靶向药的精准导航能力与化疗药的强大杀伤力，属于最新一代的生物偶联精准武器。"
+      },
+      {
+        question: "HER2 突变和乳腺癌的 HER2 阳性是一回事吗？",
+        answer: "机理类似但肺癌中多以‘基因突变（Exon 20 插入）’为主，而乳腺癌以‘基因扩增/蛋白过度表达’为主，两者均能被新型 ADC 药物精准识别并高效杀伤。"
+      }
+    ],
+    searchKeywords: ["HER2", "ADC药物", "德曲妥珠单抗", "T-DXd", "Enhertu", "Exon20", "生物导弹", "罕见靶点", "DESTINY-Lung02"],
+  },
+  {
+    id: "egfr-resistance-overcoming",
+    category: "genetics",
+    subcategory: "靶向耐药与破局",
+    title: "三代 EGFR 靶向药耐药后多维破局路径：科学布局‘下一张王牌’",
+    subtitle: "Overcoming 3rd-Gen EGFR-TKI Resistance: C797S, MET Amplification & Novel Combinations",
+    icon: "dna",
+    riskLevel: "high",
+    priorityOrder: 92,
+    visualComponent: "EgfrResistanceVisual",
+    metaphor: "像主干道临时维修时启动智能多维立交桥——当三代靶向药这条主线被癌细胞的二次突变绕过时，医生通过二次基因检测重新抓取新的绕行小道（如 MET 旁路或 C797S），换上针对性的组合拳联合用药，再次精准阻断其生存供给！",
+    clinicalTruth: "关于三代 EGFR-TKI（奥希替尼、阿美替尼、伏美替尼等）耐药机制与现代精准破局方案：\n• 耐药必须二次活检：当靶向治疗出现耐药进展时，首要核心原则是通过【组织再活检】或【超高深度血液 ctDNA NGS 测序】查明具体的耐药分子机制；\n• ① MET 基因扩增 / 旁路激活 (约占 15%~25%)：癌细胞绕过 EGFR 激活旁路生长。破局武器：三代 EGFR-TKI 联合 MET 抑制剂（如赛沃替尼 SAVANNAH 研究、卡马替尼），双靶联合 ORR 达 50% 以上；\n• ② EGFR C797S 顺式/反式二次突变 (约占 10%~15%)：结合位点突变阻碍三代药结合。反式突变可采用一代加三代联合；顺式突变可选用新型四代 EGFR-TKI（如 BLU-945 / BBT-176 等研发中前沿新药）；\n• ③ 组织学转化为小细胞肺癌 (SCLC，约占 5%~10%)：按小细胞肺癌规范方案（依托泊苷+顺铂化疗）进行高效打击；\n• ④ 无特定驱动靶点进展：采用培美曲塞+铂类化疗联合抗血管生成药物（贝伐珠单抗）或 EGFR/c-Met 双抗（埃万妥单抗 Amivantamab + 拉泽替尼 MARIPOSA-2 方案），疗效远超传统单药。",
+    tactics: [
+      "出现耐药迹象时切忌盲目自行停药或盲试偏方，务必第一时间前往大医院肿瘤内科行二次穿刺或血液 NGS 测序",
+      "根据基因测序结果由多学科 MDT 专家制定靶靶联合、双抗、四代新药或化疗联合抗血管方案",
+      "对于仅有单个孤立病灶进展的'寡进展'患者，可配合局部立体定向放疗 (SBRT)，继续维持三代靶向药口服",
+    ],
+    reassurance: "请坚决打破'吃靶向药耐药就无药可救'的陈旧绝望观念！在现代肿瘤精准医学时代，三代靶向耐药后拥有极其丰富且成熟的多维武器库储备，只要查清分子分型，科学的序贯组合治疗依然能帮您赢得高质量的长久生存！",
+    keyMetric: {
+      label: "MET扩增双靶联合治疗 ORR",
+      value: "ORR 49% ~ 57%",
+      source: "Lancet Oncology & SAVANNAH Study: Osimertinib + Savolitinib in EGFRm NSCLC",
+    },
+    faq: [
+      {
+        question: "吃奥希替尼耐药后是不是只能化疗了？",
+        answer: "绝对不是！耐药后有近一半患者是因为出现了新的靶向机会（如 MET 扩增、C797S 突变、HER2 扩增等），通过二次活检找到靶点后，依然可以采用‘双靶联合’或新型双特异性抗体治疗，无需直接盲目进入传统化疗。"
+      },
+      {
+        question: "如果只是肺上某一个小结节长大了，其他地方都很好，需要换药吗？",
+        answer: "这叫‘寡进展’。此时通常不需要停用三代靶向药，而是对那个长大的局部病灶进行精准微创消融或立体定向放疗（SBRT），原有的靶向药继续口服，往往能继续稳定控制很长时间。"
+      }
+    ],
+    searchKeywords: ["耐药", "奥希替尼耐药", "C797S", "MET扩增", "naiyao", "赛沃替尼", "二次活检", "双靶联合", "SAVANNAH", "寡进展"],
+  },
+  {
+    id: "nodule-ablation-sbrt",
+    category: "nodule",
+    subcategory: "无创与超微创消融",
+    title: "肺结节微波/射频消融与 SBRT 精准放疗：无法手术患者的无创灭瘤利器",
+    subtitle: "Minimally Invasive Microwave Ablation (MWA) & Stereotactic Body Radiotherapy (SBRT)",
+    icon: "target",
+    riskLevel: "low",
+    priorityOrder: 38,
+    visualComponent: "AblationSbrtVisual",
+    metaphor: "像在免开胸的情况下向结节内部精准投放微型热能发生器或毫米级无形聚焦激光——通过局部 60~100℃ 极速物理加热或多束交叉聚焦射线，在完整保留周围正常健康肺组织的同时，将肿瘤细胞就地凝固灭活！",
+    clinicalTruth: "对于部分高龄、严重心脑血管疾病、慢阻肺（COPD）、重度肺气肿或心肺功能差无法耐受胸外科开胸手术的早期肺结节患者，微波消融与 SBRT 提供了极佳的非手术根治替代路径：\n• ① CT 引导下经皮微波消融 (MWA)：在局部麻醉下，放射介入科医生在高清薄层 CT 引导下将直径仅 1.6mm 的消融针精准穿刺至结节中心。高频微波在针尖产生局部瞬时高温（60℃~100℃），使肿瘤组织在 5~10 分钟内发生不可逆凝固性坏死。创伤极小，局部控制率 >90%，术后 24~48 小时即可出院；\n• ② 立体定向体部放疗 (SBRT / SABR)：利用多角度交叉照射的高能 X 射线束在三维呼吸门控下精准聚焦于肿瘤靶区。单次给予超大剂量，照射野边缘剂量陡降，完全无创无需穿刺，门诊 3~5 次照射即可完成全疗程，对于早期 T1-T2 期周围型肺癌的 3 年局部控制率高达 95% 以上；\n• 综合定位：虽在淋巴结清扫方面不如规范外科手术彻底，但在身体条件不允许手术时，消融与 SBRT 是公认的具有【根治性潜能】的坚实替代武器。",
+    tactics: [
+      "对于心肺功能受损、高龄或惧怕全麻开刀的周围型实性/混合磨玻璃结节患者，可挂号放射介入科或放疗科评估消融/SBRT 适应症",
+      "消融术后配合定期薄层 CT 复查，观察消融灶周围渗出吸收与纤维化瘢痕形成过程",
+      "术前通过增强 CT 和全身评估确保结节周围无粗大主干血管紧邻，确保物理消融安全边界",
+    ],
+    reassurance: "即使因为年龄或基础疾病无法做胸外科微创手术，也绝不意味着失去治疗机会！现代介入消融与精准 SBRT 放疗技术已经非常成熟，能够以微创甚至无创的方式为您实现高质量的局部根治灭瘤！",
+    keyMetric: {
+      label: "早期肺结节消融与SBRT局部控制率",
+      value: "3年局部控制率 90% ~ 95%",
+      source: "Chest & Lancet Oncology: SBRT vs Ablation in Medically Inoperable Early Stage NSCLC",
+    },
+    faq: [
+      {
+        question: "微波消融和开刀切除相比，哪个更好？",
+        answer: "对于心肺功能好、身体年轻耐受手术的患者，胸腔镜解剖切除仍是首选金标准（因为能同时清扫肺门淋巴结）；但对于高龄、心肺功能较弱或多次手术后的多发结节患者，微波消融能够以极小创伤实现极高的局部灭瘤效果，是极佳的护肺选择。"
+      },
+      {
+        question: "消融后做 CT 发现结节比原来变大了，是怎么回事？",
+        answer: "这是消融术后的正常炎症热反应！消融区周围需要覆盖安全边界（通常比原结节大 5mm），术后早期 CT 呈现为磨玻璃样水肿渗出圈，随时间推移（6~12个月）会逐渐机化收缩变小成一条细线样纤维疤痕，属于完全正常的愈合过程。"
+      }
+    ],
+    searchKeywords: ["微波消融", "射频消融", "SBRT", "放疗", "xiaorong", "fangliao", "无法手术", "高龄结节", "局部控制", "MWA"],
+  },
 ];
+
