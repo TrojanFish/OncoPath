@@ -128,27 +128,28 @@ export default function PostOpSymptomTriage() {
     <div className="bg-white rounded-3xl p-5 sm:p-6 md:p-7 border border-slate-200 shadow-sm space-y-6 hover:border-teal-300 transition-all">
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
-        <div>
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-teal-50 text-teal-600 font-bold flex items-center justify-center">
-              <HeartPulse className="w-4 h-4 text-teal-600" />
+        <div className="min-w-0">
+          <div className="flex items-start sm:items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-teal-50 text-teal-600 font-bold flex items-center justify-center shrink-0 mt-0.5 sm:mt-0">
+              <HeartPulse className="w-4 h-4 text-teal-600 shrink-0" />
             </div>
-            <div>
-              <h3 className="text-sm font-extrabold text-slate-900">
+            <div className="min-w-0 flex-1">
+              <h3 className="text-xs sm:text-sm font-extrabold text-slate-900 leading-snug">
                 POST-OP TRIAGE · 术后常见症状红绿灯自查分诊器
               </h3>
-              <p className="text-xs text-slate-500">
+              <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5 leading-snug">
                 科学化解出院居家康复焦虑 · 区分正常生理恢复反应与紧急返院信号
               </p>
             </div>
           </div>
         </div>
 
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-50 border border-teal-200 text-teal-800 text-xs font-bold shrink-0">
-          <ShieldCheck className="w-3.5 h-3.5 text-teal-600" />
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-50 border border-teal-200 text-teal-800 text-xs font-bold shrink-0 self-start sm:self-auto">
+          <ShieldCheck className="w-3.5 h-3.5 text-teal-600 shrink-0" />
           <span>24小时居家安心定心丸</span>
         </div>
       </div>
+
 
       {/* Category Tabs */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">

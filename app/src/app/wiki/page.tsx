@@ -224,11 +224,6 @@ export default function WikiPage() {
           <WikiScenarioEntry activeCategory={activeCategory} onSelectCategory={handleSelectScenario} />
         </section>
 
-        {/* Post-Op Symptom Tri-Color Triage Section (24h Home Recovery Reassurance) */}
-        <section className="pt-4">
-          <PostOpSymptomTriage />
-        </section>
-
         {/* Act 2: Wiki Encyclopedia Topic Matrix */}
         <section id="wiki-topics-section" className="space-y-6 pt-6">
 
@@ -286,9 +281,17 @@ export default function WikiPage() {
             filteredCount={filteredTopics.length}
           />
 
+          {/* Post-Op Symptom Tri-Color Triage Section (Dedicated to Recovery Category) */}
+          {(activeCategory === "recovery" || (activeCategory === "all" && !searchQuery && selectedRisk === "all")) && (
+            <div className="animate-fade-in">
+              <PostOpSymptomTriage />
+            </div>
+          )}
+
           {/* Topics Grid (2 columns on desktop, 1 on mobile) */}
           {filteredTopics.length > 0 ? (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
               {filteredTopics.map((topic) => (
                 <WikiTopicCard
                   key={topic.id}
