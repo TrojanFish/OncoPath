@@ -1,10 +1,13 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+
 import { X, Download, Share2, Check, Sparkles, HeartPulse, ShieldCheck, BookOpen, HelpCircle } from "lucide-react";
 import { toPng } from "html-to-image";
 import type { WikiTopic } from "@/lib/wikiData";
 import { RISK_LEVEL_CONFIG, WIKI_CATEGORIES } from "@/lib/wikiData";
+import WikiTopicIcon from "./WikiTopicIcon";
+import { WikiVisualRenderer } from "./WikiVisualRenderer";
 
 interface WikiSharePosterModalProps {
   topic: WikiTopic;
@@ -28,8 +31,8 @@ export default function WikiSharePosterModal({ topic, onClose }: WikiSharePoster
 
       const element = offscreenPosterRef.current;
       
-      // Ensure fonts and DOM styles are completely resolved
-      await new Promise((r) => setTimeout(r, 150));
+      // Ensure SVG micro visuals, fonts and layout are completely mounted
+      await new Promise((r) => setTimeout(r, 250));
 
       const fullWidth = 520;
       const fullHeight = element.scrollHeight;
@@ -91,7 +94,7 @@ export default function WikiSharePosterModal({ topic, onClose }: WikiSharePoster
   useEffect(() => {
     const timer = setTimeout(() => {
       handleGenerateImage();
-    }, 200);
+    }, 250);
     return () => clearTimeout(timer);
   }, []);
 
@@ -140,18 +143,23 @@ export default function WikiSharePosterModal({ topic, onClose }: WikiSharePoster
           </div>
 
           {/* Title & Badge */}
-          <div className="space-y-2">
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/20 text-blue-300 border border-blue-400/30">
-              <span>{riskCfg.label}</span>
+          <div className="flex items-start gap-3.5">
+            <div className="w-12 h-12 rounded-2xl bg-slate-800 border border-slate-700 flex items-center justify-center flex-shrink-0 shadow-md">
+              <WikiTopicIcon icon={topic.icon} topicId={topic.id} size={24} />
             </div>
-            <h2 className="text-xl font-black text-white leading-snug">
-              {topic.title}
-            </h2>
-            {topic.subtitle && (
-              <p className="text-[11px] text-slate-400 font-mono">
-                {topic.subtitle}
-              </p>
-            )}
+            <div className="space-y-1">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/20 text-blue-300 border border-blue-400/30">
+                <span>{riskCfg.label}</span>
+              </div>
+              <h2 className="text-xl font-black text-white leading-snug">
+                {topic.title}
+              </h2>
+              {topic.subtitle && (
+                <p className="text-[11px] text-slate-400 font-mono">
+                  {topic.subtitle}
+                </p>
+              )}
+            </div>
           </div>
 
           {/* Section 1: Metaphor */}
@@ -162,6 +170,23 @@ export default function WikiSharePosterModal({ topic, onClose }: WikiSharePoster
             </div>
             <p className="text-[11px] leading-relaxed">{topic.metaphor}</p>
           </div>
+
+          {/* Section 2: Visual Micro Diagram (权威医学视觉图解与征象模拟) */}
+          {topic.visualComponent && (
+            <div className="rounded-2xl border border-slate-700/80 bg-slate-950/70 p-3.5 overflow-hidden space-y-2">
+              <div className="flex items-center justify-between text-[11px] font-bold text-sky-400">
+                <span className="flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-sky-400" />
+                  <span>视觉微观图解与影像征象推演</span>
+                </span>
+                <span className="text-[10px] text-slate-400">权威循证图谱</span>
+              </div>
+              <div className="w-full">
+                <WikiVisualRenderer visualComponent={topic.visualComponent} />
+              </div>
+            </div>
+          )}
+
 
           {/* Section 2: Clinical Truth */}
           <div className="p-4 rounded-2xl bg-slate-800/80 border border-slate-700 space-y-2 text-xs">
@@ -299,8 +324,9 @@ export default function WikiSharePosterModal({ topic, onClose }: WikiSharePoster
         {/* Bottom Actions */}
         <div className="p-4 sm:p-5 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-50">
           <p className="text-xs text-slate-500 text-center sm:text-left">
-            包含生活比喻、临床真相、拦截武器、高频问答与暖心定心丸。
+            包含微观图解、生活比喻、临床真相、拦截武器、高频问答与暖心定心丸。
           </p>
+
 
           <div className="flex items-center gap-2 w-full sm:w-auto">
             {exportedImageUrl ? (

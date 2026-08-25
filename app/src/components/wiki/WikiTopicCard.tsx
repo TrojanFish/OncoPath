@@ -23,6 +23,7 @@ import dynamic from "next/dynamic";
 import type { WikiTopic } from "@/lib/wikiData";
 import { RISK_LEVEL_CONFIG, WIKI_CATEGORIES } from "@/lib/wikiData";
 import WikiTopicIcon from "./WikiTopicIcon";
+import { WikiVisualRenderer } from "./WikiVisualRenderer";
 
 // Dynamically import heavy Canvas & Poster generation modal only when requested by user
 const WikiSharePosterModal = dynamic(() => import("./WikiSharePosterModal"), {
@@ -30,35 +31,6 @@ const WikiSharePosterModal = dynamic(() => import("./WikiSharePosterModal"), {
   loading: () => null,
 });
 
-
-// Visual Micro Components
-import { StasAirwayVisual } from "./visuals/StasAirwayVisual";
-import { VpiPleuraVisual } from "./visuals/VpiPleuraVisual";
-import { LviVesselVisual } from "./visuals/LviVesselVisual";
-import { IaslcSubtypeVisual } from "./visuals/IaslcSubtypeVisual";
-import { GgoEvolutionSimulator } from "./visuals/GgoEvolutionSimulator";
-import { FleischnerDecisionTree } from "./visuals/FleischnerDecisionTree";
-import { LobulationVisual } from "./visuals/LobulationVisual";
-import { SpiculationVisual } from "./visuals/SpiculationVisual";
-import { PleuralIndentationVisual } from "./visuals/PleuralIndentationVisual";
-import { VacuoleSignVisual } from "./visuals/VacuoleSignVisual";
-import { VascularConvergenceVisual } from "./visuals/VascularConvergenceVisual";
-import { IplnLymphVisual } from "./visuals/IplnLymphVisual";
-import { IhcKi67Visual } from "./visuals/IhcKi67Visual";
-import { CalcificationVisual } from "./visuals/CalcificationVisual";
-import { AdjuvantDecisionTreeVisual } from "./visuals/AdjuvantDecisionTreeVisual";
-import { MediastinalLNMapVisual } from "./visuals/MediastinalLNMapVisual";
-import { EgfrMutationMapVisual } from "./visuals/EgfrMutationMapVisual";
-import { PleuralLayersVisual } from "./visuals/PleuralLayersVisual";
-import { LungRadsScaleVisual } from "./visuals/LungRadsScaleVisual";
-import { PdL1ImmuneMechanismVisual } from "./visuals/PdL1ImmuneMechanismVisual";
-import { SurgicalApproachesVisual } from "./visuals/SurgicalApproachesVisual";
-import { FollowupTimelineVisual } from "./visuals/FollowupTimelineVisual";
-import { MPLCGGOVisual } from "./visuals/MPLCGGOVisual";
-import { MrdCtdnaVisual } from "./visuals/MrdCtdnaVisual";
-import { Her2AdcVisual } from "./visuals/Her2AdcVisual";
-import { EgfrResistanceVisual } from "./visuals/EgfrResistanceVisual";
-import { AblationSbrtVisual } from "./visuals/AblationSbrtVisual";
 
 interface WikiTopicCardProps {
   topic: WikiTopic;
@@ -289,33 +261,7 @@ export function WikiTopicCard({ topic, isMatchedProfile, isHighlighted }: WikiTo
               </div>
               {showVisual && (
                 <div className="animate-fade-in">
-                  {topic.visualComponent === "GgoEvolutionSimulator" && <GgoEvolutionSimulator />}
-                  {topic.visualComponent === "FleischnerDecisionTree" && <FleischnerDecisionTree />}
-                  {topic.visualComponent === "StasAirwayVisual" && <StasAirwayVisual />}
-                  {topic.visualComponent === "VpiPleuraVisual" && <VpiPleuraVisual />}
-                  {topic.visualComponent === "LviVesselVisual" && <LviVesselVisual />}
-                  {topic.visualComponent === "IaslcSubtypeVisual" && <IaslcSubtypeVisual />}
-                  {topic.visualComponent === "LobulationVisual" && <LobulationVisual />}
-                  {topic.visualComponent === "SpiculationVisual" && <SpiculationVisual />}
-                  {topic.visualComponent === "PleuralIndentationVisual" && <PleuralIndentationVisual />}
-                  {topic.visualComponent === "VacuoleSignVisual" && <VacuoleSignVisual />}
-                  {topic.visualComponent === "VascularConvergenceVisual" && <VascularConvergenceVisual />}
-                  {topic.visualComponent === "IplnLymphVisual" && <IplnLymphVisual />}
-                  {topic.visualComponent === "IhcKi67Visual" && <IhcKi67Visual />}
-                  {topic.visualComponent === "CalcificationVisual" && <CalcificationVisual />}
-                  {topic.visualComponent === "AdjuvantDecisionTreeVisual" && <AdjuvantDecisionTreeVisual />}
-                  {topic.visualComponent === "MediastinalLNMapVisual" && <MediastinalLNMapVisual />}
-                  {topic.visualComponent === "EgfrMutationMapVisual" && <EgfrMutationMapVisual />}
-                  {topic.visualComponent === "PleuralLayersVisual" && <PleuralLayersVisual />}
-                  {topic.visualComponent === "LungRadsScaleVisual" && <LungRadsScaleVisual />}
-                  {topic.visualComponent === "PdL1ImmuneMechanismVisual" && <PdL1ImmuneMechanismVisual />}
-                  {topic.visualComponent === "SurgicalApproachesVisual" && <SurgicalApproachesVisual />}
-                  {topic.visualComponent === "FollowupTimelineVisual" && <FollowupTimelineVisual />}
-                  {topic.visualComponent === "MPLCGGOVisual" && <MPLCGGOVisual />}
-                  {topic.visualComponent === "MrdCtdnaVisual" && <MrdCtdnaVisual />}
-                  {topic.visualComponent === "Her2AdcVisual" && <Her2AdcVisual />}
-                  {topic.visualComponent === "EgfrResistanceVisual" && <EgfrResistanceVisual />}
-                  {topic.visualComponent === "AblationSbrtVisual" && <AblationSbrtVisual />}
+                  <WikiVisualRenderer visualComponent={topic.visualComponent} />
                 </div>
               )}
             </div>
