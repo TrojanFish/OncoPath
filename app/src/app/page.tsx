@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { 
   Check, 
   BookOpen, 
@@ -17,7 +18,6 @@ import {
 } from "lucide-react";
 import SubpageNavbar from "@/components/SubpageNavbar";
 import Footer from "@/components/Footer";
-import KnowledgeMapPreview from "@/components/KnowledgeMapPreview";
 import ConsentModal from "@/components/ConsentModal";
 import StatsBanner from "@/components/StatsBanner";
 import StudyCard from "@/components/StudyCard";
@@ -25,8 +25,18 @@ import { FEATURED_STUDIES } from "@/lib/evidence-data";
 import type { PatientProfile } from "@/lib/types";
 export type { PatientProfile };
 
+// Dynamically import the heavy 4D Knowledge Graph canvas to drastically slim the initial homepage JS chunk
+const KnowledgeMapPreview = dynamic(() => import("@/components/KnowledgeMapPreview"), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-[520px] rounded-3xl bg-slate-100/80 border border-slate-200 animate-pulse flex flex-col items-center justify-center text-slate-400 gap-3">
+      <div className="w-9 h-9 border-3 border-blue-500 border-t-transparent rounded-full animate-spin" />
+      <span className="text-xs font-bold text-slate-600">正在按需加载 4D 循证知识图谱推演引擎...</span>
+    </div>
+  ),
+});
+
 export default function HomePage() {
-  const [scrollY, setScrollY] = useState(0);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [hasProfile, setHasProfile] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
@@ -43,14 +53,8 @@ export default function HomePage() {
 
     checkUserAndProfile();
     window.addEventListener("auth-change", checkUserAndProfile);
-
-    const handleScroll = () => {
-      setScrollY(window.scrollY);
-    };
-    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => {
       window.removeEventListener("auth-change", checkUserAndProfile);
-      window.removeEventListener("scroll", handleScroll);
     };
   }, []);
 
@@ -65,29 +69,27 @@ export default function HomePage() {
         {/* Act 1: Hero Section (2-Column Split Layout matching Telemedicine Demo) */}
         <section
           ref={heroRef}
+          className="relative min-h-[85vh] flex items-center bg-gradient-to-b from-blue-50/40 via-slate-50 to-white overflow-hidden pt-28 pb-16"
+        >
+          {/* Ambient background glow orbs with pure CSS animation (Zero JS main-thread scroll lag) */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            <div
+              className="absolute top-10 left-1/4 w-[500px] h-[500px] rounded-full opacity-20 blur-3xl animate-pulse"
+              style={{
+                background: "radial-gradient(circle, #38bdf8 0%, #0d9488 40%, transparent 70%)",
+              }}
+            />
+            <div
+              className="absolute bottom-10 right-10 w-[400px] h-[400px] rounded-full opacity-15 blur-3xl"
+              style={{
+                background: "radial-gradient(circle, #2563eb 0%, transparent 70%)",
+              }}
+            />
+          </div>
 
-        className="relative min-h-[85vh] flex items-center bg-gradient-to-b from-blue-50/40 via-slate-50 to-white overflow-hidden pt-28 pb-16"
-      >
-        {/* Ambient background glow orbs */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div
-            className="absolute top-10 left-1/4 w-[500px] h-[500px] rounded-full opacity-20 blur-3xl"
-            style={{
-              background: "radial-gradient(circle, #38bdf8 0%, #0d9488 40%, transparent 70%)",
-              transform: `translateY(${scrollY * 0.08}px)`,
-            }}
-          />
-          <div
-            className="absolute bottom-10 right-10 w-[400px] h-[400px] rounded-full opacity-15 blur-3xl"
-            style={{
-              background: "radial-gradient(circle, #2563eb 0%, transparent 70%)",
-              transform: `translateY(${scrollY * -0.04}px)`,
-            }}
-          />
-        </div>
+          <div className="relative z-10 max-w-7xl mx-auto px-3.5 sm:px-6 w-full">
+            <div className="grid lg:grid-cols-12 gap-12 lg:gap-8 items-center">
 
-        <div className="relative z-10 max-w-7xl mx-auto px-3.5 sm:px-6 w-full">
-          <div className="grid lg:grid-cols-12 gap-12 lg:gap-8 items-center">
             
             {/* Left Column: Headline, Trust Badge & CTAs */}
             <div className="lg:col-span-7 text-left space-y-6">
@@ -614,19 +616,25 @@ function FaqItem({ q, a }: { q: string; a: string }) {
   );
 }
 
-function FloatingParticles() {
-  const particles = Array.from({ length: 16 }, (_, i) => ({
-    id: i,
-    x: Math.random() * 100,
-    y: Math.random() * 100,
-    size: Math.random() * 3 + 1,
-    delay: Math.random() * 5,
-    duration: Math.random() * 10 + 8,
-  }));
+const STATIC_PARTICLES = [
+  { id: 0, x: 12, y: 18, size: 3, delay: 0.5, duration: 12 },
+  { id: 1, x: 28, y: 72, size: 2, delay: 1.2, duration: 15 },
+  { id: 2, x: 45, y: 33, size: 4, delay: 2.1, duration: 10 },
+  { id: 3, x: 62, y: 85, size: 2.5, delay: 0.8, duration: 14 },
+  { id: 4, x: 78, y: 22, size: 3.5, delay: 3.0, duration: 16 },
+  { id: 5, x: 89, y: 64, size: 2, delay: 1.8, duration: 11 },
+  { id: 6, x: 15, y: 55, size: 3, delay: 2.5, duration: 13 },
+  { id: 7, x: 52, y: 14, size: 2.2, delay: 0.2, duration: 17 },
+  { id: 8, x: 35, y: 90, size: 3.8, delay: 3.4, duration: 9 },
+  { id: 9, x: 70, y: 48, size: 2, delay: 1.5, duration: 15 },
+  { id: 10, x: 82, y: 80, size: 3, delay: 2.8, duration: 12 },
+  { id: 11, x: 95, y: 30, size: 2.5, delay: 0.6, duration: 14 },
+];
 
+function FloatingParticles() {
   return (
-    <div className="absolute inset-0">
-      {particles.map((p) => (
+    <div className="absolute inset-0 pointer-events-none">
+      {STATIC_PARTICLES.map((p) => (
         <div
           key={p.id}
           className="absolute rounded-full bg-accent-blue/20"
@@ -642,3 +650,4 @@ function FloatingParticles() {
     </div>
   );
 }
+

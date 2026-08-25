@@ -46,7 +46,7 @@ export default function SubpageNavbar() {
       {/* Floating Island Navbar (Desktop & Mobile) */}
       <div className="fixed top-2.5 sm:top-4 left-0 right-0 z-50 px-2 sm:px-6 pointer-events-none print:hidden">
         <nav className="max-w-5xl mx-auto flex items-center justify-between px-3.5 sm:px-6 py-2 sm:py-2.5 rounded-2xl sm:rounded-full bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-lg shadow-slate-900/5 transition-all pointer-events-auto hover:border-slate-300">
-          <Link href="/" className="flex-shrink-0 hover:opacity-85 transition-opacity">
+          <Link href="/" prefetch={true} className="flex-shrink-0 hover:opacity-85 transition-opacity">
             <LogoMark />
           </Link>
           
@@ -56,6 +56,7 @@ export default function SubpageNavbar() {
               <Link
                 key={link.href}
                 href={link.href}
+                prefetch={true}
                 className={`text-xs sm:text-sm font-semibold transition-colors ${
                   pathname === link.href
                     ? "text-accent-blue font-bold"
@@ -106,7 +107,9 @@ export default function SubpageNavbar() {
             <div className="space-y-4">
               {/* Drawer Header */}
               <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                <LogoMark />
+                <Link href="/" prefetch={true} onClick={() => setMobileMenuOpen(false)}>
+                  <LogoMark />
+                </Link>
                 <button
                   onClick={() => setMobileMenuOpen(false)}
                   className="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 transition-colors flex items-center justify-center cursor-pointer"
@@ -130,6 +133,7 @@ export default function SubpageNavbar() {
                     <Link
                       key={link.href}
                       href={link.href}
+                      prefetch={true}
                       onClick={() => setMobileMenuOpen(false)}
                       className={`flex items-center justify-between px-3.5 py-3 rounded-xl text-xs font-semibold transition-all ${
                         isActive
@@ -153,6 +157,7 @@ export default function SubpageNavbar() {
               <div className="pt-2">
                 <Link
                   href="/about"
+                  prefetch={true}
                   onClick={() => setMobileMenuOpen(false)}
                   className={`flex items-center justify-between p-3 rounded-xl border transition-all text-xs font-semibold ${
                     pathname === "/about"
@@ -160,6 +165,7 @@ export default function SubpageNavbar() {
                       : "bg-slate-50/80 hover:bg-slate-100 text-slate-600 border-slate-200/80"
                   }`}
                 >
+
                   <div className="flex items-center gap-2">
                     <Info className="w-4 h-4 text-sky-600" />
                     <span>关于我们与初衷</span>

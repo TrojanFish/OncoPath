@@ -101,6 +101,7 @@ export default function UserAvatar() {
 
               <Link 
                 href="/profile"
+                prefetch={true}
                 onClick={() => setShowDropdown(false)}
                 className="w-full text-left px-4 py-2.5 text-xs text-slate-700 hover:text-blue-600 hover:bg-blue-50/60 font-semibold transition-colors flex items-center gap-2"
               >
@@ -110,6 +111,7 @@ export default function UserAvatar() {
 
               <Link 
                 href="/timeline"
+                prefetch={true}
                 onClick={() => setShowDropdown(false)}
                 className="w-full text-left px-4 py-2.5 text-xs text-slate-700 hover:text-indigo-600 hover:bg-indigo-50/60 font-semibold transition-colors flex items-center gap-2"
               >
@@ -119,6 +121,7 @@ export default function UserAvatar() {
 
               <Link 
                 href="/profile/report"
+                prefetch={true}
                 onClick={() => setShowDropdown(false)}
                 className="w-full text-left px-4 py-2.5 text-xs text-slate-700 hover:text-teal-600 hover:bg-teal-50/60 font-semibold transition-colors flex items-center gap-2"
               >
@@ -152,12 +155,14 @@ export default function UserAvatar() {
 
           <Link
             href="/profile"
+            prefetch={true}
             className="hidden sm:inline-flex btn-primary px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-sm whitespace-nowrap"
           >
             建立临床档案
           </Link>
         </div>
       )}
+
 
       {showAuthModal && (
         <AuthModal 

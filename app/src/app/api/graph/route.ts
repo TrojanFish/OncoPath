@@ -98,12 +98,21 @@ export async function GET() {
     return NextResponse.json({
       nodes: nodes.length > 0 ? nodes : DEFAULT_GRAPH_NODES,
       edgeEvidences
+    }, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=120, stale-while-revalidate=600'
+      }
     });
   } catch (error) {
     console.error('Failed to fetch graph data from DB, using pre-seeded fallback:', error);
     return NextResponse.json({
       nodes: DEFAULT_GRAPH_NODES,
       edgeEvidences: DEFAULT_EDGE_EVIDENCES
+    }, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=120, stale-while-revalidate=600'
+      }
     });
   }
+
 }

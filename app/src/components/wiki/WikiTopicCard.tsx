@@ -18,10 +18,18 @@ import {
   Image,
   BookmarkCheck,
 } from "lucide-react";
+import dynamic from "next/dynamic";
+
 import type { WikiTopic } from "@/lib/wikiData";
 import { RISK_LEVEL_CONFIG, WIKI_CATEGORIES } from "@/lib/wikiData";
 import WikiTopicIcon from "./WikiTopicIcon";
-import WikiSharePosterModal from "./WikiSharePosterModal";
+
+// Dynamically import heavy Canvas & Poster generation modal only when requested by user
+const WikiSharePosterModal = dynamic(() => import("./WikiSharePosterModal"), {
+  ssr: false,
+  loading: () => null,
+});
+
 
 // Visual Micro Components
 import { StasAirwayVisual } from "./visuals/StasAirwayVisual";

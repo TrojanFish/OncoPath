@@ -21,12 +21,24 @@ import {
   Camera,
   Trash2,
 } from "lucide-react";
+import dynamic from "next/dynamic";
+
 import JourneyMap from "./JourneyMap";
-import ReportUploader from "./ReportUploader";
 import SimilarCasesCard from "./SimilarCasesCard";
 import { NoduleTimelineChart } from "./NoduleTimelineChart";
 import { TumorMarkersCard } from "./TumorMarkersCard";
 import { GlossaryTooltip } from "@/components/common/GlossaryTooltip";
+
+// Dynamically import ReportUploader modal for instant dashboard rendering
+const ReportUploader = dynamic(() => import("./ReportUploader"), {
+  ssr: false,
+  loading: () => (
+    <div className="p-8 sm:p-12 text-center text-slate-500 font-bold animate-pulse text-sm">
+      正在加载智能报告解析与录入引擎...
+    </div>
+  ),
+});
+
 
 
 import ConsentModal from "@/components/ConsentModal";
