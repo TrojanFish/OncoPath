@@ -121,7 +121,7 @@ export default function TumorMarkerTrendChart({ events }: TumorMarkerTrendChartP
 
       {/* Marker Selection Tabs */}
       {availableMarkerKeys.length > 1 && (
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+        <div className="flex items-center gap-1.5 overflow-x-auto py-1.5 px-0.5 no-scrollbar">
           {availableMarkerKeys.map((key) => {
             const def = TUMOR_MARKER_DEFINITIONS[key];
             if (!def) return null;
@@ -143,6 +143,7 @@ export default function TumorMarkerTrendChart({ events }: TumorMarkerTrendChartP
           })}
         </div>
       )}
+
 
       {/* Safety Band Golden Principle Reassurance Banner */}
       <div className="p-3.5 sm:p-4 rounded-2xl bg-emerald-50/80 border border-emerald-200 text-xs text-emerald-950 space-y-1.5 shadow-2xs">

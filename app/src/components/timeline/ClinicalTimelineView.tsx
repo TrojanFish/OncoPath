@@ -345,40 +345,49 @@ export default function ClinicalTimelineView() {
           </div>
 
           {/* Quick Metrics & Actions */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+          <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap">
             <button
               onClick={() => setShowAddModal(true)}
-              className="btn-primary px-5 py-3 rounded-2xl text-xs sm:text-sm font-bold shadow-md flex items-center justify-center gap-2 cursor-pointer"
+              className="btn-primary px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl text-xs sm:text-sm font-bold shadow-md flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0 transition-transform active:scale-95"
             >
               <Plus className="w-4 h-4" />
-              <span>录入新检查报告</span>
+              <span>录入新报告</span>
             </button>
             <button
               onClick={() => setShowSummaryModal(true)}
-              className="px-4 sm:px-5 py-3 rounded-2xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
+              className="px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 hover:text-slate-900 text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs whitespace-nowrap shrink-0 active:scale-95"
             >
               <FileText className="w-4 h-4 text-slate-600" />
-              <span>生成名医就诊清单</span>
+              <span>名医就诊清单</span>
             </button>
           </div>
         </div>
 
         {/* Dynamic Stats Strip */}
         <div className="relative z-10 grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-6 border-t border-slate-200/80">
-          <div className="bg-white/90 p-3.5 rounded-2xl border border-slate-200/90 shadow-2xs">
-            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">随访跨度</span>
+          <div className="bg-white/90 p-3.5 rounded-2xl border border-slate-200/90 shadow-2xs hover:border-blue-200 transition-colors">
+            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider flex items-center gap-1">
+              <Calendar className="w-3 h-3 text-slate-400" />
+              <span>随访跨度</span>
+            </span>
             <div className="text-xs sm:text-sm font-extrabold text-slate-900 mt-1 font-mono">
               {events.length > 0 ? `${timeSpan.spanText}` : "未开启随访"}
             </div>
           </div>
-          <div className="bg-white/90 p-3.5 rounded-2xl border border-slate-200/90 shadow-2xs">
-            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">归档检查总数</span>
+          <div className="bg-white/90 p-3.5 rounded-2xl border border-slate-200/90 shadow-2xs hover:border-blue-200 transition-colors">
+            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider flex items-center gap-1">
+              <FileText className="w-3 h-3 text-blue-500" />
+              <span>归档检查总数</span>
+            </span>
             <div className="text-xs sm:text-sm font-extrabold text-blue-700 mt-1 font-mono">
               {events.length} 次检查
             </div>
           </div>
-          <div className="bg-white/90 p-3.5 rounded-2xl border border-slate-200/90 shadow-2xs">
-            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">最新病灶状态</span>
+          <div className="bg-white/90 p-3.5 rounded-2xl border border-slate-200/90 shadow-2xs hover:border-blue-200 transition-colors">
+            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider flex items-center gap-1">
+              <TrendingUp className="w-3 h-3 text-emerald-500" />
+              <span>最新病灶状态</span>
+            </span>
             <div className="text-xs sm:text-sm font-extrabold text-slate-900 mt-1 flex items-center gap-1.5 truncate">
               {events.length > 0 ? (
                 <>
@@ -396,8 +405,11 @@ export default function ClinicalTimelineView() {
               )}
             </div>
           </div>
-          <div className="bg-white/90 p-3.5 rounded-2xl border border-slate-200/90 shadow-2xs">
-            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">肿瘤标志物 (CEA)</span>
+          <div className="bg-white/90 p-3.5 rounded-2xl border border-slate-200/90 shadow-2xs hover:border-blue-200 transition-colors">
+            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider flex items-center gap-1">
+              <Sparkles className="w-3 h-3 text-indigo-500" />
+              <span>肿瘤标志物 (CEA)</span>
+            </span>
             <div className="text-xs sm:text-sm font-extrabold text-slate-900 mt-1 font-mono truncate">
               {latestSerologyEvent?.keyFindings?.cea !== undefined
                 ? `${latestSerologyEvent.keyFindings.cea} ng/mL (${latestSerologyEvent.keyFindings.cea < 5.0 ? "正常" : "偏高"})`
@@ -406,6 +418,7 @@ export default function ClinicalTimelineView() {
           </div>
         </div>
       </div>
+
 
       {/* 2. Empty State (When user has 0 records) */}
       {events.length === 0 ? (
@@ -425,26 +438,27 @@ export default function ClinicalTimelineView() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
             <button
               onClick={() => setShowAddModal(true)}
-              className="w-full sm:w-auto btn-primary px-6 py-3 rounded-2xl text-xs sm:text-sm font-bold shadow-md cursor-pointer flex items-center justify-center gap-2"
+              className="w-full sm:w-auto btn-primary px-5 py-2.5 sm:py-3 rounded-2xl text-xs sm:text-sm font-bold shadow-md cursor-pointer flex items-center justify-center gap-1.5 whitespace-nowrap"
             >
               <Plus className="w-4 h-4" />
-              <span>录入第一份检查报告</span>
+              <span>录入首份报告</span>
             </button>
             <Link
               href="/profile"
-              className="w-full sm:w-auto px-5 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2"
+              className="w-full sm:w-auto px-5 py-2.5 sm:py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-1.5 whitespace-nowrap"
             >
               <Camera className="w-4 h-4 text-slate-600" />
-              <span>拍照上传智能识别</span>
+              <span>拍照智能识别</span>
             </Link>
             <button
               onClick={handleLoadDemo}
-              className="w-full sm:w-auto px-5 py-3 rounded-2xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center justify-center gap-2"
+              className="w-full sm:w-auto px-5 py-2.5 sm:py-3 rounded-2xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 whitespace-nowrap"
             >
               <Sparkles className="w-4 h-4 text-amber-600" />
-              <span>体验 3年随访演示数据</span>
+              <span>体验演示数据</span>
             </button>
           </div>
+
         </div>
       ) : (
         <>
@@ -502,12 +516,12 @@ export default function ClinicalTimelineView() {
             </div>
 
             {/* Category Filter Chips */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+            <div className="flex items-center gap-2 overflow-x-auto py-2 px-1 no-scrollbar">
               <button
                 onClick={() => setActiveCategory("all")}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer border ${
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer border shrink-0 ${
                   activeCategory === "all"
-                    ? "bg-slate-900 text-white border-slate-900 shadow-2xs"
+                    ? "bg-slate-900 text-white border-slate-900 shadow-xs"
                     : "bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200"
                 }`}
               >
@@ -521,9 +535,9 @@ export default function ClinicalTimelineView() {
                   <button
                     key={cat.key}
                     onClick={() => setActiveCategory(cat.key)}
-                    className={`px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer border flex items-center gap-1.5 ${
+                    className={`px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer border flex items-center gap-1.5 shrink-0 ${
                       isActive
-                        ? `${cat.lightBg} ring-2 ring-blue-500 font-extrabold shadow-2xs`
+                        ? `${cat.lightBg} border-2 border-blue-600 shadow-xs font-extrabold text-blue-950`
                         : "bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200"
                     }`}
                   >
@@ -537,7 +551,7 @@ export default function ClinicalTimelineView() {
 
             {/* Year Quick-Filter Pills (When multi-year data exists) */}
             {allYears.length > 1 && (
-              <div className="pt-2 border-t border-slate-100 flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+              <div className="pt-2.5 pb-1 px-1 border-t border-slate-100 flex items-center gap-2 overflow-x-auto no-scrollbar">
                 <span className="text-[11px] text-slate-400 font-bold shrink-0 flex items-center gap-1">
                   <Bookmark className="w-3 h-3 text-slate-400" />
                   <span>年份快筛:</span>
@@ -545,7 +559,7 @@ export default function ClinicalTimelineView() {
 
                 <button
                   onClick={() => setSelectedYear("all")}
-                  className={`px-2.5 py-1 rounded-lg text-[11px] font-bold whitespace-nowrap transition-all cursor-pointer border ${
+                  className={`px-2.5 py-1 rounded-lg text-[11px] font-bold whitespace-nowrap transition-all cursor-pointer border shrink-0 ${
                     selectedYear === "all"
                       ? "bg-blue-600 text-white border-blue-600 shadow-xs"
                       : "bg-slate-50 hover:bg-slate-100 text-slate-600 border-slate-200"
@@ -561,7 +575,7 @@ export default function ClinicalTimelineView() {
                     <button
                       key={year}
                       onClick={() => setSelectedYear(year)}
-                      className={`px-2.5 py-1 rounded-lg text-[11px] font-bold whitespace-nowrap transition-all cursor-pointer border font-mono ${
+                      className={`px-2.5 py-1 rounded-lg text-[11px] font-bold whitespace-nowrap transition-all cursor-pointer border font-mono shrink-0 ${
                         isYearActive
                           ? "bg-blue-600 text-white border-blue-600 shadow-xs"
                           : "bg-slate-50 hover:bg-slate-100 text-slate-600 border-slate-200"
@@ -574,6 +588,7 @@ export default function ClinicalTimelineView() {
               </div>
             )}
           </div>
+
 
           {/* 4. Main Body Content Based on View Mode */}
           {viewMode === "charts" ? (
