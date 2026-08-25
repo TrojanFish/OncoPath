@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { TestTube2, ShieldCheck, AlertCircle, Info, ChevronDown, ChevronUp } from "lucide-react";
 import { TimelineEventItem } from "@/lib/timelineTypes";
+import { TUMOR_MARKER_DEFINITIONS } from "@/lib/tumorMarkers";
 
 interface TumorMarkerTrendChartProps {
   events: TimelineEventItem[];
@@ -10,54 +11,77 @@ interface TumorMarkerTrendChartProps {
 
 export default function TumorMarkerTrendChart({ events }: TumorMarkerTrendChartProps) {
   const [showBenignFactors, setShowBenignFactors] = useState(false);
+  const [activeMarkerKey, setActiveMarkerKey] = useState<string>("cea");
 
-  const serologyPoints = useMemo(() => {
+  // Extract all serology events that have any keyFindings
+  const allSerologyEvents = useMemo(() => {
     return events
-      .filter((e) => e.category === "serology" && e.keyFindings?.cea !== undefined)
+      .filter((e) => e.category === "serology" && e.keyFindings)
+      .sort((a, b) => new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime());
+  }, [events]);
+
+  // Discover which marker keys actually have data in the patient's timeline
+  const availableMarkerKeys = useMemo(() => {
+    const keys = new Set<string>();
+    allSerologyEvents.forEach((e) => {
+      if (e.keyFindings) {
+        Object.keys(TUMOR_MARKER_DEFINITIONS).forEach((k) => {
+          if ((e.keyFindings as any)[k] !== undefined && (e.keyFindings as any)[k] !== null) {
+            keys.add(k);
+          }
+        });
+      }
+    });
+    // Default to 'cea' if nothing found or ensure cea is first
+    const list = Array.from(keys);
+    return list.length > 0 ? list : ["cea"];
+  }, [allSerologyEvents]);
+
+  // Active definition
+  const markerDef = TUMOR_MARKER_DEFINITIONS[activeMarkerKey] || TUMOR_MARKER_DEFINITIONS.cea;
+  const CEILING = markerDef.refMax;
+
+  // Filter points for active marker
+  const markerPoints = useMemo(() => {
+    return allSerologyEvents
+      .filter((e) => (e.keyFindings as any)?.[activeMarkerKey] !== undefined && (e.keyFindings as any)?.[activeMarkerKey] !== null)
       .map((e) => ({
         date: e.eventDate,
         title: e.title,
-        cea: Number(e.keyFindings?.cea || 0),
-        cyfra211: e.keyFindings?.cyfra211 !== undefined ? Number(e.keyFindings.cyfra211) : null,
-        nse: e.keyFindings?.nse !== undefined ? Number(e.keyFindings.nse) : null,
-      }))
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-  }, [events]);
+        value: Number((e.keyFindings as any)[activeMarkerKey]),
+      }));
+  }, [allSerologyEvents, activeMarkerKey]);
 
-  if (serologyPoints.length === 0) {
+  if (markerPoints.length === 0 && allSerologyEvents.length === 0) {
     return (
       <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-6 text-center text-slate-500 text-xs">
-        暂无血清肿瘤标志物时序记录，录入抽血化验单后将自动生成 CEA / CYFRA21-1 动态生理安全带波动图。
+        暂无血清肿瘤标志物时序记录，录入抽血化验单后将自动生成多指标动态生理安全带波动图。
       </div>
     );
   }
 
-  // Safe reference ceilings
-  const CEA_CEILING = 5.0;
-  const CYFRA_CEILING = 3.3;
-
-  // Check if all recent markers are safely within normal band
-  const latestPt = serologyPoints[serologyPoints.length - 1];
-  const isAllSafe = latestPt.cea <= CEA_CEILING && (latestPt.cyfra211 === null || latestPt.cyfra211 <= CYFRA_CEILING);
+  // Check if latest point is safe
+  const latestPt = markerPoints[markerPoints.length - 1];
+  const isLatestSafe = latestPt ? latestPt.value <= CEILING : true;
 
   // SVG dimensions
   const svgWidth = 560;
   const svgHeight = 160;
   const paddingX = 45;
   const paddingY = 25;
-  const maxCea = Math.max(6.5, ...serologyPoints.map((p) => p.cea)) * 1.15;
+  const maxValue = Math.max(CEILING * 1.3, ...(markerPoints.map((p) => p.value) || [CEILING])) * 1.15;
 
   const getX = (idx: number) => {
-    if (serologyPoints.length <= 1) return svgWidth / 2;
-    return paddingX + (idx * (svgWidth - paddingX * 2)) / (serologyPoints.length - 1);
+    if (markerPoints.length <= 1) return svgWidth / 2;
+    return paddingX + (idx * (svgWidth - paddingX * 2)) / (markerPoints.length - 1);
   };
 
   const getY = (val: number) => {
-    const clamped = Math.max(0, Math.min(maxCea, val));
-    return svgHeight - paddingY - (clamped / maxCea) * (svgHeight - paddingY * 2);
+    const clamped = Math.max(0, Math.min(maxValue, val));
+    return svgHeight - paddingY - (clamped / maxValue) * (svgHeight - paddingY * 2);
   };
 
-  const safeBandY = getY(CEA_CEILING);
+  const safeBandY = getY(CEILING);
   const bottomY = svgHeight - paddingY;
 
   return (
@@ -71,36 +95,63 @@ export default function TumorMarkerTrendChart({ events }: TumorMarkerTrendChartP
             </div>
             <div>
               <h3 className="text-sm font-extrabold text-slate-900">
-                血清肿瘤标志物时序排雷与生理安全带监测
+                血清肿瘤标志物长程时序趋势与生理安全带
               </h3>
               <p className="text-[11px] text-slate-500">
-                CEA（癌胚抗原）与 CYFRA21-1 动态演进 · 区分生理良性波动与恶性信号
+                动态演进监测 · 区分良恶性与机体代谢波动（已支持 CEA、CYFRA21-1、NSE 等 9 项指标切换）
               </p>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-2 shrink-0 flex-wrap">
           <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-bold ${
-            isAllSafe 
+            isLatestSafe 
               ? "bg-emerald-50 text-emerald-800 border-emerald-200" 
               : "bg-amber-50 text-amber-800 border-amber-200"
           }`}>
-            <span className={`w-1.5 h-1.5 rounded-full ${isAllSafe ? "bg-emerald-500 animate-pulse" : "bg-amber-500"}`} />
-            <span>{isAllSafe ? "指标处于生理代谢安全带" : "指标轻度偏高 · 建议随访"}</span>
+            <span className={`w-1.5 h-1.5 rounded-full ${isLatestSafe ? "bg-emerald-500 animate-pulse" : "bg-amber-500"}`} />
+            <span>{isLatestSafe ? "最新指标处于生理代谢安全带" : "指标轻度偏高 · 建议随访"}</span>
           </span>
           <span className="text-[11px] text-slate-400 font-medium px-2.5 py-0.5 bg-slate-50 border border-slate-200 rounded-full">
-            共 {serologyPoints.length} 次生化随访
+            共 {allSerologyEvents.length} 次生化随访
           </span>
         </div>
       </div>
+
+      {/* Marker Selection Tabs */}
+      {availableMarkerKeys.length > 1 && (
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+          {availableMarkerKeys.map((key) => {
+            const def = TUMOR_MARKER_DEFINITIONS[key];
+            if (!def) return null;
+            const isActive = activeMarkerKey === key;
+            return (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setActiveMarkerKey(key)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 border ${
+                  isActive
+                    ? "bg-indigo-600 text-white border-indigo-600 shadow-xs"
+                    : "bg-slate-50 hover:bg-slate-100 text-slate-600 border-slate-200"
+                }`}
+              >
+                {def.nameZh.split(" ")[0]}
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       {/* Safety Band Golden Principle Reassurance Banner */}
       <div className="p-3.5 sm:p-4 rounded-2xl bg-emerald-50/80 border border-emerald-200 text-xs text-emerald-950 space-y-1.5 shadow-2xs">
         <div className="font-bold flex items-center justify-between">
           <div className="flex items-center gap-1.5">
             <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
-            <span className="text-emerald-900 font-extrabold">临床定心丸 · 生理代谢波动铁律</span>
+            <span className="text-emerald-900 font-extrabold">
+              {markerDef.nameZh} · 临床定心丸与代谢波动铁律
+            </span>
           </div>
           <button 
             onClick={() => setShowBenignFactors(!showBenignFactors)}
@@ -111,34 +162,28 @@ export default function TumorMarkerTrendChart({ events }: TumorMarkerTrendChartP
           </button>
         </div>
         <p className="text-[11px] sm:text-xs text-emerald-800 leading-relaxed font-medium">
-          在正常参考区间（CEA 0 ~ 5.0 ng/mL，CYFRA21-1 0 ~ 3.3 ng/mL）内的任何微幅起伏，<strong>均属于人体自然生理代谢、饮食排毒与实验室批次正常波动，绝无复发或恶变意义，请完全放心！</strong>
+          在正常参考区间（<strong>{markerDef.refRange}</strong>）内的任何微幅起伏，<strong>均属于人体自然生理代谢、饮食排毒与实验室批次正常波动，绝无复发或恶变意义，请完全放心！</strong>
         </p>
 
         {showBenignFactors && (
           <div className="pt-2.5 mt-2 border-t border-emerald-200/80 grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px] text-emerald-900 animate-fade-in">
-            <div className="bg-white/80 p-2 rounded-xl border border-emerald-100">
-              <span className="font-bold block text-emerald-800">🚬 生活习惯因素</span>
-              <span>长期或二手烟暴露、饮酒、熬夜均可引起 CEA 短暂轻度生理上升。</span>
-            </div>
-            <div className="bg-white/80 p-2 rounded-xl border border-emerald-100">
-              <span className="font-bold block text-emerald-800">🫁 良性炎症反应</span>
-              <span>慢性支气管炎、轻微胃肠炎、息肉或脂肪肝会产生微量非特异性分泌。</span>
-            </div>
-            <div className="bg-white/80 p-2 rounded-xl border border-emerald-100">
-              <span className="font-bold block text-emerald-800">🧪 检验批次系统差</span>
-              <span>不同医院（罗氏/雅培/贝克曼）检测试剂与校准批次可能存在 ±1.0 的正常测量差。</span>
-            </div>
+            {markerDef.benignFactors.map((factor, idx) => (
+              <div key={idx} className="bg-white/80 p-2 rounded-xl border border-emerald-100">
+                <span className="font-bold block text-emerald-800">📌 良性因素 {idx + 1}</span>
+                <span>{factor}</span>
+              </div>
+            ))}
           </div>
         )}
       </div>
 
       {/* Visual Chart with Semi-Transparent Green Safety Band */}
-      {serologyPoints.length > 1 && (
+      {markerPoints.length > 1 && (
         <div className="p-3 sm:p-4 rounded-2xl bg-slate-50 border border-slate-200">
           <div className="flex items-center justify-between text-xs mb-2">
             <span className="font-bold text-slate-700 flex items-center gap-1.5">
-              <span>📈 CEA 动态长程轨迹</span>
-              <span className="text-[10px] text-slate-400 font-normal">(绿色阴影为正常生理代谢安全带 0~5.0 ng/mL)</span>
+              <span>📈 {markerDef.nameZh} 动态长程轨迹</span>
+              <span className="text-[10px] text-slate-400 font-normal">(绿色阴影为生理安全带 {markerDef.refRange})</span>
             </span>
             <div className="flex items-center gap-3 text-[11px]">
               <span className="flex items-center gap-1 text-emerald-700 font-semibold">
@@ -147,14 +192,14 @@ export default function TumorMarkerTrendChart({ events }: TumorMarkerTrendChartP
               </span>
               <span className="flex items-center gap-1 text-indigo-600 font-semibold">
                 <span className="w-2 h-2 rounded-full bg-indigo-600" />
-                <span>CEA 实测点</span>
+                <span>实测点</span>
               </span>
             </div>
           </div>
 
           <div className="relative overflow-x-auto">
             <svg viewBox={`0 0 ${svgWidth} ${svgHeight}`} className="w-full h-36 min-w-[420px] overflow-visible">
-              {/* Semi-transparent Green Safety Band Area (0 ~ 5.0 ng/mL) */}
+              {/* Semi-transparent Green Safety Band Area */}
               <rect
                 x={paddingX}
                 y={safeBandY}
@@ -173,7 +218,7 @@ export default function TumorMarkerTrendChart({ events }: TumorMarkerTrendChartP
                 fontWeight="bold"
                 className="select-none"
               >
-                ✓ 生理代谢安全带 (≤ 5.0 ng/mL)
+                ✓ 生理代谢安全带 (≤ {CEILING} {markerDef.unit})
               </text>
 
               {/* Grid Baseline */}
@@ -193,14 +238,14 @@ export default function TumorMarkerTrendChart({ events }: TumorMarkerTrendChartP
                 strokeWidth="2.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                points={serologyPoints.map((p, i) => `${getX(i)},${getY(p.cea)}`).join(" ")}
+                points={markerPoints.map((p, i) => `${getX(i)},${getY(p.value)}`).join(" ")}
               />
 
               {/* Data points */}
-              {serologyPoints.map((p, i) => {
+              {markerPoints.map((p, i) => {
                 const cx = getX(i);
-                const cy = getY(p.cea);
-                const isPtSafe = p.cea <= CEA_CEILING;
+                const cy = getY(p.value);
+                const isPtSafe = p.value <= CEILING;
 
                 return (
                   <g key={i}>
@@ -220,7 +265,7 @@ export default function TumorMarkerTrendChart({ events }: TumorMarkerTrendChartP
                       fontWeight="bold"
                       fill={isPtSafe ? "#047857" : "#b45309"}
                     >
-                      {p.cea}
+                      {p.value}
                     </text>
                     <text
                       x={cx}
@@ -242,9 +287,9 @@ export default function TumorMarkerTrendChart({ events }: TumorMarkerTrendChartP
 
       {/* Grid Comparison Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {serologyPoints.map((pt, idx) => {
-          const ceaRatio = (pt.cea / CEA_CEILING) * 100;
-          const isSafe = pt.cea <= CEA_CEILING;
+        {markerPoints.map((pt, idx) => {
+          const ratio = (pt.value / CEILING) * 100;
+          const isSafe = pt.value <= CEILING;
 
           return (
             <div
@@ -266,9 +311,9 @@ export default function TumorMarkerTrendChart({ events }: TumorMarkerTrendChartP
 
               <div>
                 <div className="flex items-baseline justify-between">
-                  <span className="text-xs text-slate-500 font-semibold">CEA</span>
+                  <span className="text-xs text-slate-500 font-semibold">{markerDef.nameZh.split(" ")[0]}</span>
                   <span className={`text-sm font-extrabold font-mono ${isSafe ? "text-emerald-700" : "text-amber-700"}`}>
-                    {pt.cea} <span className="text-[10px] font-normal text-slate-400">ng/mL</span>
+                    {pt.value} <span className="text-[10px] font-normal text-slate-400">{markerDef.unit}</span>
                   </span>
                 </div>
 
@@ -278,23 +323,14 @@ export default function TumorMarkerTrendChart({ events }: TumorMarkerTrendChartP
                     className={`h-full rounded-full transition-all ${
                       isSafe ? "bg-emerald-500" : "bg-amber-500"
                     }`}
-                    style={{ width: `${Math.min(100, ceaRatio)}%` }}
+                    style={{ width: `${Math.min(100, ratio)}%` }}
                   />
                 </div>
                 <div className="flex justify-between text-[9px] text-slate-400 mt-1">
                   <span>0</span>
-                  <span className="font-bold text-emerald-600">安全线: 5.0</span>
+                  <span className="font-bold text-emerald-600">安全线: {CEILING}</span>
                 </div>
               </div>
-
-              {pt.cyfra211 !== null && (
-                <div className="pt-1.5 border-t border-slate-200/60 flex items-center justify-between text-[11px]">
-                  <span className="text-slate-500">CYFRA21-1</span>
-                  <span className={`font-bold font-mono ${pt.cyfra211 <= CYFRA_CEILING ? "text-emerald-700" : "text-amber-700"}`}>
-                    {pt.cyfra211} <span className="text-[9px] text-slate-400">ng/mL</span>
-                  </span>
-                </div>
-              )}
             </div>
           );
         })}
@@ -302,3 +338,4 @@ export default function TumorMarkerTrendChart({ events }: TumorMarkerTrendChartP
     </div>
   );
 }
+

@@ -327,34 +327,58 @@ export function deriveTimelineEventsFromProfile(profile: any): TimelineEventItem
     }
   }
 
-  // 4. Ingest Serology / Tumor Markers
-  if (profile.tumorMarkers && (profile.tumorMarkers.cea != null || profile.tumorMarkers.cyfra211 != null)) {
-    const ceaVal = profile.tumorMarkers.cea != null ? Number(profile.tumorMarkers.cea) : null;
-    const cyfraVal = profile.tumorMarkers.cyfra211 != null ? Number(profile.tumorMarkers.cyfra211) : null;
-    const markerDate = profile.tumorMarkers.testDate || baseDate;
+  // 4. Ingest Serology / Tumor Markers (Support Multi-History or Single Snapshot)
+  const markersList: any[] = Array.isArray(profile.tumorMarkersHistory) && profile.tumorMarkersHistory.length > 0
+    ? profile.tumorMarkersHistory
+    : (profile.tumorMarkers ? [profile.tumorMarkers] : []);
 
-    events.push({
-      id: `profile-cur-serology-${markerDate}`,
-      eventDate: markerDate,
-      category: "serology",
-      subType: "TumorMarkers",
-      hospital: profile.hospital || "三甲医院检验科",
-      title: "血清肺癌肿瘤标志物检测报告",
-      summary: `CEA: ${ceaVal != null ? `${ceaVal} ng/mL` : "未测"}，CYFRA21-1: ${cyfraVal != null ? `${cyfraVal} ng/mL` : "未测"}。`,
-      keyFindings: {
-        cea: ceaVal ?? undefined,
-        cyfra211: cyfraVal ?? undefined,
-        nse: profile.tumorMarkers.nse != null ? Number(profile.tumorMarkers.nse) : undefined,
-      },
-      tags: [
-        "肿瘤标志物",
-        ceaVal != null && ceaVal <= 5.0 ? "CEA正常" : "CEA异常",
-        cyfraVal != null && cyfraVal <= 3.3 ? "CYFRA21-1正常" : "CYFRA21-1异常"
-      ],
-      riskStatus: (ceaVal != null && ceaVal > 5.0) ? "warning" : "normal",
-    });
-  }
+  markersList.forEach((tm: any, idx: number) => {
+    const hasAny = tm.cea != null || tm.cyfra211 != null || tm.nse != null || tm.scc != null || tm.ca125 != null || tm.ca199 != null || tm.ca153 != null || tm.proGrp != null || tm.ferritin != null;
+    if (hasAny) {
+      const markerDate = tm.testDate || baseDate;
+      const summaryParts: string[] = [];
+      if (tm.cea != null) summaryParts.push(`CEA: ${tm.cea} ng/mL`);
+      if (tm.cyfra211 != null) summaryParts.push(`CYFRA21-1: ${tm.cyfra211} ng/mL`);
+      if (tm.nse != null) summaryParts.push(`NSE: ${tm.nse} ng/mL`);
+      if (tm.scc != null) summaryParts.push(`SCC: ${tm.scc} ng/mL`);
+      if (tm.ca125 != null) summaryParts.push(`CA125: ${tm.ca125} U/mL`);
+      if (tm.ca199 != null) summaryParts.push(`CA19-9: ${tm.ca199} U/mL`);
+      if (tm.ca153 != null) summaryParts.push(`CA15-3: ${tm.ca153} U/mL`);
+      if (tm.proGrp != null) summaryParts.push(`ProGRP: ${tm.proGrp} pg/mL`);
+      if (tm.ferritin != null) summaryParts.push(`FER: ${tm.ferritin} ng/mL`);
+
+      const isElevated = (tm.cea != null && Number(tm.cea) > 5.0) || (tm.cyfra211 != null && Number(tm.cyfra211) > 3.3) || (tm.ca125 != null && Number(tm.ca125) > 35.0);
+
+      events.push({
+        id: tm.id || `profile-serology-${idx}-${markerDate}`,
+        eventDate: markerDate,
+        category: "serology",
+        subType: "TumorMarkers",
+        hospital: tm.hospital || profile.hospital || "三甲医院检验科",
+        title: tm.testDate ? `血清肺癌肿瘤标志物检测 (${tm.testDate})` : "血清肺癌肿瘤标志物检测报告",
+        summary: summaryParts.join("，") || "化验单指标已归档",
+        keyFindings: {
+          cea: tm.cea != null ? Number(tm.cea) : undefined,
+          cyfra211: tm.cyfra211 != null ? Number(tm.cyfra211) : undefined,
+          nse: tm.nse != null ? Number(tm.nse) : undefined,
+          scc: tm.scc != null ? Number(tm.scc) : undefined,
+          proGrp: tm.proGrp != null ? Number(tm.proGrp) : undefined,
+          ca125: tm.ca125 != null ? Number(tm.ca125) : undefined,
+          ca199: tm.ca199 != null ? Number(tm.ca199) : undefined,
+          ca153: tm.ca153 != null ? Number(tm.ca153) : undefined,
+          ferritin: tm.ferritin != null ? Number(tm.ferritin) : undefined,
+        },
+        tags: [
+          "肿瘤标志物",
+          tm.cea != null && Number(tm.cea) <= 5.0 ? "CEA正常" : "CEA偏高",
+          tm.cyfra211 != null && Number(tm.cyfra211) <= 3.3 ? "CYFRA正常" : "CYFRA偏高"
+        ],
+        riskStatus: isElevated ? "warning" : "normal",
+      });
+    }
+  });
 
   // Sort descending by eventDate
   return events.sort((a, b) => new Date(b.eventDate).getTime() - new Date(a.eventDate).getTime());
 }
+

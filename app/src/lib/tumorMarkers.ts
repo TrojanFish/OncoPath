@@ -68,8 +68,45 @@ export const TUMOR_MARKER_DEFINITIONS: Record<string, {
     refRange: "0 ~ 65.0 pg/mL",
     benignFactors: ["慢性肾功能不全 (肌酐清除率下降)", "胃酸分泌紊乱"],
     clinicalSignificance: "早期小细胞肺癌灵敏标志物。肾功能减退时代谢减慢可导致生理性积蓄轻度升高。"
+  },
+  ca125: {
+    nameZh: "糖类抗原 125 (CA125)",
+    enName: "Carbohydrate Antigen 125",
+    unit: "U/mL",
+    refMax: 35.0,
+    refRange: "0 ~ 35.0 U/mL",
+    benignFactors: ["胸膜反应/良性少量胸腔积液", "女性月经期/盆腔良性囊肿", "慢性肝炎/肝硬化", "肺炎恢复期"],
+    clinicalSignificance: "常用于评估胸膜受累与腺癌体液代谢。胸膜受牵拉或良性炎症时常呈轻度生理性波动。"
+  },
+  ca199: {
+    nameZh: "糖类抗原 19-9 (CA19-9)",
+    enName: "Carbohydrate Antigen 19-9",
+    unit: "U/mL",
+    refMax: 27.0,
+    refRange: "0 ~ 27.0 U/mL",
+    benignFactors: ["慢性胆囊炎/胆石症", "浅表性胃炎/反流性食管炎", "结肠良性息肉", "轻度肝胆代谢负担"],
+    clinicalSignificance: "消化道与肺腺癌辅助参考指标。消化系统常见良性炎症即可导致一过性轻度上浮。"
+  },
+  ca153: {
+    nameZh: "糖类抗原 15-3 (CA15-3)",
+    enName: "Carbohydrate Antigen 15-3",
+    unit: "U/mL",
+    refMax: 25.0,
+    refRange: "0 ~ 25.0 U/mL",
+    benignFactors: ["乳腺良性增生/纤维腺瘤", "良性肝病", "轻度代谢免疫波动"],
+    clinicalSignificance: "腺上皮细胞分泌标志物。良性乳腺或肝脏改变常出现生理性轻微起伏。"
+  },
+  ferritin: {
+    nameZh: "血清铁蛋白 (Ferritin / FER)",
+    enName: "Serum Ferritin",
+    unit: "ng/mL",
+    refMax: 300.0,
+    refRange: "20 ~ 300.0 ng/mL",
+    benignFactors: ["机体良性急性/慢性炎症反应", "口服或注射补铁剂后", "脂肪肝/高血脂代谢综合征", "感冒发热期"],
+    clinicalSignificance: "反映体内铁储备与急性时相反应蛋白。感冒发热、肝功能异常或轻度炎症时极易出现良性偏高。"
   }
 };
+
 
 /**
  * Evaluate patient's tumor markers dataset

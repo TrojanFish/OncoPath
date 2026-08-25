@@ -1522,7 +1522,134 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
                   className="w-full p-2 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-800"
                 />
               </div>
+              <div>
+                <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                  SCC 鳞癌抗原 (ng/mL，参考 0~1.5)
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  placeholder="如: 0.8"
+                  value={parsedData.tumorMarkers?.scc ?? ""}
+                  onChange={(e) =>
+                    setParsedData({
+                      ...parsedData,
+                      tumorMarkers: {
+                        ...(parsedData.tumorMarkers || {}),
+                        scc: e.target.value ? parseFloat(e.target.value) : null
+                      }
+                    })
+                  }
+                  className="w-full p-2 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-800"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                  ProGRP 胃泌素释放肽前体 (pg/mL，参考 0~65.0)
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  placeholder="如: 35.0"
+                  value={parsedData.tumorMarkers?.proGrp ?? ""}
+                  onChange={(e) =>
+                    setParsedData({
+                      ...parsedData,
+                      tumorMarkers: {
+                        ...(parsedData.tumorMarkers || {}),
+                        proGrp: e.target.value ? parseFloat(e.target.value) : null
+                      }
+                    })
+                  }
+                  className="w-full p-2 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-800"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                  CA125 糖类抗原 (U/mL，参考 0~35.0)
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  placeholder="如: 15.6"
+                  value={parsedData.tumorMarkers?.ca125 ?? ""}
+                  onChange={(e) =>
+                    setParsedData({
+                      ...parsedData,
+                      tumorMarkers: {
+                        ...(parsedData.tumorMarkers || {}),
+                        ca125: e.target.value ? parseFloat(e.target.value) : null
+                      }
+                    })
+                  }
+                  className="w-full p-2 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-800"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                  CA19-9 糖类抗原 (U/mL，参考 0~27.0)
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  placeholder="如: 18.2"
+                  value={parsedData.tumorMarkers?.ca199 ?? ""}
+                  onChange={(e) =>
+                    setParsedData({
+                      ...parsedData,
+                      tumorMarkers: {
+                        ...(parsedData.tumorMarkers || {}),
+                        ca199: e.target.value ? parseFloat(e.target.value) : null
+                      }
+                    })
+                  }
+                  className="w-full p-2 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-800"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                  CA15-3 糖类抗原 (U/mL，参考 0~25.0)
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  placeholder="如: 11.4"
+                  value={parsedData.tumorMarkers?.ca153 ?? ""}
+                  onChange={(e) =>
+                    setParsedData({
+                      ...parsedData,
+                      tumorMarkers: {
+                        ...(parsedData.tumorMarkers || {}),
+                        ca153: e.target.value ? parseFloat(e.target.value) : null
+                      }
+                    })
+                  }
+                  className="w-full p-2 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-800"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                  Ferritin 铁蛋白 (ng/mL，参考 20~300.0)
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  placeholder="如: 145.0"
+                  value={parsedData.tumorMarkers?.ferritin ?? ""}
+                  onChange={(e) =>
+                    setParsedData({
+                      ...parsedData,
+                      tumorMarkers: {
+                        ...(parsedData.tumorMarkers || {}),
+                        ferritin: e.target.value ? parseFloat(e.target.value) : null
+                      }
+                    })
+                  }
+                  className="w-full p-2 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-800"
+                />
+              </div>
             </div>
+
           </div>
         </div>
 

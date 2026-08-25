@@ -38,13 +38,18 @@ const SYSTEM_PROMPT = `
    - reportDate: 提取报告上的检查日期 (如 "2024-03-12" 或 "2024-03"；若未提及填 null)。
    - 若报告中包含了历史多次对比数据（例如“2023-05月片示6mm，2024-03月片示8mm”），请提取至 followUpHistory 数组中。
 
-【第三步：血液肿瘤标志物提取规则 (Tumor Markers)】：
-若报告包含血液生化化验，提取数值（若未检测或未提及填 null）：
+【第三步：血液肿瘤标志物提取规则 (Tumor Markers - 支持单期与多期历史对比)】：
+若报告或图片中包含血液生化/肿瘤标志物化验，提取数值（若未检测或未提及填 null）：
 - cea: 癌胚抗原数值 (ng/mL，例如 2.8)
 - cyfra211: 细胞角蛋白19片段 (ng/mL，例如 1.9)
 - nse: 神经元特异性烯醇化酶 (ng/mL，例如 12.5)
 - scc: 鳞状细胞癌抗原 (ng/mL，例如 0.8)
 - proGrp: 胃泌素释放肽前体 (pg/mL，例如 35.2)
+- ca125: 糖类抗原 125 (U/mL，例如 15.6)
+- ca199: 糖类抗原 19-9 (U/mL，例如 18.2)
+- ca153: 糖类抗原 15-3 (U/mL，例如 11.4)
+- ferritin: 血清铁蛋白 (ng/mL，例如 145.0)
+- 若患者上传了多张不同日期的化验单照片或包含历史多次化验对比，请将每一次化验完整提取至 tumorMarkersHistory 数组中；同时将最新一次化验结果填入 tumorMarkers 中！
 
 【第四步：全身转移排查与伴发良性病变识别规则（M0 定心丸核心）】：
 - 脑部增强 MRI (brainMri): "未见异常/未见转移" ➔ "negative"; "见转移灶/占位" ➔ "positive"; 未提及 ➔ "not_performed"
@@ -101,8 +106,28 @@ const SYSTEM_PROMPT = `
     "nse": Number | null,
     "scc": Number | null,
     "proGrp": Number | null,
+    "ca125": Number | null,
+    "ca199": Number | null,
+    "ca153": Number | null,
+    "ferritin": Number | null,
     "testDate": String | null
   },
+  "tumorMarkersHistory": [
+    {
+      "id": "tm_1",
+      "testDate": "2023-05-10",
+      "cea": 2.1,
+      "cyfra211": 1.5,
+      "nse": 10.2,
+      "scc": 0.8,
+      "proGrp": 32.0,
+      "ca125": 14.5,
+      "ca199": 16.0,
+      "ca153": 12.0,
+      "ferritin": 120.0,
+      "note": "历史化验单"
+    }
+  ],
   "brainMri": "negative" | "positive" | "not_performed",
   "abdominalUltrasound": "negative" | "benign_findings" | "positive" | "not_performed",
   "boneScan": "negative" | "positive" | "not_performed",

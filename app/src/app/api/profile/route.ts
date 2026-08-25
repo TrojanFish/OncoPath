@@ -177,31 +177,60 @@ export async function POST(request: Request) {
         }
       }
 
-      // Ingest Serology Event if tumor markers are provided
-      if (data.tumorMarkers && (data.tumorMarkers.cea || data.tumorMarkers.cyfra211)) {
-        await prisma.timelineEvent.create({
-          data: {
-            userId: targetUserId,
-            profileId: profile.id,
-            eventDate,
-            category: 'serology',
-            subType: 'TumorMarkers',
-            hospital: data.hospital || '三甲医院检验科',
-            title: '血清肿瘤标志物生化检测',
-            summary: `CEA: ${data.tumorMarkers.cea || '-'} ng/mL，CYFRA21-1: ${data.tumorMarkers.cyfra211 || '-'} ng/mL。`,
-            keyFindings: {
-              cea: data.tumorMarkers.cea ? parseFloat(data.tumorMarkers.cea) : undefined,
-              cyfra211: data.tumorMarkers.cyfra211 ? parseFloat(data.tumorMarkers.cyfra211) : undefined,
-              nse: data.tumorMarkers.nse ? parseFloat(data.tumorMarkers.nse) : undefined,
-            },
-            tags: JSON.stringify([
-              '肿瘤标志物',
-              data.tumorMarkers.cea && Number(data.tumorMarkers.cea) < 5 ? 'CEA正常' : 'CEA偏高'
-            ]),
-            riskStatus: data.tumorMarkers.cea && Number(data.tumorMarkers.cea) >= 5 ? 'warning' : 'normal',
-          }
-        });
+      // Ingest Serology Event(s) (Support single snapshot or full multi-date history)
+      const markersList: any[] = Array.isArray(data.tumorMarkersHistory) && data.tumorMarkersHistory.length > 0
+        ? data.tumorMarkersHistory
+        : (data.tumorMarkers ? [data.tumorMarkers] : []);
+
+      for (const tm of markersList) {
+        const hasAnyMarker = tm.cea != null || tm.cyfra211 != null || tm.nse != null || tm.scc != null || tm.ca125 != null || tm.ca199 != null || tm.ca153 != null || tm.proGrp != null || tm.ferritin != null;
+        if (hasAnyMarker) {
+          const tmDate = tm.testDate ? new Date(tm.testDate) : eventDate;
+          const summaryParts: string[] = [];
+          if (tm.cea != null) summaryParts.push(`CEA: ${tm.cea} ng/mL`);
+          if (tm.cyfra211 != null) summaryParts.push(`CYFRA21-1: ${tm.cyfra211} ng/mL`);
+          if (tm.nse != null) summaryParts.push(`NSE: ${tm.nse} ng/mL`);
+          if (tm.scc != null) summaryParts.push(`SCC: ${tm.scc} ng/mL`);
+          if (tm.ca125 != null) summaryParts.push(`CA125: ${tm.ca125} U/mL`);
+          if (tm.ca199 != null) summaryParts.push(`CA19-9: ${tm.ca199} U/mL`);
+          if (tm.ca153 != null) summaryParts.push(`CA15-3: ${tm.ca153} U/mL`);
+          if (tm.proGrp != null) summaryParts.push(`ProGRP: ${tm.proGrp} pg/mL`);
+          if (tm.ferritin != null) summaryParts.push(`FER: ${tm.ferritin} ng/mL`);
+
+          const isElevated = (tm.cea != null && Number(tm.cea) > 5.0) || (tm.cyfra211 != null && Number(tm.cyfra211) > 3.3) || (tm.ca125 != null && Number(tm.ca125) > 35.0);
+
+          await prisma.timelineEvent.create({
+            data: {
+              userId: targetUserId,
+              profileId: profile.id,
+              eventDate: tmDate,
+              category: 'serology',
+              subType: 'TumorMarkers',
+              hospital: tm.hospital || data.hospital || '三甲医院检验科',
+              title: tm.testDate ? `血清肿瘤标志物生化检测 (${tm.testDate})` : '血清肿瘤标志物生化检测',
+              summary: summaryParts.join('，') || '常规肿瘤标志物检测已归档',
+              keyFindings: {
+                cea: tm.cea != null ? parseFloat(tm.cea) : undefined,
+                cyfra211: tm.cyfra211 != null ? parseFloat(tm.cyfra211) : undefined,
+                nse: tm.nse != null ? parseFloat(tm.nse) : undefined,
+                scc: tm.scc != null ? parseFloat(tm.scc) : undefined,
+                proGrp: tm.proGrp != null ? parseFloat(tm.proGrp) : undefined,
+                ca125: tm.ca125 != null ? parseFloat(tm.ca125) : undefined,
+                ca199: tm.ca199 != null ? parseFloat(tm.ca199) : undefined,
+                ca153: tm.ca153 != null ? parseFloat(tm.ca153) : undefined,
+                ferritin: tm.ferritin != null ? parseFloat(tm.ferritin) : undefined,
+              },
+              tags: JSON.stringify([
+                '肿瘤标志物',
+                tm.cea != null ? (Number(tm.cea) <= 5 ? 'CEA正常' : 'CEA偏高') : '血检',
+                tm.cyfra211 != null ? (Number(tm.cyfra211) <= 3.3 ? 'CYFRA正常' : 'CYFRA偏高') : '生化'
+              ]),
+              riskStatus: isElevated ? 'warning' : 'normal',
+            }
+          });
+        }
       }
+
 
       // Ingest Historical Scans if followUpHistory is present
       if (Array.isArray(data.followUpHistory) && data.followUpHistory.length > 0) {

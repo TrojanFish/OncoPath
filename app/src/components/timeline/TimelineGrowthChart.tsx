@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { TrendingUp, Zap } from "lucide-react";
+import { TrendingUp, Zap, ShieldCheck, Activity, Eye } from "lucide-react";
 import { TimelineEventItem } from "@/lib/timelineTypes";
 
 interface TimelineGrowthChartProps {
@@ -33,13 +33,12 @@ export default function TimelineGrowthChart({ events }: TimelineGrowthChartProps
   if (imagingPoints.length === 0) {
     return (
       <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-6 text-center text-slate-500 text-xs">
-        暂无影像结节尺寸时序数据，录入 2 次以上 CT 报告即可自动绘制生长曲线。
+        暂无影像结节尺寸时序数据，录入 2 次以上 CT 报告即可自动绘制生长与术后随访曲线。
       </div>
     );
   }
 
   const maxSize = Math.max(...imagingPoints.map((p) => p.sizeMm), 10);
-  const chartHeight = 160;
 
   return (
     <div className="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/90 shadow-sm space-y-4">
@@ -51,10 +50,10 @@ export default function TimelineGrowthChart({ events }: TimelineGrowthChartProps
           </div>
           <div>
             <h3 className="text-sm font-extrabold text-slate-900">
-              肺部病灶长程生长与 CTR 实性成分演变曲线
+              肺部病灶长程演变与手术前后随访图谱
             </h3>
             <p className="text-[11px] text-slate-500">
-              结节直径 (mm) 及实性成分占比 (CTR) 动态监测 · 早期微浸润筛查
+              术前生长演变监测 (VDT/CTR) ➔ 微创根治切除 ➔ 术后防复发长程影像随访
             </p>
           </div>
         </div>
@@ -65,6 +64,28 @@ export default function TimelineGrowthChart({ events }: TimelineGrowthChartProps
             <span>{surgeryEvent.eventDate} 已行微创根治术</span>
           </div>
         )}
+      </div>
+
+      {/* Clinical Phase Guide Banner */}
+      <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+        <div className="flex items-start gap-2">
+          <Activity className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
+          <div>
+            <span className="font-bold text-slate-800">术前阶段（生长与倍增监测）：</span>
+            <p className="text-[11px] text-slate-500 mt-0.5">
+              重点随访原发病灶全径增长速度 (VDT) 与实性浸润成分 (CTR) 扩大趋势。
+            </p>
+          </div>
+        </div>
+        <div className="flex items-start gap-2">
+          <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+          <div>
+            <span className="font-bold text-emerald-900">术后阶段（原灶清空 · 防复发随访）：</span>
+            <p className="text-[11px] text-emerald-700 mt-0.5">
+              原病灶已获物理根治（尺寸归零），随访焦点转为<strong>术区代偿、吻合钉通畅及防复发排查</strong>；伴随微小结节独立良性观察。
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Visual Chart Canvas */}
@@ -80,18 +101,27 @@ export default function TimelineGrowthChart({ events }: TimelineGrowthChartProps
             <span>基线参考</span>
           </div>
           <div className="border-b border-slate-100">
-            <span>0.0 mm (术后完全缓解)</span>
+            <span>0.0 mm (术后物理根治切除)</span>
           </div>
         </div>
 
         {/* Nodes Flow */}
         <div className="relative z-10 grid grid-flow-col auto-cols-fr gap-3 sm:gap-6 pt-4 pb-4">
           {imagingPoints.map((pt, idx) => {
-            const isSurgeryAfter = surgeryEvent && new Date(pt.date) > new Date(surgeryEvent.eventDate);
-            const heightPercent = Math.min(100, Math.max(10, (pt.sizeMm / maxSize) * 100));
+            const isSurgeryAfter = surgeryEvent && new Date(pt.date) >= new Date(surgeryEvent.eventDate);
+            const heightPercent = pt.sizeMm === 0 ? 8 : Math.min(100, Math.max(12, (pt.sizeMm / maxSize) * 100));
 
             return (
               <div key={idx} className="flex flex-col items-center group relative">
+                {/* Stage Phase Tag */}
+                <span className={`text-[9px] font-bold px-1.5 py-0.2 rounded-md mb-1.5 ${
+                  isSurgeryAfter
+                    ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                    : "bg-blue-50 text-blue-700 border border-blue-200"
+                }`}>
+                  {isSurgeryAfter ? "术后随访" : "术前观察"}
+                </span>
+
                 {/* Size Pill Value */}
                 <div
                   className={`text-xs font-black px-2.5 py-1 rounded-xl shadow-xs transition-transform group-hover:scale-110 mb-2 ${
@@ -102,7 +132,7 @@ export default function TimelineGrowthChart({ events }: TimelineGrowthChartProps
                       : "bg-blue-50 text-blue-800 border border-blue-200"
                   }`}
                 >
-                  {pt.sizeMm === 0 ? "0 mm (清空)" : `${pt.sizeMm} mm`}
+                  {pt.sizeMm === 0 ? "0 mm (切除根治)" : `${pt.sizeMm} mm`}
                 </div>
 
                 {/* Vertical Bar Indicator */}
@@ -125,19 +155,26 @@ export default function TimelineGrowthChart({ events }: TimelineGrowthChartProps
                     {pt.date.substring(0, 7)}
                   </div>
                   <div className="text-[10px] text-slate-500">
-                    {pt.ctr ? `CTR ${(pt.ctr * 100).toFixed(0)}%` : pt.sizeMm === 0 ? "术后清晰" : "纯磨玻璃"}
+                    {pt.sizeMm === 0 ? "术区无瘤清晰" : pt.ctr ? `CTR ${(pt.ctr * 100).toFixed(0)}%` : "纯磨玻璃"}
                   </div>
                 </div>
 
                 {/* Floating Tooltip on Hover */}
-                <div className="absolute bottom-full mb-3 hidden group-hover:block z-30 w-48 p-2.5 bg-slate-900/95 text-white rounded-xl text-[11px] shadow-xl pointer-events-none animate-fade-in">
+                <div className="absolute bottom-full mb-3 hidden group-hover:block z-30 w-52 p-2.5 bg-slate-900/95 text-white rounded-xl text-[11px] shadow-xl pointer-events-none animate-fade-in">
                   <div className="font-bold text-sky-400">{pt.title}</div>
                   <div className="mt-1 space-y-0.5 text-slate-300">
                     <div>日期：{pt.date}</div>
-                    <div>部位：{pt.location || "肺部"}</div>
-                    <div>实性成分 (CTR)：{(pt.ctr * 100).toFixed(0)}%</div>
-                    {pt.vdtDays && pt.vdtDays < 9000 && (
-                      <div>倍增时间 (VDT)：{pt.vdtDays} 天</div>
+                    <div>阶段：{isSurgeryAfter ? "术后防复发长程监测" : "术前病灶生长追踪"}</div>
+                    {pt.sizeMm === 0 ? (
+                      <div className="text-emerald-400 font-bold">原发病灶已根治切除，术区吻合口通畅</div>
+                    ) : (
+                      <>
+                        <div>部位：{pt.location || "肺部"}</div>
+                        <div>实性成分 (CTR)：{(pt.ctr * 100).toFixed(0)}%</div>
+                        {pt.vdtDays && pt.vdtDays < 9000 && (
+                          <div>倍增时间 (VDT)：{pt.vdtDays} 天</div>
+                        )}
+                      </>
                     )}
                   </div>
                 </div>
@@ -160,14 +197,15 @@ export default function TimelineGrowthChart({ events }: TimelineGrowthChartProps
           </div>
           <div className="flex items-center gap-1.5">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-            <span>术后完全缓解 (0 mm)</span>
+            <span>术后根治清空 (0 mm)</span>
           </div>
         </div>
 
         <span className="text-[10px] text-slate-400 font-mono">
-          遵循 Fleischner 2024 / CSCO 肺结节随访指南
+          遵循 Fleischner / CSCO / NCCN 肺癌长程随访规范
         </span>
       </div>
     </div>
   );
 }
+

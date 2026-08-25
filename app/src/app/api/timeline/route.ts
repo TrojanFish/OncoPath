@@ -99,6 +99,50 @@ export async function POST(request: Request) {
   }
 }
 
+export async function PUT(request: Request) {
+  try {
+    const body = await request.json();
+    const { id, eventDate, category, subType, hospital, title, summary, keyFindings, tags, riskStatus } = body;
+
+    if (!id) {
+      return NextResponse.json({ success: false, error: '缺少事件 ID' }, { status: 400 });
+    }
+
+    if (!eventDate || !category || !title) {
+      return NextResponse.json({ success: false, error: '请提供事件日期、类别和标题' }, { status: 400 });
+    }
+
+    const updatedEvent = await prisma.timelineEvent.update({
+      where: { id },
+      data: {
+        eventDate: new Date(eventDate),
+        category,
+        subType: subType || category,
+        hospital: hospital || null,
+        title,
+        summary: summary || '',
+        keyFindings: keyFindings || null,
+        tags: tags ? (typeof tags === 'string' ? tags : JSON.stringify(tags)) : null,
+        riskStatus: riskStatus || 'normal',
+      },
+    });
+
+    return NextResponse.json({
+      success: true,
+      event: {
+        ...updatedEvent,
+        eventDate: updatedEvent.eventDate.toISOString().split('T')[0],
+        tags: tags ? (typeof tags === 'string' ? JSON.parse(tags) : tags) : [],
+        keyFindings: keyFindings || {},
+      },
+      message: '事件已成功更新'
+    });
+  } catch (error: any) {
+    console.error('Error updating timeline event:', error);
+    return NextResponse.json({ success: false, error: error.message || '更新时间线事件失败' }, { status: 500 });
+  }
+}
+
 export async function DELETE(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -118,3 +162,4 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ success: false, error: error.message || '删除事件失败' }, { status: 500 });
   }
 }
+

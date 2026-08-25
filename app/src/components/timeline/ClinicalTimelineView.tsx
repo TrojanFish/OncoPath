@@ -29,8 +29,10 @@ export default function ClinicalTimelineView() {
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"timeline" | "charts">("timeline");
   const [showAddModal, setShowAddModal] = useState(false);
+  const [editingEvent, setEditingEvent] = useState<TimelineEventItem | null>(null);
   const [showSummaryModal, setShowSummaryModal] = useState(false);
   const [loading, setLoading] = useState(true);
+
 
   // Load from API or LocalStorage (or derive from user's active Profile)
   const loadEvents = async () => {
@@ -186,6 +188,32 @@ export default function ClinicalTimelineView() {
       localStorage.setItem("oncopath_timeline_events", JSON.stringify(updated));
     }
   };
+
+  const handleUpdateEvent = async (updatedEvent: TimelineEventItem) => {
+    try {
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      await fetch("/api/timeline", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify(updatedEvent),
+      });
+    } catch {
+      // Ignore network errors for guest
+    }
+
+    const updatedList = events.map((e) => (e.id === updatedEvent.id ? updatedEvent : e));
+    // Re-sort in case eventDate was updated
+    const sorted = updatedList.sort((a, b) => new Date(b.eventDate).getTime() - new Date(a.eventDate).getTime());
+    setEvents(sorted);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("oncopath_timeline_events", JSON.stringify(sorted));
+    }
+    setEditingEvent(null);
+  };
+
 
   // Filtered list
   const filteredEvents = useMemo(() => {
@@ -538,6 +566,7 @@ export default function ClinicalTimelineView() {
                           <TimelineEventCard
                             key={event.id}
                             event={event}
+                            onEdit={(e) => setEditingEvent(e)}
                             onDelete={handleDeleteEvent}
                           />
                         ))}
@@ -558,6 +587,15 @@ export default function ClinicalTimelineView() {
         />
       )}
 
+      {/* Edit Event Modal */}
+      {editingEvent && (
+        <AddEventModal
+          initialEvent={editingEvent}
+          onClose={() => setEditingEvent(null)}
+          onUpdate={handleUpdateEvent}
+        />
+      )}
+
       {/* Doctor Summary Printable Consultation Modal */}
       {showSummaryModal && (
         <DoctorSummaryModal
@@ -565,6 +603,7 @@ export default function ClinicalTimelineView() {
           onClose={() => setShowSummaryModal(false)}
         />
       )}
+
     </div>
   );
 }

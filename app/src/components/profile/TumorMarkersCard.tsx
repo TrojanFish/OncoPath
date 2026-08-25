@@ -1,7 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import { TestTube2, ShieldCheck, ChevronDown, ChevronUp, AlertCircle } from "lucide-react";
+
+import { TestTube2, ShieldCheck, ChevronDown, ChevronUp, AlertCircle, ArrowRight, Calendar, Building2 } from "lucide-react";
+import Link from "next/link";
 import type { TumorMarkersData } from "@/lib/types";
 import { evaluateTumorMarkers } from "@/lib/tumorMarkers";
 import { GlossaryTooltip } from "@/components/common/GlossaryTooltip";
@@ -28,18 +30,29 @@ export function TumorMarkersCard({
               <TestTube2 className="w-4 h-4 text-indigo-600" />
             </div>
             <div>
-              <h3 className="text-sm font-extrabold text-slate-900">
-                TUMOR BIOMARKERS · 血液肿瘤标志物生理安全带排雷
-              </h3>
-              <p className="text-xs text-slate-500">
-                结构化分析 CEA、CYFRA21-1、NSE 等生化指标 · 区分良恶性与代谢波动
+              <div className="flex items-center gap-2 flex-wrap">
+                <h3 className="text-sm font-extrabold text-slate-900">
+                  TUMOR BIOMARKERS · 最新单期血清肿瘤标志物排雷
+                </h3>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
+                  当前快照
+                </span>
+                {markers?.testDate && (
+                  <span className="text-[11px] font-mono text-slate-500 flex items-center gap-1">
+                    <Calendar className="w-3 h-3 text-slate-400" />
+                    <span>{markers.testDate}</span>
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-slate-500 mt-0.5">
+                包含 CEA、CYFRA21-1、NSE、SCC、ProGRP、CA125、CA19-9、CA15-3 等 9 项全指标生理安全带
               </p>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 self-start sm:self-auto">
-          {hasData ? (
+        <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
+          {hasData && (
             <span className={`text-xs font-bold px-3 py-1 rounded-full border ${
               isAllNormal 
                 ? "bg-emerald-50 text-emerald-800 border-emerald-200" 
@@ -47,13 +60,17 @@ export function TumorMarkersCard({
             }`}>
               {isAllNormal ? "✓ 全部处于生理安全带" : `已录入 ${evaluations.length} 项生化指标`}
             </span>
-          ) : (
-            <span className="text-xs font-medium px-3 py-1 rounded-full bg-slate-50 text-slate-500 border border-slate-200">
-              未录入血检数据
-            </span>
           )}
+          <Link
+            href="/timeline"
+            className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold transition-colors border border-indigo-200 cursor-pointer"
+          >
+            <span>历次化验趋势</span>
+            <ArrowRight className="w-3 h-3" />
+          </Link>
         </div>
       </div>
+
 
       {/* Main Content */}
       {!hasData ? (

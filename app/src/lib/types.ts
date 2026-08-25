@@ -27,12 +27,18 @@ export interface FollowUpRecord {
 }
 
 export interface TumorMarkersData {
+  id?: string;
   cea?: number | null;       // 癌胚抗原 ng/mL (正常 0~5.0)
   cyfra211?: number | null;  // 细胞角蛋白19片段 ng/mL (正常 0~3.3)
   nse?: number | null;       // 神经元特异性烯醇化酶 ng/mL (正常 0~16.3)
   scc?: number | null;       // 鳞状细胞癌抗原 ng/mL (正常 0~1.5)
   proGrp?: number | null;    // 胃泌素释放肽前体 pg/mL (正常 0~65.0)
+  ca125?: number | null;     // 糖类抗原 125 U/mL (正常 0~35.0)
+  ca199?: number | null;     // 糖类抗原 19-9 U/mL (正常 0~27.0)
+  ca153?: number | null;     // 糖类抗原 15-3 U/mL (正常 0~25.0)
+  ferritin?: number | null;  // 血清铁蛋白 ng/mL (正常 20~300)
   testDate?: string | null;  // 化验日期
+  hospital?: string | null;  // 化验医院
   note?: string | null;
 }
 
@@ -68,8 +74,11 @@ export interface PatientProfile {
   // Longitudinal Follow-up Growth Tracking (P0-2)
   followUpHistory?: FollowUpRecord[];
 
-  // Tumor Markers Blood Test Panel (P2-2)
+  // Tumor Markers Blood Test Panel (Latest Snapshot for /profile)
   tumorMarkers?: TumorMarkersData;
+  // Multi-period Longitudinal History (For /timeline trend curves)
+  tumorMarkersHistory?: TumorMarkersData[];
+
 
   // Staging
   tStage?: string;

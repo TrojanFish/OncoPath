@@ -10,6 +10,7 @@ import {
   Copy, 
   Check, 
   Trash2, 
+  Edit3,
   ChevronDown, 
   ChevronUp, 
   FileText 
@@ -19,10 +20,12 @@ import TimelineCategoryIcon from "./TimelineCategoryIcon";
 
 interface TimelineEventCardProps {
   event: TimelineEventItem;
+  onEdit?: (event: TimelineEventItem) => void;
   onDelete?: (id: string) => void;
 }
 
-export default function TimelineEventCard({ event, onDelete }: TimelineEventCardProps) {
+export default function TimelineEventCard({ event, onEdit, onDelete }: TimelineEventCardProps) {
+
   const [expanded, setExpanded] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -122,6 +125,16 @@ export default function TimelineEventCard({ event, onDelete }: TimelineEventCard
               )}
             </button>
 
+            {onEdit && (
+              <button
+                onClick={() => onEdit(event)}
+                className="p-1.5 rounded-lg hover:bg-purple-50 text-slate-400 hover:text-purple-600 transition-colors text-xs cursor-pointer flex items-center gap-1"
+                title="编辑记录内容与指标"
+              >
+                <Edit3 className="w-3.5 h-3.5" />
+              </button>
+            )}
+
             {onDelete && (
               <button
                 onClick={() => onDelete(event.id)}
@@ -131,6 +144,7 @@ export default function TimelineEventCard({ event, onDelete }: TimelineEventCard
                 <Trash2 className="w-3.5 h-3.5" />
               </button>
             )}
+
           </div>
         </div>
 
