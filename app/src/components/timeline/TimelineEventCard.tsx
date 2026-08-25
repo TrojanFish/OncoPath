@@ -62,7 +62,18 @@ export default function TimelineEventCard({ event, onEdit, onDelete }: TimelineE
       />
 
       {/* Main Card Container */}
-      <div className="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/90 shadow-sm hover:shadow-md hover:border-slate-300 transition-all space-y-3.5">
+      <div className={`bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/90 shadow-sm hover:shadow-md hover:border-slate-300 transition-all space-y-3.5 border-l-4 ${
+        event.category === "imaging"
+          ? "border-l-sky-500"
+          : event.category === "pathology"
+          ? "border-l-purple-500"
+          : event.category === "serology"
+          ? "border-l-indigo-500"
+          : event.category === "milestone"
+          ? "border-l-teal-500"
+          : "border-l-blue-500"
+      }`}>
+
         {/* Top Meta Header */}
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2 flex-wrap">

@@ -26,12 +26,14 @@ export default function ClinicalTimelineView() {
   const [events, setEvents] = useState<TimelineEventItem[]>([]);
   const [isDemoMode, setIsDemoMode] = useState(false);
   const [activeCategory, setActiveCategory] = useState<TimelineCategory | "all">("all");
+  const [selectedYear, setSelectedYear] = useState<string | "all">("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"timeline" | "charts">("timeline");
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingEvent, setEditingEvent] = useState<TimelineEventItem | null>(null);
   const [showSummaryModal, setShowSummaryModal] = useState(false);
   const [loading, setLoading] = useState(true);
+
 
 
   // Load from API or LocalStorage (or derive from user's active Profile)
@@ -215,11 +217,25 @@ export default function ClinicalTimelineView() {
   };
 
 
+  // Distinct sorted years for quick filter
+  const allYears = useMemo(() => {
+    const yearsSet = new Set<string>();
+    events.forEach((e) => {
+      if (e.eventDate) {
+        yearsSet.add(e.eventDate.substring(0, 4));
+      }
+    });
+    return Array.from(yearsSet).sort((a, b) => Number(b) - Number(a));
+  }, [events]);
+
   // Filtered list
   const filteredEvents = useMemo(() => {
     return events
       .filter((e) => {
         if (activeCategory !== "all" && e.category !== activeCategory) {
+          return false;
+        }
+        if (selectedYear !== "all" && e.eventDate.substring(0, 4) !== selectedYear) {
           return false;
         }
         if (searchQuery.trim()) {
@@ -233,7 +249,7 @@ export default function ClinicalTimelineView() {
         return true;
       })
       .sort((a, b) => new Date(b.eventDate).getTime() - new Date(a.eventDate).getTime());
-  }, [events, activeCategory, searchQuery]);
+  }, [events, activeCategory, selectedYear, searchQuery]);
 
   // Group by Year
   const groupedByYear = useMemo(() => {
@@ -245,6 +261,7 @@ export default function ClinicalTimelineView() {
     });
     return groups;
   }, [filteredEvents]);
+
 
   // Earliest and latest date span calculation
   const timeSpan = useMemo(() => {
@@ -494,7 +511,7 @@ export default function ClinicalTimelineView() {
                     : "bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200"
                 }`}
               >
-                全部时序 ({events.length})
+                全部类别 ({events.length})
               </button>
 
               {TIMELINE_CATEGORIES.map((cat) => {
@@ -517,15 +534,61 @@ export default function ClinicalTimelineView() {
                 );
               })}
             </div>
+
+            {/* Year Quick-Filter Pills (When multi-year data exists) */}
+            {allYears.length > 1 && (
+              <div className="pt-2 border-t border-slate-100 flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+                <span className="text-[11px] text-slate-400 font-bold shrink-0 flex items-center gap-1">
+                  <Bookmark className="w-3 h-3 text-slate-400" />
+                  <span>年份快筛:</span>
+                </span>
+
+                <button
+                  onClick={() => setSelectedYear("all")}
+                  className={`px-2.5 py-1 rounded-lg text-[11px] font-bold whitespace-nowrap transition-all cursor-pointer border ${
+                    selectedYear === "all"
+                      ? "bg-blue-600 text-white border-blue-600 shadow-xs"
+                      : "bg-slate-50 hover:bg-slate-100 text-slate-600 border-slate-200"
+                  }`}
+                >
+                  全部年份
+                </button>
+
+                {allYears.map((year) => {
+                  const countInYear = events.filter((e) => e.eventDate.startsWith(year)).length;
+                  const isYearActive = selectedYear === year;
+                  return (
+                    <button
+                      key={year}
+                      onClick={() => setSelectedYear(year)}
+                      className={`px-2.5 py-1 rounded-lg text-[11px] font-bold whitespace-nowrap transition-all cursor-pointer border font-mono ${
+                        isYearActive
+                          ? "bg-blue-600 text-white border-blue-600 shadow-xs"
+                          : "bg-slate-50 hover:bg-slate-100 text-slate-600 border-slate-200"
+                      }`}
+                    >
+                      {year}年 ({countInYear})
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           {/* 4. Main Body Content Based on View Mode */}
           {viewMode === "charts" ? (
             /* Trend Charts View */
             <div className="space-y-6">
+              {/* Mobile chart swipe hint */}
+              <div className="sm:hidden text-center text-[11px] text-slate-400 bg-slate-100/80 p-2 rounded-xl border border-slate-200 flex items-center justify-center gap-1.5">
+                <span>👉</span>
+                <span>在手机端可横向左右滑动图表查看完整时间跨度</span>
+                <span>👈</span>
+              </div>
               <TimelineGrowthChart events={events} />
               <TumorMarkerTrendChart events={events} />
             </div>
+
           ) : (
             /* Vertical Chronological Timeline Feed */
             <div className="space-y-8 relative">

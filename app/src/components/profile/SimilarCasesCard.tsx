@@ -59,7 +59,8 @@ export default function SimilarCasesCard({ profile }: SimilarCasesCardProps) {
   if (!cohort) return null;
 
   return (
-    <div className="bg-white rounded-3xl p-3.5 sm:p-6 md:p-8 border border-slate-200 shadow-sm relative overflow-hidden group">
+    <div className="bg-white rounded-3xl p-3.5 sm:p-6 md:p-8 border border-slate-200 border-t-4 border-t-emerald-500 shadow-sm relative overflow-hidden group">
+
       
       {/* Background Soft Ambient Light */}
       <div className="absolute -right-12 -top-12 w-64 h-64 bg-gradient-to-br from-blue-500/5 via-teal-500/5 to-transparent rounded-full blur-3xl group-hover:scale-110 transition-transform duration-700 pointer-events-none" />

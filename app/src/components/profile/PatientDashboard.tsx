@@ -220,10 +220,11 @@ export default function PatientDashboard() {
         <div className="flex items-center gap-2 self-start sm:self-center flex-wrap">
           <Link
             href="/timeline"
-            className="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs border border-indigo-200 shadow-xs transition-all flex items-center gap-1.5"
+            className="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs shadow-md shadow-blue-500/20 transition-all flex items-center gap-1.5 group cursor-pointer"
           >
-            <Calendar className="w-3.5 h-3.5" />
+            <Calendar className="w-3.5 h-3.5 text-blue-100" />
             <span>检查时间生命线</span>
+            <ArrowRight className="w-3.5 h-3.5 text-blue-200 transition-transform group-hover:translate-x-0.5" />
           </Link>
 
           <button 
@@ -255,7 +256,8 @@ export default function PatientDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6 mb-6">
         
         {/* Bento Box 1: Primary CT Imaging & Solid Component (T-Staging) */}
-        <div className="bg-white rounded-3xl p-5 sm:p-6 md:p-7 border border-slate-200 shadow-sm flex flex-col justify-between hover:border-sky-300 transition-all">
+        <div className="bg-white rounded-3xl p-5 sm:p-6 md:p-7 border border-slate-200 border-t-4 border-t-sky-500 shadow-sm flex flex-col justify-between hover:border-sky-300 transition-all">
+
           <div>
             <div className="flex items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100">
               <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
@@ -348,7 +350,7 @@ export default function PatientDashboard() {
         </div>
 
         {/* Bento Box 2: Pathology High-Risk Indicators & Ki-67 (N-Stage & Invasive Factors) */}
-        <div className="bg-white rounded-3xl p-5 sm:p-6 md:p-7 border border-slate-200 shadow-sm flex flex-col justify-between hover:border-emerald-300 transition-all">
+        <div className="bg-white rounded-3xl p-5 sm:p-6 md:p-7 border border-slate-200 border-t-4 border-t-purple-500 shadow-sm flex flex-col justify-between hover:border-purple-300 transition-all">
           <div>
             <div className="flex items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100">
               <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
@@ -445,7 +447,7 @@ export default function PatientDashboard() {
         </div>
 
         {/* Bento Box 3: Systemic Staging & Benign Findings (M-Staging) */}
-        <div className="bg-white rounded-3xl p-5 sm:p-6 md:p-7 border border-slate-200 shadow-sm flex flex-col justify-between hover:border-indigo-300 transition-all">
+        <div className="bg-white rounded-3xl p-5 sm:p-6 md:p-7 border border-slate-200 border-t-4 border-t-teal-500 shadow-sm flex flex-col justify-between hover:border-teal-300 transition-all">
           <div>
             <div className="flex items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100">
               <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
@@ -507,12 +509,17 @@ export default function PatientDashboard() {
                 </div>
               </div>
 
-              {/* Benign Findings Strip with GlossaryTooltip */}
+              {/* Benign Findings Strip with GlossaryTooltip & Reassurance */}
               {profile.benignFindings && profile.benignFindings.length > 0 && (
-                <div className="p-3 bg-emerald-50/70 rounded-2xl border border-emerald-200/80 space-y-1.5">
-                  <div className="text-[11px] font-bold text-emerald-900 flex items-center gap-1.5">
-                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>伴发良性发现（非肿瘤转移，点击查看释义）：</span>
+                <div className="p-3 bg-emerald-50/80 rounded-2xl border border-emerald-200 space-y-1.5 shadow-2xs">
+                  <div className="text-[11px] font-bold text-emerald-950 flex items-center justify-between">
+                    <span className="flex items-center gap-1.5">
+                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>伴发良性发现（非肿瘤转移，点击查看释义）：</span>
+                    </span>
+                    <span className="text-[10px] text-emerald-700 font-semibold bg-white/80 px-2 py-0.5 rounded-md border border-emerald-200">
+                      ✓ 临床排雷确认为良性
+                    </span>
                   </div>
                   <div className="flex flex-wrap gap-1.5">
                     {profile.benignFindings.map((item: string) => (
@@ -529,7 +536,7 @@ export default function PatientDashboard() {
         </div>
 
         {/* Bento Box 4: AI Decision Engine & Actionable Next Steps */}
-        <div className="bg-gradient-to-br from-blue-50/90 via-white to-sky-50/60 rounded-3xl p-5 sm:p-6 md:p-7 border border-blue-200 shadow-sm flex flex-col justify-between hover:border-blue-400 transition-all">
+        <div className="bg-gradient-to-br from-blue-50/90 via-white to-sky-50/60 rounded-3xl p-5 sm:p-6 md:p-7 border border-blue-200 border-t-4 border-t-blue-600 shadow-sm flex flex-col justify-between hover:border-blue-400 transition-all">
           <div className="space-y-4">
             <div className="flex items-center justify-between gap-2 pb-3 border-b border-blue-100/80">
               <h3 className="text-xs font-bold text-blue-900 uppercase tracking-wider flex items-center gap-1.5">
@@ -538,6 +545,7 @@ export default function PatientDashboard() {
               </h3>
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
             </div>
+
 
             <div className="flex items-center gap-2">
               <span className="font-extrabold text-slate-900 text-base sm:text-lg">
