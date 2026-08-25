@@ -345,23 +345,24 @@ export default function ClinicalTimelineView() {
           </div>
 
           {/* Quick Metrics & Actions */}
-          <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap">
+          <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 sm:gap-2.5 w-full sm:w-auto">
             <button
               onClick={() => setShowAddModal(true)}
-              className="btn-primary px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl text-xs sm:text-sm font-bold shadow-md flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0 transition-transform active:scale-95"
+              className="btn-primary px-3 sm:px-5 py-2.5 sm:py-3 rounded-2xl text-xs sm:text-sm font-bold shadow-md flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0 transition-transform active:scale-95 text-center"
             >
               <Plus className="w-4 h-4" />
               <span>录入新报告</span>
             </button>
             <button
               onClick={() => setShowSummaryModal(true)}
-              className="px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 hover:text-slate-900 text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs whitespace-nowrap shrink-0 active:scale-95"
+              className="px-3 sm:px-5 py-2.5 sm:py-3 rounded-2xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 hover:text-slate-900 text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs whitespace-nowrap shrink-0 active:scale-95 text-center"
             >
               <FileText className="w-4 h-4 text-slate-600" />
               <span>名医就诊清单</span>
             </button>
           </div>
         </div>
+
 
         {/* Dynamic Stats Strip */}
         <div className="relative z-10 grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-6 border-t border-slate-200/80">
