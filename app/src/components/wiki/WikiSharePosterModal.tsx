@@ -11,10 +11,12 @@ import { WikiVisualRenderer } from "./WikiVisualRenderer";
 
 interface WikiSharePosterModalProps {
   topic: WikiTopic;
+  visualDomHtml?: string;
   onClose: () => void;
 }
 
-export default function WikiSharePosterModal({ topic, onClose }: WikiSharePosterModalProps) {
+export default function WikiSharePosterModal({ topic, visualDomHtml, onClose }: WikiSharePosterModalProps) {
+
   const [isExporting, setIsExporting] = useState(false);
   const [exportedImageUrl, setExportedImageUrl] = useState<string | null>(null);
   const offscreenPosterRef = useRef<HTMLDivElement>(null);
@@ -181,11 +183,19 @@ export default function WikiSharePosterModal({ topic, onClose }: WikiSharePoster
                 </span>
                 <span className="text-[10px] text-slate-400">权威循证图谱</span>
               </div>
-              <div className="w-full">
-                <WikiVisualRenderer visualComponent={topic.visualComponent} />
-              </div>
+              {visualDomHtml ? (
+                <div
+                  className="w-full text-white"
+                  dangerouslySetInnerHTML={{ __html: visualDomHtml }}
+                />
+              ) : (
+                <div className="w-full">
+                  <WikiVisualRenderer visualComponent={topic.visualComponent} />
+                </div>
+              )}
             </div>
           )}
+
 
 
           {/* Section 2: Clinical Truth */}

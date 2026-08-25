@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Link from "next/link";
 import {
   Share2,
@@ -79,6 +79,17 @@ export function WikiTopicCard({ topic, isMatchedProfile, isHighlighted }: WikiTo
   const [showPosterModal, setShowPosterModal] = useState<boolean>(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [savedQuestions, setSavedQuestions] = useState<Record<string, boolean>>({});
+  const visualContainerRef = useRef<HTMLDivElement>(null);
+  const [capturedVisualHtml, setCapturedVisualHtml] = useState<string | null>(null);
+
+  const handleOpenPosterModal = () => {
+    if (visualContainerRef.current) {
+      setCapturedVisualHtml(visualContainerRef.current.innerHTML);
+    } else {
+      setCapturedVisualHtml(null);
+    }
+    setShowPosterModal(true);
+  };
 
   const riskCfg = RISK_LEVEL_CONFIG[topic.riskLevel];
   const catCfg = WIKI_CATEGORIES[topic.category];
@@ -204,7 +215,7 @@ export function WikiTopicCard({ topic, isMatchedProfile, isHighlighted }: WikiTo
               {/* Share Poster Modal Button */}
               <button
                 type="button"
-                onClick={() => setShowPosterModal(true)}
+                onClick={handleOpenPosterModal}
                 title="生成 2x 视网膜高清微信分享长图"
                 className="text-[11px] px-2 py-0.5 rounded-full border border-blue-200 bg-blue-50/80 text-blue-700 hover:bg-blue-100 transition-all cursor-pointer flex items-center gap-1 shadow-2xs"
               >
@@ -260,12 +271,13 @@ export function WikiTopicCard({ topic, isMatchedProfile, isHighlighted }: WikiTo
                 </button>
               </div>
               {showVisual && (
-                <div className="animate-fade-in">
+                <div className="animate-fade-in" ref={visualContainerRef}>
                   <WikiVisualRenderer visualComponent={topic.visualComponent} />
                 </div>
               )}
             </div>
           )}
+
 
           {/* Section 2: Clinical Truth (临床真相深度解读) */}
           <div className="space-y-2 mb-4">
@@ -454,9 +466,11 @@ export function WikiTopicCard({ topic, isMatchedProfile, isHighlighted }: WikiTo
       {showPosterModal && (
         <WikiSharePosterModal
           topic={topic}
+          visualDomHtml={capturedVisualHtml || undefined}
           onClose={() => setShowPosterModal(false)}
         />
       )}
     </>
   );
 }
+
