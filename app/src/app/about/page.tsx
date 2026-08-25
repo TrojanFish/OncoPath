@@ -17,8 +17,12 @@ import {
   X, 
   ZoomIn 
 } from "lucide-react";
+import SubpageNavbar from "@/components/SubpageNavbar";
+import Footer from "@/components/Footer";
 
 export default function AboutPage() {
+
+
   const [copied, setCopied] = useState(false);
   const [previewImage, setPreviewImage] = useState<{ src: string; title: string } | null>(null);
   const contactEmail = "contact@oncopath.org";
@@ -339,6 +343,12 @@ export default function AboutPage() {
         </div>
       )}
 
+      {/* Unified Global Footer */}
+      <div className="mt-16 -mx-4 sm:-mx-6 lg:-mx-8 -mb-10 sm:-mb-14">
+        <Footer maxWidth="max-w-4xl" />
+      </div>
     </div>
   );
 }
+
+

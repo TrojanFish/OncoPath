@@ -16,6 +16,8 @@ import {
   ChevronUp
 } from "lucide-react";
 import SubpageNavbar from "@/components/SubpageNavbar";
+import Footer from "@/components/Footer";
+
 
 interface ResourceLink {
   name: string;
@@ -453,41 +455,9 @@ export default function ResourcesPage() {
         </section>
       </main>
 
-      {/* Global Bottom Sticky Footer */}
-      <footer className="mt-auto bg-white border-t border-slate-200 py-10 sm:py-12 px-3.5 sm:px-6">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex flex-col items-center md:items-start gap-2">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl overflow-hidden flex items-center justify-center shadow-xs">
-                <img src="/logo.png" alt="OncoPath Logo" className="w-full h-full object-cover" />
-              </div>
-              <span className="font-bold text-slate-900 tracking-tight text-base">
-                Onco<span className="text-accent-blue font-extrabold">Path</span>
-              </span>
-            </div>
-            <div className="flex items-center gap-3 text-xs text-slate-500 mt-1 flex-wrap justify-center md:justify-start">
-              <Link href="/about" className="hover:text-blue-600 font-medium transition-colors text-blue-700">
-                关于我们与初衷
-              </Link>
-              <span>·</span>
-              <Link href="/terms" className="hover:text-blue-600 font-medium transition-colors">
-                服务协议与免责声明
-              </Link>
-              <span>·</span>
-              <Link href="/privacy" className="hover:text-blue-600 font-medium transition-colors">
-                隐私政策 (PIPL)
-              </Link>
-            </div>
-          </div>
-          <div className="text-xs text-slate-500 text-center md:text-right space-y-1 max-w-md">
-            <p className="flex items-center justify-center md:justify-end gap-1.5 text-slate-400">
-              <AlertTriangle className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-              <span>外部链接均指向第三方学术机构，所有医学决策请以主治医生意见为准。</span>
-            </p>
-            <div>© 2026 OncoPath · 严格同行评审肺癌循证知识与决策导航系统</div>
-          </div>
-        </div>
-      </footer>
+      {/* Global Bottom Footer */}
+      <Footer maxWidth="max-w-7xl" />
     </div>
   );
 }
+

@@ -4,7 +4,9 @@ import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { BookOpen, User, Search, Layers, Compass, Sparkles, Lightbulb } from "lucide-react";
 import SubpageNavbar from "@/components/SubpageNavbar";
+import Footer from "@/components/Footer";
 import { WIKI_TOPICS, WIKI_CATEGORIES, type WikiCategory, type RiskLevel } from "@/lib/wikiData";
+
 import { WikiScenarioEntry } from "@/components/wiki/WikiScenarioEntry";
 import { WikiSearchBar } from "@/components/wiki/WikiSearchBar";
 import { WikiTopicCard } from "@/components/wiki/WikiTopicCard";
@@ -326,37 +328,8 @@ export default function WikiPage() {
       </main>
 
       {/* Standard Elegant Footer */}
-      <footer className="bg-white border-t border-slate-200 py-10 px-4 sm:px-6 mt-auto">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex flex-col items-center md:items-start gap-2">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl overflow-hidden flex items-center justify-center shadow-xs">
-                <img src="/logo.png" alt="OncoPath Logo" className="w-full h-full object-cover" />
-              </div>
-              <span className="font-bold text-slate-900 tracking-tight text-base">
-                Onco<span className="text-accent-blue font-extrabold">Path</span>
-              </span>
-            </div>
-            <div className="flex items-center gap-3 text-xs text-slate-500 mt-1 flex-wrap justify-center md:justify-start">
-              <Link href="/about" className="hover:text-blue-600 font-medium transition-colors text-blue-700">
-                关于我们与初衷
-              </Link>
-              <span>·</span>
-              <Link href="/terms" className="hover:text-blue-600 font-medium transition-colors">
-                服务协议与免责声明
-              </Link>
-              <span>·</span>
-              <Link href="/privacy" className="hover:text-blue-600 font-medium transition-colors">
-                隐私政策 (PIPL)
-              </Link>
-            </div>
-          </div>
-          <div className="text-xs text-slate-500 text-center md:text-right space-y-1">
-            <div>© 2026 OncoPath · 严格同行评审肺癌循证知识与决策导航系统</div>
-            <div>所有数据均可追溯至 JTO、Lancet、JCO、Chest 等国际顶级学术期刊。</div>
-          </div>
-        </div>
-      </footer>
+      <Footer maxWidth="max-w-7xl" />
+
 
       {/* Right Side Desktop Floating Elevator Navigation Dock */}
       <WikiFloatingNav

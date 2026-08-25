@@ -4,6 +4,8 @@ import React, { useState, useEffect } from "react";
 import { BookOpen, Search } from "lucide-react";
 import StudyCard, { StudyItem } from "@/components/StudyCard";
 import SubpageNavbar from "@/components/SubpageNavbar";
+import Footer from "@/components/Footer";
+
 
 export default function StudiesPage() {
   const [studies, setStudies] = useState<StudyItem[]>([]);
@@ -71,13 +73,13 @@ export default function StudiesPage() {
 
           <div className="flex flex-col sm:flex-row items-center gap-3">
             {/* Search query */}
-            <div className="w-full sm:w-64">
+            <div className="w-full sm:w-72">
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="搜索标题、期刊、因子 (如 STAS, ADAURA)..."
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-accent-blue/20"
+                className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:bg-white focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20"
               />
             </div>
 
@@ -86,7 +88,7 @@ export default function StudiesPage() {
               <select
                 value={selectedLevel}
                 onChange={(e) => setSelectedLevel(e.target.value)}
-                className="w-full sm:w-auto px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-700 cursor-pointer focus:bg-white"
+                className="w-full sm:w-auto px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-700 cursor-pointer focus:bg-white focus:border-blue-600 focus:outline-none"
               >
                 <option value="all">全部证据等级</option>
                 <option value="5">5星 · 最高证据 (RCT / Meta分析)</option>
@@ -107,7 +109,7 @@ export default function StudiesPage() {
             <span>正在加载已收录文献...</span>
           </div>
         ) : studies.length === 0 ? (
-          <div className="py-20 text-center text-slate-400 text-sm bg-white rounded-2xl border border-slate-200 p-8">
+          <div className="py-20 text-center text-slate-400 text-sm bg-white rounded-3xl border border-slate-200 p-8 shadow-xs">
             <Search className="w-8 h-8 text-slate-400 mx-auto mb-2" />
             <div className="font-semibold text-slate-700 mb-1">未找到符合条件的已收录研究</div>
             <p className="text-xs text-slate-400">请尝试更换检索关键词或重置筛选条件。</p>
@@ -120,6 +122,9 @@ export default function StudiesPage() {
           </div>
         )}
       </main>
+
+      <Footer maxWidth="max-w-7xl" />
     </div>
   );
 }
+

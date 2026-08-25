@@ -3,6 +3,8 @@
 import React from "react";
 import Link from "next/link";
 import { ShieldCheck, Lock } from "lucide-react";
+import Footer from "@/components/Footer";
+
 
 export default function PrivacyPage() {
   return (
@@ -122,7 +124,7 @@ export default function PrivacyPage() {
 
           </div>
 
-          {/* Footer Navigation */}
+          {/* Quick Sub-Links */}
           <div className="pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
             <div>© 2026 OncoPath 隐私安全保护体系</div>
             <div className="flex items-center gap-3">
@@ -135,6 +137,13 @@ export default function PrivacyPage() {
         </div>
 
       </div>
+
+      {/* Unified Global Footer */}
+      <div className="mt-16 -mx-4 sm:-mx-6 lg:-mx-8 -mb-10 sm:-mb-14">
+        <Footer maxWidth="max-w-4xl" />
+      </div>
     </div>
   );
 }
+
+

@@ -3,7 +3,9 @@
 import { useState, useEffect } from "react";
 import KnowledgeMapPreview from "@/components/KnowledgeMapPreview";
 import SubpageNavbar from "@/components/SubpageNavbar";
+import Footer from "@/components/Footer";
 import type { PatientProfile } from "@/lib/types";
+
 
 export default function KnowledgePage() {
   const [profile, setProfile] = useState<PatientProfile | null>(null);
@@ -76,11 +78,14 @@ export default function KnowledgePage() {
       </header>
 
       {/* Knowledge Map */}
-      <main className="max-w-7xl mx-auto px-2.5 sm:px-6">
+      <main className="max-w-7xl mx-auto px-2.5 sm:px-6 mb-16">
         <div className="bg-white rounded-3xl p-2 border border-slate-200/90 shadow-xl shadow-slate-900/5">
           {profileLoaded && <KnowledgeMapPreview profile={profile} />}
         </div>
       </main>
+
+      <Footer maxWidth="max-w-7xl" />
     </div>
   );
 }
+
