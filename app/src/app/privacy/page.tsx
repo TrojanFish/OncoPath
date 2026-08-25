@@ -8,10 +8,11 @@ import Footer from "@/components/Footer";
 
 export default function PrivacyPage() {
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 py-10 sm:py-14 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto space-y-8">
+    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-800">
+      <main className="flex-1 max-w-4xl mx-auto w-full space-y-8 py-10 sm:py-14 px-4 sm:px-6 lg:px-8">
         
         {/* Navigation Back */}
+
         <div className="flex items-center justify-between">
           <Link
             href="/"
@@ -136,14 +137,13 @@ export default function PrivacyPage() {
 
         </div>
 
-      </div>
+      </main>
 
       {/* Unified Global Footer */}
-      <div className="mt-16 -mx-4 sm:-mx-6 lg:-mx-8 -mb-10 sm:-mb-14">
-        <Footer maxWidth="max-w-4xl" />
-      </div>
+      <Footer maxWidth="max-w-4xl" />
     </div>
   );
 }
+
 
 

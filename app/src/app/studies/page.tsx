@@ -35,7 +35,7 @@ export default function StudiesPage() {
   }, [searchQuery, selectedLevel]);
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 pb-24 selection:bg-blue-500 selection:text-white">
+    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 selection:bg-blue-500 selection:text-white">
       <SubpageNavbar />
 
       {/* Hero Header */}
@@ -60,7 +60,8 @@ export default function StudiesPage() {
       </header>
 
       {/* Studies Main Area */}
-      <main className="max-w-7xl mx-auto px-2.5 sm:px-6">
+      <main className="flex-1 max-w-7xl mx-auto w-full px-2.5 sm:px-6 pb-16">
+
         
         {/* Search and Filters Bar */}
         <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200 shadow-sm mb-6 sm:mb-8 flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">

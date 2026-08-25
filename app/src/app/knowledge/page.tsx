@@ -46,7 +46,7 @@ export default function KnowledgePage() {
 
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 pb-24 selection:bg-blue-500 selection:text-white">
+    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 selection:bg-blue-500 selection:text-white">
       <SubpageNavbar />
 
       {/* Hero Header */}
@@ -78,7 +78,8 @@ export default function KnowledgePage() {
       </header>
 
       {/* Knowledge Map */}
-      <main className="max-w-7xl mx-auto px-2.5 sm:px-6 mb-16">
+      <main className="flex-1 max-w-7xl mx-auto w-full px-2.5 sm:px-6 mb-16">
+
         <div className="bg-white rounded-3xl p-2 border border-slate-200/90 shadow-xl shadow-slate-900/5">
           {profileLoaded && <KnowledgeMapPreview profile={profile} />}
         </div>

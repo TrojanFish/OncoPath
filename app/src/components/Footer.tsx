@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { LogoMark } from "@/components/SubpageNavbar";
@@ -10,7 +10,8 @@ interface FooterProps {
 
 export default function Footer({ maxWidth = "max-w-5xl", className = "" }: FooterProps) {
   return (
-    <footer className={`bg-white border-t border-slate-200 py-10 px-4 sm:px-6 mt-auto print:hidden ${className}`}>
+    <footer className={`w-full bg-white border-t border-slate-200 py-10 px-4 sm:px-6 mt-auto print:hidden ${className}`}>
+
       <div className={`${maxWidth} mx-auto flex flex-col md:flex-row items-center justify-between gap-6`}>
         <div className="flex flex-col items-center md:items-start gap-2">
           <Link href="/" className="hover:opacity-85 transition-opacity">

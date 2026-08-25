@@ -55,15 +55,17 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-slate-50 text-slate-900">
+    <div className="min-h-screen flex flex-col overflow-x-hidden bg-slate-50 text-slate-900">
       <ConsentModal />
       
       {/* Unified Global Floating Island Navigation Bar */}
       <SubpageNavbar />
 
-      {/* Act 1: Hero Section (2-Column Split Layout matching Telemedicine Demo) */}
-      <section
-        ref={heroRef}
+      <main className="flex-1">
+        {/* Act 1: Hero Section (2-Column Split Layout matching Telemedicine Demo) */}
+        <section
+          ref={heroRef}
+
         className="relative min-h-[85vh] flex items-center bg-gradient-to-b from-blue-50/40 via-slate-50 to-white overflow-hidden pt-28 pb-16"
       >
         {/* Ambient background glow orbs */}
@@ -554,12 +556,14 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+      </main>
 
       {/* Unified Global Footer */}
       <Footer maxWidth="max-w-7xl" />
     </div>
   );
 }
+
 
 
 function LogoMark() {
