@@ -89,9 +89,9 @@ export default function TimelineGrowthChart({ events }: TimelineGrowthChartProps
       </div>
 
       {/* Visual Chart Canvas */}
-      <div className="relative pt-6 pb-2">
+      <div className="relative pt-6 pb-2 overflow-x-auto custom-scrollbar">
         {/* Y Axis Grid lines */}
-        <div className="absolute inset-x-0 top-6 bottom-8 flex flex-col justify-between pointer-events-none text-[10px] text-slate-400 font-mono">
+        <div className="absolute inset-x-0 top-6 bottom-8 flex flex-col justify-between pointer-events-none text-[10px] text-slate-400 font-mono min-w-[380px] sm:min-w-0">
           <div className="border-b border-slate-100 flex justify-between pr-2">
             <span>{maxSize.toFixed(1)} mm</span>
             <span>警戒阈值 (8mm 介入参考)</span>
@@ -106,7 +106,7 @@ export default function TimelineGrowthChart({ events }: TimelineGrowthChartProps
         </div>
 
         {/* Nodes Flow */}
-        <div className="relative z-10 grid grid-flow-col auto-cols-fr gap-3 sm:gap-6 pt-4 pb-4">
+        <div className="relative z-10 grid grid-flow-col auto-cols-fr gap-3 sm:gap-6 pt-4 pb-4 min-w-[380px] sm:min-w-0">
           {imagingPoints.map((pt, idx) => {
             const isSurgeryAfter = surgeryEvent && new Date(pt.date) >= new Date(surgeryEvent.eventDate);
             const heightPercent = pt.sizeMm === 0 ? 8 : Math.min(100, Math.max(12, (pt.sizeMm / maxSize) * 100));

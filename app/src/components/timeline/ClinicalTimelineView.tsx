@@ -365,29 +365,29 @@ export default function ClinicalTimelineView() {
 
 
         {/* Dynamic Stats Strip */}
-        <div className="relative z-10 grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-6 border-t border-slate-200/80">
-          <div className="bg-white/90 p-3.5 rounded-2xl border border-slate-200/90 shadow-2xs hover:border-blue-200 transition-colors">
+        <div className="relative z-10 grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 mt-6 pt-5 border-t border-slate-200/80">
+          <div className="bg-white/90 p-3 sm:p-3.5 rounded-2xl border border-slate-200/90 shadow-2xs hover:border-blue-200 transition-colors min-w-0">
             <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider flex items-center gap-1">
-              <Calendar className="w-3 h-3 text-slate-400" />
-              <span>随访跨度</span>
+              <Calendar className="w-3 h-3 text-slate-400 shrink-0" />
+              <span className="truncate">随访跨度</span>
             </span>
-            <div className="text-xs sm:text-sm font-extrabold text-slate-900 mt-1 font-mono">
+            <div className="text-xs sm:text-sm font-extrabold text-slate-900 mt-1 font-mono truncate">
               {events.length > 0 ? `${timeSpan.spanText}` : "未开启随访"}
             </div>
           </div>
-          <div className="bg-white/90 p-3.5 rounded-2xl border border-slate-200/90 shadow-2xs hover:border-blue-200 transition-colors">
+          <div className="bg-white/90 p-3 sm:p-3.5 rounded-2xl border border-slate-200/90 shadow-2xs hover:border-blue-200 transition-colors min-w-0">
             <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider flex items-center gap-1">
-              <FileText className="w-3 h-3 text-blue-500" />
-              <span>归档检查总数</span>
+              <FileText className="w-3 h-3 text-blue-500 shrink-0" />
+              <span className="truncate">归档检查总数</span>
             </span>
-            <div className="text-xs sm:text-sm font-extrabold text-blue-700 mt-1 font-mono">
+            <div className="text-xs sm:text-sm font-extrabold text-blue-700 mt-1 font-mono truncate">
               {events.length} 次检查
             </div>
           </div>
-          <div className="bg-white/90 p-3.5 rounded-2xl border border-slate-200/90 shadow-2xs hover:border-blue-200 transition-colors">
+          <div className="bg-white/90 p-3 sm:p-3.5 rounded-2xl border border-slate-200/90 shadow-2xs hover:border-blue-200 transition-colors min-w-0">
             <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider flex items-center gap-1">
-              <TrendingUp className="w-3 h-3 text-emerald-500" />
-              <span>最新病灶状态</span>
+              <TrendingUp className="w-3 h-3 text-emerald-500 shrink-0" />
+              <span className="truncate">最新病灶状态</span>
             </span>
             <div className="text-xs sm:text-sm font-extrabold text-slate-900 mt-1 flex items-center gap-1.5 truncate">
               {events.length > 0 ? (
@@ -395,26 +395,38 @@ export default function ClinicalTimelineView() {
                   <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
                   <span className="truncate">
                     {surgeryEvent
-                      ? "术后完全缓解 (0 mm)"
+                      ? "术后缓解 (0mm)"
                       : latestImagingEvent?.keyFindings?.sizeMm !== undefined
                       ? `${latestImagingEvent.keyFindings.sizeMm} mm`
                       : "稳定"}
                   </span>
                 </>
               ) : (
-                <span className="text-slate-400 font-normal">暂无影像数据</span>
+                <span className="text-slate-400 font-normal text-xs">暂无数据</span>
               )}
             </div>
           </div>
-          <div className="bg-white/90 p-3.5 rounded-2xl border border-slate-200/90 shadow-2xs hover:border-blue-200 transition-colors">
+          <div className="bg-white/90 p-3 sm:p-3.5 rounded-2xl border border-slate-200/90 shadow-2xs hover:border-blue-200 transition-colors min-w-0">
             <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider flex items-center gap-1">
-              <Sparkles className="w-3 h-3 text-indigo-500" />
-              <span>肿瘤标志物 (CEA)</span>
+              <Sparkles className="w-3 h-3 text-indigo-500 shrink-0" />
+              <span className="truncate">标志物 (CEA)</span>
             </span>
-            <div className="text-xs sm:text-sm font-extrabold text-slate-900 mt-1 font-mono truncate">
-              {latestSerologyEvent?.keyFindings?.cea !== undefined
-                ? `${latestSerologyEvent.keyFindings.cea} ng/mL (${latestSerologyEvent.keyFindings.cea < 5.0 ? "正常" : "偏高"})`
-                : events.length > 0 ? "未查" : "暂无生化数据"}
+            <div className="text-xs sm:text-sm font-extrabold text-slate-900 mt-1 font-mono flex items-baseline gap-1 flex-wrap">
+              {latestSerologyEvent?.keyFindings?.cea !== undefined ? (
+                <>
+                  <span>{latestSerologyEvent.keyFindings.cea}</span>
+                  <span className="text-[10px] font-normal text-slate-400">ng/mL</span>
+                  <span className={`text-[9px] font-bold px-1.5 py-0.2 rounded-md ${
+                    latestSerologyEvent.keyFindings.cea < 5.0 
+                      ? "bg-emerald-50 text-emerald-700 border border-emerald-200" 
+                      : "bg-amber-50 text-amber-700 border border-amber-200"
+                  }`}>
+                    {latestSerologyEvent.keyFindings.cea < 5.0 ? "正常" : "偏高"}
+                  </span>
+                </>
+              ) : (
+                <span className="text-slate-400 font-normal text-xs">{events.length > 0 ? "未查" : "暂无数据"}</span>
+              )}
             </div>
           </div>
         </div>

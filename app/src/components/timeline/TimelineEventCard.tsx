@@ -196,52 +196,85 @@ export default function TimelineEventCard({ event, onEdit, onDelete }: TimelineE
 
             {expanded && (
               <div className="mt-3 p-4 rounded-2xl bg-white border border-slate-200/90 shadow-2xs space-y-2.5 text-xs text-slate-800 animate-fade-in">
-                <div className="font-bold text-slate-900 text-[11px] uppercase tracking-wider text-slate-400 border-b border-slate-100 pb-1.5">
-                  结构化提取指标明细
+                <div className="font-bold text-slate-900 text-[11px] uppercase tracking-wider text-slate-400 border-b border-slate-100 pb-1.5 flex items-center justify-between">
+                  <span>结构化核验指标明细</span>
+                  <span className="text-[10px] text-slate-400 font-mono">Structured Clinical Data</span>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                   {event.keyFindings.sizeMm !== undefined && (
-                    <div className="flex justify-between p-2 rounded-xl bg-slate-50">
-                      <span className="text-slate-500">病灶长径：</span>
+                    <div className="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100">
+                      <span className="text-slate-500">病灶全径：</span>
                       <span className="font-bold text-slate-900 font-mono">
                         {event.keyFindings.sizeMm} mm
                       </span>
                     </div>
                   )}
+                  {event.keyFindings.solidSize !== undefined && (
+                    <div className="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100">
+                      <span className="text-slate-500">实性成分径：</span>
+                      <span className="font-bold text-amber-900 font-mono">
+                        {event.keyFindings.solidSize} mm
+                      </span>
+                    </div>
+                  )}
                   {event.keyFindings.ctr !== undefined && (
-                    <div className="flex justify-between p-2 rounded-xl bg-slate-50">
+                    <div className="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100">
                       <span className="text-slate-500">实性占比 (CTR)：</span>
-                      <span className="font-bold text-slate-900 font-mono">
+                      <span className="font-bold text-blue-700 font-mono">
                         {(event.keyFindings.ctr * 100).toFixed(0)}%
                       </span>
                     </div>
                   )}
-                  {event.keyFindings.histology && (
-                    <div className="flex justify-between p-2 rounded-xl bg-slate-50 sm:col-span-2">
-                      <span className="text-slate-500">病理组织学：</span>
-                      <span className="font-bold text-purple-700">
-                        {event.keyFindings.histology}
-                      </span>
-                    </div>
-                  )}
                   {event.keyFindings.stage && (
-                    <div className="flex justify-between p-2 rounded-xl bg-slate-50">
+                    <div className="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100">
                       <span className="text-slate-500">病理分期：</span>
-                      <span className="font-bold text-emerald-700 font-mono">
+                      <span className="font-bold text-emerald-700 font-mono px-2 py-0.2 rounded-md bg-emerald-50 border border-emerald-200">
                         {event.keyFindings.stage}
                       </span>
                     </div>
                   )}
+                  {event.keyFindings.histology && (
+                    <div className="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100 sm:col-span-2">
+                      <span className="text-slate-500">病理组织学：</span>
+                      <span className="font-bold text-purple-800">
+                        {event.keyFindings.histology}
+                      </span>
+                    </div>
+                  )}
                   {event.keyFindings.driverGene && (
-                    <div className="flex justify-between p-2 rounded-xl bg-slate-50 sm:col-span-2">
+                    <div className="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100 sm:col-span-2">
                       <span className="text-slate-500">驱动基因 (NGS)：</span>
-                      <span className="font-bold text-blue-700 font-mono">
+                      <span className="font-bold text-blue-800 font-mono px-2 py-0.2 rounded-md bg-blue-50 border border-blue-200">
                         {event.keyFindings.driverGene}
                       </span>
                     </div>
                   )}
+                  {event.keyFindings.stas !== undefined && (
+                    <div className="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100">
+                      <span className="text-slate-500">气道播散 STAS：</span>
+                      <span className={`font-bold px-2 py-0.2 rounded-md ${
+                        event.keyFindings.stas === "positive" || event.keyFindings.stas === true
+                          ? "bg-amber-100 text-amber-900 border border-amber-300"
+                          : "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                      }`}>
+                        {event.keyFindings.stas === "positive" || event.keyFindings.stas === true ? "阳性 (STAS+)" : "阴性 (-)"}
+                      </span>
+                    </div>
+                  )}
+                  {event.keyFindings.vpi !== undefined && (
+                    <div className="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100">
+                      <span className="text-slate-500">胸膜侵犯 VPI：</span>
+                      <span className={`font-bold px-2 py-0.2 rounded-md ${
+                        event.keyFindings.vpi === "positive" || event.keyFindings.vpi === true
+                          ? "bg-amber-100 text-amber-900 border border-amber-300"
+                          : "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                      }`}>
+                        {event.keyFindings.vpi === "positive" || event.keyFindings.vpi === true ? "阳性 (PL1/PL2)" : "阴性 (PL0)"}
+                      </span>
+                    </div>
+                  )}
                   {event.keyFindings.surgeryType && (
-                    <div className="flex justify-between p-2 rounded-xl bg-slate-50 sm:col-span-2">
+                    <div className="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100 sm:col-span-2">
                       <span className="text-slate-500">手术切除方式：</span>
                       <span className="font-bold text-slate-900">
                         {event.keyFindings.surgeryType}
@@ -249,25 +282,25 @@ export default function TimelineEventCard({ event, onEdit, onDelete }: TimelineE
                     </div>
                   )}
                   {event.keyFindings.marginStatus && (
-                    <div className="flex justify-between p-2 rounded-xl bg-slate-50 sm:col-span-2">
+                    <div className="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100 sm:col-span-2">
                       <span className="text-slate-500">切缘状态：</span>
-                      <span className="font-bold text-emerald-700">
+                      <span className="font-bold text-emerald-700 px-2 py-0.2 rounded-md bg-emerald-50 border border-emerald-200">
                         {event.keyFindings.marginStatus}
                       </span>
                     </div>
                   )}
                   {event.keyFindings.cea !== undefined && (
-                    <div className="flex justify-between p-2 rounded-xl bg-slate-50">
+                    <div className="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100">
                       <span className="text-slate-500">CEA 标志物：</span>
-                      <span className="font-bold text-rose-700 font-mono">
+                      <span className="font-bold text-slate-900 font-mono">
                         {event.keyFindings.cea} ng/mL
                       </span>
                     </div>
                   )}
                   {event.keyFindings.cyfra211 !== undefined && (
-                    <div className="flex justify-between p-2 rounded-xl bg-slate-50">
+                    <div className="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100">
                       <span className="text-slate-500">CYFRA21-1：</span>
-                      <span className="font-bold text-rose-700 font-mono">
+                      <span className="font-bold text-slate-900 font-mono">
                         {event.keyFindings.cyfra211} ng/mL
                       </span>
                     </div>
