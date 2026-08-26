@@ -20,6 +20,8 @@ import {
   Edit3,
   Camera,
   Trash2,
+  Share2,
+  Image as ImageIcon,
 } from "lucide-react";
 import dynamic from "next/dynamic";
 
@@ -28,6 +30,8 @@ import SimilarCasesCard from "./SimilarCasesCard";
 import { NoduleTimelineChart } from "./NoduleTimelineChart";
 import { TumorMarkersCard } from "./TumorMarkersCard";
 import { GlossaryTooltip } from "@/components/common/GlossaryTooltip";
+import ProfileExportModal from "./ProfileExportModal";
+
 
 // Dynamically import ReportUploader modal for instant dashboard rendering
 const ReportUploader = dynamic(() => import("./ReportUploader"), {
@@ -54,6 +58,7 @@ export default function PatientDashboard() {
   const [editMode, setEditMode] = useState<'edit_direct' | 'upload_new' | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showExportModal, setShowExportModal] = useState(false);
 
   const loadProfile = async (showLoadingSpinner = true) => {
     try {
@@ -260,6 +265,15 @@ export default function PatientDashboard() {
             <ArrowRight className="w-3.5 h-3.5 text-blue-200 transition-transform group-hover:translate-x-0.5" />
           </Link>
 
+          <button
+            onClick={() => setShowExportModal(true)}
+            className="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs shadow-md shadow-emerald-600/20 transition-all flex items-center gap-1.5 group cursor-pointer"
+            title="一键导出包含基础信息、病理指标与5年生存率的高清数字档案全景卡"
+          >
+            <Share2 className="w-3.5 h-3.5 text-emerald-100 transition-transform group-hover:scale-110" />
+            <span>导出档案图片</span>
+          </button>
+
           <button 
             onClick={() => setShowDeleteModal(true)}
             className="px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs border border-rose-200 transition-all cursor-pointer flex items-center gap-1.5 group"
@@ -277,6 +291,7 @@ export default function PatientDashboard() {
             <Edit3 className="w-3.5 h-3.5 text-slate-500 group-hover:text-blue-600 transition-transform group-hover:scale-110" />
             <span>修改/更新档案</span>
           </button>
+
         </div>
       </div>
 
@@ -785,9 +800,19 @@ export default function PatientDashboard() {
           </div>
         </div>
       )}
+
+      {/* Digital Profile HD Export Poster Modal */}
+      {showExportModal && (
+        <ProfileExportModal
+          profile={profile}
+          onClose={() => setShowExportModal(false)}
+        />
+      )}
       
     </div>
   );
+
+
 }
 
 function RiskBadge({ label, status, text }: { label: string; status: 'good' | 'warning' | 'danger'; text: string }) {
