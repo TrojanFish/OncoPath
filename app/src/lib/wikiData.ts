@@ -59,7 +59,15 @@ export interface WikiTopic {
     | "MrdCtdnaVisual"
     | "Her2AdcVisual"
     | "EgfrResistanceVisual"
-    | "AblationSbrtVisual";
+    | "AblationSbrtVisual"
+    | "TargetedSideEffectsVisual"
+    | "IldWarningVisual"
+    | "IraeImmuneVisual"
+    | "BoneMarrowGcsfVisual"
+    | "BiopsySafetyVisual"
+    | "EbusTbnaVisual"
+    | "TcmBoundaryVisual";
+
 
   
   // 关联知识图谱节点 ID
@@ -1413,5 +1421,286 @@ export const WIKI_TOPICS: WikiTopic[] = [
     ],
     searchKeywords: ["微波消融", "射频消融", "SBRT", "放疗", "xiaorong", "fangliao", "无法手术", "高龄结节", "局部控制", "MWA"],
   },
+  {
+    id: "targeted-side-effects-management",
+    category: "genetics",
+    subcategory: "靶向药副作用居家急救",
+    title: "三代靶向药四大常见副作用居家护理急救箱：皮疹、甲沟炎、腹泻与口腔溃疡",
+    subtitle: "Home Management of EGFR/ALK TKI Adverse Events: Rash, Paronychia, Diarrhea & Stomatitis",
+    icon: "pill",
+    riskLevel: "moderate",
+    priorityOrder: 78,
+    visualComponent: "TargetedSideEffectsVisual",
+    metaphor: "就像精密除草剂在精准靶向杂草的同时难免会稍稍触碰到周边的表皮与肠道黏膜草坪——这些副作用不是病情恶化的征兆，恰恰证明靶向药在体内代谢并发挥了强大的生物学阻断效应！",
+    clinicalTruth: "三代 EGFR-TKI（奥希替尼、伏美替尼、阿美替尼）与 ALK-TKI（阿来替尼等）常见不良反应主要源于对正常表皮细胞与胃肠黏膜轻度抑制，绝大部分属于 1~2 级轻症，完全可居家通过阶梯外用药控制，切勿擅自停药或减量！\n• ① 甲沟炎嵌甲化脓：温水白醋浸泡 + 鱼石脂软膏/夫西地酸外涂，平剪指甲防刺入甲褶；\n• ② 面部红斑丘疹：神经酰胺保湿霜 + 夫西地酸/地奈德阶梯外用，严格物理防晒；\n• ③ 腹泻肠鸣：蒙脱石散隔开 2 小时服用，口服补液盐防脱水，频次增多时口服洛哌丁胺(易蒙停)；\n• ④ 口腔溃疡：生理盐水/康复新液含漱 + 重组人表皮生长因子凝胶涂抹，补充 B 族维生素。",
+    tactics: [
+      "家中常备外用药急救箱：夫西地酸乳膏、地奈德软膏、百多邦、鱼石脂软膏、蒙脱石散与口服补液盐",
+      "出现轻微皮疹或腹泻切勿自行停药，严格按照 1~2 级阶梯居家处理 3~5 天多可平稳缓解",
+      "若腹泻每日 ≥7 次出现脱水或甲沟炎严重化脓，及时联系主诊医生或专科门诊评估是否短期下调剂量",
+    ],
+    reassurance: "靶向药轻微皮疹和甲沟炎往往预示着药物在体内的血药浓度充足且疗效显著！只要掌握正确的阶梯外用药方法，绝大多数患者都能长期平稳服药，生活质量完全不受影响！",
+    keyMetric: {
+      label: "三代靶向药副作用居家控制率",
+      value: "> 90% 轻症经对症护理完全缓解",
+      source: "ESMO & CSCO NSCLC Targeted Therapy Adverse Events Guidelines 2024",
+    },
+    faq: [
+      {
+        question: "吃奥希替尼脸上长满痘痘皮疹，是药物中毒了吗？",
+        answer: "不是中毒！这是 EGFR 抑制表皮生长因子的典型伴随反应，多项国际研究表明出现轻中度皮疹的患者往往靶向治疗无进展生存期更长。外用夫西地酸加温和保湿即可，千万不要当成痤疮挤压！"
+      },
+      {
+        question: "脚趾甲沟炎流脓很痛，一定要拔甲吗？",
+        answer: "绝大多数不需要拔甲！每日用温水加少量白醋或稀释碘伏浸泡 15 分钟，涂抹鱼石脂软膏拔脓消炎，穿宽松软底鞋，修剪指甲时留出白边平剪，即可避免嵌甲反复发作。"
+      }
+    ],
+    searchKeywords: ["靶向副作用", "皮疹", "甲沟炎", "腹泻", "口腔溃疡", "奥希替尼副作用", "fuzhuoyong", "pizhen", "jiagouyan", "fuxie", "易蒙停", "夫西地酸"],
+  },
+  {
+    id: "ild-early-warning",
+    category: "genetics",
+    subcategory: "致命毒性早识别",
+    title: "药物性间质性肺炎 (ILD) 早期预警三联征：早识别即早逆转的急救生命线",
+    subtitle: "Drug-induced Interstitial Lung Disease (DILD / ILD) Early Warning Signs & Emergency Protocols",
+    icon: "flame",
+    riskLevel: "high",
+    priorityOrder: 95,
+    visualComponent: "IldWarningVisual",
+    metaphor: "像肺泡壁过滤器发生的急性过敏水肿反应——只要在水肿初期第一时间关掉靶向药阀门并启动抗炎灭火，受损肺组织就能迅速吸收恢复；反之若硬抗拖延，则可能导致大面积纤维化。",
+    clinicalTruth: "药物性间质性肺炎 (ILD) 在三代靶向药与 ADC 药物中发生率仅约 1%~3%，是极罕见但必须高度警惕的药物反应。关键在于牢记“突发剧烈干咳、活动后胸闷气促、低热”三联征，24小时内行薄层 CT 排查：\n• ① 突发刺激性无痰干咳：无感冒诱因突然剧烈咳嗽，平卧时尤甚；\n• ② 活动后呼吸费力：稍作走动即感气短气喘，指夹血氧仪测量 SpO2 跌破 93%；\n• ③ 低热不退：体温在 37.5℃~38.5℃ 之间波动；\n• 黄金急救处置：一旦疑似 ILD，立即停服靶向药，24小时内到三甲医院急查薄层高分辨率 CT (HRCT)。在医生指导下启动糖皮质激素冲击治疗，绝大多数早期病例肺部渗出可在 2~4 周内完全吸收逆转！",
+    tactics: [
+      "靶向药服药期间常备家用指夹式血氧仪，日常安静状态下血氧应保持在 95%~99%",
+      "一旦出现无诱因剧烈干咳加重伴活动后气促，立即停服当天靶向药，不可自行当感冒硬抗",
+      "就诊时明确告知急诊或呼吸科医生‘正在服用肺癌靶向药’，要求做胸部 HRCT 排除药物性 ILD",
+    ],
+    reassurance: "ILD 虽然听起来可怕，但发生率非常低（1%~3%）。只要建立早期预警意识，一旦出现气促立即停药就医，现代激素抗炎方案能够极其有效地扑灭炎症，保护肺功能完全康复！",
+    keyMetric: {
+      label: "早期识别停药后 ILD 逆转恢复率",
+      value: "> 85% 经糖皮质激素干预完全吸收",
+      source: "Journal of Clinical Oncology (JCO) & FDA Osimertinib ILD Safety Registry",
+    },
+    faq: [
+      {
+        question: "怎么区分是普通感冒咳嗽还是间质性肺炎 ILD？",
+        answer: "普通感冒多伴有鼻塞、流涕、咽痛及咳痰；而间质性肺炎往往是毫无预兆的‘干咳无痰’，且最关键的区别是伴有‘活动后胸闷气短、走几步路就喘’和血氧饱和度下降。"
+      },
+      {
+        question: "发生 ILD 治好后，还能再吃靶向药吗？",
+        answer: "若为 1 级轻微无症状（仅 CT 提示轻微磨玻璃），停药激素恢复后在专家密切监护下部分患者可考虑换用其他代系靶向药；若为 2 级以上有症状 ILD，国际指南推荐永久停用该类药物，换用化疗、抗血管或抗体药物继续治疗。"
+      }
+    ],
+    searchKeywords: ["间质性肺炎", "ILD", "干咳气短", "靶向药呼吸困难", "血氧低", "jianshixing", "ganke", "激素冲击", "奥希替尼肺炎", "DILD"],
+  },
+  {
+    id: "irae-immune-management",
+    category: "genetics",
+    subcategory: "免疫相关毒性",
+    title: "PD-1/PD-L1 免疫治疗特异性毒性 (irAEs) 识别指南：唤醒自身 T 细胞后的器官监测",
+    subtitle: "Immune-Related Adverse Events (irAEs) Management: CIP, Thyroiditis, Colitis & Myocarditis",
+    icon: "shield",
+    riskLevel: "moderate",
+    priorityOrder: 72,
+    visualComponent: "IraeImmuneVisual",
+    metaphor: "就像给体内的警察（T细胞）松开刹车去抓捕癌细胞，部分警犬由于过度亢奋偶尔会‘误伤’自家的甲状腺、肺或肠道黏膜——只要定期化验监测，医生就能用温和的缰绳（激素）将它们精准拉回正轨！",
+    clinicalTruth: "PD-1/PD-L1 单抗（帕博利珠、阿替利珠、度伐利尤、替雷利珠单抗等）通过解除免疫刹车抗癌，但可能引发免疫相关不良反应 (irAEs)。各器官发生规律如下：\n• ① 甲状腺功能异常（最常见，发生率约 10%~15%）：多表现为甲减（乏力嗜睡水肿），无需停药，内分泌科补充左甲状腺素钠片（优甲乐）即可维持治疗；\n• ② 免疫性肺炎 (CIP，发生率约 3%~5%)：活动后气促与咳嗽，需查 HRCT，2级以上需停药并使用口服泼尼松；\n• ③ 免疫性肠炎：大便次数每日增加 ≥4 次伴腹痛，及时使用激素控制，防肠穿孔；\n• ④ 免疫性心肌炎（极罕见 <1% 重症）：每周期必查肌钙蛋白 (cTnI) 与心电图，早发现早阻断。",
+    tactics: [
+      "每次静脉输注免疫药物前，常规抽血检测：甲功三项 (TSH/FT3/FT4)、心肌酶谱 (肌钙蛋白)、肝肾功能与血常规",
+      "记录日常大便频次，一旦出现每日腹泻 ≥4 次且常规止泻药无效，第一时间告知主管医生",
+      "出现干咳气短或极度乏力心悸时，立即前往肿瘤科急诊排查 CIP 或心肌炎",
+    ],
+    reassurance: "出现轻度免疫副反应（如甲状腺炎、轻度皮疹）往往提示患者自身的抗肿瘤免疫系统被深度激活，长期生存获益更佳！只要坚持按周期化验监测，绝大多数 irAEs 都在医生的精准掌控之中！",
+    keyMetric: {
+      label: "免疫相关不良反应早期可控率",
+      value: "甲状腺炎无需停药 · 激素控制率 > 90%",
+      source: "Lancet Oncology & ASCO Clinical Practice Guidelines on irAEs 2024",
+    },
+    faq: [
+      {
+        question: "打免疫药后脖子甲状腺出现甲减，是不是药不能用了？",
+        answer: "完全可以继续用！免疫性甲减是极常见的良性反应，说明免疫系统被成功激活。只需要每天早晨空腹口服一片‘优甲乐’替代甲状腺素，指标恢复正常后即可照常进行免疫抗癌治疗。"
+      },
+      {
+        question: "用激素（如泼尼松）治疗免疫副作用，会削弱抗癌效果吗？",
+        answer: "大样本临床试验证实：针对 2 级以上 irAEs 规范使用中短程糖皮质激素，不仅不会削弱免疫药物的长期抗癌疗效，还能保护脏器功能，让患者顺利完成后续全程治疗。"
+      }
+    ],
+    searchKeywords: ["免疫副作用", "irAEs", "免疫性肺炎", "甲状腺炎", "心肌炎", "PD1副作用", "mianyifuzhuoyong", "CIP", "优甲乐", "泼尼松"],
+  },
+  {
+    id: "chemo-bone-marrow-gcsf",
+    category: "pathology",
+    subcategory: "化疗骨髓保护",
+    title: "辅助化疗骨髓抑制与升白针 (G-CSF) 科学使用：平稳度过化疗低谷期与饮食辟谣",
+    subtitle: "Chemotherapy-Induced Neutropenia (CIN) & G-CSF Injection Timing: Short-acting vs Long-acting",
+    icon: "activity",
+    riskLevel: "moderate",
+    priorityOrder: 65,
+    visualComponent: "BoneMarrowGcsfVisual",
+    metaphor: "像农田施肥除虫时暂时压制了土壤表层的幼苗（骨髓造血干细胞），在化疗后第 7~14 天会迎来生理性低谷——此时注射升白针就如同精准喷洒高效促生长素，能瞬间催生大批精锐白细胞抵御细菌入侵！",
+    clinicalTruth: "含铂双药辅助化疗（如培美曲塞+顺铂/卡铂）最常见的不良反应是骨髓抑制，其中中性粒细胞 (ANC) 下降最为关键：\n• ① 低谷规律：化疗后第 1~6 天白细胞多正常；第 7~14 天达到最低值（Nadir 低谷期）；第 15~21 天骨髓造血重新回升；\n• ② 升白针科学使用：短效升白针 (rhG-CSF) 在化疗后第 7~10 天查血 ANC < 1.5×10^9/L 时按日注射 2~4 针；长效升白针 (PEG-rhG-CSF) 在化疗结束 24~48 小时单次注射，缓释保护 14 天；\n• ③ 饮食辟谣：五红汤、蚕蛹、牛尾汤无法直接‘吃出白细胞’，真正需要的是充足的优质蛋白质（鸡蛋、牛肉、清蒸鱼、乳清蛋白粉）作为骨髓造血的基本原料！",
+    tactics: [
+      "化疗后第 7、10、14 天必须到就近社区医院或门诊化验血常规，严密追踪白细胞与中性粒细胞绝对值",
+      "若中性粒细胞 < 0.5×10^9/L 伴体温 ≥ 38.0℃，属于‘粒缺性发热 (FN)’急症，必须立即前往医院急诊输注抗生素",
+      "打升白针后出现的轻微腰酸骨痛属于骨髓造血旺盛的正常反应，口服对乙酰氨基酚或散步即可缓解",
+    ],
+    reassurance: "骨髓抑制是化疗药物杀灭残余微小病灶的必经过程。现代长效与短效升白针技术极其成熟安全，只要按时验血、规范升白，就能百分之百安全平稳度过 4 个周期的辅助化疗！",
+    keyMetric: {
+      label: "规范升白针降低严重感染风险",
+      value: "粒缺性发热 (FN) 发生率降低 50%~70%",
+      source: "NCCN Hematopoietic Growth Factors Guidelines & Lancet Oncology",
+    },
+    faq: [
+      {
+        question: "化疗后白细胞低，喝五红汤吃泥鳅真的能升白吗？",
+        answer: "民间偏方无法直接刺激骨髓生成白细胞！白细胞由骨髓造血干细胞分裂产生，需要的是充足的蛋白质原料。多吃鸡蛋羹、清蒸牛肉、鱼肉和优质蛋白粉，配合医生的升白针才是唯一科学可靠的方法。"
+      },
+      {
+        question: "打了升白针后腰部和骨头酸痛，是不是骨头坏了？",
+        answer: "恰恰相反！这是升白针起效的标志。升白针刺激骨髓腔内的造血细胞高速增殖分裂，骨髓腔压力轻微升高导致短暂酸痛，停针 1~2 天后自行消失，完全不用担心。"
+      }
+    ],
+    searchKeywords: ["升白针", "骨髓抑制", "白细胞低", "化疗副作用", "粒缺发热", "shengbaizhen", "hualiao", "G-CSF", "培美曲塞", "顺铂"],
+  },
+  {
+    id: "lung-biopsy-safety-myth",
+    category: "nodule",
+    subcategory: "穿刺与微创确诊",
+    title: "CT 引导经皮肺穿刺活检安全吗？针道播散恐慌大样本科学辟谣",
+    subtitle: "Safety of CT-Guided Percutaneous Transthoracic Lung Biopsy & Needle Tract Seeding Myth Busted",
+    icon: "target",
+    riskLevel: "low",
+    priorityOrder: 32,
+    visualComponent: "BiopsySafetyVisual",
+    metaphor: "现代穿刺就像把一根严密的外套管护送进隧道，取样内针全程在外管内密闭抽回，根本不给肿瘤细胞接触胸壁的机会——针道播散的概率比走在路上被雷击还低，却能为您换回明确靶向用药的‘定海神针’！",
+    clinicalTruth: "许多患者因惧怕‘穿刺会导致癌细胞扩散’而拒绝活检，导致无法获取基因突变结果耽误治疗。现代大样本医学数据早已证实：\n• ① 针道播散真实概率极低：全球数万例穿刺多中心 Meta 分析显示，经皮肺穿刺针道播散发生率仅约为 0.012% ~ 0.06%（万分之几），在现代同轴套管技术下几乎接近于零；\n• ② 同轴套管针 (Coaxial Needle) 物理屏障：外层套管仅穿透胸膜一次并全程固定，取样针在套管内部进出取样并在管内闭锁退回，肿瘤细胞完全被套管隔离，杜绝接触正常肺野与胸壁；\n• ③ 气胸与出血的真实转归：穿刺后少量微量气胸发生率约 10%~20%，绝大多数患者平卧吸氧 24~48 小时即可完全自愈吸收，无需置管引流。",
+    tactics: [
+      "对于无法直接手术或需明确靶向基因分型的实性/混合磨玻璃病灶，积极配合穿刺活检是获取金标准的前提",
+      "穿刺术后严格遵医嘱在病房平卧制动 4~6 小时，避免剧烈咳嗽、用力屏气与大声说话",
+      "术后 2~4 小时常规复查胸部平片/CT，确认有无微量气胸即可放心出院",
+    ],
+    reassurance: "经皮肺穿刺是现代胸部介入放射学极其成熟的微创金标准操作！切勿因莫须有的‘扩散恐慌’而放弃基因检测，它带来的精准靶向获益远远超越了微小的穿刺风险！",
+    keyMetric: {
+      label: "同轴穿刺针道播散真实发生率",
+      value: "仅约 0.012% ~ 0.06% (万分之几)",
+      source: "Radiology & Society of Interventional Radiology (SIR) Multicenter Meta",
+    },
+    faq: [
+      {
+        question: "穿刺如果把肿瘤刺破了，癌细胞会顺着血液跑到全身吗？",
+        answer: "不会！肿瘤细胞进入血液需要突破复杂的基底膜并具备特殊的克隆存活能力。穿刺针刺入的瞬间仅取出几条微米级的组织条，且全程在同轴套管保护下完成，绝不会诱发全身血行播散。"
+      },
+      {
+        question: "穿刺后咳了一口痰中带血丝，要紧吗？",
+        answer: "这是穿刺穿过肺泡毛细血管时的常见轻微渗血，非常普遍。只要不是连续大口鲜血，静卧休息、口服少量止血药 1~2 天后血丝即会自行消失，完全不必惊慌。"
+      }
+    ],
+    searchKeywords: ["肺穿刺", "活检安全", "针道播散", "穿刺气胸", "同轴套管", "chuanci", "huojian", "扩散辟谣", "CT引导穿刺"],
+  },
+  {
+    id: "ebus-tbna-bronchoscopy",
+    category: "nodule",
+    subcategory: "纵隔微创精准分期",
+    title: "无痛超声支气管镜 (EBUS-TBNA) 纵隔淋巴结分期体验指南：免除开胸探查的透视潜望镜",
+    subtitle: "Endobronchial Ultrasound-guided Transbronchial Needle Aspiration (EBUS-TBNA) Staging Guide",
+    icon: "search",
+    riskLevel: "safe",
+    priorityOrder: 15,
+    visualComponent: "EbusTbnaVisual",
+    metaphor: "像一台微型声呐潜望镜探入气管内壁，隔着气管壁‘透视’气管外的纵隔淋巴结，并用彩色多普勒避开所有大血管微创取样——就像做无痛胃镜一样睡一觉，彻底免去传统纵隔镜开胸大手术！",
+    clinicalTruth: "当 CT 或 PET-CT 提示纵隔（4R、7、10、11组）淋巴结肿大或高代谢时，必须明确是‘肿瘤转移 (N2)’还是‘炎性反应增生’，EBUS-TBNA 是国际公认的最佳微创利器：\n• ① 精准微创：气管镜前端装有微型高频超声探头，不仅能清晰透视气管壁外的深部淋巴结，还配有彩色多普勒血流显像，穿刺针可精准避开肺动脉与主动脉等大血管；\n• ② 无痛舒适体验：在静脉麻醉镇静下进行，患者全程无痛苦感、无呛咳窒息感，检查仅需 20~30 分钟；\n• ③ 决定性临床价值：若 EBUS 病理证实为良性炎性反应，可直接判定为 N0/N1 期，从而放心进行单孔胸腔镜根治切除，直接避免了盲目开胸探查的二次创伤。",
+    tactics: [
+      "若 PET-CT 或增强 CT 提示纵隔淋巴结可疑肿大，遵医嘱行 EBUS-TBNA 穿刺是确立能否手术切除的最高金标准",
+      "检查前禁食禁水 6~8 小时，术前完成心电图与凝血功能化验",
+      "术后 2 小时后可尝试饮水，无呛咳后可进食温凉流质软食",
+    ],
+    reassurance: "EBUS 技术已经完全普及于全国三甲医院，安全性极高且全程无痛。它是帮您排除纵隔转移、确立保肺根治手术指征的‘火眼金睛’！",
+    keyMetric: {
+      label: "EBUS-TBNA 纵隔淋巴结分期准确率",
+      value: "灵敏度 92%~95% · 特异度 100%",
+      source: "Chest & European Respiratory Journal (ERS) Guidelines on Lung Cancer Staging",
+    },
+    faq: [
+      {
+        question: "做 EBUS 支气管镜会很难受、一直恶心咳嗽吗？",
+        answer: "在现代全麻静脉镇静下，患者全程处于舒适的睡眠状态，完全没有任何疼痛、呛咳或恶心感，睡一觉醒来检查已经顺利完成，体验与无痛胃肠镜完全一致。"
+      },
+      {
+        question: "PET-CT 已经显示淋巴结代谢高了，为什么还要做 EBUS 穿刺？",
+        answer: "因为 PET-CT 存在‘假阳性’！肺部感染、慢性支气管炎或既往结核都会导致淋巴结出现高代谢假象。EBUS 能够取出真实的活体细胞进行病理切片，避免把良性炎症误判为晚期转移而错误剥夺了手术机会。"
+      }
+    ],
+    searchKeywords: ["EBUS", "支气管镜", "纵隔淋巴结", "TBNA", "超声支气管镜", "wutongqiguanjing", "N2分期", "淋巴结穿刺", "无痛支气管镜"],
+  },
+  {
+    id: "tcm-cam-truth",
+    category: "recovery",
+    subcategory: "中西医协同与护肝防毒",
+    title: "中医药协同调理黄金边界与“抗癌保健品”去伪存真：防范药物性肝损与科学养护",
+    subtitle: "Integrated Chinese & Western Medicine: Synergistic Care Boundaries & Liver Protection (DILI)",
+    icon: "shield",
+    riskLevel: "low",
+    priorityOrder: 25,
+    visualComponent: "TcmBoundaryVisual",
+    metaphor: "现代外科与靶向药是冲锋陷阵斩杀敌人的主将，而中医药就像后勤辎重营负责调理水土与修养气血——后勤不能替代主将冲锋，更要严防乱吃毒性草药炸毁自家的后方粮仓（肝肾功能）！",
+    clinicalTruth: "面对琳琅满目的民间偏方与高价保健品，患者需建立高度清醒的中西医协同认知：\n• ① 中医药的真实协同价值：在正规三甲中医院肿瘤科辨证论治下，中药能够有效减轻化疗恶心呕吐、改善术后体质气血亏虚、缓解靶向药乏力，发挥‘减毒增效’的极佳辅助支持作用；\n• ② 坚守三大红线原则：中药【绝不能替代】外科手术、靶向药物、免疫与正规放化疗；严禁听信‘纯中药彻底消瘤包治百病’的虚假宣传；\n• ③ 严防药物性肝损伤 (DILI)：盲目自行熬煮成分不明的草药偏方（如土三七、何首乌、雷公藤等）易导致严重急性肝衰竭。服用奥希替尼等靶向药期间，若需服用中药，服药时间应至少【间隔 2 小时以上】，且每月必查肝功能 (ALT/AST)。",
+    tactics: [
+      "如需中医药调理，务必前往国家正规三甲中医院肿瘤专科挂号，向中医师出示完整的西医病历与靶向处方",
+      "服用靶向药或化疗期间，每 3~4 周常规复查肝肾功能，一旦转氨酶升高立即排查中药成分",
+      "理性看待灵芝孢子粉、冬虫夏草、海参等营养品：按普通滋补食品对待，切勿耗费巨资或替代正规抗癌药",
+    ],
+    reassurance: "科学规范的中西医结合能够让您在抗癌路上走得更稳、更舒适！只要守住‘不替代主力、不伤肝肾、辨证施治’的原则，中医药将是您极佳的康复助力！",
+    keyMetric: {
+      label: "中西医协同规范减毒增效",
+      value: "化疗恶心呕吐缓解率显著提升 30%+",
+      source: "Journal of Integrative Medicine & CSCO Supportive Care Guidelines 2024",
+    },
+    faq: [
+      {
+        question: "靶向药和中药汤剂能放在同一顿饭后一起喝吗？",
+        answer: "千万不要一起喝！中药汤剂中含有复杂的鞣质和生物碱，与靶向药同时进入胃肠道可能影响靶向药的吸收与血药浓度，或增加肝脏代谢酶负担。两者服药时间建议至少间隔 2 小时以上。"
+      },
+      {
+        question: "听说吃破壁灵芝孢子粉能杀死癌细胞、防止复发，是真的吗？",
+        answer: "这是商业宣传的夸大！灵芝孢子粉属于国家监管的保健食品或普通食品，含有多糖类营养成分，可能对免疫力有微弱辅助调节作用，但根本不具备杀灭癌细胞或预防复发的临床药物疗效，切勿本末倒置。"
+      }
+    ],
+    searchKeywords: ["中医药", "中医抗癌", "中草药肝损伤", "灵芝孢子粉", "保健品辟谣", "zhongyi", "DILI", "冬虫夏草", "中西医结合", "护肝"],
+  },
+  {
+    id: "medical-insurance-pap-guide",
+    category: "recovery",
+    subcategory: "医保特药与慈善赠药",
+    title: "肺腺癌特药医保报销、双通道药房与 PAP 慈善赠药速通指南：大幅降低抗癌自负支出",
+    subtitle: "Guide to National Health Insurance Reimbursement, Dual-channel Pharmacies & PAP Assistance",
+    icon: "file-text",
+    riskLevel: "safe",
+    priorityOrder: 10,
+    metaphor: "国家医保谈判与慈善赠药就像为抗癌家庭撑起的双重坚固保护伞——只要办妥门慢门特并在双通道药房备案，原价数万元的靶向药月自负即可降至一千多元甚至数百元！",
+    clinicalTruth: "三代 EGFR 靶向药（奥希替尼等）、ALK 靶向药（阿来替尼等）均已进入国家医保目录，降幅超 80%。结合门诊慢特病直接联网结算、城市惠民保二次报销与中华慈善总会 PAP 赠药，可实现全病程经济减负。\n• ① 门特报销：办妥门慢门特后，靶向药在门诊即可按 65%~85% 统筹报销；\n• ② 双通道药房：医院缺药时凭电子处方在定点药房直接刷医保结算；\n• ③ 慈善援助 (PAP)：中华慈善总会与中国初保基金会提供‘买几赠几’或低保全额援助，极大降低年化支出；\n• 点击查阅完整各药物准入条件与自负估算器：[/resources/reimbursement](/resources/reimbursement)。",
+    tactics: [
+      "在主诊医院医保办开具《门慢门特申请表》，带齐出院小结、病理报告与基因检测报告加盖病案公章完成备案",
+      "院内缺药时凭主诊医生电子处方前往‘双通道’定点药房直接刷医保码统筹结算自负部分",
+      "自费购药达指定周期后，登录中华慈善总会/中国初保基金会公众号提交材料申请后续免费赠药",
+      "点击前往专属指南与在线自负计算器：[/resources/reimbursement](/resources/reimbursement)",
+    ],
+    reassurance: "现在的国家医保与社会慈善援助政策已经非常完善，三代靶向药已经真正飞入寻常百姓家！只要按部就班办妥门特和 PAP，经济负担完全在可承受范围之内！",
+    keyMetric: {
+      label: "国谈医保与门特统筹减负比例",
+      value: "综合年化自负降幅达 85% ~ 95%",
+      source: "国家医疗保障局 (NHSA) 国谈药品支付政策与慈善总会 PAP 报告",
+    },
+    faq: [
+      {
+        question: "门诊慢特病（门特）是在医院办还是在医保局办？",
+        answer: "绝大多数三甲医院支持‘一站式办理’！在主诊医生处填写申请表，到医院病案室打印病理和基因报告盖章，直接交到医院医保办公室，1~3 个工作日即可在医保系统联网生效，无需专门跑医保局窗口。"
+      },
+      {
+        question: "医院药房经常开不出奥希替尼等靶向药，怎么办？",
+        answer: "立刻走‘双通道’机制！让主诊医生在医院系统开具外配电子处方，医保平台会自动流转到处方绑定的‘双通道定点药房’。患者直接前往定点药房刷医保码取药，享受与在医院内完全相同的报销比例。"
+      }
+    ],
+    searchKeywords: ["医保", "特药", "门特", "门慢", "双通道", "慈善赠药", "PAP", "报销", "yibao", "baoxiao", "惠民保", "泰瑞沙报销", "安圣莎赠药"],
+  },
 ];
+
 

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React from "react";
 import { StasAirwayVisual } from "./visuals/StasAirwayVisual";
@@ -28,6 +28,13 @@ import { MrdCtdnaVisual } from "./visuals/MrdCtdnaVisual";
 import { Her2AdcVisual } from "./visuals/Her2AdcVisual";
 import { EgfrResistanceVisual } from "./visuals/EgfrResistanceVisual";
 import { AblationSbrtVisual } from "./visuals/AblationSbrtVisual";
+import { TargetedSideEffectsVisual } from "./visuals/TargetedSideEffectsVisual";
+import { IldWarningVisual } from "./visuals/IldWarningVisual";
+import { IraeImmuneVisual } from "./visuals/IraeImmuneVisual";
+import { BoneMarrowGcsfVisual } from "./visuals/BoneMarrowGcsfVisual";
+import { BiopsySafetyVisual } from "./visuals/BiopsySafetyVisual";
+import { EbusTbnaVisual } from "./visuals/EbusTbnaVisual";
+import { TcmBoundaryVisual } from "./visuals/TcmBoundaryVisual";
 
 interface WikiVisualRendererProps {
   visualComponent?: string;
@@ -91,6 +98,20 @@ export function WikiVisualRenderer({ visualComponent }: WikiVisualRendererProps)
       return <EgfrResistanceVisual />;
     case "AblationSbrtVisual":
       return <AblationSbrtVisual />;
+    case "TargetedSideEffectsVisual":
+      return <TargetedSideEffectsVisual />;
+    case "IldWarningVisual":
+      return <IldWarningVisual />;
+    case "IraeImmuneVisual":
+      return <IraeImmuneVisual />;
+    case "BoneMarrowGcsfVisual":
+      return <BoneMarrowGcsfVisual />;
+    case "BiopsySafetyVisual":
+      return <BiopsySafetyVisual />;
+    case "EbusTbnaVisual":
+      return <EbusTbnaVisual />;
+    case "TcmBoundaryVisual":
+      return <TcmBoundaryVisual />;
     default:
       return null;
   }
