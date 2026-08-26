@@ -256,40 +256,45 @@ export default function PatientDashboard() {
           </p>
         </div>
         <div className="flex items-center gap-2 self-start sm:self-center flex-wrap">
+          {/* 1. Timeline */}
           <Link
             href="/timeline"
-            className="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs shadow-md shadow-blue-500/20 transition-all flex items-center gap-1.5 group cursor-pointer"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-indigo-800 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 transition-all cursor-pointer shadow-2xs group whitespace-nowrap"
+            title="查看患者检查报告全景时间生命线"
           >
-            <Calendar className="w-3.5 h-3.5 text-blue-100" />
-            <span>检查时间生命线</span>
-            <ArrowRight className="w-3.5 h-3.5 text-blue-200 transition-transform group-hover:translate-x-0.5" />
+            <Calendar className="w-3.5 h-3.5 text-indigo-600 transition-transform group-hover:scale-110 flex-shrink-0" />
+            <span>时间生命线</span>
+            <ArrowRight className="w-3 h-3 text-indigo-400 transition-transform group-hover:translate-x-0.5 flex-shrink-0" />
           </Link>
 
+          {/* 2. Export Profile Poster Image */}
           <button
             onClick={() => setShowExportModal(true)}
-            className="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs shadow-md shadow-emerald-600/20 transition-all flex items-center gap-1.5 group cursor-pointer"
-            title="一键导出包含基础信息、病理指标与5年生存率的高清数字档案全景卡"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-teal-800 bg-teal-50 hover:bg-teal-100 border border-teal-200 transition-all cursor-pointer shadow-2xs group whitespace-nowrap"
+            title="一键导出包含基础信息、病理指标与5年生存率的高清数字档案全景卡 (PNG)"
           >
-            <Share2 className="w-3.5 h-3.5 text-emerald-100 transition-transform group-hover:scale-110" />
-            <span>导出档案图片</span>
+            <Share2 className="w-3.5 h-3.5 text-teal-600 transition-transform group-hover:scale-110 flex-shrink-0" />
+            <span>导出图片</span>
           </button>
 
-          <button 
-            onClick={() => setShowDeleteModal(true)}
-            className="px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs border border-rose-200 transition-all cursor-pointer flex items-center gap-1.5 group"
-            title="一键彻底销毁并注销本地与云端档案"
-          >
-            <Trash2 className="w-3.5 h-3.5 text-rose-600 transition-transform group-hover:scale-110" />
-            <span className="hidden sm:inline">彻底注销/清空档案</span>
-            <span className="sm:hidden">注销档案</span>
-          </button>
-          
+          {/* 3. Edit Profile */}
           <button 
             onClick={() => setShowUpdateModal(true)}
-            className="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl bg-white hover:bg-blue-50 text-slate-700 hover:text-blue-700 font-bold text-xs border border-slate-300 hover:border-blue-300 shadow-xs transition-all cursor-pointer flex items-center gap-1.5 group"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-blue-800 bg-blue-50 hover:bg-blue-100 border border-blue-200 transition-all cursor-pointer shadow-2xs group whitespace-nowrap"
+            title="修改或更新患者病理、分期与临床指标"
           >
-            <Edit3 className="w-3.5 h-3.5 text-slate-500 group-hover:text-blue-600 transition-transform group-hover:scale-110" />
-            <span>修改/更新档案</span>
+            <Edit3 className="w-3.5 h-3.5 text-blue-600 transition-transform group-hover:scale-110 flex-shrink-0" />
+            <span>修改档案</span>
+          </button>
+
+          {/* 4. Clear/Delete Profile */}
+          <button 
+            onClick={() => setShowDeleteModal(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-rose-800 bg-rose-50 hover:bg-rose-100 border border-rose-200 transition-all cursor-pointer shadow-2xs group whitespace-nowrap"
+            title="彻底销毁并重置本地与云端档案"
+          >
+            <Trash2 className="w-3.5 h-3.5 text-rose-600 transition-transform group-hover:scale-110 flex-shrink-0" />
+            <span>清空档案</span>
           </button>
 
         </div>
