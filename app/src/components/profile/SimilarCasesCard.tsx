@@ -60,16 +60,27 @@ export default function SimilarCasesCard({ profile }: SimilarCasesCardProps) {
       <div className="absolute -right-12 -top-12 w-64 h-64 bg-gradient-to-br from-blue-500/5 via-teal-500/5 to-transparent rounded-full blur-3xl group-hover:scale-110 transition-transform duration-700 pointer-events-none" />
       
       {/* Card Header */}
-      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 mb-6 relative z-10 pb-4 border-b border-slate-100">
-        <div className="flex items-center gap-2.5 min-w-0">
-          <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 font-bold flex items-center justify-center shrink-0">
+      <div className="flex flex-col sm:flex-row justify-between sm:items-start gap-3.5 mb-6 relative z-10 pb-4 border-b border-slate-100">
+        <div className="flex items-start gap-2.5 min-w-0 flex-1">
+          <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 font-bold flex items-center justify-center shrink-0 mt-0.5">
             <Users className="w-4 h-4 shrink-0" />
           </div>
-          <div className="min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
+          <div className="min-w-0 flex-1 space-y-1.5">
+            <div>
               <h3 className="text-xs sm:text-sm font-extrabold text-slate-900 leading-snug">
                 相似病例群体预后分析
               </h3>
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5 truncate">
+                SIMILAR CLINICAL COHORTS · REAL-WORLD EVIDENCE
+              </p>
+            </div>
+
+            {/* Prominent Badges Flow */}
+            <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap pt-0.5">
+              <span className="text-[10px] sm:text-[11px] font-extrabold text-indigo-700 bg-indigo-50 px-2.5 py-0.5 rounded-full border border-indigo-200 shrink-0 whitespace-nowrap inline-flex items-center gap-1 shadow-2xs">
+                <Users className="w-3 h-3 text-indigo-600 shrink-0" />
+                <span>已匹配 <strong>{cohort.cohortSize.toLocaleString()}</strong> 例相似前瞻特征</span>
+              </span>
               <span className="text-[10px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200 shrink-0 whitespace-nowrap">
                 国际顶刊前瞻队列
               </span>
@@ -84,20 +95,18 @@ export default function SimilarCasesCard({ profile }: SimilarCasesCardProps) {
                 </span>
               ))}
             </div>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5 truncate">
-              SIMILAR CLINICAL COHORTS · REAL-WORLD EVIDENCE ({cohort.cohortSize.toLocaleString()} 例前瞻特征匹配)
-            </p>
           </div>
         </div>
 
-        <div className="sm:text-right flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-1.5 shrink-0">
-          <div className="text-[11px] text-slate-400 font-medium">循证置信度 (Confidence)</div>
-          <div className="flex items-center gap-1.5">
-            <span className="text-amber-500 text-xs font-bold flex items-center gap-1">
+        {/* Right: Confidence Box (Responsive & Wrap-safe on mobile) */}
+        <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-1.5 shrink-0 bg-slate-50/80 sm:bg-transparent px-3 py-2 sm:p-0 rounded-2xl sm:rounded-none border border-slate-100 sm:border-none">
+          <div className="text-[10px] sm:text-[11px] text-slate-400 font-medium whitespace-nowrap">循证置信度 (Confidence)</div>
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="text-amber-500 text-xs font-bold flex items-center gap-1 shrink-0">
               <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
               <span>{cohort.confidenceRating}</span>
             </span>
-            <span className="text-xs font-bold text-teal-800 bg-teal-50 px-2.5 py-0.5 rounded-full border border-teal-200 shrink-0">
+            <span className="text-[11px] font-bold text-teal-800 bg-teal-50 px-2.5 py-0.5 rounded-full border border-teal-200 shrink-0 whitespace-nowrap">
               {cohort.confidenceLevel}
             </span>
           </div>

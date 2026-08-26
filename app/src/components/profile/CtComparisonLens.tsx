@@ -81,27 +81,27 @@ export default function CtComparisonLens({ records, profile }: CtComparisonLensP
     <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-2xs space-y-4">
       {/* Selector Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+        <div className="flex items-center gap-2 min-w-0">
+          <div className="w-7 h-7 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold shrink-0">
             <Layers className="w-4 h-4 text-blue-600" />
           </div>
-          <div>
-            <h4 className="text-xs font-bold text-slate-800">
-              双期 CT 征象前后对比透视器 (Split Comparative Lens)
+          <div className="min-w-0">
+            <h4 className="text-xs font-bold text-slate-800 truncate">
+              双期 CT 征象前后对比透视器
             </h4>
-            <span className="text-[10px] text-slate-400 font-mono">
+            <span className="text-[10px] text-slate-400 font-mono block">
               对比间隔：{diffDays} 天 (约 {diffMonths} 个月)
             </span>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 text-xs">
+        <div className="flex items-center gap-1.5 text-xs flex-wrap self-start sm:self-auto">
           <div className="flex items-center gap-1">
-            <span className="text-[11px] text-slate-500 font-medium">基线期:</span>
+            <span className="text-[11px] text-slate-500 font-medium shrink-0">基线期:</span>
             <select
               value={baseIndex}
               onChange={(e) => setBaseIndex(Number(e.target.value))}
-              className="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-xs font-semibold text-slate-800 cursor-pointer"
+              className="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-xs font-semibold text-slate-800 cursor-pointer max-w-[140px] truncate"
             >
               {allRecords.map((r, i) => (
                 <option key={i} value={i} disabled={i >= targetIndex}>
@@ -111,14 +111,14 @@ export default function CtComparisonLens({ records, profile }: CtComparisonLensP
             </select>
           </div>
 
-          <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
+          <ArrowRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
 
           <div className="flex items-center gap-1">
-            <span className="text-[11px] text-slate-500 font-medium">随访期:</span>
+            <span className="text-[11px] text-slate-500 font-medium shrink-0">随访期:</span>
             <select
               value={targetIndex}
               onChange={(e) => setTargetIndex(Number(e.target.value))}
-              className="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-xs font-semibold text-slate-800 cursor-pointer"
+              className="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-xs font-semibold text-slate-800 cursor-pointer max-w-[140px] truncate"
             >
               {allRecords.map((r, i) => (
                 <option key={i} value={i} disabled={i <= baseIndex}>
