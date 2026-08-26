@@ -324,16 +324,18 @@ export function WikiTopicCard({ topic, isMatchedProfile, isHighlighted }: WikiTo
 
           {/* Key Evidence Metric if available */}
           {topic.keyMetric && (
-            <div className="bg-blue-50/60 px-4 py-2.5 rounded-2xl border border-blue-100 flex items-center justify-between gap-2 mb-4 text-xs">
-              <div>
+            <div className="bg-blue-50/60 px-4 py-3 rounded-2xl border border-blue-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-4 text-xs">
+              <div className="shrink-0">
                 <div className="text-[10px] text-blue-700 font-semibold">{topic.keyMetric.label}</div>
-                <div className="font-mono font-black text-blue-950 text-sm">{topic.keyMetric.value}</div>
+                <div className="font-mono font-black text-blue-950 text-base sm:text-lg">{topic.keyMetric.value}</div>
               </div>
-              <div className="text-[10px] text-slate-400 text-right truncate max-w-[220px]">
-                出处: {topic.keyMetric.source}
+              <div className="text-[11px] text-slate-600 sm:text-right leading-relaxed font-medium bg-white/90 sm:bg-transparent p-2.5 sm:p-0 rounded-xl border border-blue-100/60 sm:border-none">
+                <span className="text-slate-400 font-normal">循证出处：</span>
+                <span className="text-slate-800 font-bold">{topic.keyMetric.source}</span>
               </div>
             </div>
           )}
+
 
           {/* Section 4: Patient High-Frequency FAQ (手风琴 + 提问小抄按钮) */}
           {topic.faq && topic.faq.length > 0 && (
