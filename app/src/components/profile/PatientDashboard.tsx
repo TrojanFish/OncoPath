@@ -28,7 +28,6 @@ import dynamic from "next/dynamic";
 import JourneyMap from "./JourneyMap";
 import SimilarCasesCard from "./SimilarCasesCard";
 import { NoduleTimelineChart } from "./NoduleTimelineChart";
-import { TumorMarkersCard } from "./TumorMarkersCard";
 import { GlossaryTooltip } from "@/components/common/GlossaryTooltip";
 import ProfileExportModal from "./ProfileExportModal";
 
@@ -690,13 +689,6 @@ export default function PatientDashboard() {
         <NoduleTimelineChart 
           history={profile.followUpHistory} 
           profile={profile} 
-        />
-      </div>
-
-      {/* P2-2: Blood Tumor Markers Monitoring & Reassurance (Read-Only) */}
-      <div className="mb-6">
-        <TumorMarkersCard 
-          markers={profile.tumorMarkers} 
         />
       </div>
 
