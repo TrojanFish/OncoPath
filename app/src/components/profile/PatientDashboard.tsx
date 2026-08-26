@@ -148,16 +148,30 @@ export default function PatientDashboard() {
       setIsDeleting(true);
       const guestId = getGuestId();
       const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-      // 1. Delete on server
+      // 1. Delete on server (wipes both patientProfile and timelineEvent tables)
       await fetch(`/api/profile?userId=${guestId}`, { 
         method: 'DELETE',
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       }).catch(() => {});
       
-      // 2. Clear LocalStorage
-      localStorage.removeItem("oncopath_profile");
-      localStorage.removeItem("oncopath_report_markdown");
-      localStorage.removeItem("oncopath_report_timestamp");
+      // 2. Clear All LocalStorage Keys (Profile, Timeline, Report, Questions)
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("oncopath_profile");
+        localStorage.removeItem("patient_profile");
+        localStorage.removeItem("oncopath_report_markdown");
+        localStorage.removeItem("oncopath_report_timestamp");
+        localStorage.removeItem(`oncopath_report_${guestId}`);
+        localStorage.removeItem(`oncopath_report_time_${guestId}`);
+        if (profile?.id) {
+          localStorage.removeItem(`oncopath_report_${profile.id}`);
+          localStorage.removeItem(`oncopath_report_time_${profile.id}`);
+        }
+        localStorage.removeItem("oncopath_timeline_events");
+        localStorage.removeItem("oncopath_timeline_is_demo");
+        localStorage.removeItem("oncopath_timeline_custom_events");
+        localStorage.removeItem("oncopath_clinic_questions");
+        window.dispatchEvent(new Event("storage"));
+      }
       
       // 3. Reset React State
       setProfile(null);
@@ -169,6 +183,7 @@ export default function PatientDashboard() {
       setIsDeleting(false);
     }
   };
+
 
   if (loading) {
     return (
