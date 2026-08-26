@@ -26,7 +26,9 @@ import {
   BadgeAlert,
   Layers,
   ArrowUpRight,
-  Info
+  Info,
+  Smartphone,
+  Lightbulb
 } from "lucide-react";
 import SubpageNavbar from "@/components/SubpageNavbar";
 import Footer from "@/components/Footer";
@@ -847,9 +849,12 @@ export default function ReimbursementPage() {
                     </p>
 
                     {/* 浙一医院拿表与盖章实操示例 */}
-                    <div className="p-3 rounded-xl bg-blue-50/80 border border-blue-200/70 text-[11px] text-blue-900 flex items-start gap-2 shadow-2xs">
-                      <span className="font-bold shrink-0 text-blue-700">🏥 浙一医院实操示范：</span>
-                      <span>在浙大一院各院区一楼<strong>便民服务中心 / 医保咨询窗口</strong>拿取门特申请表 ➔ 请主治医生填写临床诊断与签名 ➔ 回到拿表处（便民服务中心）<strong>加盖公章</strong> ➔ 手机拍照留存（用于浙里办线上上传）。</span>
+                    <div className="p-3 rounded-xl bg-blue-50/90 border border-blue-200/80 text-[11px] text-blue-950 flex items-start gap-2 shadow-2xs">
+                      <Building2 className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
+                      <div className="leading-relaxed">
+                        <span className="font-bold text-blue-800">浙一医院实操示范：</span>
+                        <span>在浙大一院各院区一楼<strong>便民服务中心 / 医保咨询窗口</strong>拿取门特申请表 ➔ 请主治医生填写临床诊断与签名 ➔ 回到拿表处（便民服务中心）<strong>加盖公章</strong> ➔ 手机拍照留存（用于浙里办线上上传）。</span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -874,25 +879,27 @@ export default function ReimbursementPage() {
                     {/* 标杆省份实操示例：浙江“浙里办”与浙一医院门特落地流程 */}
                     <div className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-br from-indigo-50/90 via-sky-50/60 to-blue-50/50 border border-indigo-200/80 space-y-2.5">
                       <div className="flex items-center gap-2 text-indigo-950 font-bold">
-                        <span className="w-2 h-2 rounded-full bg-indigo-600 animate-pulse"></span>
+                        <Sparkles className="w-4 h-4 text-indigo-600 shrink-0" />
                         <span className="text-xs sm:text-sm font-extrabold text-indigo-900">
-                          🌟 标杆实操示范 · 浙江“浙里办”APP 线上极速申报与浙大一院（浙一）就医直报
+                          标杆实操示范 · 浙江“浙里办”APP 线上极速申报与浙大一院（浙一）就医直报
                         </span>
                       </div>
                       
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 text-[11px] sm:text-xs text-slate-700">
-                        <div className="bg-white/90 p-3 rounded-xl border border-indigo-100 space-y-1 shadow-2xs">
-                          <div className="font-bold text-indigo-950 flex items-center gap-1">
-                            <span>📱 第一步：浙里办 APP 线上便捷申办</span>
+                        <div className="bg-white/90 p-3 rounded-xl border border-indigo-100 space-y-1.5 shadow-2xs">
+                          <div className="font-bold text-indigo-950 flex items-center gap-1.5">
+                            <Smartphone className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
+                            <span>第一步：浙里办 APP 线上便捷申办</span>
                           </div>
                           <p className="text-slate-600 leading-relaxed">
                             打开<strong>「浙里办」APP</strong> ➔ 搜索<strong>「浙里医保」</strong> ➔ 点击<strong>「门诊慢特病待遇备案」</strong> ➔ 申请病种精准选择<strong>「肺肿瘤」</strong> ➔ 按提示拍照上传盖好公章的申请表、出院小结与病理报告 ➔ 提交后通常 1 个工作日内即可完成认定生效。
                           </p>
                         </div>
 
-                        <div className="bg-white/90 p-3 rounded-xl border border-indigo-100 space-y-1 shadow-2xs">
-                          <div className="font-bold text-indigo-950 flex items-center gap-1">
-                            <span>🏥 第二步：浙一医院挂号直接享受门特</span>
+                        <div className="bg-white/90 p-3 rounded-xl border border-indigo-100 space-y-1.5 shadow-2xs">
+                          <div className="font-bold text-indigo-950 flex items-center gap-1.5">
+                            <Building2 className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
+                            <span>第二步：浙一医院挂号直接享受门特</span>
                           </div>
                           <p className="text-slate-600 leading-relaxed">
                             门特备案生效后，在<strong>浙大一院（浙一医院）官方微信公众号 / 支付宝小程序</strong>预约挂号，到院后在<strong>门诊自助机取号时，取号类型直接选择「特殊门诊」</strong>。医生开具靶向药（如奥希替尼等）或复查项目时，系统<strong>自动按门特标准统筹抵扣（报销约 80%~90%）</strong>，仅需支付自负差额！
@@ -900,8 +907,8 @@ export default function ReimbursementPage() {
                         </div>
                       </div>
                       
-                      <div className="text-[11px] text-indigo-800/90 font-medium flex items-center gap-1.5 pt-0.5">
-                        <span>💡</span>
+                      <div className="text-[11px] text-indigo-900 font-medium flex items-center gap-1.5 pt-0.5">
+                        <Lightbulb className="w-3.5 h-3.5 text-amber-500 shrink-0" />
                         <span>其他省市（如江苏“江苏医保云”、上海“随申办”、广东“粤医保”等）流程基本一致，均支持掌上免跑腿线上直认。</span>
                       </div>
                     </div>
@@ -1178,17 +1185,29 @@ export default function ReimbursementPage() {
                 </p>
               </div>
 
-              <div className="p-4 rounded-2xl bg-indigo-50/70 border border-indigo-200 space-y-1.5 hover:border-indigo-300 transition-all">
+              <div className="p-4 rounded-2xl bg-indigo-50/70 border border-indigo-200 space-y-2 hover:border-indigo-300 transition-all">
                 <div className="font-bold text-indigo-950 text-sm flex items-center gap-1.5">
                   <Sparkles className="w-4 h-4 text-indigo-600 shrink-0" />
                   <span>Q5：以浙江省（浙里办）和浙大一院（浙一）为例，门特从申请到就医扣款的完整闭环是怎样的？</span>
                 </div>
-                <p className="text-slate-700 leading-relaxed">
-                  ① <strong>开表与盖章</strong>：在浙大一院一楼便民服务中心领取门特纸质表 ➔ 请主治医生填写诊断并签字 ➔ 回到便民服务中心（拿表处）加盖公章并手机拍照；<br />
-                  ② <strong>浙里办线上认定</strong>：打开「浙里办」APP 搜索「浙里医保」➔ 进入「门诊慢特病待遇备案」➔ 申请病种精准选择<strong>「肺肿瘤」</strong> ➔ 上传盖章申请表、出院小结及病理报告，通常 1 个工作日内自动秒审生效；<br />
-                  ③ <strong>预约与自助机取号</strong>：在浙大一院官方微信公众号或<strong>支付宝小程序</strong>预约挂号，就诊当日在<strong>门诊自助机取号时，取号类型直接选择「特殊门诊」</strong>；<br />
-                  ④ <strong>自动统筹扣款</strong>：接诊医生开具靶向药（如奥希替尼等）或检查检验时，结算系统自动按门特标准统筹抵扣（报销约 80%~90%），患者仅需支付个人极少量自负差额！
-                </p>
+                <div className="space-y-1.5 text-slate-700 text-xs leading-relaxed">
+                  <div className="flex items-start gap-1.5">
+                    <span className="font-bold text-indigo-700 shrink-0">1. 开表与盖章：</span>
+                    <span>在浙大一院一楼便民服务中心领取门特纸质表 ➔ 请主治医生填写诊断并签字 ➔ 回到便民服务中心（拿表处）加盖公章并手机拍照；</span>
+                  </div>
+                  <div className="flex items-start gap-1.5">
+                    <span className="font-bold text-indigo-700 shrink-0">2. 浙里办线上认定：</span>
+                    <span>打开「浙里办」APP 搜索「浙里医保」➔ 进入「门诊慢特病待遇备案」➔ 申请病种精准选择<strong>「肺肿瘤」</strong> ➔ 上传盖章申请表、出院小结及病理报告，通常 1 个工作日内自动秒审生效；</span>
+                  </div>
+                  <div className="flex items-start gap-1.5">
+                    <span className="font-bold text-indigo-700 shrink-0">3. 预约与自助机取号：</span>
+                    <span>在浙大一院官方微信公众号或<strong>支付宝小程序</strong>预约挂号，就诊当日在<strong>门诊自助机取号时，取号类型直接选择「特殊门诊」</strong>；</span>
+                  </div>
+                  <div className="flex items-start gap-1.5">
+                    <span className="font-bold text-indigo-700 shrink-0">4. 自动统筹扣款：</span>
+                    <span>接诊医生开具靶向药（如奥希替尼等）或检查检验时，结算系统自动按门特标准统筹抵扣（报销约 80%~90%），患者仅需支付个人极少量自负差额！</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
