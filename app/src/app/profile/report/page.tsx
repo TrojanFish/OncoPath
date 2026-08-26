@@ -5,6 +5,17 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import Link from "next/link";
 import { toPng } from "html-to-image";
+import { 
+  Download, 
+  Printer, 
+  FileText, 
+  Image as ImageIcon, 
+  Share2, 
+  ClipboardList, 
+  Sparkles, 
+  Check, 
+  AlertTriangle 
+} from "lucide-react";
 import type { PatientProfile } from "@/lib/types";
 import { getGuestId } from "@/lib/guest";
 import { GlossaryTooltip } from "@/components/common/GlossaryTooltip";
@@ -19,13 +30,16 @@ export default function EvidenceReportPage() {
   const [cachedTime, setCachedTime] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
-  const [isExportingImage, setIsExportingImage] = useState(false);
+  const [isExportingFullReport, setIsExportingFullReport] = useState(false);
+  const [isExportingCard, setIsExportingCard] = useState(false);
+  const [exportMode, setExportMode] = useState<'full_report' | 'consultation_card'>('full_report');
   const [exportedImageUrl, setExportedImageUrl] = useState<string | null>(null);
   
   const hasLoadedRef = useRef(false);
   const contentEndRef = useRef<HTMLDivElement>(null);
   const reportContainerRef = useRef<HTMLDivElement>(null);
   const consultationCardRef = useRef<HTMLDivElement>(null);
+
 
   // Helper: Extract structured questions from Section 3 for the Consultation Card
   const extractChecklistItems = (markdown: string) => {
@@ -261,10 +275,61 @@ export default function EvidenceReportPage() {
     window.print();
   };
 
-  const handleExportImage = async () => {
-    if (!consultationCardRef.current || isExportingImage) return;
+  const handleExportFullReportImage = async () => {
+    if (!reportContainerRef.current || isExportingFullReport) return;
     try {
-      setIsExportingImage(true);
+      setIsExportingFullReport(true);
+      setExportMode('full_report');
+
+      const element = reportContainerRef.current;
+      await new Promise((r) => setTimeout(r, 200));
+
+      let imgData = "";
+      try {
+        imgData = await toPng(element, {
+          quality: 0.98,
+          pixelRatio: 2,
+          backgroundColor: "#f8fafc",
+          cacheBust: true,
+          filter: (node) => {
+            if (node instanceof HTMLElement) {
+              if (node.classList.contains("no-export")) return false;
+            }
+            return true;
+          },
+        });
+      } catch (primaryErr) {
+        console.warn("Primary html-to-image failed, falling back to html2canvas:", primaryErr);
+        const html2canvas = (await import("html2canvas")).default;
+        const canvas = await html2canvas(element, {
+          scale: 2,
+          useCORS: true,
+          allowTaint: true,
+          backgroundColor: "#f8fafc",
+          logging: false,
+          ignoreElements: (node) => node.classList?.contains("no-export"),
+        });
+        imgData = canvas.toDataURL("image/png");
+      }
+
+      if (imgData) {
+        setExportedImageUrl(imgData);
+      } else {
+        throw new Error("未能生成全篇报告长图数据");
+      }
+    } catch (err: any) {
+      console.error("Failed to generate full report long image:", err);
+      alert("生成报告长图遇到浏览器限制，请长按文本复制或直接点击'导出 / 打印PDF'。");
+    } finally {
+      setIsExportingFullReport(false);
+    }
+  };
+
+  const handleExportCardImage = async () => {
+    if (!consultationCardRef.current || isExportingCard) return;
+    try {
+      setIsExportingCard(true);
+      setExportMode('consultation_card');
 
       // Fast, lightweight, pixel-perfect render of the Consultation Pocket Card (560px)
       let imgData = "";
@@ -291,13 +356,13 @@ export default function EvidenceReportPage() {
       if (imgData) {
         setExportedImageUrl(imgData);
       } else {
-        throw new Error("未能生成图片数据");
+        throw new Error("未能生成问诊便签卡图片数据");
       }
     } catch (err: any) {
-      console.error("Failed to generate report image:", err);
-      alert("生成问诊卡遇到浏览器限制，请长按文本复制或直接点击'导出PDF'。");
+      console.error("Failed to generate consultation card image:", err);
+      alert("生成问诊便签卡遇到浏览器限制，请长按文本复制或直接点击'导出 / 打印PDF'。");
     } finally {
-      setIsExportingImage(false);
+      setIsExportingCard(false);
     }
   };
 
@@ -305,11 +370,15 @@ export default function EvidenceReportPage() {
     if (!exportedImageUrl) return;
     const link = document.createElement("a");
     link.href = exportedImageUrl;
-    link.download = `OncoPath_门诊就医问诊便签卡_${new Date().toISOString().slice(0, 10)}.png`;
+    const dateStr = new Date().toISOString().slice(0, 10);
+    link.download = exportMode === 'full_report'
+      ? `OncoPath_患者专属深度循证解读报告_${dateStr}.png`
+      : `OncoPath_门诊就医问诊便签卡_${dateStr}.png`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
+
 
   async function copyTextSafe(text: string): Promise<boolean> {
     if (typeof window === "undefined") return false;
@@ -441,52 +510,56 @@ export default function EvidenceReportPage() {
             </Link>
 
             {!isGenerating && (
-              <>
-                <button
-                  onClick={handleExportImage}
-                  disabled={isExportingImage}
-                  className="flex items-center gap-1 px-2 py-1 sm:px-3 sm:py-1.5 rounded-xl text-[11px] sm:text-xs font-bold text-teal-800 bg-teal-50/90 hover:bg-teal-100 border border-teal-200 transition-all cursor-pointer shadow-2xs group whitespace-nowrap disabled:opacity-50"
-                  title="生成门诊就医问诊便签卡"
+              <div className="flex items-center gap-1 sm:gap-2">
+                {/* 1. Export / Print PDF Button */}
+                <button 
+                  onClick={handlePrint}
+                  className="flex items-center gap-1 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-xl text-[11px] sm:text-xs font-bold bg-white hover:bg-slate-50 text-slate-700 hover:text-blue-700 border border-slate-200 hover:border-blue-300 transition-all shadow-2xs cursor-pointer group whitespace-nowrap"
+                  title="导出 / 打印 PDF 文档 (适合 A4 打印与纸质病历)"
                 >
-                  {isExportingImage ? (
+                  <Printer className="w-3.5 h-3.5 text-slate-500 group-hover:text-blue-600 transition-transform group-hover:-translate-y-0.5 flex-shrink-0" />
+                  <span className="sm:hidden">PDF</span>
+                  <span className="hidden sm:inline">导出 PDF</span>
+                </button>
+
+                {/* 2. Export Full Report Long Image Button */}
+                <button
+                  onClick={handleExportFullReportImage}
+                  disabled={isExportingFullReport}
+                  className="flex items-center gap-1 px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-xl text-[11px] sm:text-xs font-bold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 transition-all cursor-pointer shadow-md shadow-blue-500/20 group whitespace-nowrap disabled:opacity-50"
+                  title="导出全篇深度循证报告超清长图 (PNG 格式，适合微信分享与手机留存)"
+                >
+                  {isExportingFullReport ? (
                     <>
-                      <svg className="animate-spin h-3 w-3 sm:h-3.5 sm:w-3.5 text-teal-600 flex-shrink-0" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                      </svg>
+                      <span className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
                       <span className="sm:hidden">生成中</span>
-                      <span className="hidden sm:inline">生成中...</span>
+                      <span className="hidden sm:inline">渲染长图中...</span>
                     </>
                   ) : (
                     <>
-                      <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-teal-600 transition-transform group-hover:scale-110 flex-shrink-0" viewBox="0 0 24 24" fill="none">
-                        <rect x="3" y="3" width="18" height="18" rx="3" fill="currentColor" fillOpacity="0.2" stroke="currentColor" strokeWidth="1.75" />
-                        <circle cx="8.5" cy="8.5" r="1.5" fill="currentColor" />
-                        <path d="M21 15l-5-5L5 21" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                      <span className="sm:hidden">问诊卡</span>
-                      <span className="hidden sm:inline">导出问诊卡</span>
+                      <ImageIcon className="w-3.5 h-3.5 text-blue-100 transition-transform group-hover:scale-110 flex-shrink-0" />
+                      <span className="sm:hidden">长图</span>
+                      <span className="hidden sm:inline">导出报告长图</span>
                     </>
                   )}
                 </button>
 
-                <button 
-                  onClick={handlePrint}
-                  className="flex items-center gap-1 px-2 py-1 sm:px-3 sm:py-1.5 rounded-xl text-[11px] sm:text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white transition-all shadow-xs cursor-pointer group whitespace-nowrap"
+                {/* 3. Export Consultation Card Button */}
+                <button
+                  onClick={handleExportCardImage}
+                  disabled={isExportingCard}
+                  className="hidden xl:flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold text-teal-800 bg-teal-50 hover:bg-teal-100 border border-teal-200 transition-all cursor-pointer shadow-2xs group whitespace-nowrap disabled:opacity-50"
+                  title="生成门诊 3 分钟就医问诊便签卡 (轻便版)"
                 >
-                  <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5 transition-transform group-hover:-translate-y-0.5 flex-shrink-0" viewBox="0 0 24 24" fill="none">
-                    <path d="M6 9V4a1 1 0 011-1h10a1 1 0 011 1v5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
-                    <rect x="3" y="9" width="18" height="9" rx="2" fill="currentColor" fillOpacity="0.25" stroke="currentColor" strokeWidth="1.75" />
-                    <path d="M7 14h10M7 18h10v3H7v-3z" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                  <span className="sm:hidden">PDF</span>
-                  <span className="hidden sm:inline">导出 / 打印PDF</span>
+                  <ClipboardList className="w-3.5 h-3.5 text-teal-600 transition-transform group-hover:scale-110 flex-shrink-0" />
+                  <span>问诊便签卡</span>
                 </button>
-              </>
+              </div>
             )}
           </div>
         </nav>
       </div>
+
 
       <div id="report-printable-area" ref={reportContainerRef} className="max-w-5xl mx-auto px-2.5 sm:px-6 lg:px-8 pt-16 sm:pt-20 md:pt-22 print:pt-0 print:px-0">
         
@@ -849,7 +922,126 @@ export default function EvidenceReportPage() {
           </div>
         </div>
 
+        {/* Export Choice Hub Card (自由选择：PDF打印 / 全篇报告长图 / 门诊问诊卡) */}
+        {!isGenerating && reportMarkdown && (
+          <div className="mt-6 bg-gradient-to-br from-blue-50/80 via-white to-indigo-50/50 rounded-3xl p-5 sm:p-7 border border-blue-200/80 shadow-sm print:hidden no-export">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-3 border-b border-blue-100/80">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold shadow-md shadow-blue-500/20">
+                  <Share2 className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm sm:text-base font-extrabold text-slate-900">
+                    报告导出与随访归档中心
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    提供多种导出格式，支持 A4 打印与高清手机长图自由选择
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+              {/* Option 1: PDF Export / Print */}
+              <div className="bg-white rounded-2xl p-4 border border-slate-200 hover:border-blue-300 shadow-xs hover:shadow-sm transition-all flex flex-col justify-between space-y-3 group">
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                      <FileText className="w-4 h-4 text-blue-600" />
+                      <span>导出 / 打印 PDF</span>
+                    </span>
+                    <span className="text-[10px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200">
+                      标准 A4
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-500 leading-relaxed">
+                    适合纸质病历归档、门诊提交主治医生审阅或家庭纸质档案留存。
+                  </p>
+                </div>
+                <button
+                  onClick={handlePrint}
+                  className="w-full py-2 px-3 rounded-xl bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-blue-700 font-bold text-xs border border-slate-200 hover:border-blue-200 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <Printer className="w-3.5 h-3.5" />
+                  <span>导出 / 打印 PDF</span>
+                </button>
+              </div>
+
+              {/* Option 2: Full Report Long Image */}
+              <div className="bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl p-4 text-white shadow-md shadow-blue-500/20 flex flex-col justify-between space-y-3 group">
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                      <ImageIcon className="w-4 h-4 text-blue-200" />
+                      <span>导出全篇报告长图</span>
+                    </span>
+                    <span className="text-[10px] font-bold text-emerald-300 bg-emerald-500/20 px-2 py-0.5 rounded-full border border-emerald-400/30">
+                      超清 2x PNG
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-blue-100/90 leading-relaxed">
+                    包含临床画像、分期矩阵、全篇循证长文及问诊清单，适合微信分享与手机相册查看。
+                  </p>
+                </div>
+                <button
+                  onClick={handleExportFullReportImage}
+                  disabled={isExportingFullReport}
+                  className="w-full py-2 px-3 rounded-xl bg-white hover:bg-blue-50 text-blue-700 font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                >
+                  {isExportingFullReport ? (
+                    <>
+                      <span className="w-3 h-3 border-2 border-blue-700 border-t-transparent rounded-full animate-spin" />
+                      <span>正在渲染长图...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Download className="w-3.5 h-3.5" />
+                      <span>导出全篇报告长图</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+              {/* Option 3: Pocket Consultation Card */}
+              <div className="bg-white rounded-2xl p-4 border border-slate-200 hover:border-teal-300 shadow-xs hover:shadow-sm transition-all flex flex-col justify-between space-y-3 group">
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                      <ClipboardList className="w-4 h-4 text-teal-600" />
+                      <span>就医问诊便签卡</span>
+                    </span>
+                    <span className="text-[10px] font-bold text-teal-700 bg-teal-50 px-2 py-0.5 rounded-full border border-teal-200">
+                      轻量便携
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-500 leading-relaxed">
+                    专为门诊 3 分钟设计，浓缩提炼向主治医生请教的核心疑问清单。
+                  </p>
+                </div>
+                <button
+                  onClick={handleExportCardImage}
+                  disabled={isExportingCard}
+                  className="w-full py-2 px-3 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-800 font-bold text-xs border border-teal-200 transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                >
+                  {isExportingCard ? (
+                    <>
+                      <span className="w-3 h-3 border-2 border-teal-800 border-t-transparent rounded-full animate-spin" />
+                      <span>正在生成...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Download className="w-3.5 h-3.5" />
+                      <span>导出问诊便签卡</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
       </div>
+
 
       {/* Dedicated Consultation Pocket Card Container (Fixed 560px for Instant Pixel-Perfect 2x Export) */}
       <div
@@ -1016,18 +1208,20 @@ export default function EvidenceReportPage() {
 
       {/* Image Export Preview Modal */}
       {exportedImageUrl && (
-        <div className="fixed inset-0 z-[1000] bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6">
+        <div className="fixed inset-0 z-[1000] bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 animate-fade-in">
           <div className="bg-white rounded-3xl max-w-lg w-full max-h-[92vh] flex flex-col shadow-2xl border border-slate-200 overflow-hidden">
             {/* Modal Header */}
             <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
               <div className="flex items-center gap-2">
                 <span className="text-lg">🖼️</span>
-                <h3 className="font-extrabold text-slate-900 text-sm sm:text-base">
-                  专属门诊问诊便签卡已生成
-                </h3>
-                <span className="text-[10px] font-bold text-teal-700 bg-teal-50 px-2 py-0.5 rounded-full border border-teal-200">
-                  高清 2x Retina
-                </span>
+                <div>
+                  <h3 className="font-extrabold text-slate-900 text-sm sm:text-base">
+                    {exportMode === 'full_report' ? '全篇深度循证报告长图已生成' : '专属门诊问诊便签卡已生成'}
+                  </h3>
+                  <p className="text-[11px] text-slate-500">
+                    {exportMode === 'full_report' ? '高清 2x Retina · 包含临床画像与全篇解读' : '高清 2x Retina · 专为门诊 3 分钟高效就医设计'}
+                  </p>
+                </div>
               </div>
               <button
                 onClick={() => setExportedImageUrl(null)}
@@ -1046,12 +1240,12 @@ export default function EvidenceReportPage() {
             </div>
 
             {/* Scrollable Image Preview Area */}
-            <div className="flex-1 overflow-y-auto p-4 bg-slate-100/70 flex justify-center items-start min-h-[200px]">
+            <div className="flex-1 overflow-y-auto p-4 bg-slate-100/70 flex justify-center items-start min-h-[220px]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={exportedImageUrl}
-                alt="OncoPath 门诊就医问诊便签卡"
-                className="w-full max-w-md rounded-2xl shadow-lg border border-slate-700/80 object-contain"
+                alt={exportMode === 'full_report' ? 'OncoPath 全篇深度循证报告长图' : 'OncoPath 门诊就医问诊便签卡'}
+                className="w-full max-w-md rounded-2xl shadow-lg border border-slate-300 object-contain"
               />
             </div>
 
@@ -1065,17 +1259,16 @@ export default function EvidenceReportPage() {
               </button>
               <button
                 onClick={handleDownloadImage}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-teal-600 hover:bg-teal-700 text-white shadow-md shadow-teal-600/20 transition-all cursor-pointer active:scale-95"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md shadow-blue-600/20 transition-all cursor-pointer active:scale-95"
               >
-                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none">
-                  <path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 11l5 5 5-5M12 4v12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-                <span>保存 / 下载问诊卡</span>
+                <Download className="w-4 h-4" />
+                <span>{exportMode === 'full_report' ? '下载全篇报告长图 (PNG)' : '保存 / 下载问诊便签卡 (PNG)'}</span>
               </button>
             </div>
           </div>
         </div>
       )}
+
     </div>
   );
 }
