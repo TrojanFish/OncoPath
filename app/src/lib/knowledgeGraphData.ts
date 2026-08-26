@@ -47,10 +47,33 @@ export const typeLabels: Record<string, string> = {
 };
 
 /** Direction 1: map PatientProfile fields to node activation levels */
-export function getNodeActivation(nodeId: string, profile: PatientProfile | null): "active" | "dim" | "normal" {
+export function getNodeActivation(nodeId: string, profile: PatientProfile | null): "primary" | "active" | "warning" | "dim" | "normal" {
   if (!profile) return "normal";
 
+  const isStageIA = profile.stage === "IA1" || profile.stage === "IA2" || profile.stage === "IA3" || (profile.stage?.startsWith("IA") ?? false) || profile.stage === "Tis" || profile.stage === "0";
+
   switch (nodeId) {
+    case "SURVEILLANCE": {
+      // For all Stage IA & CTR <= 0.5, regular surveillance is the primary guideline baseline (85%-100% cure)
+      if (isStageIA || (profile.ctr != null && profile.ctr <= 0.5)) return "primary";
+      if (profile.stage === "IIIA" || profile.stage === "IIIB" || profile.nStage === "N2") return "dim";
+      return "normal";
+    }
+    case "RECURRENCE": {
+      const riskCount = [
+        profile.stas === "positive",
+        profile.lvi === "positive",
+        profile.ctr > 0.5,
+        profile.iaslcGrade === "3",
+        profile.vpi === "positive",
+      ].filter(Boolean).length;
+
+      // In Stage IA, STAS/CTR is a secondary caution alert (~10-15%), not a dominant primary failure event
+      if (isStageIA && riskCount > 0) return "warning";
+      if (riskCount >= 2 && !isStageIA) return "active";
+      if (riskCount === 0) return "dim";
+      return "normal";
+    }
     case "STAS":
       if (profile.stas === "positive") return "active";
       if (profile.stas === "negative") return "dim";
@@ -75,25 +98,6 @@ export function getNodeActivation(nodeId: string, profile: PatientProfile | null
       if (profile.egfr === "positive") return "active";
       if (profile.egfr === "negative") return "dim";
       return "normal";
-    case "RECURRENCE": {
-      const riskCount = [
-        profile.stas === "positive",
-        profile.lvi === "positive",
-        profile.ctr > 0.5,
-        profile.iaslcGrade === "3",
-        profile.vpi === "positive",
-      ].filter(Boolean).length;
-      if (riskCount >= 2) return "active";
-      if (riskCount === 0) return "dim";
-      return "normal";
-    }
-    case "SURVEILLANCE": {
-      const isStageIA = profile.stage === "IA1" || profile.stage === "IA2" || profile.stage === "IA3" || (profile.stage?.startsWith("IA") ?? false) || profile.stage === "Tis" || profile.stage === "0";
-      const isLowRisk = profile.ctr <= 0.5 || isStageIA;
-      if (isLowRisk && profile.stas !== "positive" && profile.lvi !== "positive") return "active";
-      if (profile.stage === "IIIA" || profile.stage === "IIIB" || profile.nStage === "N2") return "dim";
-      return "normal";
-    }
     case "METASTASIS":
       if (profile.lvi === "positive") return "active";
       if (profile.lvi === "negative") return "dim";
@@ -106,10 +110,10 @@ export function getNodeActivation(nodeId: string, profile: PatientProfile | null
       if (profile.egfr === "positive" || profile.iaslcGrade === "3" || profile.vpi === "positive") return "active";
       return "normal";
     case "STAGING":
-      if (profile.vpi === "positive" || profile.ctr > 0.5) return "active";
+      if (profile.vpi === "positive" || profile.ctr > 0.5 || isStageIA) return "active";
       return "normal";
     case "SURGERY":
-      if (profile.stas === "positive" || profile.ctr > 0.25) return "active";
+      if (profile.stas === "positive" || profile.ctr > 0.25 || isStageIA) return "active";
       return "normal";
     default:
       return "normal";

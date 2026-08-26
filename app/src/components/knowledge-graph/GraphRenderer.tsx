@@ -73,6 +73,9 @@ export function GraphRenderer({
         <marker id="arrow-protect" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
           <path d="M0,0 L0,6 L6,3 z" fill="#16a34a" />
         </marker>
+        <marker id="arrow-warning" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+          <path d="M0,0 L0,6 L6,3 z" fill="#f59e0b" />
+        </marker>
         
         {/* Soft Drop Shadows */}
         <filter id="node-shadow" x="-30%" y="-30%" width="160%" height="160%">
@@ -134,10 +137,13 @@ export function GraphRenderer({
           const relType = (node.connectionTypes || {})[targetId] || "default";
           const isAiEdge = node.id === "ctDNA" || targetId === "ctDNA";
 
-          // Personal mode edge logic
+          // Personal mode edge logic with multi-tiered hierarchy
           const srcActivation = personalMode && profile ? getNodeActivation(node.id, profile) : "normal";
           const tgtActivation = personalMode && profile ? getNodeActivation(targetId, profile) : "normal";
-          const isPersonalHighlight = personalMode && srcActivation === "active" && tgtActivation === "active";
+          
+          const isPersonalPrimary = personalMode && (srcActivation === "primary" || tgtActivation === "primary");
+          const isPersonalWarning = personalMode && (tgtActivation === "warning" || (srcActivation === "warning" && tgtActivation === "active"));
+          const isPersonalHighlight = personalMode && (srcActivation === "active" || srcActivation === "primary") && (tgtActivation === "active" || tgtActivation === "primary");
           const isPersonalDim = personalMode && (srcActivation === "dim" || tgtActivation === "dim");
 
           // Time slider attenuation logic
@@ -188,11 +194,25 @@ export function GraphRenderer({
           let strokeWidth: string;
           let markerId: string;
           let strokeOpacity = "1";
+          let strokeDash = "none";
 
           if (isEdgeSelected || isEdgeHovered) {
             strokeColor = "#2563eb";
             strokeWidth = "0.9";
             markerId = "arrow-active";
+          } else if (isPersonalPrimary && (targetId === "SURVEILLANCE" || node.id === "SURVEILLANCE" || targetId === "SURGERY")) {
+            // Mainline dominant cure/surveillance pathway (85%-90%+)
+            strokeColor = "#16a34a";
+            strokeWidth = String(0.85 * timeWidthAdjust);
+            markerId = "arrow-protect";
+            strokeOpacity = String(1 * timeOpacityAdjust);
+          } else if (isPersonalWarning && targetId === "RECURRENCE") {
+            // Secondary watchful alert pathway (~10-15%)
+            strokeColor = "#f59e0b";
+            strokeWidth = String(0.55 * timeWidthAdjust);
+            markerId = "arrow-warning";
+            strokeOpacity = String(0.85 * timeOpacityAdjust);
+            strokeDash = "3,1.5";
           } else if (isPersonalHighlight) {
             strokeColor = relType === "risk" ? "#dc2626" : "#0d9488";
             strokeWidth = String(0.7 * timeWidthAdjust);
@@ -349,6 +369,8 @@ export function GraphRenderer({
         }
 
         const nodeOpacity = (activation === "dim" ? 0.35 : 1) * timeOpacityAdjust;
+        const isPrimary = personalMode && activation === "primary";
+        const isWarning = personalMode && activation === "warning";
         const isPersonalActive = personalMode && activation === "active";
 
         // Sandbox visual state
@@ -390,6 +412,16 @@ export function GraphRenderer({
               <circle r="7.5" fill="none" stroke="#0d9488" strokeWidth="0.4" strokeDasharray="2,1" className="animate-spin" />
             )}
 
+            {/* Primary Dominant Mainline Pulse Glow (85%-90%+ Base) */}
+            {isPrimary && (
+              <circle r="8.2" fill="rgba(34,197,94,0.18)" stroke="#16a34a" strokeWidth="0.5" className="animate-pulse" />
+            )}
+
+            {/* Secondary Caution Warning Aura (~10%-15% Risk Branch) */}
+            {isWarning && (
+              <circle r="6.6" fill="rgba(245,158,11,0.12)" stroke="#f59e0b" strokeWidth="0.4" strokeDasharray="2,1" className="opacity-80" />
+            )}
+
             {/* Sandbox Active Glow */}
             {isSandboxOn && (
               <circle r="6.8" fill="rgba(245,158,11,0.15)" stroke="#f59e0b" strokeWidth="0.5" className="animate-pulse" />
@@ -402,10 +434,10 @@ export function GraphRenderer({
 
             {/* Node Background Base Capsule with Shadow */}
             <circle
-              r={isActive || isHovered ? "4.2" : "3.8"}
-              fill={isSandboxOn ? "#fffbeb" : isAiNode ? "#f0fdfa" : colors.bg}
-              stroke={isActive || isHovered ? "#2563eb" : isPersonalActive ? colors.dot : isSandboxOn ? "#d97706" : colors.border}
-              strokeWidth={isActive || isHovered ? "0.8" : isPersonalActive || isSandboxOn ? "0.6" : "0.4"}
+              r={isActive || isHovered ? "4.2" : isPrimary ? "4.1" : "3.8"}
+              fill={isSandboxOn ? "#fffbeb" : isAiNode ? "#f0fdfa" : isPrimary ? "#f0fdf4" : isWarning ? "#fffbeb" : colors.bg}
+              stroke={isActive || isHovered ? "#2563eb" : isPrimary ? "#16a34a" : isWarning ? "#f59e0b" : isPersonalActive ? colors.dot : isSandboxOn ? "#d97706" : colors.border}
+              strokeWidth={isActive || isHovered ? "0.8" : isPrimary ? "0.8" : isWarning ? "0.55" : isPersonalActive || isSandboxOn ? "0.6" : "0.4"}
               filter={isActive || isHovered ? "url(#glow-active)" : "url(#node-shadow)"}
               style={{ transition: "all 0.2s" }}
             />
@@ -413,9 +445,25 @@ export function GraphRenderer({
             {/* Inner Indicator Core */}
             <circle 
               r="1.6" 
-              fill={isSandboxOn ? "#d97706" : isAiNode ? "#0d9488" : colors.dot} 
-              opacity={isActive || isHovered || isPersonalActive ? 1 : 0.85} 
+              fill={isSandboxOn ? "#d97706" : isAiNode ? "#0d9488" : isPrimary ? "#16a34a" : isWarning ? "#f59e0b" : colors.dot} 
+              opacity={isActive || isHovered || isPersonalActive || isPrimary || isWarning ? 1 : 0.85} 
             />
+
+            {/* Primary Mainline Top Floating Badge */}
+            {isPrimary && (
+              <g transform="translate(0, -6.4)">
+                <rect x="-8.5" y="-1.8" width="17" height="3.6" rx="1.8" fill="#dcfce7" stroke="#16a34a" strokeWidth="0.3" filter="url(#badge-shadow)" />
+                <text textAnchor="middle" dominantBaseline="central" fontSize="1.3" fill="#15803d" fontWeight="bold">主导归宿 85%~90%+</text>
+              </g>
+            )}
+
+            {/* Secondary Warning Top Floating Badge */}
+            {isWarning && (
+              <g transform="translate(0, -6.4)">
+                <rect x="-8" y="-1.8" width="16" height="3.6" rx="1.8" fill="#fef3c7" stroke="#f59e0b" strokeWidth="0.3" filter="url(#badge-shadow)" />
+                <text textAnchor="middle" dominantBaseline="central" fontSize="1.3" fill="#b45309" fontWeight="bold">警示支线 ~10-15%</text>
+              </g>
+            )}
 
             {/* AI Node NEW Tag */}
             {isAiNode && (
@@ -430,7 +478,7 @@ export function GraphRenderer({
               textAnchor="middle"
               y="6.4"
               fontSize="2.3"
-              fill={isActive || isHovered ? "#2563eb" : isPersonalActive ? colors.text : "#1e293b"}
+              fill={isActive || isHovered ? "#2563eb" : isPrimary ? "#15803d" : isWarning ? "#b45309" : isPersonalActive ? colors.text : "#1e293b"}
               fontWeight="bold"
               style={{ letterSpacing: "-0.01em" }}
             >
@@ -442,7 +490,7 @@ export function GraphRenderer({
               textAnchor="middle"
               y="8.8"
               fontSize="1.7"
-              fill={isActive || isHovered ? "#1d4ed8" : isPersonalActive ? colors.dot : "#64748b"}
+              fill={isActive || isHovered ? "#1d4ed8" : isPrimary ? "#16a34a" : isWarning ? "#d97706" : isPersonalActive ? colors.dot : "#64748b"}
               fontWeight="600"
             >
               {titleEn}
