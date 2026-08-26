@@ -459,10 +459,20 @@ function Step3({ form, updateForm }: StepProps) {
             <button
               key={m}
               id={`morphology-${m}`}
-              onClick={() => updateForm("morphology", m)}
+              onClick={() => {
+                updateForm("morphology", m);
+                if (m === "pure_ggo") {
+                  updateForm("solidSize", 0);
+                  updateForm("ctr", 0);
+                } else if (m === "pure_solid") {
+                  const size = form.tumorSize || 20;
+                  updateForm("solidSize", size);
+                  updateForm("ctr", 1.0);
+                }
+              }}
               className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${
                 form.morphology === m
-                  ? "bg-blue-50 border border-blue-500 text-blue-600"
+                  ? "bg-blue-50 border border-blue-500 text-blue-600 font-bold shadow-xs"
                   : "bg-white border border-gray-200 text-gray-500 hover:bg-gray-50"
               }`}
             >
@@ -473,7 +483,7 @@ function Step3({ form, updateForm }: StepProps) {
       </FormField>
 
       <div className="grid grid-cols-2 gap-4">
-        <FormField label="CT 磨玻璃最大径（mm）">
+        <FormField label={form.morphology === "pure_solid" ? "CT 实性病灶最大径（mm）" : "CT 磨玻璃/病灶最大径（mm）"}>
           <input
             id="input-tumor-size"
             type="number"
@@ -485,32 +495,63 @@ function Step3({ form, updateForm }: StepProps) {
               const str = e.target.value;
               const v = str === "" ? 0 : parseFloat(str);
               updateForm("tumorSize", isNaN(v) ? 0 : v);
-              if (form.solidSize && v > 0) {
+              if (form.morphology === "pure_solid") {
+                updateForm("solidSize", isNaN(v) ? 0 : v);
+                updateForm("ctr", 1.0);
+              } else if (form.morphology === "pure_ggo") {
+                updateForm("solidSize", 0);
+                updateForm("ctr", 0);
+              } else if (form.solidSize && v > 0) {
                 updateForm("ctr", Math.round((form.solidSize / v) * 100) / 100);
               }
             }}
-            placeholder="例如：20"
+            placeholder={form.morphology === "pure_solid" ? "例如：20" : "例如：20"}
             className="input-artifact w-full px-4 py-3 rounded-lg"
           />
         </FormField>
-        <FormField label="CT 实性成分最大径（mm）">
+        <FormField label={
+          <div className="flex items-center justify-between">
+            <span>CT 实性成分最大径（mm）</span>
+            {form.morphology === "pure_ggo" && <span className="text-xs text-emerald-600 font-bold">锁定为 0</span>}
+            {form.morphology === "pure_solid" && <span className="text-xs text-blue-600 font-bold">锁定同总径</span>}
+          </div>
+        }>
           <input
             id="input-solid-size"
             type="number"
             step="1"
             min="0"
             max="150"
-            value={form.solidSize !== undefined && form.solidSize !== null ? form.solidSize : ""}
+            disabled={form.morphology === "pure_ggo" || form.morphology === "pure_solid"}
+            value={
+              form.morphology === "pure_ggo"
+                ? 0
+                : form.morphology === "pure_solid"
+                ? (form.tumorSize !== undefined && form.tumorSize !== null ? form.tumorSize : "")
+                : (form.solidSize !== undefined && form.solidSize !== null ? form.solidSize : "")
+            }
             onChange={(e) => {
-              const str = e.target.value;
-              const v = str === "" ? 0 : parseFloat(str);
-              updateForm("solidSize", isNaN(v) ? 0 : v);
-              if (form.tumorSize && form.tumorSize > 0) {
-                updateForm("ctr", Math.round((v / form.tumorSize) * 100) / 100);
+              if (form.morphology !== "pure_ggo" && form.morphology !== "pure_solid") {
+                const str = e.target.value;
+                const v = str === "" ? 0 : parseFloat(str);
+                updateForm("solidSize", isNaN(v) ? 0 : v);
+                if (form.tumorSize && form.tumorSize > 0) {
+                  updateForm("ctr", Math.round((v / form.tumorSize) * 100) / 100);
+                }
               }
             }}
-            placeholder="例如：8"
-            className="input-artifact w-full px-4 py-3 rounded-lg"
+            placeholder={
+              form.morphology === "pure_ggo"
+                ? "纯磨玻璃无实性成分 (0)"
+                : form.morphology === "pure_solid"
+                ? "同总径"
+                : "例如：8"
+            }
+            className={`input-artifact w-full px-4 py-3 rounded-lg ${
+              form.morphology === "pure_ggo" || form.morphology === "pure_solid"
+                ? "bg-slate-100 text-slate-400 cursor-not-allowed border-slate-200"
+                : ""
+            }`}
           />
         </FormField>
       </div>
@@ -580,11 +621,11 @@ interface StepProps {
   updateForm: (key: keyof PatientProfile, value: PatientProfile[keyof PatientProfile]) => void;
 }
 
-function FormField({ label, children, tooltip }: { label: string; children: React.ReactNode; tooltip?: string }) {
+function FormField({ label, children, tooltip }: { label: React.ReactNode; children: React.ReactNode; tooltip?: string }) {
   return (
     <div>
       <div className="flex items-center gap-1 mb-2">
-        <label className="text-text-secondary text-sm font-medium">{label}</label>
+        <div className="text-text-secondary text-sm font-medium w-full">{label}</div>
         {tooltip && (
           <span
             className="text-text-muted text-xs cursor-help tooltip"

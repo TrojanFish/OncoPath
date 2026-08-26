@@ -444,9 +444,24 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
   };
 
   if (parsedData) {
-    const tumorVal = parsedData.tumorSize !== "" && parsedData.tumorSize != null ? parseFloat(String(parsedData.tumorSize)) : 1.5;
-    const solidVal = parsedData.solidSize !== "" && parsedData.solidSize != null ? parseFloat(String(parsedData.solidSize)) : 0.8;
-    const currentCtr = tumorVal > 0 ? Math.min(1, Math.round((solidVal / tumorVal) * 100) / 100) : 0;
+    const noduleType = parsedData.noduleType || "mixed_ggo";
+    const isPureGgo = noduleType === "pure_ggo";
+    const isPureSolid = noduleType === "pure_solid";
+
+    const rawTumor = parsedData.tumorSize !== "" && parsedData.tumorSize != null ? parseFloat(String(parsedData.tumorSize)) : 1.5;
+    const tumorVal = isNaN(rawTumor) ? 1.5 : rawTumor;
+
+    let solidVal = 0.8;
+    if (isPureGgo) {
+      solidVal = 0;
+    } else if (isPureSolid) {
+      solidVal = tumorVal;
+    } else if (parsedData.solidSize !== "" && parsedData.solidSize != null) {
+      const parsedSolid = parseFloat(String(parsedData.solidSize));
+      solidVal = isNaN(parsedSolid) ? 0.8 : parsedSolid;
+    }
+
+    const currentCtr = isPureGgo ? 0 : isPureSolid ? 1.0 : (tumorVal > 0 ? Math.min(1, Math.round((solidVal / tumorVal) * 100) / 100) : 0);
 
     const isSystemicM0 = 
       parsedData.brainMri === 'negative' || 
@@ -605,7 +620,7 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
                 <span>结节形态与 CT 实性成分 (CTR 核心分期依据)</span>
               </span>
               <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-teal-100 text-teal-800 border border-teal-200">
-                当前 CTR: {currentCtr}
+                当前 CTR: {isPureGgo ? "0.0 (纯磨玻璃)" : isPureSolid ? "1.0 (纯实性)" : currentCtr}
               </span>
             </div>
 
@@ -614,8 +629,32 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
                 <label className="block text-xs font-semibold text-slate-600 mb-1">结节形态/类型</label>
                 <select 
                   value={parsedData.noduleType || "mixed_ggo"} 
-                  onChange={e => setParsedData({...parsedData, noduleType: e.target.value})}
-                  className="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-blue-500"
+                  onChange={e => {
+                    const newType = e.target.value;
+                    if (newType === "pure_ggo") {
+                      setParsedData({
+                        ...parsedData,
+                        noduleType: "pure_ggo",
+                        solidSize: "0",
+                        ctr: 0
+                      });
+                    } else if (newType === "pure_solid") {
+                      const curTumor = parsedData.tumorSize !== undefined && parsedData.tumorSize !== "" ? parsedData.tumorSize : "1.5";
+                      setParsedData({
+                        ...parsedData,
+                        noduleType: "pure_solid",
+                        solidSize: curTumor,
+                        ctr: 1.0
+                      });
+                    } else {
+                      setParsedData({
+                        ...parsedData,
+                        noduleType: "mixed_ggo",
+                        solidSize: parsedData.solidSize === "0" ? "" : parsedData.solidSize
+                      });
+                    }
+                  }}
+                  className="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-blue-500 cursor-pointer"
                 >
                   <option value="mixed_ggo">混合磨玻璃结节 (mGGO 部分实性)</option>
                   <option value="pure_ggo">纯磨玻璃结节 (pGGO 实性=0, CTR=0)</option>
@@ -625,42 +664,115 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
 
               <div>
                 <label className="block text-xs font-semibold text-slate-600 mb-1">
-                  磨玻璃最大径 (cm)
+                  {isPureSolid ? "实性病灶最大径 (cm)" : "磨玻璃/病灶最大径 (cm)"}
                 </label>
                 <input 
                   type="text" 
                   inputMode="decimal"
                   value={parsedData.tumorSize !== undefined && parsedData.tumorSize !== null ? parsedData.tumorSize : ""} 
-                  onChange={e => setParsedData({...parsedData, tumorSize: e.target.value})}
+                  onChange={e => {
+                    const val = e.target.value;
+                    if (isPureSolid) {
+                      setParsedData({
+                        ...parsedData,
+                        tumorSize: val,
+                        solidSize: val,
+                        ctr: 1.0
+                      });
+                    } else if (isPureGgo) {
+                      setParsedData({
+                        ...parsedData,
+                        tumorSize: val,
+                        solidSize: "0",
+                        ctr: 0
+                      });
+                    } else {
+                      setParsedData({
+                        ...parsedData,
+                        tumorSize: val
+                      });
+                    }
+                  }}
                   className="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-blue-500 outline-none"
                   placeholder="如 1.5"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1">
-                  CT 实性成分最大径 (cm)
+                <label className="block text-xs font-semibold text-slate-600 mb-1 flex items-center justify-between">
+                  <span>CT 实性成分最大径 (cm)</span>
+                  {isPureGgo && (
+                    <span className="text-[10px] text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">
+                      锁定为 0
+                    </span>
+                  )}
+                  {isPureSolid && (
+                    <span className="text-[10px] text-blue-700 font-bold bg-blue-50 px-1.5 py-0.2 rounded border border-blue-200">
+                      锁定同总径
+                    </span>
+                  )}
                 </label>
                 <input 
                   type="text" 
                   inputMode="decimal"
-                  value={parsedData.solidSize !== undefined && parsedData.solidSize !== null ? parsedData.solidSize : ""} 
-                  onChange={e => setParsedData({...parsedData, solidSize: e.target.value})}
-                  className="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-blue-500 outline-none"
-                  placeholder="如 0.8"
+                  disabled={isPureGgo || isPureSolid}
+                  value={
+                    isPureGgo 
+                      ? "0" 
+                      : isPureSolid 
+                      ? (parsedData.tumorSize !== undefined && parsedData.tumorSize !== null ? parsedData.tumorSize : "") 
+                      : (parsedData.solidSize !== undefined && parsedData.solidSize !== null ? parsedData.solidSize : "")
+                  } 
+                  onChange={e => {
+                    if (!isPureGgo && !isPureSolid) {
+                      setParsedData({...parsedData, solidSize: e.target.value});
+                    }
+                  }}
+                  className={`w-full p-2.5 rounded-xl text-xs sm:text-sm font-semibold outline-none transition-colors ${
+                    isPureGgo || isPureSolid
+                      ? "bg-slate-100/90 border border-slate-200 text-slate-500 cursor-not-allowed select-none font-mono"
+                      : "bg-white border border-slate-300 text-slate-800 focus:ring-2 focus:ring-blue-500 font-mono"
+                  }`}
+                  placeholder={
+                    isPureGgo
+                      ? "纯磨玻璃无实性成分 (0 cm)"
+                      : isPureSolid
+                      ? "纯实性病灶 (同总径)"
+                      : "如 0.8"
+                  }
                 />
               </div>
             </div>
 
             <div className="text-[11px] text-slate-600 bg-white p-2.5 rounded-xl border border-slate-200 flex items-center justify-between flex-wrap gap-2">
               <span className="flex items-center gap-1.5">
-                <Lightbulb className="w-3.5 h-3.5 text-amber-500" />
-                <span>
-                  <strong>CTR 计算公式</strong>：<strong>CT 实性成分最大径 ({solidVal}cm) ÷ 磨玻璃最大径 ({tumorVal}cm) = {currentCtr}</strong>
-                </span>
+                <Lightbulb className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                {isPureGgo ? (
+                  <span>
+                    <strong>结节性质判定</strong>：纯磨玻璃结节 (pGGO)，实性浸润成分为 0，<strong>CTR = 0%</strong> (惰性极低危， Tis/T1mi 原位级别)
+                  </span>
+                ) : isPureSolid ? (
+                  <span>
+                    <strong>结节性质判定</strong>：纯实性结节 (Pure Solid)，100% 软组织实性浸润，<strong>CTR = 100% (1.0)</strong> (依据实性总径严格分期)
+                  </span>
+                ) : (
+                  <span>
+                    <strong>CTR 计算公式</strong>：<strong>CT 实性成分最大径 ({solidVal}cm) ÷ 磨玻璃最大径 ({tumorVal}cm) = {currentCtr}</strong>
+                  </span>
+                )}
               </span>
               <span className="text-teal-700 font-semibold flex items-center gap-1">
-                {currentCtr <= 0.5 ? (
+                {isPureGgo ? (
+                  <>
+                    <Check className="w-3 h-3 text-teal-600" />
+                    <span>纯磨玻璃结节 (贴壁生长，5年生存率近 100%)</span>
+                  </>
+                ) : isPureSolid ? (
+                  <>
+                    <AlertTriangle className="w-3 h-3 text-blue-600" />
+                    <span>纯实性浸润 (依据实性总径确定 T 分期与评估切缘)</span>
+                  </>
+                ) : currentCtr <= 0.5 ? (
                   <>
                     <Check className="w-3 h-3 text-teal-600" />
                     <span>CTR ≤ 0.5 (惰性浸润，5年无复发率高达99.7%)</span>
