@@ -12,7 +12,8 @@ import {
   Info, 
   ArrowRight,
   Menu,
-  X
+  X,
+  CreditCard
 } from "lucide-react";
 import UserAvatar from "@/components/UserAvatar";
 
@@ -32,6 +33,7 @@ export function LogoMark() {
 const NAV_LINKS = [
   { label: "首页", href: "/", icon: Home, tag: "全景概览" },
   { label: "循证百科", href: "/wiki", icon: BookOpen, tag: "40+词条破译" },
+  { label: "特药医保", href: "/reimbursement", icon: CreditCard, tag: "自负测算·赠药" },
   { label: "知识图谱", href: "/knowledge", icon: Network, tag: "4D因果推演" },
   { label: "国际研究库", href: "/studies", icon: FileText, tag: "顶刊效应量" },
   { label: "学术导航", href: "/resources", icon: Compass, tag: "指南共识原文" },
@@ -51,7 +53,8 @@ export default function SubpageNavbar() {
           </Link>
           
           {/* Desktop Navigation Links */}
-          <div className="hidden md:flex items-center gap-7">
+          <div className="hidden md:flex items-center gap-5 lg:gap-7">
+
             {NAV_LINKS.map((link) => (
               <Link
                 key={link.href}

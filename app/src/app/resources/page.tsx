@@ -256,12 +256,13 @@ export default function ResourcesPage() {
             </p>
           </div>
           <Link
-            href="/resources/reimbursement"
+            href="/reimbursement"
             className="px-4 py-2.5 rounded-xl bg-blue-500 hover:bg-blue-600 text-white font-bold text-xs sm:text-sm shrink-0 transition-all flex items-center justify-center gap-1.5 shadow-sm text-center cursor-pointer"
           >
             <span>进入特药报销指南</span>
             <ExternalLink className="w-3.5 h-3.5" />
           </Link>
+
         </div>
 
         {/* Big Disclaimer */}
