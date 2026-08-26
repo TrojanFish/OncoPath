@@ -232,8 +232,9 @@ export default function ProfileExportModal({ profile, onClose }: ProfileExportMo
           {/* Header Brand */}
           <div className="flex items-center justify-between border-b border-slate-800/80 pb-4 mb-5 relative z-10">
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold shadow-md shadow-blue-500/30">
-                <ShieldCheck className="w-5 h-5" />
+              <div className="w-9 h-9 rounded-xl overflow-hidden shadow-md shadow-blue-500/30 shrink-0">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/logo.png" alt="OncoPath Logo" className="w-full h-full object-cover" />
               </div>
               <div>
                 <div className="text-sm font-extrabold text-white tracking-tight flex items-center gap-1.5">

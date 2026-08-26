@@ -131,8 +131,9 @@ export default function WikiSharePosterModal({ topic, visualDomHtml, onClose }: 
           {/* Header */}
           <div className="flex items-center justify-between border-b border-slate-800 pb-4">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-500 to-teal-400 flex items-center justify-center text-white font-black text-sm shadow-md">
-                OP
+              <div className="w-8 h-8 rounded-xl overflow-hidden shadow-md flex-shrink-0">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/logo.png" alt="OncoPath Logo" className="w-full h-full object-cover" />
               </div>
               <div>
                 <div className="text-xs font-black tracking-wider text-white">OncoPath · 肺癌循证决策系统</div>

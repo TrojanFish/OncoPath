@@ -96,13 +96,17 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
         <div className="mt-4 sm:mt-6 space-y-5 sm:space-y-6 print:mt-0 font-sans">
           {/* Clinic Header */}
           <div className="border-b-2 border-slate-900 pb-3 sm:pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <div>
-              <h1 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
-                肺部疾病长程随访与临床时序摘要
-              </h1>
-              <p className="text-[11px] sm:text-xs text-slate-600 mt-0.5">
-                系统：OncoPath 循证医学导航平台 · 结构化病历归集
-              </p>
+            <div className="flex items-center gap-3">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/logo.png" alt="OncoPath Logo" className="w-10 h-10 rounded-xl object-cover shrink-0 shadow-xs" />
+              <div>
+                <h1 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
+                  肺部疾病长程随访与临床时序摘要
+                </h1>
+                <p className="text-[11px] sm:text-xs text-slate-600 mt-0.5">
+                  系统：OncoPath 循证医学导航平台 · 结构化病历归集
+                </p>
+              </div>
             </div>
             <div className="text-left sm:text-right text-[11px] sm:text-xs text-slate-500 flex sm:flex-col justify-between sm:justify-start gap-1">
               <span>生成日期：{new Date().toISOString().split("T")[0]}</span>
