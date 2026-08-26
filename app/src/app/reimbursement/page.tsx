@@ -401,7 +401,40 @@ export default function ReimbursementPage() {
 
   const stats = calcReimbursement();
 
-  const handleCopyChecklist = () => {
+  async function copyTextSafe(text: string): Promise<boolean> {
+    if (typeof window === "undefined") return false;
+    if (navigator?.clipboard?.writeText) {
+      try {
+        await navigator.clipboard.writeText(text);
+        return true;
+      } catch (e) {
+        console.warn("navigator.clipboard failed, falling back to execCommand", e);
+      }
+    }
+
+    // Fallback for non-HTTPS / iOS Safari / in-app WebViews
+    return new Promise((resolve) => {
+      try {
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-9999px";
+        textArea.style.top = "-9999px";
+        textArea.setAttribute("readonly", "");
+        document.body.appendChild(textArea);
+        textArea.select();
+        textArea.setSelectionRange(0, 99999);
+        const successful = document.execCommand("copy");
+        document.body.removeChild(textArea);
+        resolve(successful);
+      } catch (err) {
+        console.error("Fallback copy failed:", err);
+        resolve(false);
+      }
+    });
+  }
+
+  const handleCopyChecklist = async () => {
     const checklistText = `【肺癌门慢门特与特药报销申办官方材料清单 (医保办核验标准)】
 1. 身份凭证：身份证、社保卡原件及复印件（或激活医保电子凭证二维码）；
 2. 病历依据：近半年经治三甲医院住院病历、出院小结或门诊病历（须加盖医院病案室鲜章）；
@@ -409,9 +442,11 @@ export default function ReimbursementPage() {
 4. 分子基因分型：正规基因检测报告（注明 EGFR / ALK / ROS1 / MET / RET / KRAS 等突变或 PD-L1 表达单）；
 5. 申请审批表：主诊主任/副主任医师填写的《基本医疗保险门诊慢特病待遇认定申请表》（医院医保办盖章）；
 6. 选定定点：选定 1~2 家定点三甲医院及 1 家“双通道”定点零售药房备案回执。`;
-    navigator.clipboard.writeText(checklistText);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2500);
+    const ok = await copyTextSafe(checklistText);
+    if (ok) {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    }
   };
 
   return (
@@ -813,15 +848,57 @@ export default function ReimbursementPage() {
                   </div>
                 </div>
 
-                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-start gap-3.5 hover:border-slate-300 transition-all">
-                  <div className="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-black text-sm shrink-0 mt-0.5">
+                <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-start gap-3.5 hover:border-slate-300 transition-all">
+                  <div className="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-black text-sm shrink-0 mt-0.5 shadow-sm">
                     2
                   </div>
-                  <div className="space-y-1 text-xs">
-                    <h3 className="font-bold text-slate-900 text-sm">医院医保办一站式直报（或当地医保 APP 线上申报）</h3>
-                    <p className="text-slate-600 leading-relaxed">
-                      携带材料前往就诊医院的<strong>医保服务办公室</strong>直接提交审核，通常 1~3 个工作日即可审核通过；亦可在“国家医保服务平台”或当地省市医保小程序进行线上“门慢门特申请”拍照上传。
-                    </p>
+                  <div className="space-y-3 text-xs w-full">
+                    <div>
+                      <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2 flex-wrap">
+                        <span>医院医保办一站式直报（或当地医保 APP 线上申报）</span>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
+                          掌上秒办 / 窗口 1~3 工作日
+                        </span>
+                      </h3>
+                      <p className="text-slate-600 leading-relaxed mt-1">
+                        携带材料前往就诊医院的<strong>医保服务办公室</strong>直接提交审核；绝大多数省市已支持在政务与医保 APP 进行线上“门慢门特申请”拍照上传审核。
+                      </p>
+                    </div>
+
+                    {/* 标杆省份实操示例：浙江“浙里办”与浙一医院门特落地流程 */}
+                    <div className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-br from-indigo-50/90 via-sky-50/60 to-blue-50/50 border border-indigo-200/80 space-y-2.5">
+                      <div className="flex items-center gap-2 text-indigo-950 font-bold">
+                        <span className="w-2 h-2 rounded-full bg-indigo-600 animate-pulse"></span>
+                        <span className="text-xs sm:text-sm font-extrabold text-indigo-900">
+                          🌟 标杆实操示范 · 浙江“浙里办”APP 线上极速申报与浙大一院（浙一）就医直报
+                        </span>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 text-[11px] sm:text-xs text-slate-700">
+                        <div className="bg-white/90 p-3 rounded-xl border border-indigo-100 space-y-1 shadow-2xs">
+                          <div className="font-bold text-indigo-950 flex items-center gap-1">
+                            <span>📱 第一步：浙里办 APP 线上便捷申办</span>
+                          </div>
+                          <p className="text-slate-600 leading-relaxed">
+                            打开<strong>「浙里办」APP</strong> ➔ 搜索<strong>「浙里医保」</strong> ➔ 点击<strong>「门诊慢特病待遇备案」</strong> ➔ 申请病种选择<strong>「恶性肿瘤门诊治疗」</strong> ➔ 按提示拍照上传医院出院小结、病理报告与基因检测单 ➔ 提交后通常 1 个工作日内即可完成认定生效。
+                          </p>
+                        </div>
+
+                        <div className="bg-white/90 p-3 rounded-xl border border-indigo-100 space-y-1 shadow-2xs">
+                          <div className="font-bold text-indigo-950 flex items-center gap-1">
+                            <span>🏥 第二步：浙一医院挂号直接享受门特</span>
+                          </div>
+                          <p className="text-slate-600 leading-relaxed">
+                            门特备案生效后，在<strong>浙大一院（浙一医院）</strong>官方微信公众号/浙里办挂号或门诊自助机取号时，挂号类型直接选择<strong>「特殊门诊（门特）」</strong>。医生开具靶向药（如奥希替尼、伏美替尼等）或检验检查时，系统<strong>自动按门特待遇统筹抵扣（报销约 80%~90%）</strong>，仅需支付自负差额！
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="text-[11px] text-indigo-800/90 font-medium flex items-center gap-1.5 pt-0.5">
+                        <span>💡</span>
+                        <span>其他省市（如江苏“江苏医保云”、上海“随申办”、广东“粤医保”等）流程基本一致，均支持掌上免跑腿线上直认。</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -1091,7 +1168,19 @@ export default function ReimbursementPage() {
               <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-1.5 hover:border-slate-300 transition-all">
                 <div className="font-bold text-slate-900 text-sm">Q4：买了“城市惠民保”，怎么申请靶向药报销？</div>
                 <p className="text-slate-600 leading-relaxed">
-                  微信搜索参保城市的惠民保公众号（如“上海沪惠保”、“北京普惠健康保”），进入【理赔服务 ➔ 特药理赔申请】，拍照上传定点医院处方、病理与基因报告及购药发票，审核通过后 3~5 个工作日直接赔付到银行卡。
+                  微信搜索参保城市的惠民保公众号（如“上海沪惠保”、“北京普惠健康保”、“西湖益联保”），进入【理赔服务 ➔ 特药理赔申请】，拍照上传定点医院处方、病理与基因报告及购药发票，审核通过后 3~5 个工作日直接赔付到银行卡。
+                </p>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-indigo-50/70 border border-indigo-200 space-y-1.5 hover:border-indigo-300 transition-all">
+                <div className="font-bold text-indigo-950 text-sm flex items-center gap-1.5">
+                  <Sparkles className="w-4 h-4 text-indigo-600 shrink-0" />
+                  <span>Q5：以浙江省（浙里办）和浙大一院（浙一）为例，门特从申请到就医扣款的完整闭环是怎样的？</span>
+                </div>
+                <p className="text-slate-700 leading-relaxed">
+                  ① <strong>线上认定</strong>：在「浙里办」APP 搜索「浙里医保」进入「门诊慢特病待遇备案」，选择「恶性肿瘤门诊治疗」，上传病理报告和出院小结，1 个工作日内自动秒审生效；<br />
+                  ② <strong>就医挂号</strong>：在浙大一院微信公众号或医院自助机挂号取号时，务必选择<strong>「特殊门诊（门特）」</strong>类型；<br />
+                  ③ <strong>自动抵扣</strong>：医生开具靶向药、化疗或相关复查后，结算系统自动按门特标准统筹报销（职工约 80%~90%、居民约 65%~70%），患者出示医保码仅需支付极少量自负差额。
                 </p>
               </div>
             </div>
