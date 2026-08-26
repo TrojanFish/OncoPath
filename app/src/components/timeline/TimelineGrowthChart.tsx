@@ -41,7 +41,7 @@ export default function TimelineGrowthChart({ events }: TimelineGrowthChartProps
   const maxSize = Math.max(...imagingPoints.map((p) => p.sizeMm), 10);
 
   return (
-    <div className="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/90 shadow-sm space-y-4">
+    <div className="bg-white rounded-3xl p-3.5 sm:p-6 md:p-7 border border-slate-200/90 shadow-sm space-y-4">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
         <div className="flex items-center gap-2">

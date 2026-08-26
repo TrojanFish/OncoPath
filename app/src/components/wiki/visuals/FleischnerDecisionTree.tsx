@@ -71,7 +71,7 @@ export function FleischnerDecisionTree() {
   }
 
   return (
-    <div className="bg-white rounded-3xl p-5 sm:p-7 border border-slate-200/80 shadow-md shadow-slate-900/5">
+    <div className="bg-white rounded-3xl p-3.5 sm:p-6 md:p-7 border border-slate-200/80 shadow-md shadow-slate-900/5">
       {/* Title Header */}
       <div className="pb-5 border-b border-slate-100">
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 mb-2">

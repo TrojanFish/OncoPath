@@ -329,7 +329,7 @@ export default function ClinicalTimelineView() {
       )}
 
       {/* 1. Hero Overview Card (OncoPath Signature Clean Light Medical Style) */}
-      <div className="bg-gradient-to-br from-blue-50/80 via-white to-sky-50/40 rounded-3xl p-6 sm:p-8 border border-blue-200/80 shadow-sm text-slate-900 relative overflow-hidden">
+      <div className="bg-gradient-to-br from-blue-50/80 via-white to-sky-50/40 rounded-3xl p-3.5 sm:p-6 md:p-8 border border-blue-200/80 shadow-sm text-slate-900 relative overflow-hidden">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2 max-w-xl">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-100/70 border border-blue-200 text-blue-800 text-xs font-bold">

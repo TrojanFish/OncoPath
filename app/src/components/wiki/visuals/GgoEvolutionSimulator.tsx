@@ -49,7 +49,7 @@ export function GgoEvolutionSimulator() {
   const haloOpacity = Math.max(0.15, 0.55 - ctr * 0.35);
 
   return (
-    <div className="bg-white rounded-3xl p-5 sm:p-7 border border-slate-200/80 shadow-md shadow-slate-900/5">
+    <div className="bg-white rounded-3xl p-3.5 sm:p-6 md:p-7 border border-slate-200/80 shadow-md shadow-slate-900/5">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-5 border-b border-slate-100">
         <div>

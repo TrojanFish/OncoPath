@@ -62,7 +62,7 @@ export default function TimelineEventCard({ event, onEdit, onDelete }: TimelineE
       />
 
       {/* Main Card Container */}
-      <div className={`bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/90 shadow-sm hover:shadow-md hover:border-slate-300 transition-all space-y-3.5 border-l-4 ${
+      <div className={`bg-white rounded-3xl p-3.5 sm:p-6 border border-slate-200/90 shadow-sm hover:shadow-md hover:border-slate-300 transition-all space-y-3.5 border-l-4 ${
         event.category === "imaging"
           ? "border-l-sky-500"
           : event.category === "pathology"

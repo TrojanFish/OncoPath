@@ -525,7 +525,7 @@ export default function EvidenceReportPage() {
         )}
 
         {/* Pure printable & long-image exportable container (No trailing blank space) */}
-        <div id="report-printable-area" ref={reportContainerRef} className="space-y-4 sm:space-y-5 bg-slate-50/90 p-3 sm:p-6 md:p-7 rounded-3xl border border-slate-200/90 shadow-sm print:bg-white print:border-none print:shadow-none print:p-0">
+        <div id="report-printable-area" ref={reportContainerRef} className="space-y-4 sm:space-y-5 bg-slate-50/90 p-3.5 sm:p-6 md:p-7 rounded-3xl border border-slate-200/90 shadow-sm print:bg-white print:border-none print:shadow-none print:p-0">
           
           {/* Professional Clinical Report Brand Header (Visible in Exported Long Image & Print) */}
           <div className="flex items-center justify-between pb-3 border-b border-slate-200/90 text-xs text-slate-500">
@@ -873,7 +873,7 @@ export default function EvidenceReportPage() {
 
         {/* Export Choice Hub Card (自由选择：PDF打印 / 全篇报告长图 / 门诊问诊卡 - 独立于长图容器) */}
         {!isGenerating && reportMarkdown && (
-          <div className="mt-6 bg-gradient-to-br from-blue-50/80 via-white to-indigo-50/50 rounded-3xl p-5 sm:p-7 border border-blue-200/80 shadow-sm print:hidden">
+          <div className="mt-6 bg-gradient-to-br from-blue-50/80 via-white to-indigo-50/50 rounded-3xl p-3.5 sm:p-6 md:p-7 border border-blue-200/80 shadow-sm print:hidden">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-3 border-b border-blue-100/80">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold shadow-md shadow-blue-500/20">

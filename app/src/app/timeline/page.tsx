@@ -15,7 +15,7 @@ export default function TimelinePage() {
     <div className="min-h-screen bg-slate-50/50 flex flex-col font-sans text-slate-900">
       <SubpageNavbar />
 
-      <main className="flex-1 max-w-5xl mx-auto w-full px-4 sm:px-6 pt-24 sm:pt-28 pb-16">
+      <main className="flex-1 max-w-5xl mx-auto w-full px-2.5 sm:px-6 pt-24 sm:pt-28 pb-16">
         {/* Breadcrumb Navigation */}
         <div className="flex items-center gap-2 text-xs text-slate-500 mb-6 font-medium">
           <Link href="/" className="hover:text-blue-600 transition-colors">

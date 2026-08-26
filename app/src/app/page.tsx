@@ -87,7 +87,7 @@ export default function HomePage() {
             />
           </div>
 
-          <div className="relative z-10 max-w-7xl mx-auto px-3.5 sm:px-6 w-full">
+          <div className="relative z-10 max-w-7xl mx-auto px-2.5 sm:px-6 w-full">
             <div className="grid lg:grid-cols-12 gap-12 lg:gap-8 items-center">
 
             
@@ -224,7 +224,7 @@ export default function HomePage() {
       <StatsBanner />
 
       {/* Act 2: 3-Step Clean Workflow & Core Difference vs General AI */}
-      <section id="workflow" className="py-16 sm:py-24 px-3.5 sm:px-6 bg-white border-b border-slate-100">
+      <section id="workflow" className="py-16 sm:py-24 px-2.5 sm:px-6 bg-white border-b border-slate-100">
         <div className="max-w-7xl mx-auto">
           <SectionHeader
             badge="循证工作流"
@@ -234,7 +234,7 @@ export default function HomePage() {
 
           {/* 3 Step Cards */}
           <div className="grid md:grid-cols-3 gap-8 mt-16">
-            <div className="p-8 rounded-3xl bg-slate-50 border border-slate-200/80 hover:border-blue-300 transition-all card-hover relative group">
+            <div className="p-3.5 sm:p-6 md:p-7 rounded-3xl bg-slate-50 border border-slate-200/80 hover:border-blue-300 transition-all card-hover relative group">
               <div className="w-12 h-12 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center text-2xl font-black mb-6">
                 1
               </div>
@@ -244,7 +244,7 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="p-8 rounded-3xl bg-slate-50 border border-slate-200/80 hover:border-teal-300 transition-all card-hover relative group">
+            <div className="p-3.5 sm:p-6 md:p-7 rounded-3xl bg-slate-50 border border-slate-200/80 hover:border-teal-300 transition-all card-hover relative group">
               <div className="w-12 h-12 rounded-2xl bg-teal-100 text-teal-600 flex items-center justify-center text-2xl font-black mb-6">
                 2
               </div>
@@ -254,7 +254,7 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="p-8 rounded-3xl bg-slate-50 border border-slate-200/80 hover:border-sky-300 transition-all card-hover relative group">
+            <div className="p-3.5 sm:p-6 md:p-7 rounded-3xl bg-slate-50 border border-slate-200/80 hover:border-sky-300 transition-all card-hover relative group">
               <div className="w-12 h-12 rounded-2xl bg-sky-100 text-sky-600 flex items-center justify-center text-2xl font-black mb-6">
                 3
               </div>
@@ -266,7 +266,7 @@ export default function HomePage() {
           </div>
 
           {/* Core Differentiation vs General LLMs Box */}
-          <div id="difference" className="mt-16 bg-gradient-to-br from-blue-50/80 via-white to-teal-50/50 rounded-3xl p-8 sm:p-12 border border-blue-200/80 shadow-sm">
+          <div id="difference" className="mt-16 bg-gradient-to-br from-blue-50/80 via-white to-teal-50/50 rounded-3xl p-3.5 sm:p-8 md:p-12 border border-blue-200/80 shadow-sm">
             <div className="max-w-3xl mx-auto text-center mb-10">
               <span className="text-xs font-bold text-blue-700 uppercase tracking-wider bg-blue-100/80 px-3.5 py-1 rounded-full border border-blue-200/60">
                 ONCOPATH VS GENERAL AI · 为什么超越通用大模型？
@@ -329,7 +329,7 @@ export default function HomePage() {
       </section>
 
       {/* Act 3: Peer-Reviewed International Studies Library */}
-      <section id="studies" className="py-16 sm:py-24 px-3.5 sm:px-6 bg-slate-50">
+      <section id="studies" className="py-16 sm:py-24 px-2.5 sm:px-6 bg-slate-50">
         <div className="max-w-7xl mx-auto">
           <SectionHeader
             badge="权威研究库"
@@ -356,7 +356,7 @@ export default function HomePage() {
       </section>
 
       {/* Act 4: 4D Knowledge Graph Sandbox */}
-      <section id="knowledge" className="py-16 sm:py-24 px-3.5 sm:px-6 bg-white border-y border-slate-100">
+      <section id="knowledge" className="py-16 sm:py-24 px-2.5 sm:px-6 bg-white border-y border-slate-100">
         <div className="max-w-7xl mx-auto">
           <SectionHeader
             badge="动态推演沙盘"
@@ -371,7 +371,7 @@ export default function HomePage() {
       </section>
 
       {/* Act 4.5: OncoWiki Patient Evidence-Based Visual Encyclopedia Section */}
-      <section id="wiki-showcase" className="py-16 sm:py-24 px-3.5 sm:px-6 bg-gradient-to-b from-white via-sky-50/25 to-slate-50 border-b border-slate-100">
+      <section id="wiki-showcase" className="py-16 sm:py-24 px-2.5 sm:px-6 bg-gradient-to-b from-white via-sky-50/25 to-slate-50 border-b border-slate-100">
         <div className="max-w-7xl mx-auto space-y-14">
           <SectionHeader
             badge="循证视觉百科 · OncoWiki"
@@ -384,7 +384,7 @@ export default function HomePage() {
             {/* Card 1: 肺结节消恐 */}
             <Link
               href="/wiki#category-nodule"
-              className="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-emerald-300 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group cursor-pointer"
+              className="bg-white rounded-3xl p-3.5 sm:p-5 md:p-6 border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-emerald-300 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group cursor-pointer"
             >
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
@@ -412,7 +412,7 @@ export default function HomePage() {
             {/* Card 2: 术后病理密码 */}
             <Link
               href="/wiki#category-pathology"
-              className="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-blue-300 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group cursor-pointer"
+              className="bg-white rounded-3xl p-3.5 sm:p-5 md:p-6 border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-blue-300 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group cursor-pointer"
             >
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
@@ -440,7 +440,7 @@ export default function HomePage() {
             {/* Card 3: 驱动基因靶向 */}
             <Link
               href="/wiki#category-genetics"
-              className="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-purple-300 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group cursor-pointer"
+              className="bg-white rounded-3xl p-3.5 sm:p-5 md:p-6 border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-purple-300 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group cursor-pointer"
             >
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
@@ -468,7 +468,7 @@ export default function HomePage() {
             {/* Card 4: 术后康复随访 */}
             <Link
               href="/wiki#category-recovery"
-              className="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-amber-300 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group cursor-pointer"
+              className="bg-white rounded-3xl p-3.5 sm:p-5 md:p-6 border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-amber-300 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group cursor-pointer"
             >
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
@@ -515,7 +515,7 @@ export default function HomePage() {
       </section>
 
       {/* Act 5: Frequently Asked Questions & Final Conversion CTA */}
-      <section className="py-16 sm:py-24 px-3.5 sm:px-6 bg-slate-50">
+      <section className="py-16 sm:py-24 px-2.5 sm:px-6 bg-slate-50">
         <div className="max-w-4xl mx-auto">
           <SectionHeader
             badge="患者与家属答疑"
@@ -539,7 +539,7 @@ export default function HomePage() {
           </div>
 
           {/* Final Action Card */}
-          <div className="mt-16 bg-gradient-to-r from-blue-600 to-teal-600 rounded-3xl p-6 sm:p-12 text-white text-center shadow-xl space-y-6">
+          <div className="mt-16 bg-gradient-to-r from-blue-600 to-teal-600 rounded-3xl p-3.5 sm:p-8 md:p-12 text-white text-center shadow-xl space-y-6">
             <h3 className="text-2xl sm:text-4xl font-black tracking-tight">
               准备好科学破译您的临床报告了吗？
             </h3>

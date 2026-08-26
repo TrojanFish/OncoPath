@@ -336,7 +336,7 @@ export default function ResourcesPage() {
                   return (
                     <div
                       key={link.name}
-                      className="bg-white rounded-3xl border border-slate-200/90 shadow-sm hover:shadow-md hover:border-blue-300 transition-all p-5 flex flex-col justify-between group"
+                      className="bg-white rounded-3xl border border-slate-200/90 shadow-sm hover:shadow-md hover:border-blue-300 transition-all p-3.5 sm:p-5 md:p-6 flex flex-col justify-between group"
                     >
                       <div className="space-y-3">
                         {/* Top: Name & Badges */}

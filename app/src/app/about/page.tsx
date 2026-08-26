@@ -35,7 +35,7 @@ export default function AboutPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-800">
-      <main className="flex-1 max-w-4xl mx-auto w-full space-y-8 py-10 sm:py-14 px-4 sm:px-6 lg:px-8">
+      <main className="flex-1 max-w-4xl mx-auto w-full space-y-8 py-10 sm:py-14 px-2.5 sm:px-6 lg:px-8">
         
         {/* Top Navigation */}
         <div className="flex items-center justify-between">

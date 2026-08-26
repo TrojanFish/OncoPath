@@ -85,7 +85,7 @@ export default function TumorMarkerTrendChart({ events }: TumorMarkerTrendChartP
   const bottomY = svgHeight - paddingY;
 
   return (
-    <div className="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/90 shadow-sm space-y-5 hover:border-indigo-300 transition-all">
+    <div className="bg-white rounded-3xl p-3.5 sm:p-6 md:p-7 border border-slate-200/90 shadow-sm space-y-5 hover:border-indigo-300 transition-all">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
         <div>

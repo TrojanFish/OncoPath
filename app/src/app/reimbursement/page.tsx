@@ -577,7 +577,7 @@ export default function ReimbursementPage() {
             </div>
 
             {/* Interactive Calculator Section */}
-            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
+            <div className="bg-white rounded-3xl p-3.5 sm:p-6 md:p-7 border border-slate-200 shadow-sm space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-4">
                 <div>
                   <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 flex items-center gap-2">
@@ -780,7 +780,7 @@ export default function ReimbursementPage() {
             </div>
 
             {/* 3-Step Chronic Disease Application Fast-Track */}
-            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
+            <div className="bg-white rounded-3xl p-3.5 sm:p-6 md:p-7 border border-slate-200 shadow-sm space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
                 <div>
                   <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 flex items-center gap-2">
@@ -843,7 +843,7 @@ export default function ReimbursementPage() {
 
         {/* TAB 2: COMPREHENSIVE 16 DRUGS REIMBURSEMENT LIMITS TABLE */}
         {activeTab === "reimbursement_table" && (
-          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6 animate-fade-in">
+          <div className="bg-white rounded-3xl p-3.5 sm:p-6 md:p-7 border border-slate-200 shadow-sm space-y-6 animate-fade-in">
             <div className="border-b border-slate-100 pb-4">
               <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 flex items-center gap-2">
                 <FileText className="w-5 h-5 text-blue-600" />
@@ -899,7 +899,7 @@ export default function ReimbursementPage() {
 
         {/* TAB 3: CROSS-PROVINCE DIRECT SETTLEMENT */}
         {activeTab === "cross_province" && (
-          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6 animate-fade-in">
+          <div className="bg-white rounded-3xl p-3.5 sm:p-6 md:p-7 border border-slate-200 shadow-sm space-y-6 animate-fade-in">
             <div className="border-b border-slate-100 pb-4">
               <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 flex items-center gap-2">
                 <MapPin className="w-5 h-5 text-indigo-600" />
@@ -958,7 +958,7 @@ export default function ReimbursementPage() {
 
         {/* TAB 4: DUAL-CHANNEL PHARMACY & BREAKTHROUGH */}
         {activeTab === "dual_channel" && (
-          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6 animate-fade-in">
+          <div className="bg-white rounded-3xl p-3.5 sm:p-6 md:p-7 border border-slate-200 shadow-sm space-y-6 animate-fade-in">
             <div className="border-b border-slate-100 pb-4">
               <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 flex items-center gap-2">
                 <Building2 className="w-5 h-5 text-teal-600" />
@@ -1002,7 +1002,7 @@ export default function ReimbursementPage() {
 
         {/* TAB 5: OFFICIAL PAP CHARITY ASSISTANCE */}
         {activeTab === "pap_guide" && (
-          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6 animate-fade-in">
+          <div className="bg-white rounded-3xl p-3.5 sm:p-6 md:p-7 border border-slate-200 shadow-sm space-y-6 animate-fade-in">
             <div className="border-b border-slate-100 pb-4">
               <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 flex items-center gap-2">
                 <HeartHandshake className="w-5 h-5 text-purple-600" />
@@ -1055,7 +1055,7 @@ export default function ReimbursementPage() {
 
         {/* TAB 6: FAQ */}
         {activeTab === "faq" && (
-          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6 animate-fade-in">
+          <div className="bg-white rounded-3xl p-3.5 sm:p-6 md:p-7 border border-slate-200 shadow-sm space-y-6 animate-fade-in">
             <div className="border-b border-slate-100 pb-4">
               <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 flex items-center gap-2">
                 <HelpCircle className="w-5 h-5 text-blue-600" />
