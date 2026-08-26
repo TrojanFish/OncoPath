@@ -309,7 +309,7 @@ export default function PatientDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6 mb-6">
         
         {/* Bento Box 1: Primary CT Imaging & Solid Component (T-Staging) */}
-        <div className="bg-white rounded-3xl p-5 sm:p-6 md:p-7 border border-slate-200 border-t-4 border-t-sky-500 shadow-sm flex flex-col justify-between hover:border-sky-300 transition-all">
+        <div className="bg-white rounded-3xl p-3.5 sm:p-6 md:p-7 border border-slate-200 border-t-4 border-t-sky-500 shadow-sm flex flex-col justify-between hover:border-sky-300 transition-all">
 
           <div>
             <div className="flex items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100">
@@ -403,7 +403,7 @@ export default function PatientDashboard() {
         </div>
 
         {/* Bento Box 2: Pathology High-Risk Indicators & Ki-67 (N-Stage & Invasive Factors) */}
-        <div className="bg-white rounded-3xl p-5 sm:p-6 md:p-7 border border-slate-200 border-t-4 border-t-purple-500 shadow-sm flex flex-col justify-between hover:border-purple-300 transition-all">
+        <div className="bg-white rounded-3xl p-3.5 sm:p-6 md:p-7 border border-slate-200 border-t-4 border-t-purple-500 shadow-sm flex flex-col justify-between hover:border-purple-300 transition-all">
           <div>
             <div className="flex items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100">
               <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5 min-w-0">
@@ -500,7 +500,7 @@ export default function PatientDashboard() {
         </div>
 
         {/* Bento Box 3: Systemic Staging & Benign Findings (M-Staging) */}
-        <div className="bg-white rounded-3xl p-5 sm:p-6 md:p-7 border border-slate-200 border-t-4 border-t-teal-500 shadow-sm flex flex-col justify-between hover:border-teal-300 transition-all">
+        <div className="bg-white rounded-3xl p-3.5 sm:p-6 md:p-7 border border-slate-200 border-t-4 border-t-teal-500 shadow-sm flex flex-col justify-between hover:border-teal-300 transition-all">
           <div>
             <div className="flex items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100">
               <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5 min-w-0">
@@ -517,7 +517,7 @@ export default function PatientDashboard() {
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs flex flex-col justify-between">
                   <span className="text-slate-500 text-[11px] flex items-center gap-1">
-                    <BrainCircuit className="w-3 h-3 text-slate-400 shrink-0" />
+                    <BrainCircuit className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                     <span>脑部增强 MRI</span>
                   </span>
                   <span className={`font-bold mt-1 ${profile.brainMri === 'negative' ? 'text-emerald-700' : profile.brainMri === 'positive' ? 'text-rose-600' : 'text-slate-400'}`}>
@@ -526,7 +526,7 @@ export default function PatientDashboard() {
                 </div>
                 <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs flex flex-col justify-between">
                   <span className="text-slate-500 text-[11px] flex items-center gap-1">
-                    <Stethoscope className="w-3 h-3 text-slate-400 shrink-0" />
+                    <Stethoscope className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                     <span>腹部与肾上腺</span>
                   </span>
                   <span className={`font-bold mt-1 ${(profile.abdominalUltrasound === 'negative' || profile.abdominalUltrasound === 'benign_findings') ? 'text-emerald-700' : profile.abdominalUltrasound === 'positive' ? 'text-rose-600' : 'text-slate-400'}`}>
@@ -535,7 +535,7 @@ export default function PatientDashboard() {
                 </div>
                 <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs flex flex-col justify-between">
                   <span className="text-slate-500 text-[11px] flex items-center gap-1">
-                    <Activity className="w-3 h-3 text-slate-400 shrink-0" />
+                    <Activity className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                     <span>全身骨显像 ECT</span>
                   </span>
                   <span className={`font-bold mt-1 ${profile.boneScan === 'negative' ? 'text-emerald-700' : profile.boneScan === 'positive' ? 'text-rose-600' : 'text-slate-400'}`}>
@@ -544,7 +544,7 @@ export default function PatientDashboard() {
                 </div>
                 <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs flex flex-col justify-between">
                   <span className="text-slate-500 text-[11px] flex items-center gap-1">
-                    <Stethoscope className="w-3 h-3 text-slate-400 shrink-0" />
+                    <Stethoscope className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                     <span>锁骨上淋巴结</span>
                   </span>
                   <span className={`font-bold mt-1 ${profile.neckLymphNodes === 'negative' ? 'text-emerald-700' : profile.neckLymphNodes === 'positive' ? 'text-rose-600' : 'text-slate-400'}`}>
@@ -553,7 +553,7 @@ export default function PatientDashboard() {
                 </div>
                 <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs flex flex-col justify-between">
                   <span className="text-slate-500 text-[11px] flex items-center gap-1">
-                    <Scan className="w-3 h-3 text-slate-400 shrink-0" />
+                    <Scan className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                     <span>全身 PET-CT</span>
                   </span>
                   <span className={`font-bold mt-1 ${profile.petCt === 'negative' ? 'text-emerald-700' : profile.petCt === 'positive' ? 'text-rose-600' : 'text-slate-400'}`}>
@@ -589,7 +589,7 @@ export default function PatientDashboard() {
         </div>
 
         {/* Bento Box 4: AI Decision Engine & Actionable Next Steps */}
-        <div className="bg-gradient-to-br from-blue-50/90 via-white to-sky-50/60 rounded-3xl p-5 sm:p-6 md:p-7 border border-blue-200 border-t-4 border-t-blue-600 shadow-sm flex flex-col justify-between hover:border-blue-400 transition-all">
+        <div className="bg-gradient-to-br from-blue-50/90 via-white to-sky-50/60 rounded-3xl p-3.5 sm:p-6 md:p-7 border border-blue-200 border-t-4 border-t-blue-600 shadow-sm flex flex-col justify-between hover:border-blue-400 transition-all">
           <div className="space-y-4">
             <div className="flex items-center justify-between gap-2 pb-3 border-b border-blue-100/80">
               <h3 className="text-xs font-bold text-blue-900 uppercase tracking-wider flex items-center gap-1.5 min-w-0">

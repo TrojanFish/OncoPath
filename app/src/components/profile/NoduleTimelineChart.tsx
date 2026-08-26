@@ -70,7 +70,8 @@ export function NoduleTimelineChart({
   const solidPoints = sortedHistory.map((h, i) => `${getX(i)},${getY(h.solidSize || 0)}`).join(" ");
 
   return (
-    <div className="bg-white rounded-3xl p-5 sm:p-6 md:p-7 border border-slate-200 border-t-4 border-t-sky-500 shadow-sm space-y-5 hover:border-sky-300 transition-all">
+    <div className="bg-white rounded-3xl p-3.5 sm:p-6 md:p-7 border border-slate-200 border-t-4 border-t-sky-500 shadow-sm space-y-5 hover:border-sky-300 transition-all">
+
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
