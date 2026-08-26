@@ -125,7 +125,8 @@ export default function PostOpSymptomTriage() {
   const Icon = currentSymptom.icon;
 
   return (
-    <div className="bg-white rounded-3xl p-5 sm:p-6 md:p-7 border border-slate-200 shadow-sm space-y-6 hover:border-teal-300 transition-all">
+    <div className="bg-white rounded-3xl p-3.5 sm:p-6 md:p-7 border border-slate-200 shadow-sm space-y-6 hover:border-teal-300 transition-all">
+
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
         <div className="min-w-0">

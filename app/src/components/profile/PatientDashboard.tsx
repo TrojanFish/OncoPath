@@ -313,11 +313,11 @@ export default function PatientDashboard() {
 
           <div>
             <div className="flex items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100">
-              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                <Scan className="w-3.5 h-3.5 text-sky-600" />
-                <span>CT IMAGING & MORPHOLOGY · 薄层 CT 影像原发灶</span>
+              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5 min-w-0">
+                <Scan className="w-3.5 h-3.5 text-sky-600 shrink-0" />
+                <span className="truncate">CT IMAGING & MORPHOLOGY · 薄层 CT 影像原发灶</span>
               </h3>
-              <span className="text-xs font-semibold text-teal-700 bg-teal-50 px-2.5 py-0.5 rounded-full border border-teal-200">
+              <span className="text-xs font-semibold text-teal-700 bg-teal-50 px-2.5 py-0.5 rounded-full border border-teal-200 whitespace-nowrap shrink-0">
                 {noduleLabel}
               </span>
             </div>
@@ -328,7 +328,7 @@ export default function PatientDashboard() {
                   <strong>结节部位</strong>: <span className="font-semibold text-slate-900">{profile.noduleLocation || '肺部结节'}</span>
                 </span>
                 {profile.lungRads && (
-                  <span className="px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 text-xs font-bold">
+                  <span className="px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 text-xs font-bold shrink-0">
                     Lung-RADS {profile.lungRads}
                   </span>
                 )}
@@ -339,12 +339,12 @@ export default function PatientDashboard() {
                 <div className="bg-teal-50/90 p-3.5 rounded-2xl border border-teal-200 space-y-2">
                   <div className="flex items-center justify-between flex-wrap gap-2 text-xs">
                     <span className="text-teal-950 font-bold flex items-center gap-1.5">
-                      <Ruler className="w-3.5 h-3.5 text-teal-700" />
+                      <Ruler className="w-3.5 h-3.5 text-teal-700 shrink-0" />
                       <span>CT 实性浸润: {profile.solidSize} cm</span>
                       <span className="text-slate-400">/</span>
                       <span>全径: {profile.tumorSize || 1.5} cm</span>
                     </span>
-                    <span className="px-2.5 py-0.5 rounded-md bg-teal-100 font-extrabold text-teal-900 text-xs">
+                    <span className="px-2.5 py-0.5 rounded-md bg-teal-100 font-extrabold text-teal-900 text-xs shrink-0">
                       CTR: {profile.ctr != null ? profile.ctr : (profile.solidSize && profile.tumorSize ? Math.round((profile.solidSize / profile.tumorSize) * 100) / 100 : 0.53)}
                     </span>
                   </div>
@@ -371,7 +371,7 @@ export default function PatientDashboard() {
                     ))
                   ) : (
                     <span className="px-2.5 py-1 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-xl text-xs font-semibold flex items-center gap-1.5">
-                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                       <span>结节边缘光滑，未见明显毛刺或胸膜牵拉征</span>
                     </span>
                   )}
@@ -383,15 +383,15 @@ export default function PatientDashboard() {
                 <div className="p-3 bg-teal-50/80 rounded-2xl border border-teal-200/80 space-y-1.5">
                   <div className="flex items-center justify-between text-[11px] font-bold text-teal-950">
                     <span className="flex items-center gap-1.5">
-                      <CircleDot className="w-3.5 h-3.5 text-teal-700" />
+                      <CircleDot className="w-3.5 h-3.5 text-teal-700 shrink-0" />
                       <span>双肺伴随微小结节（已排查良性）：</span>
                     </span>
-                    <span className="text-[10px] text-teal-700 font-normal">多为陈旧良性病灶</span>
+                    <span className="text-[10px] text-teal-700 font-normal shrink-0">多为陈旧良性病灶</span>
                   </div>
                   <div className="flex flex-wrap gap-1.5">
                     {(profile.secondaryNodules || []).map((sec, idx) => (
                       <span key={sec.id || idx} className="px-2 py-0.5 bg-white text-teal-900 border border-teal-200 rounded-lg text-[11px] font-semibold flex items-center gap-1">
-                        <Check className="w-3 h-3 text-emerald-600" />
+                        <Check className="w-3 h-3 text-emerald-600 shrink-0" />
                         <span>{sec.location} ({sec.sizeMm}mm · {sec.type === 'pure_ggo' ? '纯磨玻璃' : '微小灶'})</span>
                       </span>
                     ))}
@@ -406,19 +406,19 @@ export default function PatientDashboard() {
         <div className="bg-white rounded-3xl p-5 sm:p-6 md:p-7 border border-slate-200 border-t-4 border-t-purple-500 shadow-sm flex flex-col justify-between hover:border-purple-300 transition-all">
           <div>
             <div className="flex items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100">
-              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                <Microscope className="w-3.5 h-3.5 text-purple-600" />
-                <span>PATHOLOGY & IHC · 术后组织病理与浸润特征</span>
+              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5 min-w-0">
+                <Microscope className="w-3.5 h-3.5 text-purple-600 shrink-0" />
+                <span className="truncate">PATHOLOGY & IHC · 术后组织病理与浸润特征</span>
               </h3>
-              <span className="text-xs font-semibold text-slate-600 bg-slate-100 px-2.5 py-0.5 rounded-full border border-slate-200">
+              <span className="text-xs font-semibold text-slate-600 bg-slate-100 px-2.5 py-0.5 rounded-full border border-slate-200 whitespace-nowrap shrink-0">
                 {profile.currentStage === 'evaluation' || profile.currentStage === 'discovery' || profile.surgeryType === 'unknown' ? '术前基线' : '病理金标准'}
               </span>
             </div>
 
             {profile.currentStage === 'evaluation' || profile.currentStage === 'discovery' || profile.surgeryType === 'unknown' ? (
               <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3 text-center my-auto">
-                <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 mx-auto flex items-center justify-center">
-                  <ShieldCheck className="w-6 h-6" />
+                <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 mx-auto flex items-center justify-center shrink-0">
+                  <ShieldCheck className="w-6 h-6 shrink-0" />
                 </div>
                 <h4 className="text-sm font-bold text-slate-800">尚未接受手术切除</h4>
                 <p className="text-xs text-slate-500 leading-relaxed max-w-sm mx-auto">
@@ -481,11 +481,11 @@ export default function PatientDashboard() {
                     <span className="text-purple-900 font-bold flex items-center gap-1.5">
                       <GlossaryTooltip term="Ki-67">
                         <span className="flex items-center gap-1">
-                          <Activity className="w-3.5 h-3.5 text-purple-600" />
+                          <Activity className="w-3.5 h-3.5 text-purple-600 shrink-0" />
                           <span>Ki-67 细胞增殖指数:</span>
                         </span>
                       </GlossaryTooltip>
-                      <span className="px-2 py-0.5 bg-purple-200/80 rounded-md font-extrabold text-purple-950">
+                      <span className="px-2 py-0.5 bg-purple-200/80 rounded-md font-extrabold text-purple-950 shrink-0">
                         {profile.ki67}%
                       </span>
                     </span>
@@ -503,11 +503,11 @@ export default function PatientDashboard() {
         <div className="bg-white rounded-3xl p-5 sm:p-6 md:p-7 border border-slate-200 border-t-4 border-t-teal-500 shadow-sm flex flex-col justify-between hover:border-teal-300 transition-all">
           <div>
             <div className="flex items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100">
-              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                <Layers className="w-3.5 h-3.5 text-teal-600" />
-                <span>SYSTEMIC STAGING · 全身远处转移排查与良性排雷</span>
+              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5 min-w-0">
+                <Layers className="w-3.5 h-3.5 text-teal-600 shrink-0" />
+                <span className="truncate">SYSTEMIC STAGING · 全身远处转移排查与良性排雷</span>
               </h3>
-              <span className="text-xs font-extrabold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+              <span className="text-xs font-extrabold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 whitespace-nowrap shrink-0">
                 M0 根治窗口确立
               </span>
             </div>
@@ -517,7 +517,7 @@ export default function PatientDashboard() {
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs flex flex-col justify-between">
                   <span className="text-slate-500 text-[11px] flex items-center gap-1">
-                    <BrainCircuit className="w-3 h-3 text-slate-400" />
+                    <BrainCircuit className="w-3 h-3 text-slate-400 shrink-0" />
                     <span>脑部增强 MRI</span>
                   </span>
                   <span className={`font-bold mt-1 ${profile.brainMri === 'negative' ? 'text-emerald-700' : profile.brainMri === 'positive' ? 'text-rose-600' : 'text-slate-400'}`}>
@@ -526,7 +526,7 @@ export default function PatientDashboard() {
                 </div>
                 <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs flex flex-col justify-between">
                   <span className="text-slate-500 text-[11px] flex items-center gap-1">
-                    <Stethoscope className="w-3 h-3 text-slate-400" />
+                    <Stethoscope className="w-3 h-3 text-slate-400 shrink-0" />
                     <span>腹部与肾上腺</span>
                   </span>
                   <span className={`font-bold mt-1 ${(profile.abdominalUltrasound === 'negative' || profile.abdominalUltrasound === 'benign_findings') ? 'text-emerald-700' : profile.abdominalUltrasound === 'positive' ? 'text-rose-600' : 'text-slate-400'}`}>
@@ -535,7 +535,7 @@ export default function PatientDashboard() {
                 </div>
                 <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs flex flex-col justify-between">
                   <span className="text-slate-500 text-[11px] flex items-center gap-1">
-                    <Activity className="w-3 h-3 text-slate-400" />
+                    <Activity className="w-3 h-3 text-slate-400 shrink-0" />
                     <span>全身骨显像 ECT</span>
                   </span>
                   <span className={`font-bold mt-1 ${profile.boneScan === 'negative' ? 'text-emerald-700' : profile.boneScan === 'positive' ? 'text-rose-600' : 'text-slate-400'}`}>
@@ -544,7 +544,7 @@ export default function PatientDashboard() {
                 </div>
                 <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs flex flex-col justify-between">
                   <span className="text-slate-500 text-[11px] flex items-center gap-1">
-                    <Stethoscope className="w-3 h-3 text-slate-400" />
+                    <Stethoscope className="w-3 h-3 text-slate-400 shrink-0" />
                     <span>锁骨上淋巴结</span>
                   </span>
                   <span className={`font-bold mt-1 ${profile.neckLymphNodes === 'negative' ? 'text-emerald-700' : profile.neckLymphNodes === 'positive' ? 'text-rose-600' : 'text-slate-400'}`}>
@@ -553,7 +553,7 @@ export default function PatientDashboard() {
                 </div>
                 <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs flex flex-col justify-between">
                   <span className="text-slate-500 text-[11px] flex items-center gap-1">
-                    <Scan className="w-3 h-3 text-slate-400" />
+                    <Scan className="w-3 h-3 text-slate-400 shrink-0" />
                     <span>全身 PET-CT</span>
                   </span>
                   <span className={`font-bold mt-1 ${profile.petCt === 'negative' ? 'text-emerald-700' : profile.petCt === 'positive' ? 'text-rose-600' : 'text-slate-400'}`}>
@@ -567,17 +567,17 @@ export default function PatientDashboard() {
                 <div className="p-3 bg-emerald-50/80 rounded-2xl border border-emerald-200 space-y-1.5 shadow-2xs">
                   <div className="text-[11px] font-bold text-emerald-950 flex items-center justify-between">
                     <span className="flex items-center gap-1.5">
-                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                       <span>伴发良性发现（非肿瘤转移，点击查看释义）：</span>
                     </span>
-                    <span className="text-[10px] text-emerald-700 font-semibold bg-white/80 px-2 py-0.5 rounded-md border border-emerald-200">
+                    <span className="text-[10px] text-emerald-700 font-semibold bg-white/80 px-2 py-0.5 rounded-md border border-emerald-200 shrink-0">
                       ✓ 临床排雷确认为良性
                     </span>
                   </div>
                   <div className="flex flex-wrap gap-1.5">
                     {profile.benignFindings.map((item: string) => (
                       <span key={item} className="px-2 py-0.5 bg-white text-emerald-800 border border-emerald-200 rounded-lg text-xs font-semibold shadow-2xs flex items-center gap-1">
-                        <Check className="w-3 h-3 text-emerald-600" />
+                        <Check className="w-3 h-3 text-emerald-600 shrink-0" />
                         <GlossaryTooltip term={item}><span>{item}</span></GlossaryTooltip>
                       </span>
                     ))}
@@ -592,11 +592,11 @@ export default function PatientDashboard() {
         <div className="bg-gradient-to-br from-blue-50/90 via-white to-sky-50/60 rounded-3xl p-5 sm:p-6 md:p-7 border border-blue-200 border-t-4 border-t-blue-600 shadow-sm flex flex-col justify-between hover:border-blue-400 transition-all">
           <div className="space-y-4">
             <div className="flex items-center justify-between gap-2 pb-3 border-b border-blue-100/80">
-              <h3 className="text-xs font-bold text-blue-900 uppercase tracking-wider flex items-center gap-1.5">
-                <BrainCircuit className="w-3.5 h-3.5 text-blue-600" />
-                <span>DECISION ENGINE · 临床决策引擎</span>
+              <h3 className="text-xs font-bold text-blue-900 uppercase tracking-wider flex items-center gap-1.5 min-w-0">
+                <BrainCircuit className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                <span className="truncate">DECISION ENGINE · 临床决策引擎</span>
               </h3>
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
             </div>
 
 

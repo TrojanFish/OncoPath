@@ -53,43 +53,43 @@ export default function SimilarCasesCard({ profile }: SimilarCasesCardProps) {
   if (!cohort) return null;
 
   return (
-    <div className="bg-white rounded-3xl p-3.5 sm:p-6 md:p-8 border border-slate-200 border-t-4 border-t-emerald-500 shadow-sm relative overflow-hidden group">
+    <div className="bg-white rounded-3xl p-3.5 sm:p-6 md:p-7 border border-slate-200 border-t-4 border-t-emerald-500 shadow-sm relative overflow-hidden group">
       
       {/* Background Soft Ambient Light */}
       <div className="absolute -right-12 -top-12 w-64 h-64 bg-gradient-to-br from-blue-500/5 via-teal-500/5 to-transparent rounded-full blur-3xl group-hover:scale-110 transition-transform duration-700 pointer-events-none" />
       
       {/* Card Header */}
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 mb-6 relative z-10 pb-4 border-b border-slate-100">
-        <div>
+        <div className="min-w-0">
           <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1 flex flex-wrap items-center gap-2">
             <span>SIMILAR CLINICAL COHORTS · 相似病例群体预后</span>
-            <span className="text-xs font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200 normal-case">
+            <span className="text-xs font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200 normal-case shrink-0">
               国际顶刊前瞻队列
             </span>
             {cohort.stage && (
-              <span className="text-xs font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 normal-case">
+              <span className="text-xs font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 normal-case shrink-0">
                 {cohort.stage}
               </span>
             )}
             {cohort.keyFactors && cohort.keyFactors.length > 0 && cohort.keyFactors.map((kf: string, idx: number) => (
-              <span key={idx} className="text-[10px] font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200 normal-case">
+              <span key={idx} className="text-[10px] font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200 normal-case shrink-0">
                 {kf}
               </span>
             ))}
           </div>
-          <h3 className="text-slate-900 font-extrabold text-lg sm:text-xl">
+          <h3 className="text-slate-900 font-extrabold text-lg sm:text-xl leading-snug">
             为您匹配到 {cohort.cohortSize.toLocaleString()} 例特征相似的真实世界患者
           </h3>
         </div>
 
-        <div className="sm:text-right flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-1.5">
+        <div className="sm:text-right flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-1.5 shrink-0">
           <div className="text-[11px] text-slate-400 font-medium">循证置信度 (Confidence)</div>
           <div className="flex items-center gap-1.5">
             <span className="text-amber-500 text-xs font-bold flex items-center gap-1">
-              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+              <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
               <span>{cohort.confidenceRating}</span>
             </span>
-            <span className="text-xs font-bold text-teal-800 bg-teal-50 px-2.5 py-0.5 rounded-full border border-teal-200">
+            <span className="text-xs font-bold text-teal-800 bg-teal-50 px-2.5 py-0.5 rounded-full border border-teal-200 shrink-0">
               {cohort.confidenceLevel}
             </span>
           </div>

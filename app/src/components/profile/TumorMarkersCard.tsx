@@ -25,27 +25,27 @@ export function TumorMarkersCard({
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
-        <div>
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 font-bold flex items-center justify-center">
-              <TestTube2 className="w-4 h-4 text-indigo-600" />
+        <div className="min-w-0">
+          <div className="flex items-start sm:items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 font-bold flex items-center justify-center shrink-0 mt-0.5 sm:mt-0">
+              <TestTube2 className="w-4 h-4 text-indigo-600 shrink-0" />
             </div>
-            <div>
+            <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="text-sm font-extrabold text-slate-900">
+                <h3 className="text-sm font-extrabold text-slate-900 leading-snug">
                   TUMOR BIOMARKERS · 最新单期血清肿瘤标志物排雷
                 </h3>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200 shrink-0 whitespace-nowrap">
                   当前快照
                 </span>
                 {markers?.testDate && (
-                  <span className="text-[11px] font-mono text-slate-500 flex items-center gap-1">
-                    <Calendar className="w-3 h-3 text-slate-400" />
+                  <span className="text-[11px] font-mono text-slate-500 flex items-center gap-1 shrink-0 whitespace-nowrap">
+                    <Calendar className="w-3 h-3 text-slate-400 shrink-0" />
                     <span>{markers.testDate}</span>
                   </span>
                 )}
               </div>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">
                 包含 CEA、CYFRA21-1、NSE、SCC、ProGRP、CA125、CA19-9、CA15-3 等 9 项全指标生理安全带
               </p>
             </div>

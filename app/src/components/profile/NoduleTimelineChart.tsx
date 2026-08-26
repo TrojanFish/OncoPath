@@ -74,10 +74,10 @@ export function NoduleTimelineChart({
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
-        <div>
-          <div className="flex items-center gap-2">
-            <TrendingUp className="w-4 h-4 text-sky-500" />
-            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2 min-w-0">
+            <TrendingUp className="w-4 h-4 text-sky-500 shrink-0" />
+            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider truncate">
               LONGITUDINAL CT TIMELINE · 结节随访时序生长轨迹
             </h3>
           </div>
@@ -86,8 +86,8 @@ export function NoduleTimelineChart({
           </p>
         </div>
 
-        <div className="flex items-center gap-2 self-start sm:self-auto">
-          <span className={`text-xs font-bold px-3 py-1 rounded-full border ${
+        <div className="flex items-center gap-2 self-start sm:self-auto shrink-0 flex-wrap">
+          <span className={`text-xs font-bold px-3 py-1 rounded-full border whitespace-nowrap shrink-0 ${
             vdtAnalysis.growthCategory === "active_growth"
               ? "bg-rose-50 text-rose-800 border-rose-200"
               : vdtAnalysis.growthCategory === "slow_indolent"
@@ -96,7 +96,7 @@ export function NoduleTimelineChart({
           }`}>
             {vdtAnalysis.categoryLabel}
           </span>
-          <span className="text-[11px] text-slate-400 font-medium px-2.5 py-0.5 bg-slate-50 border border-slate-200 rounded-full">
+          <span className="text-[11px] text-slate-400 font-medium px-2.5 py-0.5 bg-slate-50 border border-slate-200 rounded-full whitespace-nowrap shrink-0">
             已归档 {sortedHistory.length} 次检查
           </span>
         </div>
@@ -111,19 +111,19 @@ export function NoduleTimelineChart({
           : "bg-emerald-50/80 border-emerald-200 text-emerald-950"
       }`}>
         <div className="flex items-start gap-2.5 text-xs">
-          <span className="mt-0.5">
+          <span className="mt-0.5 shrink-0">
             {vdtAnalysis.growthCategory === "active_growth" ? (
-              <AlertTriangle className="w-4 h-4 text-rose-600" />
+              <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
             ) : (
-              <ShieldCheck className="w-4 h-4 text-emerald-600" />
+              <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
             )}
           </span>
-          <div className="space-y-1">
-            <div className="font-extrabold text-slate-900">
+          <div className="space-y-1 min-w-0 flex-1">
+            <div className="font-extrabold text-slate-900 leading-snug">
               {vdtAnalysis.clinicalInterpretation}
             </div>
-            <div className="text-[11px] text-slate-600 font-medium flex items-center gap-1">
-              <Lightbulb className="w-3.5 h-3.5 text-amber-500" />
+            <div className="text-[11px] text-slate-600 font-medium flex items-center gap-1 flex-wrap">
+              <Lightbulb className="w-3.5 h-3.5 text-amber-500 shrink-0" />
               <span><strong>临床指引</strong>：{vdtAnalysis.actionGuidance}</span>
             </div>
           </div>
@@ -131,40 +131,40 @@ export function NoduleTimelineChart({
       </div>
 
       {/* Mode Switcher Tabs */}
-      <div className="flex items-center gap-2 p-1 bg-slate-100/90 rounded-2xl w-fit">
+      <div className="flex items-center gap-2 p-1 bg-slate-100/90 rounded-2xl w-fit flex-wrap">
         <button
           onClick={() => setActiveTab("gauge")}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
             activeTab === "gauge"
               ? "bg-white text-sky-700 shadow-xs"
               : "text-slate-600 hover:text-slate-900"
           }`}
         >
-          <Activity className="w-3.5 h-3.5" />
+          <Activity className="w-3.5 h-3.5 shrink-0" />
           <span>VDT 速度仪表盘</span>
         </button>
 
         <button
           onClick={() => setActiveTab("lens")}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
             activeTab === "lens"
               ? "bg-white text-blue-700 shadow-xs"
               : "text-slate-600 hover:text-slate-900"
           }`}
         >
-          <Layers className="w-3.5 h-3.5" />
+          <Layers className="w-3.5 h-3.5 shrink-0" />
           <span>双期 CT 对比透视器</span>
         </button>
 
         <button
           onClick={() => setActiveTab("chart")}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
             activeTab === "chart"
               ? "bg-white text-indigo-700 shadow-xs"
               : "text-slate-600 hover:text-slate-900"
           }`}
         >
-          <TrendingUp className="w-3.5 h-3.5" />
+          <TrendingUp className="w-3.5 h-3.5 shrink-0" />
           <span>长程生长趋势曲线</span>
         </button>
       </div>
