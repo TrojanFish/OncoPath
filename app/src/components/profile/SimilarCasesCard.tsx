@@ -60,66 +60,62 @@ export default function SimilarCasesCard({ profile }: SimilarCasesCardProps) {
       <div className="absolute -right-12 -top-12 w-64 h-64 bg-gradient-to-br from-blue-500/5 via-teal-500/5 to-transparent rounded-full blur-3xl group-hover:scale-110 transition-transform duration-700 pointer-events-none" />
       
       {/* Card Header */}
-      <div className="flex flex-col sm:flex-row justify-between sm:items-start gap-3.5 mb-6 relative z-10 pb-4 border-b border-slate-100">
-        <div className="flex items-start gap-2.5 min-w-0 flex-1">
-          <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 font-bold flex items-center justify-center shrink-0 mt-0.5">
+      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 mb-4 relative z-10 pb-3.5 border-b border-slate-100">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 font-bold flex items-center justify-center shrink-0">
             <Users className="w-4 h-4 shrink-0" />
           </div>
-          <div className="min-w-0 flex-1 space-y-1.5">
-            <div>
-              <h3 className="text-xs sm:text-sm font-extrabold text-slate-900 leading-snug">
-                相似病例群体预后分析
-              </h3>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5 truncate">
-                SIMILAR CLINICAL COHORTS · REAL-WORLD EVIDENCE
-              </p>
-            </div>
-
-            {/* Prominent Badges Flow */}
-            <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap pt-0.5">
-              <span className="text-[10px] sm:text-[11px] font-extrabold text-indigo-700 bg-indigo-50 px-2.5 py-0.5 rounded-full border border-indigo-200 shrink-0 whitespace-nowrap inline-flex items-center gap-1 shadow-2xs">
-                <Users className="w-3 h-3 text-indigo-600 shrink-0" />
-                <span>已匹配 <strong>{cohort.cohortSize.toLocaleString()}</strong> 例相似前瞻特征</span>
-              </span>
-              <span className="text-[10px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200 shrink-0 whitespace-nowrap">
-                国际顶刊前瞻队列
-              </span>
-              {cohort.stage && (
-                <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 shrink-0 whitespace-nowrap">
-                  {cohort.stage}
-                </span>
-              )}
-              {cohort.keyFactors && cohort.keyFactors.length > 0 && cohort.keyFactors.map((kf: string, idx: number) => (
-                <span key={idx} className="text-[10px] font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200 shrink-0 whitespace-nowrap">
-                  {kf}
-                </span>
-              ))}
-            </div>
+          <div className="min-w-0">
+            <h3 className="text-xs sm:text-sm font-extrabold text-slate-900 leading-snug">
+              相似病例群体预后分析
+            </h3>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5 truncate">
+              SIMILAR CLINICAL COHORTS · REAL-WORLD EVIDENCE
+            </p>
           </div>
         </div>
 
-        {/* Right: Confidence Box (Responsive & Wrap-safe on mobile) */}
-        <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-1.5 shrink-0 bg-slate-50/80 sm:bg-transparent px-3 py-2 sm:p-0 rounded-2xl sm:rounded-none border border-slate-100 sm:border-none">
-          <div className="text-[10px] sm:text-[11px] text-slate-400 font-medium whitespace-nowrap">循证置信度 (Confidence)</div>
-          <div className="flex items-center gap-1.5 flex-wrap">
-            <span className="text-amber-500 text-xs font-bold flex items-center gap-1 shrink-0">
-              <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-              <span>{cohort.confidenceRating}</span>
-            </span>
-            <span className="text-[11px] font-bold text-teal-800 bg-teal-50 px-2.5 py-0.5 rounded-full border border-teal-200 shrink-0 whitespace-nowrap">
-              {cohort.confidenceLevel}
-            </span>
-          </div>
+        {/* Compact Integrated Confidence Pill */}
+        <div className="flex items-center gap-2 bg-slate-50/90 border border-slate-200/90 px-3 py-1.5 rounded-full self-start sm:self-auto shrink-0 shadow-2xs">
+          <div className="text-[10px] text-slate-400 font-bold whitespace-nowrap">循证置信度</div>
+          <div className="text-slate-300">|</div>
+          <span className="text-amber-500 text-xs font-bold flex items-center gap-1 shrink-0">
+            <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+            <span>{cohort.confidenceRating}</span>
+          </span>
+          <span className="text-[10px] sm:text-[11px] font-extrabold text-teal-800 bg-teal-50/90 px-2 py-0.2 rounded-full border border-teal-200 shrink-0 whitespace-nowrap">
+            {cohort.confidenceLevel}
+          </span>
         </div>
       </div>
 
+      {/* Cohort Feature Badges Bar */}
+      <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap mb-5 relative z-10">
+        <span className="text-[10px] sm:text-[11px] font-extrabold text-indigo-700 bg-indigo-50 px-2.5 py-0.5 rounded-full border border-indigo-200 shrink-0 whitespace-nowrap inline-flex items-center gap-1 shadow-2xs">
+          <Users className="w-3 h-3 text-indigo-600 shrink-0" />
+          <span>已匹配 <strong>{cohort.cohortSize.toLocaleString()}</strong> 例相似特征</span>
+        </span>
+        <span className="text-[10px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200 shrink-0 whitespace-nowrap">
+          国际顶刊前瞻队列
+        </span>
+        {cohort.stage && (
+          <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 shrink-0 whitespace-nowrap">
+            {cohort.stage}
+          </span>
+        )}
+        {cohort.keyFactors && cohort.keyFactors.length > 0 && cohort.keyFactors.map((kf: string, idx: number) => (
+          <span key={idx} className="text-[10px] font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200 shrink-0 whitespace-nowrap">
+            {kf}
+          </span>
+        ))}
+      </div>
 
       {/* Metric Cards with Interactive Hover Explanations */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 relative z-10">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 mb-5 relative z-10">
         
         {/* RFS Metric Card */}
         <div 
-          className="bg-gradient-to-br from-blue-50/70 via-sky-50/40 to-white rounded-2xl p-5 border border-blue-100 relative transition-all hover:shadow-sm"
+          className="bg-gradient-to-br from-blue-50/70 via-sky-50/40 to-white rounded-2xl p-4 sm:p-5 border border-blue-100 relative transition-all hover:shadow-sm"
           onMouseEnter={() => setHoveredTerm("RFS")}
           onMouseLeave={() => setHoveredTerm(null)}
         >
@@ -133,7 +129,6 @@ export default function SimilarCasesCard({ profile }: SimilarCasesCardProps) {
             <span className="text-[10px] text-blue-600 font-semibold bg-white/90 px-2 py-0.5 rounded-md border border-blue-200/60 shadow-2xs">
               {cohort.isPreOp ? "根治治愈潜力" : "无瘤生存指标"}
             </span>
-
           </div>
 
           <div className="text-2xl sm:text-3xl lg:text-4xl font-black text-blue-600 tracking-tight whitespace-nowrap overflow-hidden text-ellipsis">
@@ -156,7 +151,7 @@ export default function SimilarCasesCard({ profile }: SimilarCasesCardProps) {
 
         {/* OS Metric Card */}
         <div 
-          className="bg-gradient-to-br from-teal-50/70 via-emerald-50/40 to-white rounded-2xl p-5 border border-teal-100 relative transition-all hover:shadow-sm"
+          className="bg-gradient-to-br from-teal-50/70 via-emerald-50/40 to-white rounded-2xl p-4 sm:p-5 border border-teal-100 relative transition-all hover:shadow-sm"
           onMouseEnter={() => setHoveredTerm("OS")}
           onMouseLeave={() => setHoveredTerm(null)}
         >
@@ -192,16 +187,35 @@ export default function SimilarCasesCard({ profile }: SimilarCasesCardProps) {
 
       </div>
 
-      {/* Cohort Description & Source */}
-      <div className="relative z-10 pb-5 border-b border-slate-100">
-        <p className="text-xs sm:text-sm text-slate-600 leading-relaxed mb-3 font-medium">
-          {cohort.description}
-        </p>
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs text-slate-400 font-medium">真实队列来源:</span>
-          <span className="text-xs font-bold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200 flex items-center gap-1.5">
-            <BookOpen className="w-3.5 h-3.5 text-slate-500" />
-            <span>{cohort.source}</span>
+      {/* Cohort Clinical Interpretation & Real-World Source Panel */}
+      <div className="relative z-10 p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-slate-50/90 via-blue-50/20 to-teal-50/20 border border-slate-200 shadow-2xs space-y-3">
+        <div className="flex items-start gap-2.5">
+          <div className="w-6 h-6 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center shrink-0 mt-0.5 font-bold">
+            <Lightbulb className="w-3.5 h-3.5 text-teal-700" />
+          </div>
+          <div className="space-y-1.5 flex-1 min-w-0">
+            <div className="text-xs font-extrabold text-slate-900 flex items-center gap-2">
+              <span>循证特征解读与随访指引</span>
+              <span className="text-[10px] font-semibold text-teal-700 bg-teal-50 px-2 py-0.2 rounded-md border border-teal-200/60">
+                个体化匹配
+              </span>
+            </div>
+            <p className="text-xs sm:text-[13px] text-slate-700 leading-relaxed font-medium">
+              {cohort.description}
+            </p>
+          </div>
+        </div>
+
+        <div className="pt-2.5 border-t border-slate-200/70 flex flex-wrap items-center justify-between gap-2 text-xs">
+          <div className="flex items-center gap-1.5 text-slate-600 font-medium">
+            <BookOpen className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+            <span className="text-slate-400">真实队列来源:</span>
+            <span className="font-bold text-slate-800 bg-white px-2 py-0.5 rounded-md border border-slate-200 shadow-3xs">
+              {cohort.source}
+            </span>
+          </div>
+          <span className="text-[10px] text-slate-400 font-mono">
+            Level-1 Evidence · Peer-Reviewed
           </span>
         </div>
       </div>
