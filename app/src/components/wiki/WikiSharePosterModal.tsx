@@ -239,12 +239,13 @@ export default function WikiSharePosterModal({ topic, visualDomHtml, onClose }: 
 
           {/* Section 4: Key Evidence Metric */}
           {topic.keyMetric && (
-            <div className="p-3.5 rounded-2xl bg-blue-950/50 border border-blue-500/40 flex flex-col gap-1.5 text-xs font-mono">
-              <div className="text-blue-300 font-bold flex items-center justify-between">
-                <span>{topic.keyMetric.label}</span>
-                <span className="text-sm font-black text-white">{topic.keyMetric.value}</span>
+            <div className="p-3.5 rounded-2xl bg-blue-950/50 border border-blue-500/40 flex flex-col gap-1.5 text-xs">
+              <div className="flex items-center justify-between text-blue-300 font-bold gap-2">
+                <span>核心循证结论与依据：</span>
+                <span className="text-[10px] text-blue-300 font-normal bg-blue-900/60 px-2 py-0.5 rounded-full border border-blue-500/30 truncate max-w-[200px]">{topic.keyMetric.label}</span>
               </div>
-              <div className="text-[10px] text-slate-300 leading-relaxed pt-1 border-t border-blue-500/20 font-sans">
+              <p className="text-xs font-bold text-white leading-relaxed">{topic.keyMetric.value}</p>
+              <div className="text-[10px] text-slate-300 leading-relaxed pt-1 border-t border-blue-500/20">
                 <span className="text-sky-400 font-medium">循证出处：</span>
                 <span className="text-slate-200">{topic.keyMetric.source}</span>
               </div>

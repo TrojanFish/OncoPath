@@ -295,14 +295,22 @@ export function WikiTopicCard({ topic, isMatchedProfile, isHighlighted }: WikiTo
 
           {/* Key Evidence Metric if available */}
           {topic.keyMetric && (
-            <div className="bg-blue-50/60 px-4 py-3 rounded-2xl border border-blue-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-4 text-xs">
-              <div className="shrink-0">
-                <div className="text-[10px] text-blue-700 font-semibold">{topic.keyMetric.label}</div>
-                <div className="font-mono font-black text-blue-950 text-base sm:text-lg">{topic.keyMetric.value}</div>
+            <div className="bg-blue-50/60 p-3.5 sm:p-4 rounded-2xl border border-blue-100 space-y-2 mb-4">
+              <div className="flex items-center justify-between gap-2 text-xs font-bold text-blue-900">
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <BookmarkCheck className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                  <span>核心循证结论与依据：</span>
+                </div>
+                <span className="text-[10px] font-semibold text-blue-700 bg-blue-100/70 px-2 py-0.5 rounded-full border border-blue-200/60 truncate max-w-[220px]">
+                  {topic.keyMetric.label}
+                </span>
               </div>
-              <div className="text-[11px] text-slate-600 sm:text-right leading-relaxed font-medium bg-white/90 sm:bg-transparent p-2.5 sm:p-0 rounded-xl border border-blue-100/60 sm:border-none">
-                <span className="text-slate-400 font-normal">循证出处：</span>
-                <span className="text-slate-800 font-bold">{topic.keyMetric.source}</span>
+              <p className="text-xs sm:text-sm font-bold text-slate-800 leading-relaxed">
+                {topic.keyMetric.value}
+              </p>
+              <div className="text-[11px] text-slate-500 pt-1.5 border-t border-blue-100/80 flex items-center gap-1">
+                <span className="text-slate-400">循证出处：</span>
+                <span className="text-slate-700 font-medium">{topic.keyMetric.source}</span>
               </div>
             </div>
           )}
