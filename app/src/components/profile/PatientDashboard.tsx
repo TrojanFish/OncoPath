@@ -130,11 +130,17 @@ export default function PatientDashboard() {
         setShowUpdateModal(false);
         if (typeof window !== "undefined") {
           localStorage.setItem("oncopath_profile", JSON.stringify(dbData.profile));
+          localStorage.removeItem(`oncopath_report_${dbData.profile.id || getGuestId()}`);
+          localStorage.removeItem(`oncopath_report_time_${dbData.profile.id || getGuestId()}`);
+          localStorage.removeItem("oncopath_report_markdown");
+          localStorage.removeItem("oncopath_report_timestamp");
+          window.dispatchEvent(new Event("storage"));
         }
       }
     } catch (err) {
       console.error("Failed to save parsed profile", err);
     }
+
   };
 
   const handleWipeProfile = async () => {

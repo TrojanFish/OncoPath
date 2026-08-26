@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { computeClinicalTnmStage, StagingInput } from '../lib/staging';
+import { computeClinicalTnmStage, getClinicalCohortForProfile, StagingInput } from '../lib/staging';
+
 
 describe('AJCC 8th/9th Edition & IASLC TNM Staging Engine', () => {
   describe('Pure GGO Staging Rules (Tis / 0期)', () => {
@@ -224,4 +225,104 @@ describe('AJCC 8th/9th Edition & IASLC TNM Staging Engine', () => {
       expect(result.stage).toBe('IV');
     });
   });
+
+  describe('Dynamic Multi-Cohort Prognosis & Survival Matching Engine (getClinicalCohortForProfile)', () => {
+    it('should calculate 100% RFS and OS for Stage 0 (AIS / AAH)', () => {
+      const cohort = getClinicalCohortForProfile({
+        noduleType: 'pure_ggo',
+        tumorSize: 1.5,
+        solidSize: 0,
+        stage: '0',
+        nStage: 'N0',
+        mStage: 'M0'
+      });
+      expect(cohort.stage).toContain('0期');
+      expect(cohort.rfs5Year).toBe('100%');
+      expect(cohort.os5Year).toBe('100%');
+      expect(cohort.isPreOp).toBe(false);
+    });
+
+    it('should calculate accurate survival for Stage IA1 (T1mi/T1a N0 M0)', () => {
+      const cohort = getClinicalCohortForProfile({
+        noduleType: 'mixed_ggo',
+        tumorSize: 1.8,
+        solidSize: 0.6,
+        stage: 'IA1',
+        nStage: 'N0',
+        mStage: 'M0'
+      });
+      expect(cohort.stage).toContain('IA1');
+      expect(cohort.rfs5Year).toBe('98.8%');
+      expect(cohort.os5Year).toBe('99.5%');
+    });
+
+    it('should adjust survival for Stage IA1 when STAS is positive', () => {
+      const cohort = getClinicalCohortForProfile({
+        noduleType: 'mixed_ggo',
+        tumorSize: 1.8,
+        solidSize: 0.6,
+        stage: 'IA1',
+        stas: 'positive',
+        nStage: 'N0',
+        mStage: 'M0'
+      });
+      expect(cohort.stage).toContain('伴病理高危因素');
+      expect(cohort.rfs5Year).toBe('92.5%');
+      expect(cohort.keyFactors).toContain('气道播散 STAS+');
+    });
+
+    it('should calculate accurate survival for Stage IA2 (T1b N0 M0)', () => {
+      const cohort = getClinicalCohortForProfile({
+        noduleType: 'pure_solid',
+        tumorSize: 1.8,
+        stage: 'IA2',
+        nStage: 'N0',
+        mStage: 'M0'
+      });
+      expect(cohort.stage).toContain('IA2');
+      expect(cohort.rfs5Year).toBe('95.6%');
+      expect(cohort.os5Year).toBe('97.2%');
+    });
+
+    it('should calculate accurate survival for Stage IB (T2a N0 M0) referencing ADAURA', () => {
+      const cohort = getClinicalCohortForProfile({
+        noduleType: 'pure_solid',
+        tumorSize: 3.5,
+        stage: 'IB',
+        nStage: 'N0',
+        mStage: 'M0'
+      });
+      expect(cohort.stage).toContain('IB');
+      expect(cohort.rfs5Year).toBe('84.5%');
+      expect(cohort.os5Year).toBe('88.0%');
+      expect(cohort.source).toContain('ADAURA');
+    });
+
+    it('should calculate accurate survival for Stage IIIA with N2 lymph node involvement', () => {
+      const cohort = getClinicalCohortForProfile({
+        noduleType: 'pure_solid',
+        tumorSize: 2.5,
+        stage: 'IIIA',
+        nStage: 'N2',
+        mStage: 'M0'
+      });
+      expect(cohort.stage).toContain('IIIA');
+      expect(cohort.rfs5Year).toBe('52.0%');
+      expect(cohort.os5Year).toBe('60.5%');
+      expect(cohort.source).toContain('ADAURA');
+    });
+
+    it('should return pre-operative prediction cohort for CT imaging evaluation mode', () => {
+      const cohort = getClinicalCohortForProfile({
+        noduleType: 'pure_ggo',
+        tumorSize: 1.2,
+        reportType: 'ct_imaging',
+        currentStage: 'evaluation'
+      });
+      expect(cohort.isPreOp).toBe(true);
+      expect(cohort.rfs5Year).toBe('99.7%');
+      expect(cohort.source).toContain('JCOG0804');
+    });
+  });
 });
+

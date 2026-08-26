@@ -11,18 +11,24 @@ import {
   Sparkles,
 } from "lucide-react";
 import type { PatientProfile } from "@/lib/types";
+import { getClinicalCohortForProfile, ClinicalCohortResult } from "@/lib/staging";
 
 interface SimilarCasesCardProps {
   profile: PatientProfile;
 }
 
 export default function SimilarCasesCard({ profile }: SimilarCasesCardProps) {
-  const [cohort, setCohort] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const [cohort, setCohort] = useState<ClinicalCohortResult>(() => getClinicalCohortForProfile(profile));
   const [hoveredTerm, setHoveredTerm] = useState<string | null>(null);
 
   useEffect(() => {
-    async function fetchSimilarCases() {
+    // 1. Immediately synchronously update local state on any profile prop change (0ms instant response)
+    const localCohort = getClinicalCohortForProfile(profile);
+    setCohort(localCohort);
+
+    // 2. Concurrently sync with backend API
+    let isMounted = true;
+    async function syncSimilarCases() {
       try {
         const res = await fetch("/api/similar-cases", {
           method: "POST",
@@ -30,37 +36,24 @@ export default function SimilarCasesCard({ profile }: SimilarCasesCardProps) {
           body: JSON.stringify(profile),
         });
         const data = await res.json();
-        if (data.success) {
+        if (data.success && isMounted && data.data) {
           setCohort(data.data);
         }
       } catch (err) {
-        console.error("Failed to fetch similar cases", err);
-      } finally {
-        setLoading(false);
+        console.error("Notice: API sync for similar cases:", err);
       }
     }
-    fetchSimilarCases();
-  }, [profile]);
+    syncSimilarCases();
 
-  if (loading) {
-    return (
-      <div className="bg-white rounded-3xl p-3.5 sm:p-6 md:p-8 border border-slate-200 shadow-sm animate-pulse h-48 flex items-center justify-center">
-        <div className="text-slate-400 text-sm flex items-center gap-2">
-          <svg className="animate-spin h-5 w-5 text-blue-600" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
-          <span>正在检索国际顶级临床前瞻性队列与相似病例...</span>
-        </div>
-      </div>
-    );
-  }
+    return () => {
+      isMounted = false;
+    };
+  }, [profile]);
 
   if (!cohort) return null;
 
   return (
     <div className="bg-white rounded-3xl p-3.5 sm:p-6 md:p-8 border border-slate-200 border-t-4 border-t-emerald-500 shadow-sm relative overflow-hidden group">
-
       
       {/* Background Soft Ambient Light */}
       <div className="absolute -right-12 -top-12 w-64 h-64 bg-gradient-to-br from-blue-500/5 via-teal-500/5 to-transparent rounded-full blur-3xl group-hover:scale-110 transition-transform duration-700 pointer-events-none" />
@@ -68,11 +61,21 @@ export default function SimilarCasesCard({ profile }: SimilarCasesCardProps) {
       {/* Card Header */}
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 mb-6 relative z-10 pb-4 border-b border-slate-100">
         <div>
-          <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-2">
+          <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1 flex flex-wrap items-center gap-2">
             <span>SIMILAR CLINICAL COHORTS · 相似病例群体预后</span>
             <span className="text-xs font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200 normal-case">
               国际顶刊前瞻队列
             </span>
+            {cohort.stage && (
+              <span className="text-xs font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 normal-case">
+                {cohort.stage}
+              </span>
+            )}
+            {cohort.keyFactors && cohort.keyFactors.length > 0 && cohort.keyFactors.map((kf: string, idx: number) => (
+              <span key={idx} className="text-[10px] font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200 normal-case">
+                {kf}
+              </span>
+            ))}
           </div>
           <h3 className="text-slate-900 font-extrabold text-lg sm:text-xl">
             为您匹配到 {cohort.cohortSize.toLocaleString()} 例特征相似的真实世界患者
@@ -93,6 +96,7 @@ export default function SimilarCasesCard({ profile }: SimilarCasesCardProps) {
         </div>
       </div>
 
+
       {/* Metric Cards with Interactive Hover Explanations */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 relative z-10">
         
@@ -110,8 +114,9 @@ export default function SimilarCasesCard({ profile }: SimilarCasesCardProps) {
               </span>
             </div>
             <span className="text-[10px] text-blue-600 font-semibold bg-white/90 px-2 py-0.5 rounded-md border border-blue-200/60 shadow-2xs">
-              无瘤生存指标
+              {cohort.isPreOp ? "根治治愈潜力" : "无瘤生存指标"}
             </span>
+
           </div>
 
           <div className="text-3xl sm:text-4xl font-black text-blue-600 tracking-tight">
