@@ -836,15 +836,21 @@ export default function ReimbursementPage() {
               </div>
 
               <div className="space-y-4">
-                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-start gap-3.5 hover:border-slate-300 transition-all">
-                  <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-black text-sm shrink-0 mt-0.5">
+                <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-start gap-3.5 hover:border-slate-300 transition-all">
+                  <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-black text-sm shrink-0 mt-0.5 shadow-sm">
                     1
                   </div>
-                  <div className="space-y-1 text-xs">
-                    <h3 className="font-bold text-slate-900 text-sm">主诊医生开具申请表并加盖病案公章</h3>
+                  <div className="space-y-2 text-xs w-full">
+                    <h3 className="font-bold text-slate-900 text-sm">主诊医生开具申请表并加盖公章</h3>
                     <p className="text-slate-600 leading-relaxed">
-                      在主治医生处领取《门诊慢特病待遇认定申请表》，由医生填写临床诊断、基因突变分型及用药方案；随后前往医院病案室打印<strong>出院小结</strong>、<strong>病理切片报告</strong>与<strong>基因检测报告</strong>并加盖公章。
+                      在主治医生处或医院便民服务窗口领取《门诊慢特病待遇认定申请表》，由主治医生填写临床诊断、基因突变分型及用药方案；随后在拿表窗口或病案室加盖公章（用于拍照上传）。
                     </p>
+
+                    {/* 浙一医院拿表与盖章实操示例 */}
+                    <div className="p-3 rounded-xl bg-blue-50/80 border border-blue-200/70 text-[11px] text-blue-900 flex items-start gap-2 shadow-2xs">
+                      <span className="font-bold shrink-0 text-blue-700">🏥 浙一医院实操示范：</span>
+                      <span>在浙大一院各院区一楼<strong>便民服务中心 / 医保咨询窗口</strong>拿取门特申请表 ➔ 请主治医生填写临床诊断与签名 ➔ 回到拿表处（便民服务中心）<strong>加盖公章</strong> ➔ 手机拍照留存（用于浙里办线上上传）。</span>
+                    </div>
                   </div>
                 </div>
 
@@ -880,7 +886,7 @@ export default function ReimbursementPage() {
                             <span>📱 第一步：浙里办 APP 线上便捷申办</span>
                           </div>
                           <p className="text-slate-600 leading-relaxed">
-                            打开<strong>「浙里办」APP</strong> ➔ 搜索<strong>「浙里医保」</strong> ➔ 点击<strong>「门诊慢特病待遇备案」</strong> ➔ 申请病种选择<strong>「恶性肿瘤门诊治疗」</strong> ➔ 按提示拍照上传医院出院小结、病理报告与基因检测单 ➔ 提交后通常 1 个工作日内即可完成认定生效。
+                            打开<strong>「浙里办」APP</strong> ➔ 搜索<strong>「浙里医保」</strong> ➔ 点击<strong>「门诊慢特病待遇备案」</strong> ➔ 申请病种精准选择<strong>「肺肿瘤」</strong> ➔ 按提示拍照上传盖好公章的申请表、出院小结与病理报告 ➔ 提交后通常 1 个工作日内即可完成认定生效。
                           </p>
                         </div>
 
@@ -889,7 +895,7 @@ export default function ReimbursementPage() {
                             <span>🏥 第二步：浙一医院挂号直接享受门特</span>
                           </div>
                           <p className="text-slate-600 leading-relaxed">
-                            门特备案生效后，在<strong>浙大一院（浙一医院）</strong>官方微信公众号/浙里办挂号或门诊自助机取号时，挂号类型直接选择<strong>「特殊门诊（门特）」</strong>。医生开具靶向药（如奥希替尼、伏美替尼等）或检验检查时，系统<strong>自动按门特待遇统筹抵扣（报销约 80%~90%）</strong>，仅需支付自负差额！
+                            门特备案生效后，在<strong>浙大一院（浙一医院）官方微信公众号 / 支付宝小程序</strong>预约挂号，到院后在<strong>门诊自助机取号时，取号类型直接选择「特殊门诊」</strong>。医生开具靶向药（如奥希替尼等）或复查项目时，系统<strong>自动按门特标准统筹抵扣（报销约 80%~90%）</strong>，仅需支付自负差额！
                           </p>
                         </div>
                       </div>
@@ -1178,9 +1184,10 @@ export default function ReimbursementPage() {
                   <span>Q5：以浙江省（浙里办）和浙大一院（浙一）为例，门特从申请到就医扣款的完整闭环是怎样的？</span>
                 </div>
                 <p className="text-slate-700 leading-relaxed">
-                  ① <strong>线上认定</strong>：在「浙里办」APP 搜索「浙里医保」进入「门诊慢特病待遇备案」，选择「恶性肿瘤门诊治疗」，上传病理报告和出院小结，1 个工作日内自动秒审生效；<br />
-                  ② <strong>就医挂号</strong>：在浙大一院微信公众号或医院自助机挂号取号时，务必选择<strong>「特殊门诊（门特）」</strong>类型；<br />
-                  ③ <strong>自动抵扣</strong>：医生开具靶向药、化疗或相关复查后，结算系统自动按门特标准统筹报销（职工约 80%~90%、居民约 65%~70%），患者出示医保码仅需支付极少量自负差额。
+                  ① <strong>开表与盖章</strong>：在浙大一院一楼便民服务中心领取门特纸质表 ➔ 请主治医生填写诊断并签字 ➔ 回到便民服务中心（拿表处）加盖公章并手机拍照；<br />
+                  ② <strong>浙里办线上认定</strong>：打开「浙里办」APP 搜索「浙里医保」➔ 进入「门诊慢特病待遇备案」➔ 申请病种精准选择<strong>「肺肿瘤」</strong> ➔ 上传盖章申请表、出院小结及病理报告，通常 1 个工作日内自动秒审生效；<br />
+                  ③ <strong>预约与自助机取号</strong>：在浙大一院官方微信公众号或<strong>支付宝小程序</strong>预约挂号，就诊当日在<strong>门诊自助机取号时，取号类型直接选择「特殊门诊」</strong>；<br />
+                  ④ <strong>自动统筹扣款</strong>：接诊医生开具靶向药（如奥希替尼等）或检查检验时，结算系统自动按门特标准统筹抵扣（报销约 80%~90%），患者仅需支付个人极少量自负差额！
                 </p>
               </div>
             </div>
