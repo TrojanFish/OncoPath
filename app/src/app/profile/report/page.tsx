@@ -291,12 +291,6 @@ export default function EvidenceReportPage() {
           pixelRatio: 2,
           backgroundColor: "#f8fafc",
           cacheBust: true,
-          filter: (node) => {
-            if (node instanceof HTMLElement) {
-              if (node.classList.contains("no-export")) return false;
-            }
-            return true;
-          },
         });
       } catch (primaryErr) {
         console.warn("Primary html-to-image failed, falling back to html2canvas:", primaryErr);
@@ -307,7 +301,6 @@ export default function EvidenceReportPage() {
           allowTaint: true,
           backgroundColor: "#f8fafc",
           logging: false,
-          ignoreElements: (node) => node.classList?.contains("no-export"),
         });
         imgData = canvas.toDataURL("image/png");
       }
@@ -548,11 +541,22 @@ export default function EvidenceReportPage() {
                 <button
                   onClick={handleExportCardImage}
                   disabled={isExportingCard}
-                  className="hidden xl:flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold text-teal-800 bg-teal-50 hover:bg-teal-100 border border-teal-200 transition-all cursor-pointer shadow-2xs group whitespace-nowrap disabled:opacity-50"
+                  className="flex items-center gap-1 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-xl text-[11px] sm:text-xs font-bold text-teal-800 bg-teal-50 hover:bg-teal-100 border border-teal-200 transition-all cursor-pointer shadow-2xs group whitespace-nowrap disabled:opacity-50"
                   title="生成门诊 3 分钟就医问诊便签卡 (轻便版)"
                 >
-                  <ClipboardList className="w-3.5 h-3.5 text-teal-600 transition-transform group-hover:scale-110 flex-shrink-0" />
-                  <span>问诊便签卡</span>
+                  {isExportingCard ? (
+                    <>
+                      <span className="w-3 h-3 border-2 border-teal-800 border-t-transparent rounded-full animate-spin" />
+                      <span className="sm:hidden">生成中</span>
+                      <span className="hidden sm:inline">生成中...</span>
+                    </>
+                  ) : (
+                    <>
+                      <ClipboardList className="w-3.5 h-3.5 text-teal-600 transition-transform group-hover:scale-110 flex-shrink-0" />
+                      <span className="sm:hidden">问诊卡</span>
+                      <span className="hidden sm:inline">问诊便签卡</span>
+                    </>
+                  )}
                 </button>
               </div>
             )}
@@ -560,22 +564,10 @@ export default function EvidenceReportPage() {
         </nav>
       </div>
 
-
-      <div id="report-printable-area" ref={reportContainerRef} className="max-w-5xl mx-auto px-2.5 sm:px-6 lg:px-8 pt-16 sm:pt-20 md:pt-22 print:pt-0 print:px-0">
+      {/* Main Page Layout Wrapper */}
+      <div className="max-w-5xl mx-auto px-2.5 sm:px-6 lg:px-8 pt-16 sm:pt-20 md:pt-22 pb-12 print:pt-0 print:px-0">
         
-        {/* Professional Clinical Report Brand Header (Visible in Exported Long Image & Print) */}
-        <div className="hidden print:flex items-center justify-between pb-3 mb-4 border-b border-slate-200 text-xs text-slate-500">
-          <div className="flex items-center gap-2">
-            <span className="font-black text-blue-700 text-sm tracking-tight">OncoPath</span>
-            <span className="text-slate-300">|</span>
-            <span className="font-bold text-slate-700">肺癌循证医学决策系统 · 临床专属循证解读报告</span>
-          </div>
-          <div className="text-[11px] text-slate-400 font-medium">
-            报告时间: {new Date().toLocaleDateString('zh-CN')}
-          </div>
-        </div>
-
-        {/* Smart Cache Notification Banner (Clean & Informative) */}
+        {/* Smart Cache Notification Banner (Outside printable report) */}
         {isLoadedFromCache && !isGenerating && (
           <div className="mb-4 p-3 sm:p-3.5 px-3.5 sm:px-4 rounded-2xl bg-gradient-to-r from-sky-50 via-blue-50/70 to-teal-50/50 border border-sky-200/80 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs text-slate-600 print:hidden">
             <div className="flex items-center gap-2">
@@ -597,6 +589,22 @@ export default function EvidenceReportPage() {
             </Link>
           </div>
         )}
+
+        {/* Pure printable & long-image exportable container (No trailing blank space) */}
+        <div id="report-printable-area" ref={reportContainerRef} className="space-y-4 sm:space-y-5 bg-slate-50/90 p-3 sm:p-6 md:p-7 rounded-3xl border border-slate-200/90 shadow-sm print:bg-white print:border-none print:shadow-none print:p-0">
+          
+          {/* Professional Clinical Report Brand Header (Visible in Exported Long Image & Print) */}
+          <div className="flex items-center justify-between pb-3 border-b border-slate-200/90 text-xs text-slate-500">
+            <div className="flex items-center gap-2">
+              <span className="font-black text-blue-700 text-sm tracking-tight">OncoPath Navigator</span>
+              <span className="text-slate-300">|</span>
+              <span className="font-bold text-slate-700">肺癌循证医学决策系统 · 临床专属循证解读报告</span>
+            </div>
+            <div className="text-[11px] text-slate-400 font-medium font-mono">
+              报告时间: {new Date().toLocaleDateString('zh-CN')}
+            </div>
+          </div>
+
 
         {/* Patient Clinical Overview Hero Card */}
         {profile && (
@@ -922,9 +930,16 @@ export default function EvidenceReportPage() {
           </div>
         </div>
 
-        {/* Export Choice Hub Card (自由选择：PDF打印 / 全篇报告长图 / 门诊问诊卡) */}
+          {/* Medical Disclaimer Stamp Footer inside report */}
+          <div className="border-t border-slate-200/90 pt-3 text-[10px] text-slate-400 flex flex-col sm:flex-row items-center justify-between gap-1">
+            <span>免责声明：本报告由 OncoPath 临床循证推理引擎根据患者个体病理/影像与国际医学指南生成，仅供就医沟通参考。</span>
+            <span className="font-mono font-bold text-slate-400">ONCOPATH-EVIDENCE-REPORT</span>
+          </div>
+        </div>
+
+        {/* Export Choice Hub Card (自由选择：PDF打印 / 全篇报告长图 / 门诊问诊卡 - 独立于长图容器) */}
         {!isGenerating && reportMarkdown && (
-          <div className="mt-6 bg-gradient-to-br from-blue-50/80 via-white to-indigo-50/50 rounded-3xl p-5 sm:p-7 border border-blue-200/80 shadow-sm print:hidden no-export">
+          <div className="mt-6 bg-gradient-to-br from-blue-50/80 via-white to-indigo-50/50 rounded-3xl p-5 sm:p-7 border border-blue-200/80 shadow-sm print:hidden">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-3 border-b border-blue-100/80">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold shadow-md shadow-blue-500/20">
@@ -1041,6 +1056,7 @@ export default function EvidenceReportPage() {
         )}
 
       </div>
+
 
 
       {/* Dedicated Consultation Pocket Card Container (Fixed 560px for Instant Pixel-Perfect 2x Export) */}

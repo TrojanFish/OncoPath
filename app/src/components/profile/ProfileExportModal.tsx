@@ -68,30 +68,14 @@ export default function ProfileExportModal({ profile, onClose }: ProfileExportMo
       setGenerationError(null);
 
       const element = offscreenPosterRef.current;
-      await new Promise((r) => setTimeout(r, 250));
-
-      const fullWidth = 560;
-      const fullHeight = element.scrollHeight;
+      await new Promise((r) => setTimeout(r, 200));
 
       let imgData = "";
       try {
         imgData = await toPng(element, {
           quality: 0.98,
           pixelRatio: 2,
-          width: fullWidth,
-          height: fullHeight,
-          canvasWidth: fullWidth * 2,
-          canvasHeight: fullHeight * 2,
-          backgroundColor: "#0f172a",
           cacheBust: true,
-          style: {
-            position: "static",
-            display: "block",
-            overflow: "visible",
-            maxHeight: "none",
-            height: "auto",
-            transform: "none",
-          },
         });
       } catch (primaryErr) {
         console.warn("Primary html-to-image failed, trying html2canvas fallback:", primaryErr);
@@ -100,15 +84,8 @@ export default function ProfileExportModal({ profile, onClose }: ProfileExportMo
           scale: 2,
           useCORS: true,
           allowTaint: true,
-          backgroundColor: "#0f172a",
+          backgroundColor: "#020617",
           logging: false,
-          width: fullWidth,
-          height: fullHeight,
-          windowWidth: fullWidth,
-          windowHeight: fullHeight,
-          x: 0,
-          y: 0,
-          scrollY: 0,
         });
         imgData = canvas.toDataURL("image/png");
       }
@@ -125,6 +102,7 @@ export default function ProfileExportModal({ profile, onClose }: ProfileExportMo
       setIsExporting(false);
     }
   };
+
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -238,9 +216,15 @@ export default function ProfileExportModal({ profile, onClose }: ProfileExportMo
       <div className="absolute left-[-9999px] top-[-9999px] pointer-events-none" aria-hidden="true">
         <div
           ref={offscreenPosterRef}
-          className="w-[560px] bg-gradient-to-b from-slate-950 via-slate-900 to-indigo-950 text-white p-7 font-sans relative overflow-hidden"
-          style={{ fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}
+          className="w-[560px] text-white p-7 font-sans relative overflow-hidden"
+          style={{
+            fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+            background: "linear-gradient(180deg, #020617 0%, #0f172a 40%, #1e1b4b 100%)",
+            boxSizing: "border-box",
+            margin: 0,
+          }}
         >
+
           {/* Subtle Ambient Glows */}
           <div className="absolute -top-16 -right-16 w-64 h-64 bg-blue-500/15 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute -bottom-16 -left-16 w-64 h-64 bg-teal-500/15 rounded-full blur-3xl pointer-events-none" />
