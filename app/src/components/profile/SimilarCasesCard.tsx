@@ -127,7 +127,7 @@ export default function SimilarCasesCard({ profile }: SimilarCasesCardProps) {
 
           </div>
 
-          <div className="text-3xl sm:text-4xl font-black text-blue-600 tracking-tight">
+          <div className="text-2xl sm:text-3xl lg:text-4xl font-black text-blue-600 tracking-tight whitespace-nowrap overflow-hidden text-ellipsis">
             {cohort.rfs5Year}
           </div>
 
@@ -163,7 +163,7 @@ export default function SimilarCasesCard({ profile }: SimilarCasesCardProps) {
             </span>
           </div>
 
-          <div className="text-3xl sm:text-4xl font-black text-teal-600 tracking-tight">
+          <div className="text-2xl sm:text-3xl lg:text-4xl font-black text-teal-600 tracking-tight whitespace-nowrap overflow-hidden text-ellipsis">
             {cohort.os5Year}
           </div>
 

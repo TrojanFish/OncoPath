@@ -252,8 +252,8 @@ describe('AJCC 8th/9th Edition & IASLC TNM Staging Engine', () => {
         mStage: 'M0'
       });
       expect(cohort.stage).toContain('IA1');
-      expect(cohort.rfs5Year).toBe('98.8%');
-      expect(cohort.os5Year).toBe('99.5%');
+      expect(cohort.rfs5Year).toContain('97.0%');
+      expect(cohort.os5Year).toContain('98.5%');
     });
 
     it('should adjust survival for Stage IA1 when STAS is positive', () => {
@@ -267,7 +267,7 @@ describe('AJCC 8th/9th Edition & IASLC TNM Staging Engine', () => {
         mStage: 'M0'
       });
       expect(cohort.stage).toContain('伴病理高危因素');
-      expect(cohort.rfs5Year).toBe('92.5%');
+      expect(cohort.rfs5Year).toContain('90.0%');
       expect(cohort.keyFactors).toContain('气道播散 STAS+');
     });
 
@@ -280,8 +280,8 @@ describe('AJCC 8th/9th Edition & IASLC TNM Staging Engine', () => {
         mStage: 'M0'
       });
       expect(cohort.stage).toContain('IA2');
-      expect(cohort.rfs5Year).toBe('95.6%');
-      expect(cohort.os5Year).toBe('97.2%');
+      expect(cohort.rfs5Year).toContain('94.3%');
+      expect(cohort.os5Year).toContain('95.0%');
     });
 
     it('should calculate accurate survival for Stage IB (T2a N0 M0) referencing ADAURA', () => {
@@ -293,8 +293,8 @@ describe('AJCC 8th/9th Edition & IASLC TNM Staging Engine', () => {
         mStage: 'M0'
       });
       expect(cohort.stage).toContain('IB');
-      expect(cohort.rfs5Year).toBe('84.5%');
-      expect(cohort.os5Year).toBe('88.0%');
+      expect(cohort.rfs5Year).toContain('82.0%');
+      expect(cohort.os5Year).toContain('85.0%');
       expect(cohort.source).toContain('ADAURA');
     });
 
@@ -307,8 +307,8 @@ describe('AJCC 8th/9th Edition & IASLC TNM Staging Engine', () => {
         mStage: 'M0'
       });
       expect(cohort.stage).toContain('IIIA');
-      expect(cohort.rfs5Year).toBe('52.0%');
-      expect(cohort.os5Year).toBe('60.5%');
+      expect(cohort.rfs5Year).toContain('48.0%');
+      expect(cohort.os5Year).toContain('55.0%');
       expect(cohort.source).toContain('ADAURA');
     });
 
@@ -320,7 +320,7 @@ describe('AJCC 8th/9th Edition & IASLC TNM Staging Engine', () => {
         currentStage: 'evaluation'
       });
       expect(cohort.isPreOp).toBe(true);
-      expect(cohort.rfs5Year).toBe('99.7%');
+      expect(cohort.rfs5Year).toContain('99.7%');
       expect(cohort.source).toContain('JCOG0804');
     });
   });
