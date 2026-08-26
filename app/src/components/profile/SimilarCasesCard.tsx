@@ -9,6 +9,7 @@ import {
   HeartPulse,
   ShieldCheck,
   Sparkles,
+  Users,
 } from "lucide-react";
 import type { PatientProfile } from "@/lib/types";
 import { getClinicalCohortForProfile, ClinicalCohortResult } from "@/lib/staging";
@@ -60,26 +61,33 @@ export default function SimilarCasesCard({ profile }: SimilarCasesCardProps) {
       
       {/* Card Header */}
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 mb-6 relative z-10 pb-4 border-b border-slate-100">
-        <div className="min-w-0">
-          <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1 flex flex-wrap items-center gap-2">
-            <span>SIMILAR CLINICAL COHORTS · 相似病例群体预后</span>
-            <span className="text-xs font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200 normal-case shrink-0">
-              国际顶刊前瞻队列
-            </span>
-            {cohort.stage && (
-              <span className="text-xs font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 normal-case shrink-0">
-                {cohort.stage}
-              </span>
-            )}
-            {cohort.keyFactors && cohort.keyFactors.length > 0 && cohort.keyFactors.map((kf: string, idx: number) => (
-              <span key={idx} className="text-[10px] font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200 normal-case shrink-0">
-                {kf}
-              </span>
-            ))}
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 font-bold flex items-center justify-center shrink-0">
+            <Users className="w-4 h-4 shrink-0" />
           </div>
-          <h3 className="text-slate-900 font-extrabold text-lg sm:text-xl leading-snug">
-            为您匹配到 {cohort.cohortSize.toLocaleString()} 例特征相似的真实世界患者
-          </h3>
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h3 className="text-xs sm:text-sm font-extrabold text-slate-900 leading-snug">
+                相似病例群体预后分析
+              </h3>
+              <span className="text-[10px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200 shrink-0 whitespace-nowrap">
+                国际顶刊前瞻队列
+              </span>
+              {cohort.stage && (
+                <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 shrink-0 whitespace-nowrap">
+                  {cohort.stage}
+                </span>
+              )}
+              {cohort.keyFactors && cohort.keyFactors.length > 0 && cohort.keyFactors.map((kf: string, idx: number) => (
+                <span key={idx} className="text-[10px] font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200 shrink-0 whitespace-nowrap">
+                  {kf}
+                </span>
+              ))}
+            </div>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5 truncate">
+              SIMILAR CLINICAL COHORTS · REAL-WORLD EVIDENCE ({cohort.cohortSize.toLocaleString()} 例前瞻特征匹配)
+            </p>
+          </div>
         </div>
 
         <div className="sm:text-right flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-1.5 shrink-0">

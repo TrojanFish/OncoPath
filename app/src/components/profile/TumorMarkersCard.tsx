@@ -26,36 +26,34 @@ export function TumorMarkersCard({
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
-        <div className="min-w-0">
-          <div className="flex items-start sm:items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 font-bold flex items-center justify-center shrink-0 mt-0.5 sm:mt-0">
-              <TestTube2 className="w-4 h-4 text-indigo-600 shrink-0" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="text-sm font-extrabold text-slate-900 leading-snug">
-                  TUMOR BIOMARKERS · 最新单期血清肿瘤标志物排雷
-                </h3>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200 shrink-0 whitespace-nowrap">
-                  当前快照
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 font-bold flex items-center justify-center shrink-0">
+            <TestTube2 className="w-4 h-4 shrink-0" />
+          </div>
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h3 className="text-xs sm:text-sm font-extrabold text-slate-900 leading-snug">
+                血清肿瘤标志物监测
+              </h3>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200 shrink-0 whitespace-nowrap">
+                当前快照
+              </span>
+              {markers?.testDate && (
+                <span className="text-[11px] font-mono text-slate-500 flex items-center gap-1 shrink-0 whitespace-nowrap">
+                  <Calendar className="w-3 h-3 text-slate-400 shrink-0" />
+                  <span>{markers.testDate}</span>
                 </span>
-                {markers?.testDate && (
-                  <span className="text-[11px] font-mono text-slate-500 flex items-center gap-1 shrink-0 whitespace-nowrap">
-                    <Calendar className="w-3 h-3 text-slate-400 shrink-0" />
-                    <span>{markers.testDate}</span>
-                  </span>
-                )}
-              </div>
-              <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">
-                包含 CEA、CYFRA21-1、NSE、SCC、ProGRP、CA125、CA19-9、CA15-3 等 9 项全指标生理安全带
-              </p>
+              )}
             </div>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5 truncate">
+              SERUM TUMOR BIOMARKERS · PANEL SNAPSHOT
+            </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
+        <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap shrink-0">
           {hasData && (
-            <span className={`text-xs font-bold px-3 py-1 rounded-full border ${
+            <span className={`text-xs font-bold px-3 py-1 rounded-full border whitespace-nowrap shrink-0 ${
               isAllNormal 
                 ? "bg-emerald-50 text-emerald-800 border-emerald-200" 
                 : "bg-amber-50 text-amber-900 border-amber-200"

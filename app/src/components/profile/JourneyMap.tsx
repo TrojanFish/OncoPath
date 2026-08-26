@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { Compass } from "lucide-react";
 
 interface JourneyMapProps {
   currentStage?: string; // 'discovery' | 'evaluation' | 'post_op' | 'follow_up'
@@ -58,18 +59,24 @@ export default function JourneyMap({
     <div className="bg-white rounded-3xl p-3.5 sm:p-6 md:p-7 border border-slate-200 shadow-sm mb-6 sm:mb-8">
       
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6 pb-4 border-b border-slate-100">
-        <div>
-          <h3 className="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2">
-            <span>🗺️ 双轨状态导航</span>
-            <span className="text-xs font-semibold text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-200">
-              Cancer Journey OS
-            </span>
-          </h3>
-          <p className="text-slate-500 text-xs mt-0.5">
-            医学诊疗进度与心理赋能成长双轨并行，记录您的康复全轨迹
-          </p>
+      <div className="flex items-center justify-between gap-3 mb-6 pb-4 border-b border-slate-100">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 font-bold flex items-center justify-center shrink-0">
+            <Compass className="w-4 h-4 shrink-0" />
+          </div>
+          <div className="min-w-0">
+            <h3 className="text-xs sm:text-sm font-extrabold text-slate-900 leading-snug">
+              双轨康复状态导航
+            </h3>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5 truncate">
+              CANCER JOURNEY OS · CLINICAL & PSYCHOLOGICAL
+            </p>
+          </div>
         </div>
+
+        <span className="text-xs font-semibold text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-200 shrink-0 whitespace-nowrap">
+          Cancer Journey OS
+        </span>
       </div>
 
       <div className="space-y-8">

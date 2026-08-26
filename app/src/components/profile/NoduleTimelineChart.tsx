@@ -75,16 +75,18 @@ export function NoduleTimelineChart({
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
-        <div className="min-w-0">
-          <div className="flex items-center gap-2 min-w-0">
-            <TrendingUp className="w-4 h-4 text-sky-500 shrink-0" />
-            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider truncate">
-              LONGITUDINAL CT TIMELINE · 结节随访时序生长轨迹
-            </h3>
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-8 h-8 rounded-xl bg-sky-50 text-sky-600 font-bold flex items-center justify-center shrink-0">
+            <TrendingUp className="w-4 h-4 shrink-0" />
           </div>
-          <p className="text-xs text-slate-500 mt-1">
-            动态测算历次 CT 结节体积倍增时间 (VDT) 与双期实性浸润演变透视
-          </p>
+          <div className="min-w-0">
+            <h3 className="text-xs sm:text-sm font-extrabold text-slate-900 leading-snug">
+              结节随访生长时序轨迹
+            </h3>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5 truncate">
+              LONGITUDINAL CT TIMELINE · VDT DYNAMICS
+            </p>
+          </div>
         </div>
 
         <div className="flex items-center gap-2 self-start sm:self-auto shrink-0 flex-wrap">

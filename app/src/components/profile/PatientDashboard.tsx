@@ -249,10 +249,10 @@ export default function PatientDashboard() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-6 sm:mb-8">
         <div>
           <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
-            患者临床数字档案 (Patient Profile)
+            患者临床数字档案
           </h1>
-          <p className="text-slate-500 text-xs sm:text-sm mt-1">
-            动态决策状态机 · 基于 AJCC 8th/9th 实性成分与前瞻性临床队列
+          <p className="text-slate-400 font-bold text-[11px] sm:text-xs uppercase tracking-wider mt-1">
+            PATIENT CLINICAL PROFILE · 动态决策状态机 · 基于 AJCC 8th/9th 实性成分与前瞻性临床队列
           </p>
         </div>
         <div className="flex items-center gap-2 self-start sm:self-center flex-wrap">
@@ -312,11 +312,20 @@ export default function PatientDashboard() {
         <div className="bg-white rounded-3xl p-3.5 sm:p-6 md:p-7 border border-slate-200 border-t-4 border-t-sky-500 shadow-sm flex flex-col justify-between hover:border-sky-300 transition-all">
 
           <div>
-            <div className="flex items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100">
-              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5 min-w-0">
-                <Scan className="w-3.5 h-3.5 text-sky-600 shrink-0" />
-                <span className="truncate">CT IMAGING & MORPHOLOGY · 薄层 CT 影像原发灶</span>
-              </h3>
+            <div className="flex items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-8 h-8 rounded-xl bg-sky-50 text-sky-600 font-bold flex items-center justify-center shrink-0">
+                  <Scan className="w-4 h-4 shrink-0" />
+                </div>
+                <div className="min-w-0">
+                  <h3 className="text-xs sm:text-sm font-extrabold text-slate-900 leading-snug">
+                    薄层 CT 影像原发灶
+                  </h3>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5 truncate">
+                    CT IMAGING & MORPHOLOGY · T-STAGING
+                  </p>
+                </div>
+              </div>
               <span className="text-xs font-semibold text-teal-700 bg-teal-50 px-2.5 py-0.5 rounded-full border border-teal-200 whitespace-nowrap shrink-0">
                 {noduleLabel}
               </span>
@@ -405,11 +414,20 @@ export default function PatientDashboard() {
         {/* Bento Box 2: Pathology High-Risk Indicators & Ki-67 (N-Stage & Invasive Factors) */}
         <div className="bg-white rounded-3xl p-3.5 sm:p-6 md:p-7 border border-slate-200 border-t-4 border-t-purple-500 shadow-sm flex flex-col justify-between hover:border-purple-300 transition-all">
           <div>
-            <div className="flex items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100">
-              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5 min-w-0">
-                <Microscope className="w-3.5 h-3.5 text-purple-600 shrink-0" />
-                <span className="truncate">PATHOLOGY & IHC · 术后组织病理与浸润特征</span>
-              </h3>
+            <div className="flex items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 font-bold flex items-center justify-center shrink-0">
+                  <Microscope className="w-4 h-4 shrink-0" />
+                </div>
+                <div className="min-w-0">
+                  <h3 className="text-xs sm:text-sm font-extrabold text-slate-900 leading-snug">
+                    术后组织病理与浸润特征
+                  </h3>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5 truncate">
+                    PATHOLOGY & IHC · INVASIVE FACTORS
+                  </p>
+                </div>
+              </div>
               <span className="text-xs font-semibold text-slate-600 bg-slate-100 px-2.5 py-0.5 rounded-full border border-slate-200 whitespace-nowrap shrink-0">
                 {profile.currentStage === 'evaluation' || profile.currentStage === 'discovery' || profile.surgeryType === 'unknown' ? '术前基线' : '病理金标准'}
               </span>
@@ -502,11 +520,20 @@ export default function PatientDashboard() {
         {/* Bento Box 3: Systemic Staging & Benign Findings (M-Staging) */}
         <div className="bg-white rounded-3xl p-3.5 sm:p-6 md:p-7 border border-slate-200 border-t-4 border-t-teal-500 shadow-sm flex flex-col justify-between hover:border-teal-300 transition-all">
           <div>
-            <div className="flex items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-100">
-              <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5 min-w-0">
-                <Layers className="w-3.5 h-3.5 text-teal-600 shrink-0" />
-                <span className="truncate">SYSTEMIC STAGING · 全身远处转移排查与良性排雷</span>
-              </h3>
+            <div className="flex items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-8 h-8 rounded-xl bg-teal-50 text-teal-600 font-bold flex items-center justify-center shrink-0">
+                  <Layers className="w-4 h-4 shrink-0" />
+                </div>
+                <div className="min-w-0">
+                  <h3 className="text-xs sm:text-sm font-extrabold text-slate-900 leading-snug">
+                    全身远处转移排查与良性排雷
+                  </h3>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5 truncate">
+                    SYSTEMIC STAGING · M-STAGE EXCLUSION
+                  </p>
+                </div>
+              </div>
               <span className="text-xs font-extrabold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 whitespace-nowrap shrink-0">
                 M0 根治窗口确立
               </span>
@@ -591,12 +618,24 @@ export default function PatientDashboard() {
         {/* Bento Box 4: AI Decision Engine & Actionable Next Steps */}
         <div className="bg-gradient-to-br from-blue-50/90 via-white to-sky-50/60 rounded-3xl p-3.5 sm:p-6 md:p-7 border border-blue-200 border-t-4 border-t-blue-600 shadow-sm flex flex-col justify-between hover:border-blue-400 transition-all">
           <div className="space-y-4">
-            <div className="flex items-center justify-between gap-2 pb-3 border-b border-blue-100/80">
-              <h3 className="text-xs font-bold text-blue-900 uppercase tracking-wider flex items-center gap-1.5 min-w-0">
-                <BrainCircuit className="w-3.5 h-3.5 text-blue-600 shrink-0" />
-                <span className="truncate">DECISION ENGINE · 临床决策引擎</span>
-              </h3>
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+            <div className="flex items-center justify-between gap-3 pb-3 border-b border-blue-100/80">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-8 h-8 rounded-xl bg-blue-100 text-blue-700 font-bold flex items-center justify-center shrink-0">
+                  <BrainCircuit className="w-4 h-4 shrink-0" />
+                </div>
+                <div className="min-w-0">
+                  <h3 className="text-xs sm:text-sm font-extrabold text-slate-900 leading-snug">
+                    智能临床决策引擎
+                  </h3>
+                  <p className="text-[10px] font-bold text-blue-600/80 uppercase tracking-wider mt-0.5 truncate">
+                    AI DECISION ENGINE · ACTIONABLE NEXT STEPS
+                  </p>
+                </div>
+              </div>
+              <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 shrink-0 whitespace-nowrap">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                <span>实时推演</span>
+              </span>
             </div>
 
 
