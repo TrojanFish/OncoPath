@@ -331,7 +331,9 @@ export function GraphRenderer({
 
       {/* Nodes (Always Visible, High-Contrast Typography & Visual Glow) */}
       {currentNodes.map((node) => {
-        const colors = typeColors[node.type] || typeColors.factor;
+        const colors = node.id === "SURVEILLANCE" 
+          ? { bg: "#f0fdf4", border: "#86efac", text: "#15803d", dot: "#16a34a" }
+          : (typeColors[node.type] || typeColors.factor);
         const isActive = activeNode?.id === node.id;
         const isHovered = hoveredNode?.id === node.id;
 

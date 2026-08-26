@@ -87,6 +87,13 @@ export function getNodeActivation(nodeId: string, profile: PatientProfile | null
       if (riskCount === 0) return "dim";
       return "normal";
     }
+    case "SURVEILLANCE": {
+      const isStageIA = profile.stage === "IA1" || profile.stage === "IA2" || profile.stage === "IA3" || (profile.stage?.startsWith("IA") ?? false) || profile.stage === "Tis" || profile.stage === "0";
+      const isLowRisk = profile.ctr <= 0.5 || isStageIA;
+      if (isLowRisk && profile.stas !== "positive" && profile.lvi !== "positive") return "active";
+      if (profile.stage === "IIIA" || profile.stage === "IIIB" || profile.nStage === "N2") return "dim";
+      return "normal";
+    }
     case "METASTASIS":
       if (profile.lvi === "positive") return "active";
       if (profile.lvi === "negative") return "dim";

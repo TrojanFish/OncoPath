@@ -97,6 +97,12 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
     if (profile.ctr > 0.5) activeHighlightNodes.push("CTR", "STAGING", "SURGERY");
     if (profile.iaslcGrade === "3") activeHighlightNodes.push("IASLC", "ADJUVANT");
     if (profile.egfr === "positive") activeHighlightNodes.push("EGFR", "TARGETED", "ADJUVANT");
+    
+    // Highlight SURVEILLANCE for all Stage IA & CTR <= 0.5 low-risk profiles
+    const isStageIA = profile.stage === "IA1" || profile.stage === "IA2" || profile.stage === "IA3" || (profile.stage?.startsWith("IA") ?? false) || profile.stage === "Tis" || profile.stage === "0";
+    if (isStageIA || (profile.ctr != null && profile.ctr <= 0.5)) {
+      activeHighlightNodes.push("CTR", "SURGERY", "STAGING", "SURVEILLANCE");
+    }
     activeHighlightNodes = Array.from(new Set(activeHighlightNodes));
   }
 
