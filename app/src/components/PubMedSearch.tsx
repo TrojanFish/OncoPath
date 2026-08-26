@@ -75,7 +75,7 @@ export default function PubMedSearch() {
 
   return (
     <div className="mt-16 mb-8">
-      <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
+      <div className="bg-white rounded-3xl p-3.5 sm:p-6 md:p-7 shadow-sm border border-slate-200">
         <h2 className="text-xl font-bold text-text-primary mb-4 flex items-center gap-2">
           <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" className="text-accent-blue">
             <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" strokeLinecap="round" strokeLinejoin="round" />

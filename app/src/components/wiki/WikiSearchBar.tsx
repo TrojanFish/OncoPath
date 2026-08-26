@@ -21,7 +21,7 @@ export function WikiSearchBar({
   filteredCount,
 }: WikiSearchBarProps) {
   return (
-    <div className="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200 shadow-sm space-y-3.5">
+    <div className="bg-white rounded-3xl p-3.5 sm:p-5 border border-slate-200 shadow-sm space-y-3.5">
       {/* Main Search Input */}
       <div className="relative">
         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">

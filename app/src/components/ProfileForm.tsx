@@ -100,7 +100,7 @@ export default function ProfileForm({ onSubmit }: ProfileFormProps) {
       </div>
 
       {/* Form Card */}
-      <div className="bg-white rounded-2xl p-3.5 sm:p-6 md:p-8 shadow-sm border border-gray-200">
+      <div className="bg-white rounded-3xl p-3.5 sm:p-6 md:p-8 shadow-sm border border-slate-200">
         {step === 1 && <Step1 form={form} updateForm={updateForm} />}
         {step === 2 && <Step2 form={form} updateForm={updateForm} />}
         {step === 3 && <Step3 form={form} updateForm={updateForm} />}

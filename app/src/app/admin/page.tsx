@@ -571,7 +571,7 @@ export default function AdminPage() {
       <main className="max-w-7xl mx-auto px-2.5 sm:px-6 space-y-6 sm:space-y-10">
         
         {/* Ingestion Studio Card */}
-        <section className="bg-white rounded-2xl border border-gray-200 p-3.5 sm:p-6 md:p-8 shadow-sm">
+        <section className="bg-white rounded-3xl border border-slate-200 p-3.5 sm:p-6 md:p-8 shadow-sm">
           
           {/* Dual Ingestion Mode Tabs */}
           {!extractedData && (
@@ -1106,7 +1106,7 @@ export default function AdminPage() {
         </section>
 
         {/* Section: Ingested Evidence Library Table */}
-        <section className="bg-white rounded-2xl border border-gray-200 p-3.5 sm:p-6 md:p-8 shadow-sm">
+        <section className="bg-white rounded-3xl border border-slate-200 p-3.5 sm:p-6 md:p-8 shadow-sm">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-gray-100 mb-6">
             <div>
               <h2 className="text-lg font-bold text-gray-900">已收录医学证据文献库</h2>

@@ -84,7 +84,7 @@ export function WikiScenarioEntry({ activeCategory = "all", onSelectCategory }: 
             <button
               key={s.category}
               onClick={() => onSelectCategory(s.category)}
-              className={`text-left p-4 sm:p-5 rounded-3xl border transition-all duration-300 cursor-pointer flex flex-col justify-between relative ${
+              className={`text-left p-3.5 sm:p-5 rounded-3xl border transition-all duration-300 cursor-pointer flex flex-col justify-between relative ${
                 isActive ? s.activeBorder : `${s.gradient} shadow-xs hover:shadow-md hover:-translate-y-0.5`
               }`}
             >
