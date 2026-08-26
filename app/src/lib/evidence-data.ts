@@ -311,6 +311,90 @@ export const EVIDENCE_FACTORS: Factor[] = [
         patientN: 261,
         evidenceLevel: 4,
       },
+      {
+        finding:
+          "TRACERx多中心纵向追踪证实血液ctDNA检出MRD较CT影像提前中位160~200天预警复发；阴性者长期治愈率>90%",
+        studyRef: "TRACERx_Nature_2023",
+        patientN: 421,
+        evidenceLevel: 5,
+      },
+    ],
+  },
+  {
+    id: "IMMUNOTHERAPY",
+    name: "Perioperative & Adjuvant Immunotherapy",
+    nameZh: "围手术期与辅助免疫治疗（PD-1/PD-L1）",
+    category: "clinical",
+    descriptionZh:
+      "针对II~IIIB期或PD-L1阳性可切除肺癌，通过免疫检查点抑制剂（如帕博利珠单抗、纳武利尤单抗、阿替利珠单抗）实现围手术期系统性免疫激活与清除微转移。",
+    clinicalSignificance: "high",
+    evidenceSummary: {
+      studiesSupporting: 15,
+      metaAnalyses: 3,
+      consensus:
+        "KEYNOTE-671与CheckMate 816等III期RCT确立了围手术期免疫联合化疗在提升pCR和显著延长总生存期（OS HR=0.72）上的里程碑地位。",
+      confidence: 5,
+    },
+    keyFindings: [
+      {
+        finding:
+          "KEYNOTE-671证实围手术期帕博利珠单抗全程治疗带来明确总生存期显著延长（OS HR=0.72, 4年OS 67.1% vs 51.5%）",
+        hr: 0.72,
+        os5yr: 0.671,
+        studyRef: "KEYNOTE671_2023",
+        patientN: 797,
+        evidenceLevel: 5,
+      },
+      {
+        finding:
+          "CheckMate 816证实术前新辅助纳武利尤单抗+化疗将病理完全缓解率（pCR）提升至24.0% vs 单纯化疗2.2%（OR=13.94）",
+        hr: 0.63,
+        studyRef: "CheckMate816_2022",
+        patientN: 358,
+        evidenceLevel: 5,
+      },
+      {
+        finding:
+          "IMpower010证实完全切除且PD-L1 TC≥50%的II-IIIA期患者辅助阿替利珠单抗复发风险降低57%（DFS HR=0.43）",
+        hr: 0.43,
+        studyRef: "IMpower010_2021",
+        patientN: 1005,
+        evidenceLevel: 5,
+      },
+    ],
+  },
+  {
+    id: "CHEMOTHERAPY",
+    name: "Adjuvant Chemotherapy & Overtreatment Protection",
+    nameZh: "辅助化疗适应症与过度医疗保护红线",
+    category: "clinical",
+    descriptionZh:
+      "术后顺铂双药辅助化疗的获益分期边界：精准界定II~IIIA期获益人群，并严格禁止在IA期极早期过度化疗。",
+    clinicalSignificance: "high",
+    evidenceSummary: {
+      studiesSupporting: 25,
+      metaAnalyses: 5,
+      consensus:
+        "LACE Meta分析（4,584例）奠定了辅助化疗金标准：II-IIIA期带来5.4%绝对生存获益，而IA期化疗增加40%死亡风险（严禁化疗）。",
+      confidence: 5,
+    },
+    keyFindings: [
+      {
+        finding:
+          "LACE Meta分析确立II-IIIA期顺铂辅助化疗5年生存获益5.4%（HR=0.89, p=0.005）",
+        hr: 0.89,
+        studyRef: "LACE_Meta_2008",
+        patientN: 4584,
+        evidenceLevel: 5,
+      },
+      {
+        finding:
+          "LACE Meta分析严格证实IA期极早期患者辅助化疗有害（死亡风险升高40%, HR=1.40），确立防过度化疗红线",
+        hr: 1.40,
+        studyRef: "LACE_Meta_2008",
+        patientN: 4584,
+        evidenceLevel: 5,
+      },
     ],
   },
 ];
@@ -550,6 +634,114 @@ export const FEATURED_STUDIES: Study[] = [
     relevantFactors: ["MRD", "ctDNA"],
     applicableStages: ["IA", "IB", "II", "IIIA"],
   },
+  {
+    id: "KEYNOTE671_2023",
+    title: "Perioperative Pembrolizumab for Early-Stage Non-Small-Cell Lung Cancer (KEYNOTE-671)",
+    journal: "N Engl J Med",
+    year: 2023,
+    patientN: 797,
+    studyType: "rct",
+    evidenceLevel: 5,
+    pubmedId: "37272513",
+    doi: "10.1056/NEJMoa2302983",
+    keyConclusions: [
+      "II~IIIB 期可切除肺癌，围手术期帕博利珠单抗（术前4周期联合化疗+术后13周期单药）总生存期显著延长 (OS HR=0.72, 95%CI 0.56-0.93, p=0.005)",
+      "无事件生存期显著改善 (EFS HR=0.58, 95%CI 0.46-0.72)，4年 OS 率达 67.1% vs 51.5%",
+      "病理完全缓解率（pCR）达 18.1% vs 4.0%，确立围手术期全程免疫治疗新标杆",
+    ],
+    relevantFactors: ["IMMUNOTHERAPY", "PERIOPERATIVE"],
+    applicableStages: ["II", "IIA", "IIB", "IIIA", "IIIB"],
+  },
+  {
+    id: "CheckMate816_2022",
+    title: "Neoadjuvant Nivolumab plus Chemotherapy in Resectable Lung Cancer (CheckMate 816)",
+    journal: "N Engl J Med",
+    year: 2022,
+    patientN: 358,
+    studyType: "rct",
+    evidenceLevel: 5,
+    pubmedId: "35407651",
+    doi: "10.1056/NEJMoa2202170",
+    keyConclusions: [
+      "IB (≥4cm) ~ IIIA 期可切除肺癌，术前纳武利尤单抗联合化疗将病理完全缓解率（pCR）从 2.2% 提升至 24.0% (OR=13.94)",
+      "3年无事件生存率显著提升至 57% vs 43% (EFS HR=0.63, 95%CI 0.43-0.91)",
+      "达到 pCR 的患者 3年无复发生存率高达 93%，确立术前新辅助免疫联合化疗标准方案",
+    ],
+    relevantFactors: ["IMMUNOTHERAPY", "NEOADJUVANT"],
+    applicableStages: ["IB", "IIA", "IIB", "IIIA"],
+  },
+  {
+    id: "IMpower010_2021",
+    title: "Adjuvant Atezolizumab after adjuvant chemotherapy in resected stage IB-IIIA NSCLC (IMpower010)",
+    journal: "Lancet",
+    year: 2021,
+    patientN: 1005,
+    studyType: "rct",
+    evidenceLevel: 5,
+    pubmedId: "34562502",
+    doi: "10.1016/S0140-6736(21)02098-5",
+    keyConclusions: [
+      "完全切除的 II~IIIA 期且 PD-L1 TC≥50% 患者，阿替利珠单抗辅助免疫降低 57% 复发风险 (DFS HR=0.43, 95%CI 0.27-0.68)",
+      "在所有 PD-L1 TC≥1% 的 II~IIIA 期患者中，DFS 风险显著降低 34% (HR=0.66)",
+      "开创了术后辅助化疗后序贯免疫治疗的精准分流模式",
+    ],
+    relevantFactors: ["IMMUNOTHERAPY", "PDL1"],
+    applicableStages: ["IB", "IIA", "IIB", "IIIA"],
+  },
+  {
+    id: "IASLC_9th_Staging_2024",
+    title: "The IASLC Lung Cancer Staging Project: Proposals for the Revision of the Ninth Edition TNM Classification",
+    journal: "J Thorac Oncol",
+    year: 2024,
+    patientN: 124581,
+    studyType: "retrospective_multicenter",
+    evidenceLevel: 5,
+    pubmedId: "38823528",
+    doi: "10.1016/j.jtho.2024.05.011",
+    keyConclusions: [
+      "全球 124,581 例大队列最新发布第9版 TNM 官方 5年 OS 基准：IA1 91%, IA2 84%, IA3 78%, IB 71%, IIA 64%, IIB 54%, IIIA 42%",
+      "确立纵隔淋巴结转移细分：单站 N2（N2a）预后显著优于多站 N2（N2b）",
+      "代表 2024-2025 年国际最新肺癌解剖与病理分期金标准",
+    ],
+    relevantFactors: ["TNM_STAGE", "LYMPH_NODES"],
+    applicableStages: ["IA1", "IA2", "IA3", "IB", "IIA", "IIB", "IIIA", "IIIB", "IV"],
+  },
+  {
+    id: "LACE_Meta_2008",
+    title: "Adjuvant Chemotherapy, with or without Postoperative Radiotherapy, in Resectable Non-Small-Cell Lung Cancer (LACE)",
+    journal: "J Clin Oncol",
+    year: 2008,
+    patientN: 4584,
+    studyType: "meta_analysis",
+    evidenceLevel: 5,
+    pubmedId: "18506026",
+    doi: "10.1200/JCO.2007.13.9030",
+    keyConclusions: [
+      "全球 5 项大型 RCT 汇总确立 II~IIIA 期顺铂双药辅助化疗 5 年绝对总生存获益 5.4% (OS HR=0.89, p=0.005)",
+      "II 期获益 HR=0.83，III 期获益 HR=0.83；证实中晚期术后化疗的不可替代性",
+      "⚠️ 严格证实 IA 期术后化疗有害（死亡风险增加 40%, HR=1.40），确立早期严禁过度化疗的法定红线",
+    ],
+    relevantFactors: ["CHEMOTHERAPY", "OVERTREATMENT_PREVENTION"],
+    applicableStages: ["IA", "IB", "IIA", "IIB", "IIIA"],
+  },
+  {
+    id: "TRACERx_Nature_2023",
+    title: "Tracking Early Lung Cancer Evolution through Therapy (TRACERx): Dynamics and Utility of ctDNA",
+    journal: "Nature",
+    year: 2023,
+    patientN: 421,
+    studyType: "prospective_multicenter",
+    evidenceLevel: 5,
+    pubmedId: "37046091",
+    doi: "10.1038/s41586-023-05783-5",
+    keyConclusions: [
+      "421 例患者纵向追踪证实血液 ctDNA MRD 检出较常规 CT 影像学提前中位 160~200 天预警复发转移",
+      "术后 ctDNA 持续阴性患者超过 90% 实现长期无瘤生存，具备极高临床治愈阴性预测值",
+      "确立以 ctDNA 演化动力学指导精准辅助干预与微转移监测的分子新范式",
+    ],
+    relevantFactors: ["MRD", "ctDNA", "SURVEILLANCE"],
+    applicableStages: ["IA", "IB", "II", "IIIA"],
+  },
 ];
 
 export interface PatientMatchResult {
@@ -760,9 +952,15 @@ export function analyzePatientProfile(profile: {
   // Match studies dynamically based on clinical factors
   const matchedStudies: Study[] = [];
   
-  // Staging baseline (Universal)
-  const stagingStudy = FEATURED_STUDIES.find(s => s.id === "IASLC_8th_Staging_2016");
-  if (stagingStudy) matchedStudies.push(stagingStudy);
+  // Staging baseline (IASLC 8th & 9th Editions)
+  const stagingStudy8th = FEATURED_STUDIES.find(s => s.id === "IASLC_8th_Staging_2016");
+  if (stagingStudy8th) matchedStudies.push(stagingStudy8th);
+  const stagingStudy9th = FEATURED_STUDIES.find(s => s.id === "IASLC_9th_Staging_2024");
+  if (stagingStudy9th) matchedStudies.push(stagingStudy9th);
+
+  // Chemotherapy baseline & Overtreatment guardrail (LACE Meta-analysis)
+  const sLace = FEATURED_STUDIES.find(s => s.id === "LACE_Meta_2008");
+  if (sLace) matchedStudies.push(sLace);
 
   // CTR & Surgical Studies
   if (profile.ctr <= 0.25) {
@@ -792,7 +990,7 @@ export function analyzePatientProfile(profile: {
   const sGrade = FEATURED_STUDIES.find(s => s.id === "IASLC_Grade_2021");
   if (sGrade) matchedStudies.push(sGrade);
 
-  // Molecular target
+  // Molecular target (EGFR / ALK)
   if (profile.egfr === "positive") {
     const sAdaura = FEATURED_STUDIES.find(s => s.id === "ADAURA_2023");
     if (sAdaura) matchedStudies.push(sAdaura);
@@ -802,9 +1000,22 @@ export function analyzePatientProfile(profile: {
     if (sAlina) matchedStudies.push(sAlina);
   }
 
+  // Immunotherapy matching for Stage II-III or non-early
+  const isHigherStage = profile.stage && (profile.stage.startsWith("II") || profile.stage.startsWith("III"));
+  if (isHigherStage) {
+    const sKn671 = FEATURED_STUDIES.find(s => s.id === "KEYNOTE671_2023");
+    if (sKn671) matchedStudies.push(sKn671);
+    const sCm816 = FEATURED_STUDIES.find(s => s.id === "CheckMate816_2022");
+    if (sCm816) matchedStudies.push(sCm816);
+    const sImp010 = FEATURED_STUDIES.find(s => s.id === "IMpower010_2021");
+    if (sImp010) matchedStudies.push(sImp010);
+  }
+
   // Longitudinal SEER & MRD
   const sSeer = FEATURED_STUDIES.find(s => s.id === "SEER_Conditional_Survival_2021");
   if (sSeer) matchedStudies.push(sSeer);
+  const sTracerx = FEATURED_STUDIES.find(s => s.id === "TRACERx_Nature_2023");
+  if (sTracerx) matchedStudies.push(sTracerx);
   if (profile.mrdStatus === "negative" || profile.mrdStatus === "positive") {
     const sDynamic = FEATURED_STUDIES.find(s => s.id === "DYNAMIC_Lung_2022");
     if (sDynamic) matchedStudies.push(sDynamic);
