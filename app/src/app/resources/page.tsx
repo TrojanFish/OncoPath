@@ -242,31 +242,9 @@ export default function ResourcesPage() {
           系统甄选 <strong>CSCO、NCCN、ASCO、IASLC</strong> 等全球权威学术组织官方指南与专业数据库。为您提供直达源头的<strong>防坑查阅指南与患者友好通道</strong>。
         </p>
 
-        {/* Featured Special Guide: Medical Insurance & PAP Guide */}
-        <div className="mt-6 p-5 sm:p-6 rounded-3xl bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 text-white text-left shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-4 border border-blue-800">
-          <div className="space-y-1 max-w-2xl">
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-500/30 text-blue-300 text-[11px] font-bold">
-              <span>🌟 特别专栏 · 民生落地</span>
-            </div>
-            <h3 className="text-base sm:text-lg font-extrabold text-white">
-              肺腺癌特药医保报销、双通道药房与慈善赠药 (PAP) 落地指南
-            </h3>
-            <p className="text-xs text-slate-300 leading-relaxed">
-              梳理奥希替尼、阿来替尼等主流靶向药国谈医保准入条件、门慢门特 3 步办理指南及自负费用在线估算器。
-            </p>
-          </div>
-          <Link
-            href="/reimbursement"
-            className="px-4 py-2.5 rounded-xl bg-blue-500 hover:bg-blue-600 text-white font-bold text-xs sm:text-sm shrink-0 transition-all flex items-center justify-center gap-1.5 shadow-sm text-center cursor-pointer"
-          >
-            <span>进入特药报销指南</span>
-            <ExternalLink className="w-3.5 h-3.5" />
-          </Link>
-
-        </div>
-
         {/* Big Disclaimer */}
         <div className="mt-4 p-3.5 sm:p-4 rounded-2xl border border-amber-200 bg-amber-50 text-left shadow-xs">
+
           <p className="text-amber-900 font-bold text-xs mb-1 flex items-center gap-1.5">
             <AlertTriangle className="w-3.5 h-3.5 text-amber-700 shrink-0" />
             <span>在您开始查阅之前，请阅读这段话</span>
