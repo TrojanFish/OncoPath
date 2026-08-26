@@ -75,7 +75,6 @@ export function WikiTopicCard({ topic, isMatchedProfile, isHighlighted }: WikiTo
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
   const [showVisual, setShowVisual] = useState<boolean>(true);
   const [copied, setCopied] = useState<boolean>(false);
-  const [copiedLink, setCopiedLink] = useState<boolean>(false);
   const [showPosterModal, setShowPosterModal] = useState<boolean>(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [savedQuestions, setSavedQuestions] = useState<Record<string, boolean>>({});
@@ -99,19 +98,6 @@ export function WikiTopicCard({ topic, isMatchedProfile, isHighlighted }: WikiTo
     setTimeout(() => setToastMessage(null), 3000);
   };
 
-  const handleCopyLink = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (typeof window !== "undefined") {
-      const directUrl = `${window.location.origin}${window.location.pathname}#topic-${topic.id}`;
-      window.history.replaceState(null, "", `#topic-${topic.id}`);
-      const ok = await copyTextSafe(directUrl);
-      if (ok) {
-        setCopiedLink(true);
-        setTimeout(() => setCopiedLink(false), 2000);
-      }
-    }
-  };
 
   const handleCopyReassurance = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -190,41 +176,26 @@ export function WikiTopicCard({ topic, isMatchedProfile, isHighlighted }: WikiTo
         )}
 
         <div>
-          {/* Card Header: Category Tag, Risk Badge & Action Buttons */}
-          <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-            <div className="flex items-center gap-1.5 flex-wrap">
-              <span className={`text-xs font-bold px-3 py-1 rounded-full border ${catCfg.badgeBg}`}>
+          {/* Card Header: Category Tag, Poster Action Button & Risk Badge */}
+          <div className="flex items-center justify-between gap-1.5 sm:gap-2 mb-3">
+            <div className="flex items-center gap-1.5 flex-nowrap min-w-0">
+              <span className={`text-xs font-bold px-2.5 sm:px-3 py-1 rounded-full border whitespace-nowrap flex-shrink-0 ${catCfg.badgeBg}`}>
                 {topic.subcategory || catCfg.label}
               </span>
-
-              {/* Share Link Button */}
-              <button
-                type="button"
-                onClick={handleCopyLink}
-                title={copiedLink ? "已复制直达链接" : "复制此词条专属直达分享链接"}
-                className={`text-[11px] px-2 py-0.5 rounded-full border transition-all cursor-pointer flex items-center gap-1 shadow-2xs ${
-                  copiedLink
-                    ? "bg-emerald-100/90 border-emerald-400 text-emerald-800 font-bold scale-105"
-                    : "bg-slate-100/80 border-slate-200 text-slate-500 hover:bg-slate-200/80 hover:text-slate-800"
-                }`}
-              >
-                {copiedLink ? <Check className="w-3 h-3 text-emerald-700" /> : <Share2 className="w-3 h-3 text-slate-500" />}
-                <span className="text-[10px]">{copiedLink ? "已复制链接" : "分享"}</span>
-              </button>
 
               {/* Share Poster Modal Button */}
               <button
                 type="button"
                 onClick={handleOpenPosterModal}
-                title="生成 2x 视网膜高清微信分享长图"
-                className="text-[11px] px-2 py-0.5 rounded-full border border-blue-200 bg-blue-50/80 text-blue-700 hover:bg-blue-100 transition-all cursor-pointer flex items-center gap-1 shadow-2xs"
+                title="生成 2x 视网膜高清微信分享海报卡"
+                className="text-[11px] px-2 py-0.5 sm:py-1 rounded-full border border-blue-200 bg-blue-50/90 text-blue-700 hover:bg-blue-100 transition-all cursor-pointer flex items-center gap-1 shadow-2xs whitespace-nowrap flex-shrink-0 active:scale-95"
               >
-                <Image className="w-3 h-3 text-blue-600" />
-                <span className="text-[10px] font-bold">海报长图</span>
+                <Image className="w-3 h-3 text-blue-600 flex-shrink-0" />
+                <span className="text-[10px] font-bold">海报</span>
               </button>
             </div>
 
-            <span className={`text-xs font-bold px-3 py-1 rounded-full border flex items-center gap-1 ${riskCfg.bg} ${riskCfg.color} ${riskCfg.border}`}>
+            <span className={`text-xs font-bold px-2.5 sm:px-3 py-1 rounded-full border flex items-center gap-1 whitespace-nowrap flex-shrink-0 ${riskCfg.bg} ${riskCfg.color} ${riskCfg.border}`}>
               <span>{riskCfg.label}</span>
             </span>
           </div>
