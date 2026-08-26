@@ -23,9 +23,9 @@ export interface TimelineEventItem {
     scc?: number; // ng/mL (Normal < 1.5)
     histology?: string; // e.g. "微浸润腺癌 (MIA) / 贴壁为主型"
     stage?: string; // e.g. "pT1aN0M0 IA1期"
-    stas?: boolean;
-    vpi?: boolean;
-    lvi?: boolean;
+    stas?: boolean | string;
+    vpi?: boolean | string;
+    lvi?: boolean | string;
     driverGene?: string; // e.g. "EGFR 19del (丰度 18.2%)"
     pdl1Tps?: string; // e.g. "TPS 1~49%"
     surgeryType?: string; // e.g. "单孔胸腔镜右肺上叶后段切除术 (S2) + 淋巴结采样"
