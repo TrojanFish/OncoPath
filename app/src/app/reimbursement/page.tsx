@@ -7,7 +7,6 @@ import {
   CreditCard, 
   FileText, 
   HelpCircle, 
-  ArrowLeft, 
   Calculator, 
   CheckCircle2, 
   AlertTriangle, 
@@ -25,7 +24,9 @@ import {
   Search,
   Filter,
   BadgeAlert,
-  Layers
+  Layers,
+  ArrowUpRight,
+  Info
 } from "lucide-react";
 import SubpageNavbar from "@/components/SubpageNavbar";
 import Footer from "@/components/Footer";
@@ -39,7 +40,7 @@ interface DrugPolicy {
   categoryTag: "egfr" | "alk_ros1" | "rare_targets" | "immunotherapy";
   originalPrice: number;    // 国谈前月自费(元)
   negotiatedPrice: number;  // 现行国谈医保基准价月费用(元)
-  insuranceCategory: "甲类 (100%全额统筹)" | "乙类 (先付5%~15%后统筹)" | "未进基本医保 (惠民保/PAP覆盖)";
+  insuranceCategory: "甲类 (全额统筹)" | "乙类 (先行自付5%~15%)" | "未进基本医保 (惠民保/PAP覆盖)";
   inInsurance: boolean;
   officialIndication: string;  // 官方说明书适应证
   reimbursementLimits: string; // 医保限定支付范围（报销红线）
@@ -60,7 +61,7 @@ const DRUG_POLICIES: DrugPolicy[] = [
     categoryTag: "egfr",
     originalPrice: 51000,
     negotiatedPrice: 5580,
-    insuranceCategory: "乙类 (先付5%~15%后统筹)",
+    insuranceCategory: "乙类 (先行自付5%~15%)",
     inInsurance: true,
     officialIndication: "① EGFR 敏感突变局部晚期或转移性 NSCLC 一线治疗；② 经既往 EGFR-TKI 治疗后进展且 T790M 突变阳性；③ IB-IIIA 期 (AJCC第7版) EGFR 敏感突变术后辅助治疗。",
     reimbursementLimits: "限 EGFR 外显子 19 缺失或 L858R 置换突变的局部晚期或转移性 NSCLC 一线，或既往进展经检验 T790M 突变阳性；术后辅助治疗（IB-IIIA期）已纳保。",
@@ -78,7 +79,7 @@ const DRUG_POLICIES: DrugPolicy[] = [
     categoryTag: "egfr",
     originalPrice: 28000,
     negotiatedPrice: 5200,
-    insuranceCategory: "乙类 (先付5%~15%后统筹)",
+    insuranceCategory: "乙类 (先行自付5%~15%)",
     inInsurance: true,
     officialIndication: "① EGFR 19del/L858R 局部晚期或转移性 NSCLC 一线治疗；② 既往 EGFR-TKI 治疗进展后 T790M 突变二线；③ 20外显子插入突变（获批突破性疗法）。",
     reimbursementLimits: "限 EGFR 敏感突变局部晚期/转移性一线及 T790M 突变二线治疗。",
@@ -96,7 +97,7 @@ const DRUG_POLICIES: DrugPolicy[] = [
     categoryTag: "egfr",
     originalPrice: 29000,
     negotiatedPrice: 3504,
-    insuranceCategory: "乙类 (先付5%~15%后统筹)",
+    insuranceCategory: "乙类 (先行自付5%~15%)",
     inInsurance: true,
     officialIndication: "① EGFR 敏感突变晚期一线治疗；② 既往治疗进展后 T790M 突变晚期治疗。",
     reimbursementLimits: "限 EGFR 外显子 19 缺失或 L858R 突变晚期一线，以及 T790M 突变二线。",
@@ -114,7 +115,7 @@ const DRUG_POLICIES: DrugPolicy[] = [
     categoryTag: "egfr",
     originalPrice: 18000,
     negotiatedPrice: 3880,
-    insuranceCategory: "乙类 (先付5%~15%后统筹)",
+    insuranceCategory: "乙类 (先行自付5%~15%)",
     inInsurance: true,
     officialIndication: "EGFR 敏感突变（19del / L858R）局部晚期或转移性 NSCLC 一线单药治疗。",
     reimbursementLimits: "限 EGFR 外显子 19 缺失或 L858R 突变的局部晚期或转移性 NSCLC 一线治疗。",
@@ -132,13 +133,13 @@ const DRUG_POLICIES: DrugPolicy[] = [
     categoryTag: "egfr",
     originalPrice: 5000,
     negotiatedPrice: 260,
-    insuranceCategory: "甲类 (100%全额统筹)",
+    insuranceCategory: "甲类 (全额统筹)",
     inInsurance: true,
     officialIndication: "EGFR 敏感突变局部晚期或转移性 NSCLC 一线治疗。",
     reimbursementLimits: "国家集中带量采购 (VBP) 药品，纳入门慢门特直接全额统筹报销，个人自付极低（月均仅几十元）。",
     papProgram: "已全额集采医保覆盖（无需 PAP）",
     papFoundation: "国家集中采购保障",
-    papRule: "已降至白菜价，基本医保直接统筹 85%~90%，无需申请慈善赠药。"
+    papRule: "已降至极低基准价，基本医保直接统筹 85%~90%，无需申请慈善赠药。"
   },
 
   // --- ALK & ROS1 体系 ---
@@ -151,7 +152,7 @@ const DRUG_POLICIES: DrugPolicy[] = [
     categoryTag: "alk_ros1",
     originalPrice: 49980,
     negotiatedPrice: 8500,
-    insuranceCategory: "乙类 (先付5%~15%后统筹)",
+    insuranceCategory: "乙类 (先行自付5%~15%)",
     inInsurance: true,
     officialIndication: "① ALK 阳性局部晚期或转移性 NSCLC 一线治疗；② ALINA 试验 ALK 阳性 IB-IIIA 期术后辅助治疗。",
     reimbursementLimits: "限 ALK 阳性的局部晚期或转移性 NSCLC 患者；术后辅助适应证在各省市医保逐步落实挂网中。",
@@ -169,7 +170,7 @@ const DRUG_POLICIES: DrugPolicy[] = [
     categoryTag: "alk_ros1",
     originalPrice: 42000,
     negotiatedPrice: 11800,
-    insuranceCategory: "乙类 (先付5%~15%后统筹)",
+    insuranceCategory: "乙类 (先行自付5%~15%)",
     inInsurance: true,
     officialIndication: "① ALK 阳性晚期 NSCLC 一线治疗；② 经阿来替尼/塞瑞替尼耐药进展后的后线治疗。",
     reimbursementLimits: "限 ALK 阳性晚期非小细胞肺癌患者的一线或后线治疗。",
@@ -187,7 +188,7 @@ const DRUG_POLICIES: DrugPolicy[] = [
     categoryTag: "alk_ros1",
     originalPrice: 37000,
     negotiatedPrice: 8900,
-    insuranceCategory: "乙类 (先付5%~15%后统筹)",
+    insuranceCategory: "乙类 (先行自付5%~15%)",
     inInsurance: true,
     officialIndication: "① ROS1 阳性局部晚期或转移性 NSCLC；② NTRK 融合阳性泛癌种晚期实体瘤。",
     reimbursementLimits: "限 ROS1 阳性晚期非小细胞肺癌，或 NTRK 阳性实体瘤。",
@@ -206,7 +207,7 @@ const DRUG_POLICIES: DrugPolicy[] = [
     categoryTag: "rare_targets",
     originalPrice: 19800,
     negotiatedPrice: 4800,
-    insuranceCategory: "乙类 (先付5%~15%后统筹)",
+    insuranceCategory: "乙类 (先行自付5%~15%)",
     inInsurance: true,
     officialIndication: "含铂化疗后进展或不耐受标准含铂化疗的 MET 外显子 14 跳跃突变局部晚期或转移性 NSCLC。",
     reimbursementLimits: "限 MET 外显子 14 跳跃突变的局部晚期或转移性 NSCLC。",
@@ -224,7 +225,7 @@ const DRUG_POLICIES: DrugPolicy[] = [
     categoryTag: "rare_targets",
     originalPrice: 32000,
     negotiatedPrice: 9500,
-    insuranceCategory: "乙类 (先付5%~15%后统筹)",
+    insuranceCategory: "乙类 (先行自付5%~15%)",
     inInsurance: true,
     officialIndication: "RET 融合阳性局部晚期或转移性 NSCLC 成人患者。",
     reimbursementLimits: "限 RET 融合阳性的局部晚期或转移性非小细胞肺癌。",
@@ -277,7 +278,7 @@ const DRUG_POLICIES: DrugPolicy[] = [
     categoryTag: "immunotherapy",
     originalPrice: 10688,
     negotiatedPrice: 1250,
-    insuranceCategory: "乙类 (先付5%~15%后统筹)",
+    insuranceCategory: "乙类 (先行自付5%~15%)",
     inInsurance: true,
     officialIndication: "① 联合化疗一线治疗晚期鳞状/非鳞状 NSCLC；② 经治晚期 NSCLC 单药二线；③ II-IIIA 期术后辅助免疫治疗。",
     reimbursementLimits: "晚期非鳞状/鳞状 NSCLC 一线联合化疗全部纳保；单药治疗纳保。统筹后每 3 周个人自负仅约 200~300 元！",
@@ -294,7 +295,7 @@ const DRUG_POLICIES: DrugPolicy[] = [
     categoryTag: "immunotherapy",
     originalPrice: 9800,
     negotiatedPrice: 1080,
-    insuranceCategory: "乙类 (先付5%~15%后统筹)",
+    insuranceCategory: "乙类 (先行自付5%~15%)",
     inInsurance: true,
     officialIndication: "联合培美曲塞和铂类一线治疗 EGFR/ALK 阴性不可手术的局部晚期或转移性非鳞状 NSCLC。",
     reimbursementLimits: "非鳞状及鳞状 NSCLC 一线治疗全适应证纳入国家医保乙类。",
@@ -311,7 +312,7 @@ const DRUG_POLICIES: DrugPolicy[] = [
     categoryTag: "immunotherapy",
     originalPrice: 36000,
     negotiatedPrice: 13500,
-    insuranceCategory: "乙类 (先付5%~15%后统筹)",
+    insuranceCategory: "乙类 (先行自付5%~15%)",
     inInsurance: true,
     officialIndication: "同步放化疗后未出现疾病进展的不可切除、局部晚期 (III期) NSCLC 巩固治疗；广泛期小细胞肺癌一线。",
     reimbursementLimits: "限同步放化疗后未进展的不可切除 III 期 NSCLC 维持巩固治疗（严格符合 PACIFIC 研究模式）。",
@@ -359,7 +360,6 @@ export default function ReimbursementPage() {
     
     // Case 1: Drug Not in Basic Insurance (e.g., Enhertu DS-8201 or Keytruda K-drug)
     if (!currentDrug.inInsurance) {
-      // PAP Annual Cap estimate (approx 65,000 ~ 75,000 RMB / year)
       const papAnnualCap = currentDrug.id === "pembrolizumab" ? 70000 : 80000;
       const huiminbaoCoverageRatio = hasHuiminbao ? 0.75 : 0;
       const effectiveAnnual = papAnnualCap * (1 - huiminbaoCoverageRatio);
@@ -375,12 +375,10 @@ export default function ReimbursementPage() {
     }
 
     // Case 2: Drug in Basic Insurance (乙类/甲类 门慢门特统筹支付)
-    // 职工医保统筹 80% (自付20%)，居民医保统筹 65% (自付35%)
     const coverageRatio = insuranceType === "urban_employee" ? 0.80 : 0.65;
     const personalRatio = 1 - coverageRatio;
     
     let personalMonthly = Math.round(monthlyBase * personalRatio);
-    // If Huiminbao is enabled, secondary reimbursement covers 50% of the copay for costs > 300
     if (hasHuiminbao && personalMonthly > 300) {
       personalMonthly = Math.round(personalMonthly * 0.5);
     }
@@ -417,99 +415,127 @@ export default function ReimbursementPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
+    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 selection:bg-blue-500 selection:text-white">
       <SubpageNavbar />
 
-      <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-        {/* Breadcrumb Navigation */}
-        <div className="flex items-center gap-2 text-xs text-slate-500 mb-6">
-          <Link href="/" className="hover:text-blue-600">首页</Link>
-          <span>/</span>
-          <span className="text-slate-900 font-semibold">肺癌特药医保报销、双通道药房与慈善赠药 (PAP) 落地指南</span>
+      {/* Unified Hero Header (Aligned with /wiki, /studies, /resources, /knowledge) */}
+      <header className="pt-28 md:pt-32 pb-8 px-2.5 sm:px-6 max-w-4xl mx-auto text-center space-y-4">
+        {/* Top Pill Badge */}
+        <div className="inline-flex items-center gap-2 bg-white px-4 py-1.5 rounded-full text-xs font-bold text-sky-700 border border-sky-200/80 shadow-xs">
+          <ShieldCheck className="w-3.5 h-3.5 text-sky-600" />
+          <span>国家医保谈判药品目录 · 门慢门特 · 官方 PAP 落地指南</span>
+          <span className="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse" />
+          <span>2024~2025 现行标准</span>
         </div>
 
-        {/* Hero Header Banner */}
-        <div className="bg-gradient-to-br from-blue-900 via-indigo-900 to-slate-900 rounded-3xl p-6 sm:p-10 text-white shadow-xl mb-8 relative overflow-hidden">
-          <div className="absolute right-0 bottom-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
-          
-          <div className="relative z-10 max-w-3xl space-y-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 border border-blue-400/30 text-xs font-bold">
-              <ShieldCheck className="w-4 h-4 text-sky-400" />
-              <span>国家医保局现行药品目录 (NHSA) · 门特跨省结算 · 官方基金会 PAP 落地全准则</span>
+        {/* Unified H1 */}
+        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+          破除用药负担 · <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-teal-600">特药医保与慈善赠药</span>
+        </h1>
+
+        {/* Unified Subtitle */}
+        <p className="max-w-3xl mx-auto text-sm sm:text-base text-slate-600 leading-relaxed font-normal">
+          系统梳理 <strong>16 大肺腺癌主流靶向与免疫药物</strong> 官方医保限定支付标准。为您提供<strong>门慢门特 3 步办结、跨省异地直接结算、双通道定点药房刷卡与官方基金会 PAP 免费赠药</strong>的权威实操路径。
+        </p>
+
+        {/* Informational Guidance Banner */}
+        <div className="max-w-3xl mx-auto bg-gradient-to-r from-blue-50 via-sky-50 to-indigo-50 border border-blue-200/80 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs shadow-xs text-left">
+          <div className="flex items-start sm:items-center gap-2.5">
+            <Info className="w-5 h-5 text-blue-700 shrink-0 mt-0.5 sm:mt-0" />
+            <div>
+              <span className="font-black text-blue-950 text-sm">医保政策落地准则：</span>
+              <span className="text-slate-600 ml-1">严格执行国家医保局“就医地目录、参保地政策”与双通道电子处方直报机制。</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight">
-              肺腺癌特药医保报销与慈善赠药落地实操宝典
-            </h1>
-            <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
-              破除“靶向药吃不起”的恐惧。汇集 <strong>16 大主流靶向与免疫药物官方医保限定支付标准</strong>、<strong>门慢门特 3 步办结法</strong>、<strong>跨省异地就医直接结算</strong>、<strong>双通道定点药房处方流转</strong>与<strong>官方慈善基金会 (PAP) 免费赠药买赠规则</strong>，帮您把抗癌月自负降至最低。
-            </p>
           </div>
+          <button
+            onClick={handleCopyChecklist}
+            className="flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-blue-200 text-blue-700 font-bold hover:bg-blue-50 transition-colors cursor-pointer text-xs"
+          >
+            {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+            <span>{copied ? "已复制材料清单" : "复制办门特材料"}</span>
+          </button>
         </div>
+      </header>
 
-        {/* Main Navigation Tabs */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-6 border-b border-slate-200 text-xs font-bold no-scrollbar">
+      {/* Main Content Area (Standard max-w-7xl) */}
+      <main className="flex-1 max-w-7xl mx-auto w-full px-2.5 sm:px-6 pb-16 space-y-8">
+        
+        {/* Navigation Tabs Bar */}
+        <div className="bg-white p-2 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-2 overflow-x-auto no-scrollbar">
           <button
             onClick={() => setActiveTab("calculator")}
-            className={`px-4 py-2.5 rounded-xl transition-all shrink-0 flex items-center gap-1.5 cursor-pointer ${
-              activeTab === "calculator" ? "bg-blue-600 text-white shadow-xs" : "bg-white text-slate-700 hover:bg-slate-100 border border-slate-200"
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-1.5 cursor-pointer ${
+              activeTab === "calculator" 
+                ? "bg-blue-600 text-white shadow-xs" 
+                : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
             }`}
           >
-            <Calculator className="w-4 h-4" />
+            <Calculator className="w-3.5 h-3.5" />
             <span>自负费用在线估算器</span>
           </button>
           <button
             onClick={() => setActiveTab("reimbursement_table")}
-            className={`px-4 py-2.5 rounded-xl transition-all shrink-0 flex items-center gap-1.5 cursor-pointer ${
-              activeTab === "reimbursement_table" ? "bg-blue-600 text-white shadow-xs" : "bg-white text-slate-700 hover:bg-slate-100 border border-slate-200"
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-1.5 cursor-pointer ${
+              activeTab === "reimbursement_table" 
+                ? "bg-blue-600 text-white shadow-xs" 
+                : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
             }`}
           >
-            <FileText className="w-4 h-4" />
+            <FileText className="w-3.5 h-3.5" />
             <span>16大特药医保限定与红线表</span>
           </button>
           <button
             onClick={() => setActiveTab("cross_province")}
-            className={`px-4 py-2.5 rounded-xl transition-all shrink-0 flex items-center gap-1.5 cursor-pointer ${
-              activeTab === "cross_province" ? "bg-blue-600 text-white shadow-xs" : "bg-white text-slate-700 hover:bg-slate-100 border border-slate-200"
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-1.5 cursor-pointer ${
+              activeTab === "cross_province" 
+                ? "bg-blue-600 text-white shadow-xs" 
+                : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
             }`}
           >
-            <MapPin className="w-4 h-4" />
+            <MapPin className="w-3.5 h-3.5" />
             <span>跨省异地就医与门特结算</span>
           </button>
           <button
             onClick={() => setActiveTab("dual_channel")}
-            className={`px-4 py-2.5 rounded-xl transition-all shrink-0 flex items-center gap-1.5 cursor-pointer ${
-              activeTab === "dual_channel" ? "bg-blue-600 text-white shadow-xs" : "bg-white text-slate-700 hover:bg-slate-100 border border-slate-200"
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-1.5 cursor-pointer ${
+              activeTab === "dual_channel" 
+                ? "bg-blue-600 text-white shadow-xs" 
+                : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
             }`}
           >
-            <Building2 className="w-4 h-4" />
+            <Building2 className="w-3.5 h-3.5" />
             <span>“双通道”药房与防推诿破局</span>
           </button>
           <button
             onClick={() => setActiveTab("pap_guide")}
-            className={`px-4 py-2.5 rounded-xl transition-all shrink-0 flex items-center gap-1.5 cursor-pointer ${
-              activeTab === "pap_guide" ? "bg-blue-600 text-white shadow-xs" : "bg-white text-slate-700 hover:bg-slate-100 border border-slate-200"
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-1.5 cursor-pointer ${
+              activeTab === "pap_guide" 
+                ? "bg-blue-600 text-white shadow-xs" 
+                : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
             }`}
           >
-            <HeartHandshake className="w-4 h-4" />
+            <HeartHandshake className="w-3.5 h-3.5" />
             <span>官方 PAP 慈善赠药全攻略</span>
           </button>
           <button
             onClick={() => setActiveTab("faq")}
-            className={`px-4 py-2.5 rounded-xl transition-all shrink-0 flex items-center gap-1.5 cursor-pointer ${
-              activeTab === "faq" ? "bg-blue-600 text-white shadow-xs" : "bg-white text-slate-700 hover:bg-slate-100 border border-slate-200"
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-1.5 cursor-pointer ${
+              activeTab === "faq" 
+                ? "bg-blue-600 text-white shadow-xs" 
+                : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
             }`}
           >
-            <HelpCircle className="w-4 h-4" />
+            <HelpCircle className="w-3.5 h-3.5" />
             <span>医保高频避坑 FAQ</span>
           </button>
         </div>
 
-        {/* TAB 1: CALCULATOR & OVERVIEW */}
+        {/* TAB 1: CALCULATOR & 4 CHANNELS OVERVIEW */}
         {activeTab === "calculator" && (
           <div className="space-y-8 animate-fade-in">
-            {/* Overview Grid */}
+            {/* 4 Core Channels Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-2">
+              <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-2 hover:border-blue-300 transition-all">
                 <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm">
                   1
                 </div>
@@ -519,7 +545,7 @@ export default function ReimbursementPage() {
                 </p>
               </div>
 
-              <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-2">
+              <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-2 hover:border-teal-300 transition-all">
                 <div className="w-8 h-8 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center font-bold text-sm">
                   2
                 </div>
@@ -529,7 +555,7 @@ export default function ReimbursementPage() {
                 </p>
               </div>
 
-              <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-2">
+              <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-2 hover:border-purple-300 transition-all">
                 <div className="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center font-bold text-sm">
                   3
                 </div>
@@ -539,7 +565,7 @@ export default function ReimbursementPage() {
                 </p>
               </div>
 
-              <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-2">
+              <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-2 hover:border-amber-300 transition-all">
                 <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold text-sm">
                   4
                 </div>
@@ -550,8 +576,8 @@ export default function ReimbursementPage() {
               </div>
             </div>
 
-            {/* Interactive Calculator */}
-            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-blue-200 shadow-sm space-y-6">
+            {/* Interactive Calculator Section */}
+            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-4">
                 <div>
                   <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 flex items-center gap-2">
@@ -576,40 +602,40 @@ export default function ReimbursementPage() {
                 <div className="flex flex-wrap gap-2 text-xs">
                   <button
                     onClick={() => setSelectedCategory("all")}
-                    className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
-                      selectedCategory === "all" ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                    className={`px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer ${
+                      selectedCategory === "all" ? "bg-slate-900 text-white shadow-xs" : "bg-slate-100 text-slate-700 hover:bg-slate-200"
                     }`}
                   >
                     全部 16 种特药
                   </button>
                   <button
                     onClick={() => setSelectedCategory("egfr")}
-                    className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
-                      selectedCategory === "egfr" ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                    className={`px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer ${
+                      selectedCategory === "egfr" ? "bg-blue-600 text-white shadow-xs" : "bg-slate-100 text-slate-700 hover:bg-slate-200"
                     }`}
                   >
                     EGFR 靶向 (泰瑞沙/艾弗沙/阿美乐等)
                   </button>
                   <button
                     onClick={() => setSelectedCategory("alk_ros1")}
-                    className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
-                      selectedCategory === "alk_ros1" ? "bg-purple-600 text-white" : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                    className={`px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer ${
+                      selectedCategory === "alk_ros1" ? "bg-purple-600 text-white shadow-xs" : "bg-slate-100 text-slate-700 hover:bg-slate-200"
                     }`}
                   >
                     ALK / ROS1 (安圣莎/博瑞纳/罗圣全)
                   </button>
                   <button
                     onClick={() => setSelectedCategory("rare_targets")}
-                    className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
-                      selectedCategory === "rare_targets" ? "bg-teal-600 text-white" : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                    className={`px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer ${
+                      selectedCategory === "rare_targets" ? "bg-teal-600 text-white shadow-xs" : "bg-slate-100 text-slate-700 hover:bg-slate-200"
                     }`}
                   >
                     罕见靶点 MET/RET/KRAS/HER2 ADC
                   </button>
                   <button
                     onClick={() => setSelectedCategory("immunotherapy")}
-                    className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
-                      selectedCategory === "immunotherapy" ? "bg-indigo-600 text-white" : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                    className={`px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer ${
+                      selectedCategory === "immunotherapy" ? "bg-indigo-600 text-white shadow-xs" : "bg-slate-100 text-slate-700 hover:bg-slate-200"
                     }`}
                   >
                     免疫治疗 PD-1/PD-L1 (国产/进口)
@@ -624,7 +650,7 @@ export default function ReimbursementPage() {
                   <select
                     value={selectedDrugId}
                     onChange={(e) => setSelectedDrugId(e.target.value)}
-                    className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-300 font-bold text-slate-900 focus:outline-blue-500"
+                    className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-300 font-bold text-slate-900 focus:outline-blue-500 focus:bg-white"
                   >
                     {filteredDrugs.map((drug) => (
                       <option key={drug.id} value={drug.id}>
@@ -639,7 +665,7 @@ export default function ReimbursementPage() {
                   <select
                     value={insuranceType}
                     onChange={(e) => setInsuranceType(e.target.value as any)}
-                    className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-300 font-bold text-slate-900 focus:outline-blue-500"
+                    className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-300 font-bold text-slate-900 focus:outline-blue-500 focus:bg-white"
                   >
                     <option value="urban_employee">城镇职工基本医疗保险 (门特统筹报销约 80%)</option>
                     <option value="urban_resident">城乡居民基本医疗保险 / 新农合 (门特统筹约 65%)</option>
@@ -652,8 +678,8 @@ export default function ReimbursementPage() {
                     <button
                       type="button"
                       onClick={() => setHasHuiminbao(true)}
-                      className={`flex-1 py-2 px-3 rounded-xl font-bold border transition-all cursor-pointer ${
-                        hasHuiminbao ? "bg-blue-600 text-white border-blue-600" : "bg-slate-50 text-slate-700 border-slate-200"
+                      className={`flex-1 py-2 px-3 rounded-xl font-bold border transition-all cursor-pointer text-xs ${
+                        hasHuiminbao ? "bg-blue-600 text-white border-blue-600 shadow-xs" : "bg-slate-50 text-slate-700 border-slate-200"
                       }`}
                     >
                       已参保 (二次报销)
@@ -661,8 +687,8 @@ export default function ReimbursementPage() {
                     <button
                       type="button"
                       onClick={() => setHasHuiminbao(false)}
-                      className={`flex-1 py-2 px-3 rounded-xl font-bold border transition-all cursor-pointer ${
-                        !hasHuiminbao ? "bg-blue-600 text-white border-blue-600" : "bg-slate-50 text-slate-700 border-slate-200"
+                      className={`flex-1 py-2 px-3 rounded-xl font-bold border transition-all cursor-pointer text-xs ${
+                        !hasHuiminbao ? "bg-blue-600 text-white border-blue-600 shadow-xs" : "bg-slate-50 text-slate-700 border-slate-200"
                       }`}
                     >
                       未参保
@@ -671,14 +697,14 @@ export default function ReimbursementPage() {
                 </div>
               </div>
 
-              {/* Calculator Output Display Card */}
-              <div className="p-5 rounded-2xl bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white border border-slate-800 space-y-4">
+              {/* Calculator Output Display Card (Dark Theme, Elegant) */}
+              <div className="p-5 sm:p-6 rounded-2xl bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white border border-slate-800 space-y-4 shadow-md">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
                   <div>
                     <span className="text-[11px] text-sky-400 font-mono font-bold">
                       {currentDrug.target} · {currentDrug.manufacturer}
                     </span>
-                    <div className="text-base font-extrabold text-white">
+                    <div className="text-base sm:text-lg font-extrabold text-white">
                       {currentDrug.name} ({currentDrug.genericName})
                     </div>
                   </div>
@@ -724,8 +750,8 @@ export default function ReimbursementPage() {
                 </div>
 
                 {/* Indication Limits & PAP Notice */}
-                <div className="space-y-2 text-xs">
-                  <div className="p-3 bg-slate-800/90 rounded-xl border border-slate-700 text-slate-200 space-y-1">
+                <div className="space-y-2 text-xs pt-1">
+                  <div className="p-3.5 bg-slate-800/90 rounded-xl border border-slate-700 text-slate-200 space-y-1">
                     <div className="font-bold text-sky-300 flex items-center gap-1.5">
                       <ShieldCheck className="w-4 h-4 text-sky-400 shrink-0" />
                       <span>国家医保限定支付范围（报销红线）：</span>
@@ -735,12 +761,12 @@ export default function ReimbursementPage() {
                     </p>
                     {currentDrug.offLabelNotice && (
                       <p className="text-[11px] text-rose-300 leading-relaxed font-semibold">
-                        ⚠️ 报销注意：{currentDrug.offLabelNotice}
+                        ⚠️ 报销提示：{currentDrug.offLabelNotice}
                       </p>
                     )}
                   </div>
 
-                  <div className="p-3 bg-slate-800/90 rounded-xl border border-slate-700 text-slate-200 space-y-1">
+                  <div className="p-3.5 bg-slate-800/90 rounded-xl border border-slate-700 text-slate-200 space-y-1">
                     <div className="font-bold text-amber-300 flex items-center gap-1.5">
                       <HeartHandshake className="w-4 h-4 text-amber-400 shrink-0" />
                       <span>官方慈善援助 (PAP) 政策：{currentDrug.papProgram} ({currentDrug.papFoundation})</span>
@@ -775,7 +801,7 @@ export default function ReimbursementPage() {
               </div>
 
               <div className="space-y-4">
-                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-start gap-3.5">
+                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-start gap-3.5 hover:border-slate-300 transition-all">
                   <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center font-black text-sm shrink-0 mt-0.5">
                     1
                   </div>
@@ -787,7 +813,7 @@ export default function ReimbursementPage() {
                   </div>
                 </div>
 
-                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-start gap-3.5">
+                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-start gap-3.5 hover:border-slate-300 transition-all">
                   <div className="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-black text-sm shrink-0 mt-0.5">
                     2
                   </div>
@@ -799,7 +825,7 @@ export default function ReimbursementPage() {
                   </div>
                 </div>
 
-                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-start gap-3.5">
+                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-start gap-3.5 hover:border-slate-300 transition-all">
                   <div className="w-8 h-8 rounded-xl bg-teal-600 text-white flex items-center justify-center font-black text-sm shrink-0 mt-0.5">
                     3
                   </div>
@@ -828,35 +854,35 @@ export default function ReimbursementPage() {
               </p>
             </div>
 
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto rounded-2xl border border-slate-200">
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
                   <tr className="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
-                    <th className="p-3">药品名称 / 通用名</th>
-                    <th className="p-3">靶点 / 代系</th>
-                    <th className="p-3">医保基准价</th>
-                    <th className="p-3">医保限定支付范围 (绿灯可报销)</th>
-                    <th className="p-3">自费红线提示 (红灯需自费)</th>
+                    <th className="p-3.5">药品名称 / 通用名</th>
+                    <th className="p-3.5">靶点 / 代系</th>
+                    <th className="p-3.5">医保基准价</th>
+                    <th className="p-3.5">医保限定支付范围 (绿灯可报销)</th>
+                    <th className="p-3.5">自费红线提示 (红灯需自费)</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {DRUG_POLICIES.map((drug) => (
                     <tr key={drug.id} className="hover:bg-slate-50/80 transition-colors">
-                      <td className="p-3">
+                      <td className="p-3.5">
                         <div className="font-bold text-slate-900">{drug.name}</div>
                         <div className="text-[11px] text-slate-500">{drug.genericName}</div>
                       </td>
-                      <td className="p-3">
+                      <td className="p-3.5">
                         <span className="font-mono text-slate-700 font-semibold">{drug.target}</span>
                       </td>
-                      <td className="p-3">
+                      <td className="p-3.5">
                         <div className="font-mono font-bold text-blue-600">¥{drug.negotiatedPrice}</div>
                         <span className="text-[10px] text-slate-400 font-normal">/月费用</span>
                       </td>
-                      <td className="p-3 max-w-xs leading-relaxed text-slate-700">
+                      <td className="p-3.5 max-w-xs leading-relaxed text-slate-700">
                         {drug.reimbursementLimits}
                       </td>
-                      <td className="p-3 max-w-xs leading-relaxed">
+                      <td className="p-3.5 max-w-xs leading-relaxed">
                         {drug.offLabelNotice ? (
                           <span className="text-rose-600 font-medium">{drug.offLabelNotice}</span>
                         ) : (
@@ -885,7 +911,7 @@ export default function ReimbursementPage() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-              <div className="p-4 rounded-2xl bg-indigo-50/50 border border-indigo-200 space-y-2">
+              <div className="p-5 rounded-2xl bg-indigo-50/50 border border-indigo-200 space-y-2">
                 <div className="font-bold text-indigo-900 text-sm flex items-center gap-1.5">
                   <span className="w-5 h-5 rounded-full bg-indigo-600 text-white flex items-center justify-center text-[10px]">1</span>
                   <span>就医前完成“异地就医线上备案”</span>
@@ -895,7 +921,7 @@ export default function ReimbursementPage() {
                 </p>
               </div>
 
-              <div className="p-4 rounded-2xl bg-indigo-50/50 border border-indigo-200 space-y-2">
+              <div className="p-5 rounded-2xl bg-indigo-50/50 border border-indigo-200 space-y-2">
                 <div className="font-bold text-indigo-900 text-sm flex items-center gap-1.5">
                   <span className="w-5 h-5 rounded-full bg-indigo-600 text-white flex items-center justify-center text-[10px]">2</span>
                   <span>牢记国家结算核心原则</span>
@@ -907,7 +933,7 @@ export default function ReimbursementPage() {
                 </p>
               </div>
 
-              <div className="p-4 rounded-2xl bg-indigo-50/50 border border-indigo-200 space-y-2">
+              <div className="p-5 rounded-2xl bg-indigo-50/50 border border-indigo-200 space-y-2">
                 <div className="font-bold text-indigo-900 text-sm flex items-center gap-1.5">
                   <span className="w-5 h-5 rounded-full bg-indigo-600 text-white flex items-center justify-center text-[10px]">3</span>
                   <span>门慢门特跨省直接联网刷卡</span>
@@ -917,7 +943,7 @@ export default function ReimbursementPage() {
                 </p>
               </div>
 
-              <div className="p-4 rounded-2xl bg-indigo-50/50 border border-indigo-200 space-y-2">
+              <div className="p-5 rounded-2xl bg-indigo-50/50 border border-indigo-200 space-y-2">
                 <div className="font-bold text-indigo-900 text-sm flex items-center gap-1.5">
                   <span className="w-5 h-5 rounded-full bg-indigo-600 text-white flex items-center justify-center text-[10px]">4</span>
                   <span>未提前备案的补救措施</span>
@@ -944,7 +970,7 @@ export default function ReimbursementPage() {
             </div>
 
             <div className="space-y-4 text-xs">
-              <div className="p-4 rounded-2xl bg-teal-50/60 border border-teal-200 space-y-2">
+              <div className="p-5 rounded-2xl bg-teal-50/60 border border-teal-200 space-y-2">
                 <div className="font-bold text-teal-900 text-sm flex items-center gap-1.5">
                   <CheckCircle2 className="w-4 h-4 text-teal-600" />
                   <span>什么是“双通道”？</span>
@@ -954,12 +980,12 @@ export default function ReimbursementPage() {
                 </p>
               </div>
 
-              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+              <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
                 <div className="font-bold text-slate-900 text-sm flex items-center gap-1.5">
                   <AlertOctagon className="w-4 h-4 text-amber-600" />
                   <span>遇到“医院药房没药 / 医生推诿开不出药”如何破局？</span>
                 </div>
-                <ul className="space-y-2 text-slate-700 leading-relaxed">
+                <ul className="space-y-2.5 text-slate-700 leading-relaxed">
                   <li className="flex items-start gap-2">
                     <span className="font-bold text-blue-600">方案 A (主动要求外配电子处方)：</span>
                     <span>明确告知主诊医生：“请帮我开具医保【双通道外配电子处方】，我直接去医院旁边的定点特药药房刷医保码取药。”这<strong>不计入医院的药占比与次均费用考核</strong>，医生非常愿意开具。</span>
@@ -988,8 +1014,8 @@ export default function ReimbursementPage() {
             </div>
 
             <div className="space-y-4 text-xs">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <div className="p-4 rounded-2xl bg-purple-50/60 border border-purple-200 space-y-1.5">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="p-5 rounded-2xl bg-purple-50/60 border border-purple-200 space-y-1.5">
                   <div className="font-bold text-purple-900 text-sm">中华慈善总会 (CCF)</div>
                   <div className="text-slate-600 text-[11px]">代表项目：泰瑞沙 (奥希替尼) 援助项目</div>
                   <p className="text-slate-700 leading-relaxed pt-1">
@@ -997,7 +1023,7 @@ export default function ReimbursementPage() {
                   </p>
                 </div>
 
-                <div className="p-4 rounded-2xl bg-purple-50/60 border border-purple-200 space-y-1.5">
+                <div className="p-5 rounded-2xl bg-purple-50/60 border border-purple-200 space-y-1.5">
                   <div className="font-bold text-purple-900 text-sm">中国初保基金会</div>
                   <div className="text-slate-600 text-[11px]">代表项目：生命之钥 (可瑞达)、因飞凡、艾弗沙</div>
                   <p className="text-slate-700 leading-relaxed pt-1">
@@ -1005,7 +1031,7 @@ export default function ReimbursementPage() {
                   </p>
                 </div>
 
-                <div className="p-4 rounded-2xl bg-purple-50/60 border border-purple-200 space-y-1.5">
+                <div className="p-5 rounded-2xl bg-purple-50/60 border border-purple-200 space-y-1.5">
                   <div className="font-bold text-purple-900 text-sm">中国癌症基金会 (CFC)</div>
                   <div className="text-slate-600 text-[11px]">代表项目：安圣莎 (阿来替尼)、多泽润、优赫得</div>
                   <p className="text-slate-700 leading-relaxed pt-1">
@@ -1014,7 +1040,7 @@ export default function ReimbursementPage() {
                 </div>
               </div>
 
-              <div className="p-4 rounded-2xl bg-slate-900 text-white space-y-2">
+              <div className="p-5 rounded-2xl bg-slate-900 text-white space-y-2">
                 <div className="font-bold text-amber-300 flex items-center gap-2">
                   <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
                   <span>防诈骗严正警示：官方 PAP 赠药全程绝不收取任何“中介费/加速费”！</span>
@@ -1041,28 +1067,28 @@ export default function ReimbursementPage() {
             </div>
 
             <div className="space-y-3 text-xs">
-              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-1.5">
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-1.5 hover:border-slate-300 transition-all">
                 <div className="font-bold text-slate-900 text-sm">Q1：门慢门特有有效期吗？需要每年重新去医院认定吗？</div>
                 <p className="text-slate-600 leading-relaxed">
                   绝大多数省市针对<strong>恶性肿瘤门诊慢特病设定为 2~5 年有效期或长期有效</strong>。部分省市每年需在医保 APP 线上进行一次“生存认证”或刷卡一次自动续期，无需重新提供病理切片重复认定。
                 </p>
               </div>
 
-              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-1.5">
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-1.5 hover:border-slate-300 transition-all">
                 <div className="font-bold text-slate-900 text-sm">Q2：靶向药在门诊拿和住院拿，哪个报销比例更高？</div>
                 <p className="text-slate-600 leading-relaxed">
                   <strong>办好门特后，两者报销比例基本相同（均为 70%~85% 左右）</strong>！而且门诊走门特无需占用昂贵的床位费、诊疗费与住院押金，随开随走，极大节约综合时间与经济成本。
                 </p>
               </div>
 
-              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-1.5">
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-1.5 hover:border-slate-300 transition-all">
                 <div className="font-bold text-slate-900 text-sm">Q3：医生开药时说属于“乙类先行自付”，是什么意思？</div>
                 <p className="text-slate-600 leading-relaxed">
                   国家医保乙类药品在统筹报销前，按政策需患者<strong>先个人自付一定比例（通常为 5%~15%）</strong>，剩余的 85%~95% 费用再全额进入医保大病统筹按规定比例报销。这是完全正常的国家法定支付机制。
                 </p>
               </div>
 
-              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-1.5">
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-1.5 hover:border-slate-300 transition-all">
                 <div className="font-bold text-slate-900 text-sm">Q4：买了“城市惠民保”，怎么申请靶向药报销？</div>
                 <p className="text-slate-600 leading-relaxed">
                   微信搜索参保城市的惠民保公众号（如“上海沪惠保”、“北京普惠健康保”），进入【理赔服务 ➔ 特药理赔申请】，拍照上传定点医院处方、病理与基因报告及购药发票，审核通过后 3~5 个工作日直接赔付到银行卡。
@@ -1073,7 +1099,7 @@ export default function ReimbursementPage() {
         )}
       </main>
 
-      <Footer />
+      <Footer maxWidth="max-w-7xl" />
     </div>
   );
 }
