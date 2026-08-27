@@ -187,8 +187,9 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
           {/* Clinic Header */}
           <div className="border-b-2 border-slate-900 pb-3 sm:pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-white shrink-0 shadow-xs">
-                <ShieldCheck className="w-6 h-6 text-white" />
+              <div className="w-10 h-10 rounded-xl overflow-hidden shrink-0 shadow-xs bg-slate-100">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/logo.png" alt="OncoPath Logo" className="w-full h-full object-cover" crossOrigin="anonymous" />
               </div>
               <div>
                 <h1 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
