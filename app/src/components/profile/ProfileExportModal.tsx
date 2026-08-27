@@ -18,7 +18,8 @@ import {
   Calendar,
   AlertTriangle,
   Sun,
-  Apple
+  Apple,
+  Dna
 } from "lucide-react";
 import { toPng } from "html-to-image";
 import type { PatientProfile } from "@/lib/types";
@@ -410,7 +411,66 @@ export default function ProfileExportModal({ profile, onClose }: ProfileExportMo
             )}
           </div>
 
-          {/* SECTION 4: Decision Engine Next Step */}
+          {/* SECTION 4: Molecular Biomarkers & Gene Mutations */}
+          {(() => {
+            const mutations = (Array.isArray(profile.geneMutations) && profile.geneMutations.length > 0)
+              ? profile.geneMutations
+              : (Array.isArray(profile.molecular?.mutations) && profile.molecular.mutations.length > 0)
+              ? profile.molecular.mutations
+              : (profile.egfr === 'positive' ? [{ id: 'mut_egfr', gene: 'EGFR', subtype: '敏感突变', status: 'positive' }] : []);
+            const testStatus = profile.molecularTestStatus || profile.molecular?.testStatus || (mutations.length > 0 ? "tested" : (profile.egfr === 'positive' ? "tested" : (profile.egfr === 'negative' ? 'negative' : "not_tested")));
+            const pdl1 = profile.pdl1Tps || profile.molecular?.pdl1Tps;
+
+            return (
+              <div className="bg-slate-800/70 rounded-2xl p-4 border border-slate-700/70 mb-4 relative z-10 space-y-2.5">
+                <div className="text-xs font-bold text-indigo-300 flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <Dna className="w-3.5 h-3.5 text-indigo-400" />
+                    <span>驱动基因突变与分子靶向 (NGS Panel)</span>
+                  </span>
+                  <span className="text-[10px] text-slate-400 font-mono">
+                    {testStatus === "tested" ? `已检出 ${mutations.length} 项突变` : testStatus === "negative" ? "全野生型(全阴性)" : "未做检测"}
+                  </span>
+                </div>
+
+                {testStatus === "tested" && mutations.length > 0 ? (
+                  <div className="space-y-2">
+                    <div className="flex flex-wrap gap-1.5">
+                      {mutations.map((m: any, idx: number) => (
+                        <div
+                          key={idx}
+                          className="px-2.5 py-1 rounded-lg bg-indigo-950/80 border border-indigo-500/50 flex items-center gap-1.5 text-xs font-mono"
+                        >
+                          <span className="font-extrabold text-indigo-200">{m.gene}</span>
+                          {m.subtype && <span className="text-indigo-400 text-[10.5px]">({m.subtype})</span>}
+                          {m.abundance && <span className="text-slate-400 text-[10px]">{m.abundance}%</span>}
+                          {m.isComutation && (
+                            <span className="text-[9px] font-bold text-amber-300 bg-amber-500/20 px-1 rounded">伴随突变</span>
+                          )}
+                        </div>
+                      ))}
+                      {pdl1 && pdl1 !== "unknown" && (
+                        <div className="px-2.5 py-1 rounded-lg bg-teal-950/80 border border-teal-500/50 flex items-center gap-1.5 text-xs font-mono">
+                          <span className="font-extrabold text-teal-200">PD-L1</span>
+                          <span className="text-teal-400 text-[10.5px]">{pdl1}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ) : testStatus === "negative" ? (
+                  <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 text-[11px] text-emerald-400">
+                    全基因野生型（EGFR / ALK / ROS1 / KRAS 等常见靶点均阴性无突变）
+                  </div>
+                ) : (
+                  <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 text-[11px] text-slate-400">
+                    当前档案未做基因大 Panel 检测（IA 期早期手术根治后常规无需靶向辅助用药）
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+
+          {/* SECTION 5: Decision Engine Next Step */}
           <div className="bg-slate-800/70 rounded-2xl p-3.5 border border-slate-700/70 mb-4 relative z-10 flex items-start gap-2.5">
             <div className="w-6 h-6 rounded-lg bg-blue-600 text-white flex items-center justify-center shrink-0 mt-0.5">
               <BrainCircuit className="w-3.5 h-3.5" />
@@ -425,7 +485,7 @@ export default function ProfileExportModal({ profile, onClose }: ProfileExportMo
             </div>
           </div>
 
-          {/* SECTION 5: Warm Empathy Banner & Disclaimer Footer */}
+          {/* SECTION 6: Warm Empathy Banner & Disclaimer Footer */}
           <div className="bg-gradient-to-r from-amber-950/40 to-teal-950/40 rounded-2xl p-3 border border-amber-500/30 text-[10px] text-amber-200/90 leading-relaxed mb-4 flex items-center gap-2">
             <Sun className="w-4 h-4 text-amber-400 shrink-0" />
             <span>

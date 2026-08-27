@@ -1,4 +1,4 @@
-export type TimelineCategory = "imaging" | "pathology" | "serology" | "milestone";
+export type TimelineCategory = "imaging" | "pathology" | "serology" | "milestone" | "molecular";
 
 export interface TimelineEventItem {
   id: string;

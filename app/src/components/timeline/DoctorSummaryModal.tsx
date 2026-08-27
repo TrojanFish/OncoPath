@@ -9,7 +9,8 @@ import {
   Microscope, 
   Zap, 
   TestTube2, 
-  Activity 
+  Activity,
+  Dna
 } from "lucide-react";
 import { TimelineEventItem } from "@/lib/timelineTypes";
 
@@ -28,11 +29,19 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
   const pathologyList = sortedEvents.filter((e) => e.category === "pathology");
   const serologyList = sortedEvents.filter((e) => e.category === "serology");
   const milestoneList = sortedEvents.filter((e) => e.category === "milestone");
+  const molecularList = sortedEvents.filter((e) => e.category === "molecular" || e.subType === "NGS");
 
   const latestImaging = imagingList[0];
   const latestSerology = serologyList[0];
   const latestPathology = pathologyList[0];
+  const latestMolecular = molecularList[0];
   const surgeryMilestone = milestoneList.find((e) => e.subType === "Surgery") || milestoneList[0];
+
+  const molecularFindings: any = latestMolecular?.keyFindings || {};
+  const molecularMuts: any[] = Array.isArray(molecularFindings.mutations) ? molecularFindings.mutations : [];
+  const geneSummaryText = molecularMuts.length > 0
+    ? molecularMuts.map((m: any) => `${m.gene}${m.subtype ? ` (${m.subtype})` : ''}`).join('、')
+    : (molecularFindings.testStatus === "negative" ? "全野生型 (全阴性)" : (latestPathology?.keyFindings?.driverGene || "未做基因检测"));
 
   const handlePrint = () => {
     window.print();
@@ -141,7 +150,7 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
             <div className="p-1">
               <span className="text-[10px] text-slate-400 font-bold uppercase">驱动基因突变</span>
               <div className="font-extrabold text-blue-700 mt-0.5 break-words">
-                {latestPathology?.keyFindings?.driverGene || "EGFR 19del"}
+                {geneSummaryText}
               </div>
             </div>
           </div>
@@ -185,13 +194,13 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
             </div>
           </div>
 
-          {/* Section 2: Surgery & Pathology */}
+          {/* Section 2: Surgery, Pathology & Molecular Biomarkers */}
           <div className="space-y-2">
             <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5 pb-1 border-b border-slate-200">
               <Microscope className="w-3.5 h-3.5 text-purple-600" />
-              <span>2. 手术干预与病理微观诊断 (Surgery & Pathology)</span>
+              <span>2. 手术干预、病理与分子靶向 (Surgery, Pathology & NGS)</span>
             </h4>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 text-xs">
               {surgeryMilestone && (
                 <div className="p-3 sm:p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
                   <div className="font-bold text-slate-900 flex items-center gap-1.5">
@@ -208,6 +217,27 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
                     <span>{latestPathology.eventDate} 病理组织学</span>
                   </div>
                   <div className="text-slate-600 mt-1 leading-relaxed">{latestPathology.summary}</div>
+                </div>
+              )}
+              {latestMolecular ? (
+                <div className="p-3 sm:p-3.5 rounded-2xl bg-indigo-50/60 border border-indigo-200">
+                  <div className="font-bold text-indigo-900 flex items-center gap-1.5">
+                    <Dna className="w-3.5 h-3.5 text-indigo-600" />
+                    <span>{latestMolecular.eventDate} 分子检测</span>
+                  </div>
+                  <div className="text-indigo-950 mt-1 leading-relaxed font-medium">
+                    {latestMolecular.summary}
+                  </div>
+                </div>
+              ) : (
+                <div className="p-3 sm:p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
+                  <div className="font-bold text-slate-700 flex items-center gap-1.5">
+                    <Dna className="w-3.5 h-3.5 text-slate-500" />
+                    <span>驱动基因检测</span>
+                  </div>
+                  <div className="text-slate-500 mt-1 leading-relaxed">
+                    {geneSummaryText}
+                  </div>
                 </div>
               )}
             </div>
