@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { fetchFactors } from "@/lib/api";
 import type { PatientProfile } from "@/lib/types";
 import type { KnowledgeNode, EdgeEvidence } from "@/lib/knowledgeGraphData";
@@ -200,12 +201,12 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
             <span>💡 已根据您的病理指标高亮关联因果结局</span>
           </div>
         ) : !profile ? (
-          <a
-            href="/profile/edit"
+          <Link
+            href="/profile"
             className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-700 hover:text-blue-800 bg-white hover:bg-blue-50 px-3.5 py-1.5 rounded-xl border border-blue-200 shadow-2xs transition-all cursor-pointer"
           >
             <span>＋ 录入病理档案高亮专属路径</span>
-          </a>
+          </Link>
         ) : null}
       </div>
 
