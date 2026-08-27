@@ -1,7 +1,7 @@
 import React from 'react';
 import type { KnowledgeNode } from '@/lib/knowledgeGraphData';
 import type { PatientProfile } from '@/lib/types';
-import { typeColors, getNodeActivation, SANDBOX_NODES } from '@/lib/knowledgeGraphData';
+import { typeColors, getNodeActivation } from '@/lib/knowledgeGraphData';
 import type { EdgeEvidence } from '@/lib/knowledgeGraphData';
 
 interface GraphRendererProps {
@@ -10,8 +10,6 @@ interface GraphRendererProps {
   hoveredNode: KnowledgeNode | null;
   selectedEdge: string | null;
   hoveredEdge: string | null;
-  sandboxMode: boolean;
-  sandboxActive: Set<string>;
   personalMode: boolean;
   profile: PatientProfile | null;
   timeYears: number;
@@ -29,8 +27,6 @@ export function GraphRenderer({
   hoveredNode,
   selectedEdge,
   hoveredEdge,
-  sandboxMode,
-  sandboxActive,
   personalMode,
   profile,
   timeYears,
@@ -41,11 +37,6 @@ export function GraphRenderer({
   onEdgeHover,
   onBackgroundClick
 }: GraphRendererProps) {
-
-  // Sandbox Protective Edges
-  const activeProtectiveEdges = Array.from(sandboxActive).flatMap((id) =>
-    SANDBOX_NODES[id]?.protectiveEdges.map(pe => ({ from: id, to: pe.target, label: pe.label })) || []
-  );
 
   return (
     <svg
@@ -363,42 +354,6 @@ export function GraphRenderer({
         })
       )}
 
-      {/* Sandbox Protective Edges */}
-      {activeProtectiveEdges.map((pe) => {
-        const fromNode = currentNodes.find((n) => n.id === pe.from);
-        const toNode = currentNodes.find((n) => n.id === pe.to);
-        if (!fromNode || !toNode) return null;
-        const dx = toNode.x - fromNode.x;
-        const dy = toNode.y - fromNode.y;
-        const len = Math.sqrt(dx * dx + dy * dy);
-        const offset = 4.8;
-        const x1 = fromNode.x + (dx / len) * offset;
-        const y1 = fromNode.y + (dy / len) * offset;
-        const x2 = toNode.x - (dx / len) * offset;
-        const y2 = toNode.y - (dy / len) * offset;
-        const curvature = Math.max(Math.abs(x2 - x1) * 0.5, 8);
-        const pathData = `M ${x1} ${y1} C ${x1 + curvature} ${y1}, ${x2 - curvature} ${y2}, ${x2} ${y2}`;
-        const mx = (x1 + x2) / 2;
-        const my = (y1 + y2) / 2;
-        return (
-          <g key={`protect-${pe.from}-${pe.to}`}>
-            <path
-              d={pathData}
-              fill="none"
-              stroke="#16a34a"
-              strokeWidth="0.8"
-              strokeDasharray="2,1"
-              markerEnd="url(#arrow-protect)"
-              style={{ filter: "drop-shadow(0 0 2px rgba(22,163,74,0.4))" }}
-            />
-            <g transform={`translate(${mx}, ${my})`}>
-              <rect x="-4.5" y="-1.8" width="9" height="3.6" rx="1.8" fill="#dcfce7" stroke="#16a34a" strokeWidth="0.3" filter="url(#badge-shadow)" />
-              <text textAnchor="middle" dominantBaseline="central" fontSize="1.6" fill="#15803d" fontWeight="bold">{pe.label}</text>
-            </g>
-          </g>
-        );
-      })}
-
       {/* Nodes (Always Visible, High-Contrast Typography & Rich SVG Native Dynamic Animations) */}
       {currentNodes.map((node) => {
         const colors = node.id === "SURVEILLANCE" 
@@ -422,11 +377,6 @@ export function GraphRenderer({
         const isPrimary = personalMode && activation === "primary";
         const isWarning = personalMode && activation === "warning";
         const isPersonalActive = personalMode && activation === "active";
-
-        // Sandbox visual state
-        const isSandboxNode = sandboxMode && !!SANDBOX_NODES[node.id];
-        const isSandboxOn = sandboxMode && sandboxActive.has(node.id);
-        const isAiNode = node.id === "ctDNA";
 
         // Split multi-line labels
         const labelParts = node.label.split("\n");
@@ -456,19 +406,6 @@ export function GraphRenderer({
           >
             {/* Generous Hit Area for Mobile Touch Reliability */}
             <rect x="-8" y="-6" width="16" height="18" fill="rgba(0,0,0,0.001)" style={{ pointerEvents: "all" }} />
-
-            {/* AI Node Pulse Indicator */}
-            {isAiNode && (
-              <g>
-                <circle r="7.5" fill="none" stroke="#0d9488" strokeWidth="0.4" strokeDasharray="2,1">
-                  <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="8s" repeatCount="indefinite" />
-                </circle>
-                <circle r="6.0" fill="#0d9488">
-                  <animate attributeName="r" values="5.2; 7.0; 5.2" dur="2.2s" repeatCount="indefinite" />
-                  <animate attributeName="fill-opacity" values="0.12; 0.3; 0.12" dur="2.2s" repeatCount="indefinite" />
-                </circle>
-              </g>
-            )}
 
             {/* 1. PRIMARY Dominant Mainline Dynamic Radar Ripple Halo (90%-100% Cure Baseline) */}
             {isPrimary && (
@@ -539,26 +476,12 @@ export function GraphRenderer({
               </g>
             )}
 
-            {/* Sandbox Active Glow */}
-            {isSandboxOn && (
-              <g className="pointer-events-none">
-                <circle r="4.0" fill="none" stroke="#d97706" strokeWidth="0.75">
-                  <animate attributeName="r" values="4.0; 9.0" dur="2.0s" repeatCount="indefinite" />
-                  <animate attributeName="opacity" values="0.85; 0" dur="2.0s" repeatCount="indefinite" />
-                </circle>
-                <circle r="6.2" fill="#d97706">
-                  <animate attributeName="r" values="5.5; 7.4; 5.5" dur="2.0s" repeatCount="indefinite" />
-                  <animate attributeName="fill-opacity" values="0.15; 0.35; 0.15" dur="2.0s" repeatCount="indefinite" />
-                </circle>
-              </g>
-            )}
-
             {/* Node Background Base Capsule with Shadow */}
             <circle
               r={isActive || isHovered ? "4.2" : isPrimary ? "4.1" : "3.8"}
-              fill={isSandboxOn ? "#fffbeb" : isAiNode ? "#f0fdfa" : isPrimary ? "#f0fdf4" : isWarning ? "#fffbeb" : colors.bg}
-              stroke={isActive || isHovered ? "#2563eb" : isPrimary ? "#16a34a" : isWarning ? "#f59e0b" : isPersonalActive ? colors.dot : isSandboxOn ? "#d97706" : colors.border}
-              strokeWidth={isActive || isHovered ? "0.85" : isPrimary ? "0.85" : isWarning ? "0.6" : isPersonalActive || isSandboxOn ? "0.65" : "0.4"}
+              fill={isPrimary ? "#f0fdf4" : isWarning ? "#fffbeb" : colors.bg}
+              stroke={isActive || isHovered ? "#2563eb" : isPrimary ? "#16a34a" : isWarning ? "#f59e0b" : isPersonalActive ? colors.dot : colors.border}
+              strokeWidth={isActive || isHovered ? "0.85" : isPrimary ? "0.85" : isWarning ? "0.6" : isPersonalActive ? "0.65" : "0.4"}
               filter={isActive || isHovered ? "url(#glow-active)" : isPrimary ? "url(#glow-primary)" : isWarning ? "url(#glow-warning)" : "url(#node-shadow)"}
               style={{ transition: "all 0.2s" }}
             />
@@ -579,7 +502,7 @@ export function GraphRenderer({
             ) : (
               <circle 
                 r="1.6" 
-                fill={isSandboxOn ? "#d97706" : isAiNode ? "#0d9488" : colors.dot} 
+                fill={colors.dot} 
                 opacity={0.85} 
               />
             )}
@@ -597,14 +520,6 @@ export function GraphRenderer({
               <g transform="translate(0, -6.6)">
                 <rect x="-8.2" y="-1.8" width="16.4" height="3.6" rx="1.8" fill="#fef3c7" stroke="#f59e0b" strokeWidth="0.35" filter="url(#badge-shadow)" />
                 <text textAnchor="middle" dominantBaseline="central" fontSize="1.3" fill="#b45309" fontWeight="bold">警示支线 0%~10%</text>
-              </g>
-            )}
-
-            {/* AI Node NEW Tag */}
-            {isAiNode && (
-              <g transform="translate(4, -4.5)">
-                <rect x="-2.2" y="-1.2" width="4.4" height="2.4" rx="1.2" fill="#0d9488" />
-                <text textAnchor="middle" dominantBaseline="central" fontSize="1.3" fill="#ffffff" fontWeight="bold">NEW</text>
               </g>
             )}
 
