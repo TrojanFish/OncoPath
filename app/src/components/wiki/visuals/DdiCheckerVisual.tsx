@@ -28,6 +28,7 @@ export interface DdiCheckerVisualProps {
   initialChronicDrugIds?: string[];
   patientName?: string;
   geneInfo?: string;
+  isEarlyStageIA?: boolean;
   isModalMode?: boolean;
   onClose?: () => void;
 }
@@ -37,6 +38,7 @@ export function DdiCheckerVisual({
   initialChronicDrugIds,
   patientName,
   geneInfo,
+  isEarlyStageIA = false,
   isModalMode = false,
   onClose,
 }: DdiCheckerVisualProps = {}) {
@@ -92,20 +94,34 @@ export function DdiCheckerVisual({
 
   return (
     <div className="bg-white rounded-3xl p-3.5 sm:p-6 text-slate-900 border border-slate-200 shadow-xl select-none space-y-5">
-      {/* Patient Profile Linked Banner */}
+      {/* Patient Profile Linked Banner with Clinical Stage Guardrail */}
       {geneInfo && (
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 p-3 sm:p-3.5 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs text-blue-950 shadow-2xs">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-            <span>
-              已根据患者档案【<strong>{geneInfo}</strong>】自动一键关联靶向药：
-              <strong className="text-blue-700 ml-1">{selectedTarget.genericName} ({selectedTarget.brandName})</strong>
+        isEarlyStageIA ? (
+          <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 p-3 sm:p-3.5 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs text-emerald-950 shadow-2xs">
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+              <span>
+                <strong>权威指南提醒</strong>：患者属于 <strong>IA 期极早期低危组</strong>，虽然检出【{geneInfo}】，但 CSCO / NCCN 指南明文规定<strong>术后无需辅助靶向治疗（严禁过度用药）</strong>。以下排查自检仅供常识储备了解。
+              </span>
+            </div>
+            <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 shrink-0 font-bold self-start sm:self-auto">
+              ✓ IA期无需靶向用药
             </span>
           </div>
-          <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800 border border-blue-300 shrink-0 font-bold self-start sm:self-auto">
-            ✓ 档案精准互联
-          </span>
-        </div>
+        ) : (
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 p-3 sm:p-3.5 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs text-blue-950 shadow-2xs">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+              <span>
+                已根据患者档案【<strong>{geneInfo}</strong>】自动关联靶向药：
+                <strong className="text-blue-700 ml-1">{selectedTarget.genericName} ({selectedTarget.brandName})</strong>
+              </span>
+            </div>
+            <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800 border border-blue-300 shrink-0 font-bold self-start sm:self-auto">
+              ✓ 档案精准互联
+            </span>
+          </div>
+        )
       )}
 
       {/* Header */}

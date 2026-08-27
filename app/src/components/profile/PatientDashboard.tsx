@@ -885,8 +885,20 @@ export default function PatientDashboard() {
                 )}
               </div>
 
-              {/* Matched Targeted Drugs & Policy Strip */}
-              {(hasEgfr || hasAlk) && (
+              {/* Matched Targeted Drugs & Clinical Stage Guideline */}
+              {isStageIA && (hasEgfr || hasAlk) ? (
+                <div className="p-3.5 bg-emerald-50/80 rounded-2xl border border-emerald-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+                  <div className="space-y-1">
+                    <div className="font-extrabold text-emerald-950 flex items-center gap-1.5">
+                      <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+                      <span>权威指南 1 类强烈推荐：IA 期极早期术后无需辅助靶向治疗</span>
+                    </div>
+                    <p className="text-[11px] text-emerald-800 leading-relaxed">
+                      虽然检出 {hasEgfr ? "EGFR" : "ALK"} 敏感驱动突变，但因您的病灶处于 <strong>IA 期根治性微创切除低危组</strong>（5年生存率 90%~100%），CSCO / NCCN 权威指南明文确立：<strong>严禁盲目服用靶向药辅助治疗</strong>（避免过度医疗、身体毒副作用及过早耐药），仅需遵医嘱规律复查即可。
+                    </p>
+                  </div>
+                </div>
+              ) : (hasEgfr || hasAlk) ? (
                 <div className="p-3.5 bg-gradient-to-r from-blue-50/80 to-indigo-50/80 rounded-2xl border border-blue-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
                   <div className="space-y-1">
                     <div className="font-extrabold text-blue-950 flex items-center gap-1.5">
@@ -907,20 +919,26 @@ export default function PatientDashboard() {
                     <ArrowRight className="w-3.5 h-3.5" />
                   </Link>
                 </div>
-              )}
+              ) : null}
 
               {/* DDI Drug Interaction Quick Action Banner */}
               <div className="p-3.5 bg-gradient-to-r from-purple-50/90 via-indigo-50/70 to-blue-50/80 rounded-2xl border border-purple-200/90 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs shadow-2xs">
                 <div className="space-y-1">
                   <div className="font-extrabold text-purple-950 flex items-center gap-1.5">
                     <Pill className="w-4 h-4 text-purple-600 shrink-0" />
-                    <span>靶向药与慢病用药相互作用 (DDI) 动态排查：</span>
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-200/80 text-purple-900 font-bold">
-                      已关联 {matchedGeneLabel}
+                    <span>靶向药与慢病用药相互作用 (DDI) 排雷：</span>
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                      isStageIA 
+                        ? "bg-emerald-100 text-emerald-800 border border-emerald-200" 
+                        : "bg-purple-200/80 text-purple-900"
+                    }`}>
+                      {isStageIA ? "IA期无需服药 · 仅供储备排雷" : `已关联 ${matchedGeneLabel}`}
                     </span>
                   </div>
-                  <p className="text-[11px] text-purple-900/90">
-                    正在服用降压降脂药、胃药（奥美拉唑）、抗凝抗栓药或日常西柚？一键自检合并用药禁忌并生成 24 小时错峰服药规划。
+                  <p className="text-[11px] text-purple-900/90 leading-relaxed">
+                    {isStageIA
+                      ? "由于您属于 IA 期极早期，指南明确无需术后吃靶向药。如您想了解平时吃的胃药（奥美拉唑）、降压降脂药与常见抗癌靶向药的相互作用机制，可自检储备常识。"
+                      : "正在服用降压降脂药、胃药（奥美拉唑）、抗凝抗栓药或日常西柚？一键自检合并用药禁忌并生成 24 小时错峰服药规划。"}
                   </p>
                 </div>
                 <button
@@ -929,33 +947,23 @@ export default function PatientDashboard() {
                   className="px-3.5 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold text-xs rounded-xl shadow-sm flex items-center gap-1.5 shrink-0 transition-all cursor-pointer"
                 >
                   <Pill className="w-3.5 h-3.5" />
-                  <span>一键自检当前用药</span>
+                  <span>{isStageIA ? "探索用药排雷知识" : "一键自检当前用药"}</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               </div>
 
-              {/* Clinical Guardrail & Guidance */}
-              {isStageIA && (hasEgfr || hasAlk) ? (
-                <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-200 text-xs text-emerald-950 flex items-start gap-2">
-                  <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <div>
-                    <div className="font-bold">早期 IA 期治愈定心丸（指南 1 类强烈推荐）：</div>
-                    <p className="text-[11px] text-emerald-800 leading-relaxed mt-0.5">
-                      虽然检出敏感驱动突变，但您的病灶处于 <strong>IA 期早期</strong>。指南明文确立：彻底手术已达临床根治（5年生存率 90%~100%），<strong>严禁盲目服用靶向药辅助治疗</strong>（避免过度医疗与耐药），仅需遵医嘱定期复查即可。
-                    </p>
-                  </div>
-                </div>
-              ) : hasTp53 ? (
+              {/* Additional Mutation Guardrail & Guidance */}
+              {!isStageIA && hasTp53 && (
                 <div className="p-3 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-950 flex items-start gap-2">
                   <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
                   <div>
-                    <div className="font-bold">TP53 伴随突变随访管理建议：</div>
+                    <div className="font-bold">伴随 TP53 抑癌基因共突变提示：</div>
                     <p className="text-[11px] text-amber-800 leading-relaxed mt-0.5">
-                      检出伴随 TP53 突变，提示肿瘤细胞稍具增殖活性。建议术后前 2 年严格执行每 3~6 个月薄层胸部 CT 随访。
+                      TP53 突变可能削弱单药靶向治疗的无进展生存期（PFS）。若分期为中晚期，建议在临床医生指导下评估强化随访或靶向联合治疗策略。
                     </p>
                   </div>
                 </div>
-              ) : null}
+              )}
             </div>
           );
         })()}
@@ -1129,6 +1137,7 @@ export default function PatientDashboard() {
             <DdiCheckerVisual
               initialTargetDrugId={recommendedTargetDrugId}
               geneInfo={matchedGeneLabel}
+              isEarlyStageIA={Boolean(profile?.stage?.startsWith("IA") || ((profile?.tStage === "T1a" || profile?.tStage === "T1b" || profile?.tStage === "T1c" || profile?.tStage === "T1mi") && (profile?.nStage === "N0" || !profile?.nStage)))}
               isModalMode={true}
               onClose={() => setShowDdiModal(false)}
             />
