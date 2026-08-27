@@ -161,9 +161,10 @@ export function MediastinalLNMapVisual() {
         onClick={() => setSelectedStation(stationId)}
         className="cursor-pointer transition-all duration-300 group"
       >
-        {/* Animated Glow Rings when selected */}
+        {/* Animated Glow Rings when selected (Anchored strictly to cx, cy) */}
         {isSelected && (
           <>
+            {/* Outer Breathing Halo Ring */}
             <circle
               cx={cx}
               cy={cy}
@@ -171,14 +172,16 @@ export function MediastinalLNMapVisual() {
               fill="none"
               stroke={color}
               strokeWidth="1.2"
-              className="animate-ping opacity-60 pointer-events-none"
+              strokeOpacity="0.8"
+              className="animate-pulse pointer-events-none"
             />
+            {/* Inner Glowing Aura Backing */}
             <circle
               cx={cx}
               cy={cy}
-              r={baseRadius * 1.7}
+              r={baseRadius * 1.65}
               fill={color}
-              fillOpacity="0.25"
+              fillOpacity="0.3"
               stroke={color}
               strokeWidth="1.5"
               className="animate-pulse pointer-events-none"
@@ -190,12 +193,12 @@ export function MediastinalLNMapVisual() {
         <circle
           cx={cx}
           cy={cy}
-          r={isSelected ? baseRadius * 1.4 : baseRadius}
+          r={isSelected ? baseRadius * 1.35 : baseRadius}
           fill={color}
           stroke={isSelected ? "#ffffff" : "rgba(255,255,255,0.4)"}
-          strokeWidth={isSelected ? 1.8 : 0.8}
-          opacity={isSelected ? 1 : isAnySelected ? 0.4 : 0.85}
-          className="transition-all duration-300 group-hover:opacity-100 group-hover:scale-125"
+          strokeWidth={isSelected ? 2 : 0.8}
+          opacity={isSelected ? 1 : isAnySelected ? 0.35 : 0.85}
+          className="transition-all duration-300 group-hover:opacity-100"
         />
 
         {/* Station Label Text */}
@@ -215,41 +218,44 @@ export function MediastinalLNMapVisual() {
   };
 
   return (
-    <div className="bg-slate-900 rounded-3xl p-3 sm:p-5 text-white select-none border border-slate-800 shadow-xl space-y-3.5">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 pb-2 border-b border-slate-800">
-        <div className="flex items-center gap-2">
-          <span className="p-1.5 rounded-lg bg-sky-500/20 text-sky-400 border border-sky-500/30">
-            <CircleDot className="w-4 h-4" />
-          </span>
-          <div>
-            <h4 className="text-xs sm:text-sm font-extrabold text-white tracking-tight flex items-center gap-2">
-              <span>国际 IASLC 肺癌胸腔淋巴结解剖图谱</span>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700 font-mono">
-                AJCC 8/9th
-              </span>
-            </h4>
-            <p className="text-[10px] text-slate-400">
-              点击图解或下方按钮查看各组位置、N分期归属与外科清扫标准
-            </p>
+    <div className="bg-slate-900 rounded-3xl p-3.5 sm:p-5 text-white select-none border border-slate-800 shadow-xl space-y-3.5">
+      {/* Header: Clean Single Row or Natural Wrapped Layout */}
+      <div className="space-y-2 pb-2.5 border-b border-slate-800">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <span className="p-2 rounded-xl bg-sky-500/20 text-sky-400 border border-sky-500/30 shrink-0">
+              <CircleDot className="w-4 h-4" />
+            </span>
+            <div className="min-w-0">
+              <h4 className="text-xs sm:text-sm md:text-base font-extrabold text-white tracking-tight flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                <span>国际 IASLC 肺癌胸腔淋巴结解剖图谱</span>
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700 font-mono shrink-0">
+                  AJCC 8/9th
+                </span>
+              </h4>
+            </div>
+          </div>
+
+          {/* Color Legend Tags */}
+          <div className="flex items-center gap-1.5 text-[10px] shrink-0 flex-wrap">
+            <span className="flex items-center gap-1 text-rose-400 bg-rose-950/60 px-2 py-0.5 rounded-md border border-rose-900/70 font-bold">
+              <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+              N2 纵隔中枢(7组)
+            </span>
+            <span className="flex items-center gap-1 text-sky-400 bg-sky-950/60 px-2 py-0.5 rounded-md border border-sky-900/70 font-bold">
+              <span className="w-1.5 h-1.5 rounded-full bg-sky-400" />
+              N2 纵隔站
+            </span>
+            <span className="flex items-center gap-1 text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded-md border border-emerald-900/70 font-bold">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              N1 肺内对照
+            </span>
           </div>
         </div>
 
-        {/* Color Legend Tags */}
-        <div className="flex items-center gap-2 text-[10px] shrink-0">
-          <span className="flex items-center gap-1 text-rose-400 bg-rose-950/50 px-2 py-0.5 rounded-md border border-rose-900/60 font-bold">
-            <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
-            N2 纵隔中枢(7组)
-          </span>
-          <span className="flex items-center gap-1 text-sky-400 bg-sky-950/50 px-2 py-0.5 rounded-md border border-sky-900/60 font-bold">
-            <span className="w-1.5 h-1.5 rounded-full bg-sky-400" />
-            N2 纵隔站
-          </span>
-          <span className="flex items-center gap-1 text-emerald-400 bg-emerald-950/50 px-2 py-0.5 rounded-md border border-emerald-900/60 font-bold">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-            N1 肺内对照
-          </span>
-        </div>
+        <p className="text-[11px] text-slate-400 leading-relaxed">
+          点击图解圆点或下方分类按键，快速定位各组解剖位置、N分期归属与清扫标准
+        </p>
       </div>
 
       {/* SVG Anatomical Diagram Canvas */}
