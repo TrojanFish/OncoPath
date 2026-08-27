@@ -47,11 +47,17 @@ export function DdiCheckerVisual({
       : ["omeprazole", "atorvastatin", "amlodipine"]
   );
   const [searchQuery, setSearchQuery] = useState("");
+  const [activeTargetCategory, setActiveTargetCategory] = useState<string>("all");
   const [activeCategory, setActiveCategory] = useState<string>("all");
 
   const selectedTarget = useMemo(() => {
     return TARGETED_DRUGS.find(d => d.id === selectedTargetId) || TARGETED_DRUGS[0];
   }, [selectedTargetId]);
+
+  const filteredTargetedDrugs = useMemo(() => {
+    if (activeTargetCategory === "all") return TARGETED_DRUGS;
+    return TARGETED_DRUGS.filter(d => d.target === activeTargetCategory);
+  }, [activeTargetCategory]);
 
   const analysisResult = useMemo(() => {
     return checkDrugInteractions(selectedTargetId, selectedChronicIds);
@@ -118,7 +124,7 @@ export function DdiCheckerVisual({
                   </span>
                 </h3>
                 <p className="text-[11px] text-slate-500 mt-0.5">
-                  覆盖 EGFR / ALK / KRAS 靶向药 vs 抑酸胃药、降压降脂、抗凝抗栓及日常西柚饮食
+                  覆盖 EGFR / ALK / KRAS / MET / RET 靶向药 vs 抑酸胃药、降压降脂、抗凝抗栓及日常西柚饮食
                 </p>
               </div>
             </div>
@@ -171,15 +177,34 @@ export function DdiCheckerVisual({
         <div className="text-xs font-bold text-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
           <div className="flex items-center gap-2">
             <span className="w-5 h-5 min-w-[20px] rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px] font-mono font-bold shrink-0 shadow-xs">1</span>
-            <span className="font-bold text-slate-900">第一步：选择您目前服用的抗肿瘤靶向药</span>
+            <span className="font-bold text-slate-900">第一步：选择您目前服用的抗肿瘤靶向药（共 {TARGETED_DRUGS.length} 种）</span>
           </div>
           <span className="text-[11px] text-blue-600 font-mono font-medium">
-            当前: {selectedTarget.genericName} ({selectedTarget.standardDosage})
+            当前选中: {selectedTarget.genericName} ({selectedTarget.standardDosage.split(" ")[0]})
           </span>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
-          {TARGETED_DRUGS.map(d => {
+        {/* Target Category Pills */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 custom-scrollbar text-[11px]">
+          {["all", "EGFR", "ALK", "KRAS", "MET", "RET"].map(targetKey => (
+            <button
+              key={targetKey}
+              type="button"
+              onClick={() => setActiveTargetCategory(targetKey)}
+              className={`px-2.5 py-1 rounded-xl whitespace-nowrap transition-all cursor-pointer font-medium ${
+                activeTargetCategory === targetKey
+                  ? "bg-blue-600 text-white font-bold shadow-xs"
+                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+              }`}
+            >
+              {targetKey === "all" ? `全部靶向药 (${TARGETED_DRUGS.length})` : `${targetKey} 抑制剂 (${TARGETED_DRUGS.filter(d => d.target === targetKey).length})`}
+            </button>
+          ))}
+        </div>
+
+        {/* Scrollable Target Drugs Grid Container */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 max-h-56 overflow-y-auto custom-scrollbar p-1.5 bg-slate-50/80 rounded-2xl border border-slate-200">
+          {filteredTargetedDrugs.map(d => {
             const isSelected = d.id === selectedTargetId;
             return (
               <button
@@ -189,17 +214,17 @@ export function DdiCheckerVisual({
                 className={`p-2.5 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
                   isSelected
                     ? "bg-blue-50/90 border-blue-500 shadow-sm ring-1 ring-blue-400/60 text-blue-950"
-                    : "bg-slate-50/80 border-slate-200 hover:bg-slate-100 text-slate-700 hover:border-slate-300"
+                    : "bg-white border-slate-200 hover:bg-slate-50 text-slate-700 hover:border-slate-300"
                 }`}
               >
                 <div>
                   <div className="flex items-center justify-between gap-1 mb-1">
                     <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${
-                      isSelected ? "bg-blue-200/80 text-blue-900" : "bg-slate-200/80 text-slate-700"
+                      isSelected ? "bg-blue-200/80 text-blue-900" : "bg-slate-100 text-slate-600"
                     }`}>
                       {d.target}
                     </span>
-                    <span className="text-[9px] text-slate-400 font-medium">{d.generation}</span>
+                    <span className="text-[9px] text-slate-400 font-medium truncate">{d.generation}</span>
                   </div>
                   <div className="text-xs font-bold text-slate-900 truncate">{d.brandName.split(" / ")[0]}</div>
                   <div className="text-[10px] text-slate-500 truncate">{d.genericName}</div>
@@ -238,6 +263,12 @@ export function DdiCheckerVisual({
               </button>
             )}
           </div>
+        </div>
+
+        {/* Friendly Cognitive Guide Bubble */}
+        <div className="p-2.5 bg-indigo-50/70 border border-indigo-200/80 rounded-xl text-[11px] text-indigo-950 flex items-center gap-2 shadow-2xs">
+          <Info className="w-4 h-4 text-indigo-600 shrink-0" />
+          <span>💡 <strong>智能提示</strong>：系统已在第一步为您选定靶向药，您只需在下方勾选平时服用的胃药、降压降脂药、抗凝药或饮食即可一键排雷。</span>
         </div>
 
         {/* Category Pills */}

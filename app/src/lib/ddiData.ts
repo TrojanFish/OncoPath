@@ -55,7 +55,7 @@ export interface DdiAnalysisResult {
   }>;
 }
 
-// 1. Target Drugs Directory
+// 1. Target Drugs Directory (17 种临床主流与新一代肺癌靶向药全谱覆盖)
 export const TARGETED_DRUGS: TargetedDrug[] = [
   {
     id: "osimertinib",
@@ -65,7 +65,7 @@ export const TARGETED_DRUGS: TargetedDrug[] = [
     target: "EGFR",
     standardDosage: "80mg 口服 每日一次 (QD)",
     metabolismPathway: "主要经肝脏 CYP3A4 / CYP3A5 酶代谢",
-    phDependent: false, // Osimertinib is relatively less pH dependent compared to 1st gen, but antacids may cause chelation
+    phDependent: false,
   },
   {
     id: "aumolertinib",
@@ -88,6 +88,26 @@ export const TARGETED_DRUGS: TargetedDrug[] = [
     phDependent: false,
   },
   {
+    id: "befotertinib",
+    genericName: "贝福替尼胶囊",
+    brandName: "赛美纳 / Befotertinib",
+    generation: "第三代 EGFR-TKI",
+    target: "EGFR",
+    standardDosage: "75mg~100mg 口服 每日一次 (QD)",
+    metabolismPathway: "主要经肝脏 CYP3A4 代谢",
+    phDependent: false,
+  },
+  {
+    id: "icotinib",
+    genericName: "盐酸埃克替尼片",
+    brandName: "凯美纳 / Conmana",
+    generation: "第一代 EGFR-TKI",
+    target: "EGFR",
+    standardDosage: "125mg 口服 每日三次 (TID)",
+    metabolismPathway: "CYP2C19 与 CYP3A4 代谢",
+    phDependent: true,
+  },
+  {
     id: "gefitinib",
     genericName: "吉非替尼片",
     brandName: "易瑞沙 / Iressa",
@@ -95,7 +115,7 @@ export const TARGETED_DRUGS: TargetedDrug[] = [
     target: "EGFR",
     standardDosage: "250mg 口服 每日一次 (QD)",
     metabolismPathway: "CYP3A4 与 CYP2D6 代谢",
-    phDependent: true, // Severely pH dependent, PPI drops AUC by 40-50%
+    phDependent: true,
   },
   {
     id: "erlotinib",
@@ -108,13 +128,63 @@ export const TARGETED_DRUGS: TargetedDrug[] = [
     phDependent: true,
   },
   {
+    id: "afatinib",
+    genericName: "马来酸阿法替尼片",
+    brandName: "吉泰瑞 / Giotrif",
+    generation: "第二代不可逆 ErbB/EGFR 抑制剂",
+    target: "EGFR",
+    standardDosage: "30mg 或 40mg 口服 每日一次 (QD, 空腹)",
+    metabolismPathway: "非酶代谢与 P-gp 转运体",
+    phDependent: false,
+  },
+  {
+    id: "dacomitinib",
+    genericName: "达可替尼片",
+    brandName: "多泽润 / Vizimpro",
+    generation: "第二代 EGFR-TKI",
+    target: "EGFR",
+    standardDosage: "45mg 口服 每日一次 (QD)",
+    metabolismPathway: "CYP2D6 与 CYP3A4 代谢",
+    phDependent: true,
+  },
+  {
     id: "alectinib",
     genericName: "盐酸阿来替尼胶囊",
     brandName: "安圣莎 / Alecensa",
     generation: "第二代 ALK-TKI",
     target: "ALK",
     standardDosage: "600mg 口服 每日两次 (BID, 随餐)",
-    metabolismPathway: "主要经肝脏 CYP3A4 酶代谢转化为活性代谢产物 M4",
+    metabolismPathway: "主要经肝脏 CYP3A4 酶代谢转化为活性产物 M4",
+    phDependent: false,
+  },
+  {
+    id: "brigatinib",
+    genericName: "布格替尼片",
+    brandName: "安伯瑞 / Alunbrig",
+    generation: "第二代 ALK-TKI",
+    target: "ALK",
+    standardDosage: "前7天90mg QD，之后180mg QD",
+    metabolismPathway: "主要经 CYP3A4 与 CYP2C8 代谢",
+    phDependent: false,
+  },
+  {
+    id: "ensartinib",
+    genericName: "盐酸恩沙替尼胶囊",
+    brandName: "贝美纳 / Bemena",
+    generation: "第二代 ALK-TKI",
+    target: "ALK",
+    standardDosage: "225mg 口服 每日一次 (QD, 随餐)",
+    metabolismPathway: "主要经 CYP3A4 代谢",
+    phDependent: false,
+  },
+  {
+    id: "crizotinib",
+    genericName: "克唑替尼胶囊",
+    brandName: "赛可瑞 / Xalkori",
+    generation: "第一代 ALK/ROS1/MET-TKI",
+    target: "ALK",
+    standardDosage: "250mg 口服 每日两次 (BID)",
+    metabolismPathway: "主要经 CYP3A4 代谢，兼具中强 CYP3A4 自身抑制作用",
     phDependent: false,
   },
   {
@@ -135,7 +205,7 @@ export const TARGETED_DRUGS: TargetedDrug[] = [
     target: "KRAS",
     standardDosage: "960mg 口服 每日一次 (QD)",
     metabolismPathway: "CYP3A4 及非酶解代谢",
-    phDependent: true, // PPIs significantly reduce Sotorasib absorption
+    phDependent: true,
   },
   {
     id: "savolitinib",
@@ -146,6 +216,16 @@ export const TARGETED_DRUGS: TargetedDrug[] = [
     standardDosage: "400mg 或 600mg 口服 每日一次 (QD)",
     metabolismPathway: "CYP3A4 与 CYP1A2 代谢",
     phDependent: true,
+  },
+  {
+    id: "pralsetinib",
+    genericName: "普拉替尼胶囊",
+    brandName: "普吉华 / Gavreto",
+    generation: "RET 融合特异性抑制剂",
+    target: "RET",
+    standardDosage: "400mg 口服 每日一次 (QD, 空腹)",
+    metabolismPathway: "主要经 CYP3A4 及部分非酶水解代谢",
+    phDependent: false,
   }
 ];
 
@@ -155,7 +235,7 @@ export interface ChronicDrugCategory {
   drugs: ChronicDrug[];
 }
 
-// 2. Chronic & OTC Drugs Directory
+// 2. Chronic & OTC Drugs Directory (8 大系统、38 种常见慢病合并用药与饮食全谱)
 export const CHRONIC_DRUG_CATEGORIES: ChronicDrugCategory[] = [
   {
     id: "gastric_acid",
@@ -176,11 +256,31 @@ export const CHRONIC_DRUG_CATEGORIES: ChronicDrugCategory[] = [
       { id: "amlodipine", name: "苯磺酸氨氯地平 (络活喜)", aliases: ["氨氯地平", "络活喜", "安内真"], category: "cardiovascular_lipid" as const, categoryLabel: "钙通道阻滞剂 (CCB)", typicalUse: "高血压、冠心病心绞痛" },
       { id: "nifedipine", name: "硝苯地平控释片 (拜新同)", aliases: ["硝苯地平", "拜新同"], category: "cardiovascular_lipid" as const, categoryLabel: "钙通道阻滞剂 (CCB)", typicalUse: "中重度原发性高血压" },
       { id: "valsartan", name: "缬沙坦 (代文)", aliases: ["代文", "缬沙坦胶囊"], category: "cardiovascular_lipid" as const, categoryLabel: "ARB 降压药", typicalUse: "原发性高血压、心衰合并高血压" },
-      { id: "metoprolol", name: "酒石酸/琥珀酸美托洛尔 (倍他乐克)", aliases: ["倍他乐克", "美托洛尔缓释片"], category: "cardiovascular_lipid" as const, categoryLabel: "β受体阻滞剂", typicalUse: "高血压、快速心律失常、心肌梗死后" },
+      { id: "metoprolol", name: "美托洛尔 (倍他乐克)", aliases: ["倍他乐克", "美托洛尔缓释片"], category: "cardiovascular_lipid" as const, categoryLabel: "β受体阻滞剂", typicalUse: "高血压、快速心律失常、心肌梗死后" },
+      { id: "hydrochlorothiazide", name: "氢氯噻嗪片", aliases: ["双克", "氢氯噻嗪"], category: "cardiovascular_lipid" as const, categoryLabel: "噻嗪类利尿降压药", typicalUse: "原发性高血压、轻度水肿" },
       { id: "atorvastatin", name: "阿托伐他汀钙 (立普妥)", aliases: ["立普妥", "阿托伐他汀"], category: "cardiovascular_lipid" as const, categoryLabel: "他汀类降脂药", typicalUse: "高胆固醇血症、冠心病动脉粥样硬化" },
       { id: "rosuvastatin", name: "瑞舒伐他汀钙 (可定)", aliases: ["可定", "瑞舒伐他汀"], category: "cardiovascular_lipid" as const, categoryLabel: "他汀类降脂药", typicalUse: "高脂血症、预防心脑血管事件" },
       { id: "simvastatin", name: "辛伐他汀 (舒降之)", aliases: ["舒降之", "辛伐他汀片"], category: "cardiovascular_lipid" as const, categoryLabel: "他汀类降脂药", typicalUse: "高胆固醇血症" },
       { id: "amiodarone", name: "盐酸胺碘酮 (可达龙)", aliases: ["可达龙", "胺碘酮"], category: "cardiovascular_lipid" as const, categoryLabel: "III类抗心律失常药", typicalUse: "房颤、室性心律失常" },
+    ]
+  },
+  {
+    id: "diabetes_metabolic",
+    title: "内分泌代谢 / 降糖药与降尿酸药",
+    drugs: [
+      { id: "metformin", name: "盐酸二甲双胍片 (格华止)", aliases: ["二甲双胍", "格华止", "美福明"], category: "cardiovascular_lipid" as const, categoryLabel: "双胍类降糖药", typicalUse: "2型糖尿病一线降糖治疗" },
+      { id: "empagliflozin", name: "恩格列净片 (欧唐静)", aliases: ["欧唐静", "恩格列净"], category: "cardiovascular_lipid" as const, categoryLabel: "SGLT-2 抑制剂", typicalUse: "2型糖尿病、合并心衰或肾病降糖" },
+      { id: "acarbose", name: "阿卡波糖片 (拜唐苹)", aliases: ["拜唐苹", "阿卡波糖胶囊"], category: "cardiovascular_lipid" as const, categoryLabel: "α-糖苷酶抑制剂", typicalUse: "餐后高血糖控制" },
+      { id: "allopurinol", name: "别嘌醇片", aliases: ["别嘌醇", "别嘌呤醇"], category: "cardiovascular_lipid" as const, categoryLabel: "降尿酸与抗痛风药", typicalUse: "高尿酸血症、痛风发作期预防" },
+    ]
+  },
+  {
+    id: "analgesic_antiinflammatory",
+    title: "镇痛与抗炎 / 术后及骨关节止痛药",
+    drugs: [
+      { id: "celecoxib", name: "塞来昔布胶囊 (西乐葆)", aliases: ["西乐葆", "塞来昔布"], category: "cardiovascular_lipid" as const, categoryLabel: "选择性 COX-2 抑制剂", typicalUse: "术后切口痛、骨关节疼痛、肿瘤相关骨痛" },
+      { id: "ibuprofen", name: "布洛芬缓释胶囊 (芬必得)", aliases: ["芬必得", "布洛芬"], category: "cardiovascular_lipid" as const, categoryLabel: "非甾体抗炎药 (NSAID)", typicalUse: "中度疼痛、发热、关节肌肉酸痛" },
+      { id: "tramadol", name: "盐酸曲马多缓释片", aliases: ["曲马多", "奇曼丁"], category: "neuro_psychiatric" as const, categoryLabel: "中枢阿片类镇痛药", typicalUse: "中重度癌痛或术后疼痛控制" },
     ]
   },
   {
