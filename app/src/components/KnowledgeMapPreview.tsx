@@ -19,10 +19,29 @@ interface KnowledgeMapProps {
 const ZoomControls = () => {
   const { zoomIn, zoomOut, resetTransform } = useControls();
   return (
-    <div className="absolute top-4 right-4 flex flex-col gap-2 z-20">
-      <button onClick={() => zoomIn()} className="bg-white w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 hover:bg-gray-50 text-gray-900 shadow-sm">＋</button>
-      <button onClick={() => zoomOut()} className="bg-white w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 hover:bg-gray-50 text-gray-900 shadow-sm">－</button>
-      <button onClick={() => resetTransform()} className="bg-white w-8 h-8 flex items-center justify-center rounded-lg border border-gray-200 hover:bg-gray-50 text-gray-900 shadow-sm text-xs">↺</button>
+    <div className="inline-flex items-center gap-1 bg-slate-100/90 p-1 rounded-xl border border-slate-200/90 shadow-2xs flex-shrink-0">
+      <button 
+        onClick={() => zoomIn()} 
+        className="w-6 h-6 sm:w-6.5 sm:h-6.5 flex items-center justify-center rounded-lg bg-white hover:bg-slate-50 text-slate-700 text-xs font-black shadow-2xs active:scale-95 transition-all cursor-pointer"
+        title="放大视图"
+      >
+        ＋
+      </button>
+      <button 
+        onClick={() => zoomOut()} 
+        className="w-6 h-6 sm:w-6.5 sm:h-6.5 flex items-center justify-center rounded-lg bg-white hover:bg-slate-50 text-slate-700 text-xs font-black shadow-2xs active:scale-95 transition-all cursor-pointer"
+        title="缩小视图"
+      >
+        －
+      </button>
+      <button 
+        onClick={() => resetTransform()} 
+        className="px-2 h-6 sm:h-6.5 flex items-center gap-1 rounded-lg bg-white hover:bg-slate-50 text-slate-700 text-[11px] font-bold shadow-2xs active:scale-95 transition-all cursor-pointer"
+        title="重置视图居中"
+      >
+        <span>↺</span>
+        <span className="hidden md:inline text-[10.5px]">重置</span>
+      </button>
     </div>
   );
 };
@@ -254,27 +273,26 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
 
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Left: Graph Canvas + Horizontal Legend Strip */}
-        <div className="lg:col-span-2 flex flex-col gap-3">
-          {/* Graph Canvas Container */}
-          <div
-            className={`bg-white rounded-2xl shadow-sm border overflow-hidden relative flex flex-col max-h-[65vh] lg:max-h-[700px] transition-all duration-500 ${
-              personalMode && profile
-                ? "border-teal-200 shadow-[0_0_30px_rgba(13,148,136,0.08)]"
-                : "border-gray-200"
-            }`}
-            style={{ minHeight: 450 }}
-          >
-            <div className="absolute inset-0 bg-gray-50 opacity-50 pointer-events-none" />
-            
-            <TransformWrapper
-              initialScale={1}
-              minScale={0.5}
-              maxScale={4}
-              centerOnInit={true}
-              wheel={{ step: 0.1 }}
-              doubleClick={{ disabled: true }}
+        <TransformWrapper
+          initialScale={1}
+          minScale={0.5}
+          maxScale={4}
+          centerOnInit={true}
+          wheel={{ step: 0.1 }}
+          doubleClick={{ disabled: true }}
+        >
+          <div className="lg:col-span-2 flex flex-col gap-3">
+            {/* Graph Canvas Container */}
+            <div
+              className={`bg-white rounded-2xl shadow-sm border overflow-hidden relative flex flex-col max-h-[65vh] lg:max-h-[700px] transition-all duration-500 ${
+                personalMode && profile
+                  ? "border-teal-200 shadow-[0_0_30px_rgba(13,148,136,0.08)]"
+                  : "border-gray-200"
+              }`}
+              style={{ minHeight: 450 }}
             >
-              <ZoomControls />
+              <div className="absolute inset-0 bg-gray-50 opacity-50 pointer-events-none" />
+              
               <TransformComponent wrapperStyle={{ width: "100%", height: "100%", flex: 1 }} contentStyle={{ width: "100%", height: "100%" }}>
                 <GraphRenderer 
                   currentNodes={currentNodes}
@@ -299,65 +317,68 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
                   }}
                 />
               </TransformComponent>
-            </TransformWrapper>
-          </div>
-
-          {/* Clean Horizontal Bottom Legend Strip (Positioned outside canvas to guarantee ZERO node/path overlap) */}
-          <div className="bg-white/95 backdrop-blur-md rounded-2xl p-3 sm:p-3.5 border border-slate-200 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-[11px] select-none">
-            {/* Node Categories */}
-            <div className="flex flex-wrap items-center gap-x-3.5 gap-y-1.5">
-              <span className="text-slate-400 font-bold text-[10px] tracking-wider uppercase">节点分类</span>
-              <div className="flex items-center gap-1.5">
-                <div className="w-2.5 h-2.5 rounded-full bg-blue-600 shadow-xs" />
-                <span className="text-slate-700 font-medium">病理特征</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <div className="w-2.5 h-2.5 rounded-full bg-teal-600 shadow-xs" />
-                <span className="text-slate-700 font-medium">临床决策/指南</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <div className="w-2.5 h-2.5 rounded-full bg-emerald-600 shadow-xs" />
-                <span className="text-slate-700 font-medium">根治主导</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <div className="w-2.5 h-2.5 rounded-full bg-rose-600 shadow-xs" />
-                <span className="text-slate-700 font-medium">复发/进展</span>
-              </div>
             </div>
 
-            {/* Desktop Divider */}
-            <div className="hidden sm:block h-4 w-px bg-slate-200" />
+            {/* Clean Horizontal Bottom Legend & Zoom Toolbar (Zero Canvas Overlap) */}
+            <div className="bg-white/95 backdrop-blur-md rounded-2xl p-3 sm:p-3.5 border border-slate-200 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-[11px] select-none">
+              {/* Left Group: Node Categories */}
+              <div className="flex flex-wrap items-center gap-x-3.5 gap-y-1.5">
+                <span className="text-slate-400 font-bold text-[10px] tracking-wider uppercase">节点</span>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2.5 h-2.5 rounded-full bg-blue-600 shadow-xs" />
+                  <span className="text-slate-700 font-medium">病理特征</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2.5 h-2.5 rounded-full bg-teal-600 shadow-xs" />
+                  <span className="text-slate-700 font-medium">临床决策</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-600 shadow-xs" />
+                  <span className="text-slate-700 font-medium">根治主导</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-2.5 h-2.5 rounded-full bg-rose-600 shadow-xs" />
+                  <span className="text-slate-700 font-medium">复发/进展</span>
+                </div>
+              </div>
 
-            {/* Causal Line Types */}
-            <div className="flex flex-wrap items-center gap-x-3.5 gap-y-1.5">
-              <span className="text-slate-400 font-bold text-[10px] tracking-wider uppercase">因果链路</span>
-              <div className="flex items-center gap-1.5">
-                <div className="w-3.5 h-1 rounded-full bg-emerald-600" />
-                <span className="text-slate-700 font-medium">保护/根治(绿光)</span>
+              {/* Desktop Divider */}
+              <div className="hidden sm:block h-4 w-px bg-slate-200" />
+
+              {/* Middle Group: Causal Lines */}
+              <div className="flex flex-wrap items-center gap-x-3.5 gap-y-1.5">
+                <span className="text-slate-400 font-bold text-[10px] tracking-wider uppercase">因果链路</span>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-3.5 h-1 rounded-full bg-emerald-600" />
+                  <span className="text-slate-700 font-medium">保护(绿光)</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-3.5 h-0.5 rounded-full bg-rose-500" />
+                  <span className="text-slate-700 font-medium">风险(红)</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-3.5 h-0.5 border-t border-dashed border-teal-500" />
+                  <span className="text-slate-700 font-medium">指南(青)</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-3.5 h-0.5 border-t border-dashed border-amber-500" />
+                  <span className="text-slate-700 font-medium">警示(黄)</span>
+                </div>
               </div>
-              <div className="flex items-center gap-1.5">
-                <div className="w-3.5 h-0.5 rounded-full bg-rose-500" />
-                <span className="text-slate-700 font-medium">风险关联(红)</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <div className="w-3.5 h-0.5 border-t border-dashed border-teal-500" />
-                <span className="text-slate-700 font-medium">指南规范(青)</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <div className="w-3.5 h-0.5 border-t border-dashed border-amber-500" />
-                <span className="text-slate-700 font-medium">警示随访(黄)</span>
+
+              {/* Right Group: Zoom Controls & Personal Badge */}
+              <div className="flex items-center gap-2.5 w-full sm:w-auto justify-between sm:justify-end border-t sm:border-t-0 border-slate-100 pt-2 sm:pt-0">
+                {personalMode && (
+                  <div className="flex items-center gap-1.5 text-teal-800 font-semibold text-[10.5px]">
+                    <span className="w-2 h-2 rounded-full bg-teal-500 animate-pulse flex-shrink-0" />
+                    <span className="hidden xl:inline">专属流光已激活</span>
+                  </div>
+                )}
+                <ZoomControls />
               </div>
             </div>
-
-            {/* Personal Mode Prompt */}
-            {personalMode && (
-              <div className="flex items-center gap-1.5 text-teal-800 font-semibold text-[10.5px] border-t sm:border-t-0 sm:border-l border-slate-200 pt-1.5 sm:pt-0 sm:pl-3 w-full sm:w-auto">
-                <span className="w-2 h-2 rounded-full bg-teal-500 animate-pulse flex-shrink-0" />
-                <span>专属因果流光已激活</span>
-              </div>
-            )}
           </div>
-        </div>
+        </TransformWrapper>
 
         {/* Info Panel Container */}
         <div className="lg:static relative">
