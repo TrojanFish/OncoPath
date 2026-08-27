@@ -253,178 +253,109 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
       )}
 
       <div className="grid lg:grid-cols-3 gap-6">
-        {/* Graph */}
-        <div
-          className={`lg:col-span-2 bg-white rounded-2xl shadow-sm border overflow-hidden relative flex flex-col max-h-[65vh] lg:max-h-[700px] transition-all duration-500 ${
-            personalMode && profile
-              ? "border-teal-200 shadow-[0_0_30px_rgba(13,148,136,0.08)]"
-              : "border-gray-200"
-          }`}
-          style={{ minHeight: 450 }}
-        >
-          <div className="absolute inset-0 bg-gray-50 opacity-50 pointer-events-none" />
-          
-          <TransformWrapper
-            initialScale={1}
-            minScale={0.5}
-            maxScale={4}
-            centerOnInit={true}
-            wheel={{ step: 0.1 }}
-            doubleClick={{ disabled: true }}
+        {/* Left: Graph Canvas + Horizontal Legend Strip */}
+        <div className="lg:col-span-2 flex flex-col gap-3">
+          {/* Graph Canvas Container */}
+          <div
+            className={`bg-white rounded-2xl shadow-sm border overflow-hidden relative flex flex-col max-h-[65vh] lg:max-h-[700px] transition-all duration-500 ${
+              personalMode && profile
+                ? "border-teal-200 shadow-[0_0_30px_rgba(13,148,136,0.08)]"
+                : "border-gray-200"
+            }`}
+            style={{ minHeight: 450 }}
           >
-            <ZoomControls />
-            <TransformComponent wrapperStyle={{ width: "100%", height: "100%", flex: 1 }} contentStyle={{ width: "100%", height: "100%" }}>
-              <GraphRenderer 
-                currentNodes={currentNodes}
-                activeNode={activeNode}
-                hoveredNode={hoveredNode}
-                selectedEdge={selectedEdge}
-                hoveredEdge={hoveredEdge}
-                sandboxMode={sandboxMode}
-                sandboxActive={sandboxActive}
-                personalMode={personalMode}
-                profile={profile}
-                timeYears={timeYears}
-                edgeEvidences={edgeEvidences}
-                onNodeClick={handleNodeClick}
-                onNodeHover={setHoveredNode}
-                onEdgeClick={handleEdgeClick}
-                onEdgeHover={setHoveredEdge}
-                onBackgroundClick={() => {
-                  setSelectedNode(null);
-                  setSelectedEdge(null);
-                  setHoveredNode(null);
-                }}
-              />
-            </TransformComponent>
-          </TransformWrapper>
-
-          {/* Mobile Collapsible Legend Toggle Pill (< sm) */}
-          <div className="sm:hidden absolute bottom-3 right-3 z-20">
-            {!showMobileLegend ? (
-              <button
-                onClick={() => setShowMobileLegend(true)}
-                className="px-2.5 py-1.5 rounded-xl bg-white/95 backdrop-blur-md border border-slate-200 shadow-md text-[11px] font-bold text-slate-700 flex items-center gap-1.5 active:scale-95 transition-all cursor-pointer"
-              >
-                <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse" />
-                <span>图例注解</span>
-              </button>
-            ) : (
-              <div className="bg-white/95 backdrop-blur-md p-3 rounded-2xl border border-slate-200 shadow-xl max-w-[280px] animate-fade-in text-[11px]">
-                <div className="flex items-center justify-between gap-2 mb-2 pb-1.5 border-b border-slate-100 font-bold text-slate-800">
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-blue-600" />
-                    <span>知识图谱图例说明</span>
-                  </div>
-                  <button 
-                    onClick={() => setShowMobileLegend(false)}
-                    className="w-5 h-5 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-xs hover:bg-slate-200 cursor-pointer"
-                  >
-                    ✕
-                  </button>
-                </div>
-                
-                {/* Node Categories */}
-                <div className="grid grid-cols-2 gap-x-2 gap-y-1.5 mb-2">
-                  <div className="flex items-center gap-1.5">
-                    <div className="w-2.5 h-2.5 rounded-full bg-blue-600 flex-shrink-0" />
-                    <span className="text-slate-600 font-medium">病理特征</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <div className="w-2.5 h-2.5 rounded-full bg-teal-600 flex-shrink-0" />
-                    <span className="text-slate-600 font-medium">临床决策/指南</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <div className="w-2.5 h-2.5 rounded-full bg-emerald-600 flex-shrink-0" />
-                    <span className="text-slate-600 font-medium">根治主导结局</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <div className="w-2.5 h-2.5 rounded-full bg-rose-600 flex-shrink-0" />
-                    <span className="text-slate-600 font-medium">复发/进展结局</span>
-                  </div>
-                </div>
-
-                {/* Connection Types */}
-                <div className="pt-2 border-t border-slate-100 space-y-1.5 text-[10.5px]">
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-1 rounded-full bg-emerald-600 flex-shrink-0" />
-                    <span className="text-slate-600 font-medium">保护/根治主干 (流动绿光)</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-0.5 rounded-full bg-rose-500 flex-shrink-0" />
-                    <span className="text-slate-600 font-medium">风险关联通路 (红色)</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-0.5 border-t border-dashed border-teal-500 flex-shrink-0" />
-                    <span className="text-slate-600 font-medium">指南规范指引 (青色)</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-0.5 border-t border-dashed border-amber-500 flex-shrink-0" />
-                    <span className="text-slate-600 font-medium">警示随访支线 (琥珀色)</span>
-                  </div>
-                  {personalMode && (
-                    <div className="flex items-center gap-1.5 pt-1 text-teal-700 font-bold border-t border-slate-100">
-                      <span className="w-2 h-2 rounded-full bg-teal-500 animate-pulse" />
-                      <span>✨ 脉冲光环与流光代表您的专属推演</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
+            <div className="absolute inset-0 bg-gray-50 opacity-50 pointer-events-none" />
+            
+            <TransformWrapper
+              initialScale={1}
+              minScale={0.5}
+              maxScale={4}
+              centerOnInit={true}
+              wheel={{ step: 0.1 }}
+              doubleClick={{ disabled: true }}
+            >
+              <ZoomControls />
+              <TransformComponent wrapperStyle={{ width: "100%", height: "100%", flex: 1 }} contentStyle={{ width: "100%", height: "100%" }}>
+                <GraphRenderer 
+                  currentNodes={currentNodes}
+                  activeNode={activeNode}
+                  hoveredNode={hoveredNode}
+                  selectedEdge={selectedEdge}
+                  hoveredEdge={hoveredEdge}
+                  sandboxMode={sandboxMode}
+                  sandboxActive={sandboxActive}
+                  personalMode={personalMode}
+                  profile={profile}
+                  timeYears={timeYears}
+                  edgeEvidences={edgeEvidences}
+                  onNodeClick={handleNodeClick}
+                  onNodeHover={setHoveredNode}
+                  onEdgeClick={handleEdgeClick}
+                  onEdgeHover={setHoveredEdge}
+                  onBackgroundClick={() => {
+                    setSelectedNode(null);
+                    setSelectedEdge(null);
+                    setHoveredNode(null);
+                  }}
+                />
+              </TransformComponent>
+            </TransformWrapper>
           </div>
 
-          {/* Desktop Static Legend (Positioned at Bottom-Right with Frosted Glass Badge, hidden on mobile) */}
-          <div className="hidden sm:block absolute bottom-3 right-3 sm:bottom-4 sm:right-4 z-20 bg-white/95 backdrop-blur-md p-3 rounded-2xl border border-slate-200/90 shadow-md max-w-xs pointer-events-none select-none text-[11px]">
-            {/* Node Category Grid */}
-            <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
+          {/* Clean Horizontal Bottom Legend Strip (Positioned outside canvas to guarantee ZERO node/path overlap) */}
+          <div className="bg-white/95 backdrop-blur-md rounded-2xl p-3 sm:p-3.5 border border-slate-200 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-[11px] select-none">
+            {/* Node Categories */}
+            <div className="flex flex-wrap items-center gap-x-3.5 gap-y-1.5">
+              <span className="text-slate-400 font-bold text-[10px] tracking-wider uppercase">节点分类</span>
               <div className="flex items-center gap-1.5">
-                <div className="w-2.5 h-2.5 rounded-full bg-blue-600 flex-shrink-0 shadow-xs" />
+                <div className="w-2.5 h-2.5 rounded-full bg-blue-600 shadow-xs" />
                 <span className="text-slate-700 font-medium">病理特征</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <div className="w-2.5 h-2.5 rounded-full bg-teal-600 flex-shrink-0 shadow-xs" />
+                <div className="w-2.5 h-2.5 rounded-full bg-teal-600 shadow-xs" />
                 <span className="text-slate-700 font-medium">临床决策/指南</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <div className="w-2.5 h-2.5 rounded-full bg-emerald-600 flex-shrink-0 shadow-xs" />
-                <span className="text-slate-700 font-medium">根治主导结局</span>
+                <div className="w-2.5 h-2.5 rounded-full bg-emerald-600 shadow-xs" />
+                <span className="text-slate-700 font-medium">根治主导</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <div className="w-2.5 h-2.5 rounded-full bg-rose-600 flex-shrink-0 shadow-xs" />
-                <span className="text-slate-700 font-medium">复发/进展结局</span>
+                <div className="w-2.5 h-2.5 rounded-full bg-rose-600 shadow-xs" />
+                <span className="text-slate-700 font-medium">复发/进展</span>
               </div>
             </div>
+
+            {/* Desktop Divider */}
+            <div className="hidden sm:block h-4 w-px bg-slate-200" />
 
             {/* Causal Line Types */}
-            <div className="w-full mt-2.5 pt-2 border-t border-slate-100 space-y-1.5 text-[11px]">
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-1 rounded-full bg-emerald-600 flex-shrink-0" />
-                <span className="text-slate-600 font-medium">保护/根治主干 (流动绿光)</span>
+            <div className="flex flex-wrap items-center gap-x-3.5 gap-y-1.5">
+              <span className="text-slate-400 font-bold text-[10px] tracking-wider uppercase">因果链路</span>
+              <div className="flex items-center gap-1.5">
+                <div className="w-3.5 h-1 rounded-full bg-emerald-600" />
+                <span className="text-slate-700 font-medium">保护/根治(绿光)</span>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-0.5 rounded-full bg-rose-500 flex-shrink-0" />
-                <span className="text-slate-600 font-medium">风险关联通路 (红色)</span>
+              <div className="flex items-center gap-1.5">
+                <div className="w-3.5 h-0.5 rounded-full bg-rose-500" />
+                <span className="text-slate-700 font-medium">风险关联(红)</span>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-0.5 border-t border-dashed border-teal-500 flex-shrink-0" />
-                <span className="text-slate-600 font-medium">指南规范指引 (青色)</span>
+              <div className="flex items-center gap-1.5">
+                <div className="w-3.5 h-0.5 border-t border-dashed border-teal-500" />
+                <span className="text-slate-700 font-medium">指南规范(青)</span>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-0.5 border-t border-dashed border-amber-500 flex-shrink-0" />
-                <span className="text-slate-600 font-medium">警示随访支线 (琥珀色)</span>
-              </div>
-
-              {personalMode && (
-                <div className="flex items-center gap-1.5 pt-1 text-teal-800 font-semibold border-t border-slate-100">
-                  <div className="w-2 h-2 rounded-full bg-teal-500 animate-pulse" />
-                  <span>✨ 脉冲光环与流光代表您的专属推演</span>
-                </div>
-              )}
-              
-              <div className="flex items-center gap-1 text-slate-400 text-[10px] w-full pt-0.5">
-                <span>💡 点击任意连线/药丸徽章查看顶刊文献依据</span>
+              <div className="flex items-center gap-1.5">
+                <div className="w-3.5 h-0.5 border-t border-dashed border-amber-500" />
+                <span className="text-slate-700 font-medium">警示随访(黄)</span>
               </div>
             </div>
+
+            {/* Personal Mode Prompt */}
+            {personalMode && (
+              <div className="flex items-center gap-1.5 text-teal-800 font-semibold text-[10.5px] border-t sm:border-t-0 sm:border-l border-slate-200 pt-1.5 sm:pt-0 sm:pl-3 w-full sm:w-auto">
+                <span className="w-2 h-2 rounded-full bg-teal-500 animate-pulse flex-shrink-0" />
+                <span>专属因果流光已激活</span>
+              </div>
+            )}
           </div>
         </div>
 
