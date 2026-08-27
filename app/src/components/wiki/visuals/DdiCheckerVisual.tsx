@@ -52,6 +52,18 @@ export function DdiCheckerVisual({
   const [activeTargetCategory, setActiveTargetCategory] = useState<string>("all");
   const [activeCategory, setActiveCategory] = useState<string>("all");
 
+  // Support keyboard Escape key to close modal
+  React.useEffect(() => {
+    if (!isModalMode || !onClose) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isModalMode, onClose]);
+
   const selectedTarget = useMemo(() => {
     return TARGETED_DRUGS.find(d => d.id === selectedTargetId) || TARGETED_DRUGS[0];
   }, [selectedTargetId]);
@@ -93,100 +105,129 @@ export function DdiCheckerVisual({
   };
 
   return (
-    <div className="bg-white rounded-3xl p-3.5 sm:p-6 text-slate-900 border border-slate-200 shadow-xl select-none space-y-5">
-      {/* Patient Profile Linked Banner with Clinical Stage Guardrail */}
-      {geneInfo && (
-        isEarlyStageIA ? (
-          <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 p-3 sm:p-3.5 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs text-emerald-950 shadow-2xs">
-            <div className="flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
-              <span>
-                <strong>权威指南提醒</strong>：患者属于 <strong>IA 期极早期低危组</strong>，虽然检出【{geneInfo}】，但 CSCO / NCCN 指南明文规定<strong>术后无需辅助靶向治疗（严禁过度用药）</strong>。以下排查自检仅供常识储备了解。
-              </span>
-            </div>
-            <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 shrink-0 font-bold self-start sm:self-auto">
-              ✓ IA期无需靶向用药
-            </span>
-          </div>
-        ) : (
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 p-3 sm:p-3.5 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs text-blue-950 shadow-2xs">
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-              <span>
-                已根据患者档案【<strong>{geneInfo}</strong>】自动关联靶向药：
-                <strong className="text-blue-700 ml-1">{selectedTarget.genericName} ({selectedTarget.brandName})</strong>
-              </span>
-            </div>
-            <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800 border border-blue-300 shrink-0 font-bold self-start sm:self-auto">
-              ✓ 档案精准互联
-            </span>
-          </div>
-        )
-      )}
-
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-4 border-b border-slate-100">
-        <div>
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2.5">
-              <span className="p-2 rounded-xl bg-purple-50 text-purple-600 border border-purple-200">
+    <div className={`bg-white text-slate-900 select-none ${
+      isModalMode 
+        ? "w-full flex flex-col max-h-[90vh] overflow-hidden rounded-3xl" 
+        : "rounded-3xl p-3.5 sm:p-6 border border-slate-200 shadow-xl space-y-5"
+    }`}>
+      {/* 1. TOP STICKY HEADER (Fixed at top, absolute right close button on desktop & mobile) */}
+      <div className={`border-b border-slate-100 bg-white/95 backdrop-blur-md shrink-0 ${
+        isModalMode ? "px-4 sm:px-6 py-3.5 sticky top-0 z-20" : "pb-4"
+      }`}>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+          {/* Title & Pill Icon */}
+          <div className="flex items-center justify-between gap-2.5 min-w-0">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <span className="p-2 rounded-xl bg-purple-50 text-purple-600 border border-purple-200 shrink-0">
                 <Pill className="w-4 h-4 sm:w-5 sm:h-5" />
               </span>
-              <div>
-                <h3 className="text-sm sm:text-base font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
-                  <span>靶向药与日常慢病用药相互作用 (DDI) 动态自检</span>
-                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-mono font-bold">
+              <div className="min-w-0">
+                <h3 className="text-xs sm:text-sm md:text-base font-extrabold text-slate-900 tracking-tight flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                  <span>靶向药与慢病用药相互作用 (DDI) 自检</span>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-mono font-bold shrink-0">
                     临床药学级
                   </span>
                 </h3>
-                <p className="text-[11px] text-slate-500 mt-0.5">
-                  覆盖 EGFR / ALK / KRAS / MET / RET 靶向药 vs 抑酸胃药、降压降脂、抗凝抗栓及日常西柚饮食
+                <p className="text-[10px] sm:text-[11px] text-slate-500 mt-0.5 truncate">
+                  覆盖 EGFR / ALK / KRAS / MET / RET 靶向药 vs 胃药、降压降脂、抗凝及西柚饮食
                 </p>
               </div>
             </div>
 
+            {/* Mobile Close Button (Top right on mobile) */}
             {isModalMode && onClose && (
               <button
                 type="button"
                 onClick={onClose}
-                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-900 flex items-center justify-center transition-colors cursor-pointer shrink-0"
-                aria-label="关闭"
+                className="md:hidden w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-900 flex items-center justify-center transition-colors cursor-pointer shrink-0 ml-1"
+                aria-label="关闭自检窗口"
+                title="关闭窗口"
               >
                 <X className="w-4 h-4" />
               </button>
             )}
           </div>
-        </div>
-        
-        {/* Presets */}
-        <div className="flex flex-wrap items-center gap-1.5 self-start sm:self-auto">
-          <span className="text-[10px] text-slate-400 font-semibold mr-1 flex items-center gap-1">
-            <Sparkles className="w-3 h-3 text-amber-500" />
-            常见组合:
-          </span>
-          <button
-            type="button"
-            onClick={() => applyPreset(["omeprazole", "atorvastatin", "amlodipine"])}
-            className="text-[10px] px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl border border-slate-200 font-medium transition-all cursor-pointer"
-          >
-            三高+胃反酸
-          </button>
-          <button
-            type="button"
-            onClick={() => applyPreset(["grapefruit", "rifampin"])}
-            className="text-[10px] px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-xl border border-rose-200 transition-all cursor-pointer font-bold"
-          >
-            高危禁忌测试
-          </button>
-          <button
-            type="button"
-            onClick={() => applyPreset(["valsartan", "rosuvastatin", "famotidine"])}
-            className="text-[10px] px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-xl border border-emerald-200 transition-all cursor-pointer font-medium"
-          >
-            安全黄金搭档
-          </button>
+          
+          {/* Right Actions on Desktop: Presets + Dedicated Top-Right Close Button */}
+          <div className="flex items-center justify-between md:justify-end gap-2 shrink-0">
+            <div className="flex flex-wrap items-center gap-1.5 overflow-x-auto">
+              <span className="text-[10px] text-slate-400 font-semibold mr-0.5 flex items-center gap-1 shrink-0">
+                <Sparkles className="w-3 h-3 text-amber-500" />
+                快捷组合:
+              </span>
+              <button
+                type="button"
+                onClick={() => applyPreset(["omeprazole", "atorvastatin", "amlodipine"])}
+                className="text-[10px] px-2 py-0.5 sm:px-2.5 sm:py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg sm:rounded-xl border border-slate-200 font-medium transition-all cursor-pointer shrink-0"
+              >
+                三高+胃反酸
+              </button>
+              <button
+                type="button"
+                onClick={() => applyPreset(["grapefruit", "rifampin"])}
+                className="text-[10px] px-2 py-0.5 sm:px-2.5 sm:py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-lg sm:rounded-xl border border-rose-200 transition-all cursor-pointer font-bold shrink-0"
+              >
+                高危禁忌测试
+              </button>
+              <button
+                type="button"
+                onClick={() => applyPreset(["valsartan", "rosuvastatin", "famotidine"])}
+                className="text-[10px] px-2 py-0.5 sm:px-2.5 sm:py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-lg sm:rounded-xl border border-emerald-200 transition-all cursor-pointer font-medium shrink-0"
+              >
+                安全黄金搭档
+              </button>
+            </div>
+
+            {/* Desktop Dedicated Top-Right Close Button */}
+            {isModalMode && onClose && (
+              <div className="hidden md:flex items-center pl-2 ml-1 border-l border-slate-200">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="h-8 px-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 flex items-center gap-1 text-xs font-bold transition-all cursor-pointer shrink-0 shadow-2xs"
+                  aria-label="关闭自检窗口"
+                  title="关闭窗口 (Esc)"
+                >
+                  <X className="w-4 h-4" />
+                  <span className="text-[10px] font-mono font-normal text-slate-400">Esc</span>
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
+
+      {/* 2. SCROLLABLE BODY AREA */}
+      <div className={`space-y-5 ${isModalMode ? "flex-1 overflow-y-auto p-4 sm:p-6 custom-scrollbar" : ""}`}>
+        {/* Patient Profile Linked Banner with Clinical Stage Guardrail */}
+        {geneInfo && (
+          isEarlyStageIA ? (
+            <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 p-3 sm:p-3.5 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs text-emerald-950 shadow-2xs">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>
+                  <strong>权威指南提醒</strong>：患者属于 <strong>IA 期极早期低危组</strong>，虽然检出【{geneInfo}】，但 CSCO / NCCN 指南明文规定<strong>术后无需辅助靶向治疗（严禁过度用药）</strong>。以下排查自检仅供常识储备了解。
+                </span>
+              </div>
+              <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 shrink-0 font-bold self-start sm:self-auto">
+                ✓ IA期无需靶向用药
+              </span>
+            </div>
+          ) : (
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 p-3 sm:p-3.5 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs text-blue-950 shadow-2xs">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                <span>
+                  已根据患者档案【<strong>{geneInfo}</strong>】自动关联靶向药：
+                  <strong className="text-blue-700 ml-1">{selectedTarget.genericName} ({selectedTarget.brandName})</strong>
+                </span>
+              </div>
+              <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800 border border-blue-300 shrink-0 font-bold self-start sm:self-auto">
+                ✓ 档案精准互联
+              </span>
+            </div>
+          )
+        )}
 
       {/* Step 1: Target Drug Selection */}
       <div className="space-y-2">
@@ -482,7 +523,37 @@ export function DdiCheckerVisual({
             </div>
           </div>
         )}
+        </div>
       </div>
+
+      {/* 3. BOTTOM STICKY FOOTER (Fixed at bottom for easy thumb action on mobile & desktop) */}
+      {isModalMode && onClose && (
+        <div className="sticky bottom-0 bg-white/95 backdrop-blur-md px-4 sm:px-6 py-3 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 z-20 shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-2 text-xs flex-wrap">
+            <span className="text-[11px] text-slate-500 font-medium">排查小结：</span>
+            <span className="text-rose-700 bg-rose-50 px-2 py-0.5 rounded-full border border-rose-200 font-bold text-[10px] sm:text-[11px]">
+              🔴 禁忌 {analysisResult.severeCount}
+            </span>
+            <span className="text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200 font-bold text-[10px] sm:text-[11px]">
+              🟡 需错峰 {analysisResult.cautionCount}
+            </span>
+            <span className="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 font-bold text-[10px] sm:text-[11px]">
+              🟢 安全 {analysisResult.safeCount}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <button
+              type="button"
+              onClick={onClose}
+              className="w-full sm:w-auto px-5 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-bold shadow-md shadow-blue-500/20 flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+            >
+              <Check className="w-4 h-4 stroke-[2.5]" />
+              <span>完成自检并返回</span>
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
