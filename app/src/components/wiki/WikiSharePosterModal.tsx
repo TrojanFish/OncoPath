@@ -17,9 +17,9 @@ interface WikiSharePosterModalProps {
 }
 
 export default function WikiSharePosterModal({ topic, visualDomHtml, onClose }: WikiSharePosterModalProps) {
-
   const [isExporting, setIsExporting] = useState(false);
   const [exportedImageUrl, setExportedImageUrl] = useState<string | null>(null);
+  const [downloadSuccess, setDownloadSuccess] = useState(false);
   const offscreenPosterRef = useRef<HTMLDivElement>(null);
   const [generationError, setGenerationError] = useState<string | null>(null);
 
@@ -107,18 +107,38 @@ export default function WikiSharePosterModal({ topic, visualDomHtml, onClose }: 
     return () => clearTimeout(timer);
   }, []);
 
+  // Support Esc key to dismiss modal
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
   const handleDownload = () => {
     if (!exportedImageUrl) return;
-    const link = document.createElement("a");
-    link.href = exportedImageUrl;
-    link.download = `OncoPath_${topic.id}_${new Date().toISOString().slice(0, 10)}.png`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    try {
+      const link = document.createElement("a");
+      link.href = exportedImageUrl;
+      link.download = `OncoPath_${topic.id}_${new Date().toISOString().slice(0, 10)}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setDownloadSuccess(true);
+      setTimeout(() => setDownloadSuccess(false), 2500);
+    } catch (err) {
+      console.error("Download failed:", err);
+    }
   };
 
   return (
-    <div className="fixed inset-0 z-[9999] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fade-in">
+    <div 
+      onClick={onClose}
+      className="fixed inset-0 z-[9999] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-fade-in"
+    >
       {/* 1. Offscreen Unconstrained Rendering Container (Never Clipped) */}
       <div
         style={{
@@ -295,18 +315,31 @@ export default function WikiSharePosterModal({ topic, visualDomHtml, onClose }: 
       </div>
 
       {/* 2. Interactive Modal Dialog for User Inspection & Download */}
-      <div className="bg-white rounded-3xl max-w-xl w-full border border-slate-200 shadow-2xl overflow-hidden my-auto flex flex-col text-slate-900 animate-fade-in-up">
+      <div 
+        onClick={(e) => e.stopPropagation()}
+        className="bg-white rounded-3xl max-w-xl w-full border border-slate-200 shadow-2xl overflow-hidden my-auto flex flex-col text-slate-900 animate-fade-in-up"
+      >
         {/* Modal Header */}
-        <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-accent-blue" />
-            <h3 className="text-sm font-bold text-slate-900">
-              微信高清科普长图（2x 视网膜无损）
-            </h3>
+        <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-white shrink-0">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold shrink-0">
+              <Sparkles className="w-4 h-4" />
+            </div>
+            <div>
+              <h3 className="text-sm sm:text-base font-extrabold text-slate-900 leading-snug">
+                微信高清科普长图（2x Retina 无损）
+              </h3>
+              <p className="text-[11px] text-slate-500 mt-0.5">
+                可保存长图，便于微信群科普分享或离线阅读
+              </p>
+            </div>
           </div>
           <button
+            type="button"
             onClick={onClose}
-            className="w-7 h-7 rounded-full bg-slate-200/70 hover:bg-slate-300 flex items-center justify-center text-slate-600 transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-900 transition-colors cursor-pointer shrink-0"
+            aria-label="关闭窗口 (Esc)"
+            title="关闭窗口 (Esc)"
           >
             <X className="w-4 h-4" />
           </button>
@@ -337,39 +370,49 @@ export default function WikiSharePosterModal({ topic, visualDomHtml, onClose }: 
                 />
               </div>
               <p className="text-[11px] text-slate-400 text-center">
-                💡 <strong>长图已全量生成完毕（无截断）</strong>：长按上方图片可直接存入相册或发送微信群。
+                💡 手机端可长按上方长图直接存入相册；电脑端请点击下方下载按键。
               </p>
             </div>
           )}
         </div>
 
-        {/* Bottom Actions */}
-        <div className="p-4 sm:p-5 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-50">
-          <p className="text-xs text-slate-500 text-center sm:text-left">
-            包含微观图解、生活比喻、临床真相、拦截武器、高频问答与暖心定心丸。
-          </p>
+        {/* Bottom Actions (Standardized 3A Medical Standard) */}
+        <div className="px-4 sm:px-6 py-3.5 sm:py-4 bg-white border-t border-slate-100 flex items-center justify-between gap-3 shrink-0">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
+          >
+            关闭窗口
+          </button>
 
-
-          <div className="flex items-center gap-2 w-full sm:w-auto">
-            {exportedImageUrl ? (
-              <button
-                onClick={handleDownload}
-                className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md transition-all cursor-pointer flex items-center justify-center gap-2"
-              >
-                <Download className="w-3.5 h-3.5" />
-                <span>保存图片至相册 / 本地</span>
-              </button>
+          <button
+            type="button"
+            onClick={handleDownload}
+            disabled={isExporting || !exportedImageUrl}
+            className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shadow-md active:scale-95 ${
+              downloadSuccess 
+                ? "bg-emerald-600 text-white shadow-emerald-500/20" 
+                : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-blue-500/20 disabled:opacity-60"
+            }`}
+          >
+            {downloadSuccess ? (
+              <>
+                <Check className="w-4 h-4 stroke-[2.5]" />
+                <span>已成功保存到本地</span>
+              </>
+            ) : isExporting ? (
+              <>
+                <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin shrink-0" />
+                <span>正在渲染高清长图...</span>
+              </>
             ) : (
-              <button
-                onClick={handleGenerateImage}
-                disabled={isExporting}
-                className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md transition-all cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
-              >
-                <Share2 className="w-3.5 h-3.5" />
-                <span>重新渲染长图</span>
-              </button>
+              <>
+                <Download className="w-4 h-4" />
+                <span>保存科普长图 (PNG)</span>
+              </>
             )}
-          </div>
+          </button>
         </div>
       </div>
     </div>

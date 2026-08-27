@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useMemo } from "react";
+import { useState, useRef, useMemo, useEffect } from "react";
 import { 
   Stethoscope, 
   Printer, 
@@ -47,6 +47,17 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
   const latestPathology = pathologyList[0];
   const latestMolecular = sortedEvents.find((e) => e.category === "molecular" || e.subType === "NGS");
   const surgeryMilestone = milestoneList.find((e) => e.subType === "Surgery") || milestoneList[0];
+
+  // Support Esc key to dismiss modal
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
 
   const molecularFindings: any = latestMolecular?.keyFindings || {};
   const molecularMuts: any[] = Array.isArray(molecularFindings.mutations) ? molecularFindings.mutations : [];
@@ -190,12 +201,12 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
               disabled={isExportingImage}
               className={`flex-1 sm:flex-initial px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold shadow-xs flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap active:scale-95 transition-all ${
                 downloadSuccess
-                  ? "bg-emerald-600 text-white"
-                  : "bg-slate-900 hover:bg-slate-800 text-white"
+                  ? "bg-emerald-600 text-white shadow-emerald-500/20"
+                  : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-blue-500/20"
               }`}
             >
-              {downloadSuccess ? <Check className="w-3.5 h-3.5" /> : <Download className="w-3.5 h-3.5" />}
-              <span>{downloadSuccess ? "已下载图片" : (isExportingImage ? "生成长图中..." : "保存长图 (PNG)")}</span>
+              {downloadSuccess ? <Check className="w-3.5 h-3.5 stroke-[2.5]" /> : <Download className="w-3.5 h-3.5" />}
+              <span>{downloadSuccess ? "已成功保存到本地" : (isExportingImage ? "正在渲染长图..." : "保存病历长图 (PNG)")}</span>
             </button>
             <button
               onClick={handlePrint}

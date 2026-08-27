@@ -36,6 +36,7 @@ export default function EvidenceReportPage() {
   const [isExportingCard, setIsExportingCard] = useState(false);
   const [isExportingDirectPdf, setIsExportingDirectPdf] = useState(false);
   const [exportedImageUrl, setExportedImageUrl] = useState<string | null>(null);
+  const [cardDownloadSuccess, setCardDownloadSuccess] = useState(false);
 
   
   const hasLoadedRef = useRef(false);
@@ -362,15 +363,33 @@ export default function EvidenceReportPage() {
     }
   };
 
+  // Support Esc key to dismiss image modal
+  useEffect(() => {
+    if (!exportedImageUrl) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setExportedImageUrl(null);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [exportedImageUrl]);
+
   const handleDownloadImage = () => {
     if (!exportedImageUrl) return;
-    const link = document.createElement("a");
-    link.href = exportedImageUrl;
-    const dateStr = new Date().toISOString().slice(0, 10);
-    link.download = `OncoPath_门诊就医问诊便签卡_${dateStr}.png`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    try {
+      const link = document.createElement("a");
+      link.href = exportedImageUrl;
+      const dateStr = new Date().toISOString().slice(0, 10);
+      link.download = `OncoPath_门诊就医问诊便签卡_${dateStr}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setCardDownloadSuccess(true);
+      setTimeout(() => setCardDownloadSuccess(false), 2500);
+    } catch (err) {
+      console.error("Download failed:", err);
+    }
   };
 
 
@@ -1214,61 +1233,88 @@ export default function EvidenceReportPage() {
 
       {/* Image Export Preview Modal */}
       {exportedImageUrl && (
-        <div className="fixed inset-0 z-[1000] bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 animate-fade-in">
-          <div className="bg-white rounded-3xl max-w-lg w-full max-h-[92vh] flex flex-col shadow-2xl border border-slate-200 overflow-hidden">
+        <div 
+          onClick={() => setExportedImageUrl(null)}
+          className="fixed inset-0 z-[1000] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 animate-fade-in overflow-y-auto"
+        >
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white rounded-3xl max-w-lg w-full max-h-[92vh] flex flex-col shadow-2xl border border-slate-200 overflow-hidden my-auto text-slate-900"
+          >
             {/* Modal Header */}
-            <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
-              <div className="flex items-center gap-2">
-                <span className="text-lg">📋</span>
+            <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-white shrink-0">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center font-bold shrink-0">
+                  <ClipboardList className="w-4 h-4" />
+                </div>
                 <div>
-                  <h3 className="font-extrabold text-slate-900 text-sm sm:text-base">
-                    专属门诊问诊便签卡已生成
+                  <h3 className="font-extrabold text-slate-900 text-sm sm:text-base leading-snug">
+                    专属门诊问诊便签卡（高清 2x Retina）
                   </h3>
-                  <p className="text-[11px] text-slate-500">
-                    高清 2x Retina · 专为门诊 3 分钟高效就医设计
+                  <p className="text-[11px] text-slate-500 mt-0.5">
+                    专为门诊 3 分钟向主治医生高效就诊沟通设计
                   </p>
                 </div>
               </div>
               <button
+                type="button"
                 onClick={() => setExportedImageUrl(null)}
-                className="w-8 h-8 rounded-full bg-slate-200/80 hover:bg-slate-300 flex items-center justify-center text-slate-600 font-bold text-sm transition-all cursor-pointer"
+                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-900 transition-colors cursor-pointer shrink-0"
+                aria-label="关闭窗口 (Esc)"
+                title="关闭窗口 (Esc)"
               >
                 ✕
               </button>
             </div>
 
             {/* Tip banner for mobile users */}
-            <div className="bg-amber-50/90 px-4 py-2.5 border-b border-amber-200/60 text-xs text-amber-900 flex items-center gap-2">
+            <div className="bg-amber-50 px-4 py-2 border-b border-amber-200/60 text-xs text-amber-900 flex items-center gap-2 shrink-0">
               <span className="text-sm flex-shrink-0">💡</span>
-              <span>
-                <strong>移动端/微信提示</strong>：在手机端可<strong>【长按图片】</strong>保存至相册或直接发送给主管医生与家属。
+              <span className="text-[11px] leading-tight">
+                <strong>移动端提示</strong>：在手机端可<strong>【长按图片】</strong>保存至相册或直接发送给主管医生与家属。
               </span>
             </div>
 
             {/* Scrollable Image Preview Area */}
-            <div className="flex-1 overflow-y-auto p-4 bg-slate-100/70 flex justify-center items-start min-h-[220px]">
+            <div className="flex-1 overflow-y-auto p-4 bg-slate-950 flex justify-center items-start min-h-[220px]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={exportedImageUrl}
                 alt="OncoPath 门诊就医问诊便签卡"
-                className="w-full max-w-md rounded-2xl shadow-lg border border-slate-700/80 object-contain"
+                className="w-full max-w-md rounded-2xl shadow-2xl border border-slate-800 object-contain"
               />
             </div>
 
-            {/* Modal Footer Actions */}
-            <div className="p-3.5 sm:p-4 border-t border-slate-100 bg-white flex items-center justify-between gap-3">
+            {/* Modal Footer Actions (Standardized 3A Medical Standard) */}
+            <div className="px-4 sm:px-6 py-3.5 sm:py-4 bg-white border-t border-slate-100 flex items-center justify-between gap-3 shrink-0">
               <button
+                type="button"
                 onClick={() => setExportedImageUrl(null)}
-                className="px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-all cursor-pointer"
+                className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
               >
-                关闭
+                关闭窗口
               </button>
+
               <button
+                type="button"
                 onClick={handleDownloadImage}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white shadow-md shadow-teal-600/20 transition-all cursor-pointer active:scale-95"
+                className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shadow-md active:scale-95 ${
+                  cardDownloadSuccess
+                    ? "bg-emerald-600 text-white shadow-emerald-500/20"
+                    : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-blue-500/20"
+                }`}
               >
-                <Download className="w-4 h-4" />
-                <span>保存 / 下载问诊便签卡 (PNG)</span>
+                {cardDownloadSuccess ? (
+                  <>
+                    <Check className="w-4 h-4 stroke-[2.5]" />
+                    <span>已成功保存到本地</span>
+                  </>
+                ) : (
+                  <>
+                    <Download className="w-4 h-4" />
+                    <span>保存问诊便签卡 (PNG)</span>
+                  </>
+                )}
               </button>
             </div>
           </div>

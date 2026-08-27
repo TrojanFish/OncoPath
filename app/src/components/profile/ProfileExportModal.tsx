@@ -139,6 +139,17 @@ export default function ProfileExportModal({ profile, onClose }: ProfileExportMo
     return () => clearTimeout(timer);
   }, []);
 
+  // Support Esc key to dismiss modal
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
   const handleDownload = async () => {
     let imgUrl = exportedImageUrl;
     if (!imgUrl) {
@@ -161,9 +172,15 @@ export default function ProfileExportModal({ profile, onClose }: ProfileExportMo
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/60 backdrop-blur-md animate-fade-in overflow-y-auto">
+    <div 
+      onClick={onClose}
+      className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/60 backdrop-blur-md animate-fade-in overflow-y-auto"
+    >
       {/* Modal Container */}
-      <div className="relative w-full max-w-lg bg-white border border-slate-200 rounded-3xl shadow-2xl overflow-hidden flex flex-col my-auto max-h-[92vh] text-slate-900">
+      <div 
+        onClick={(e) => e.stopPropagation()}
+        className="relative w-full max-w-lg bg-white border border-slate-200 rounded-3xl shadow-2xl overflow-hidden flex flex-col my-auto max-h-[92vh] text-slate-900"
+      >
         
         {/* Modal Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 bg-white shrink-0">
@@ -234,25 +251,41 @@ export default function ProfileExportModal({ profile, onClose }: ProfileExportMo
         </div>
 
         {/* Modal Footer Actions */}
-        <div className="px-5 py-4 bg-white border-t border-slate-100 flex items-center justify-between gap-3 shrink-0">
+        <div className="px-4 sm:px-6 py-3.5 sm:py-4 bg-white border-t border-slate-100 flex items-center justify-between gap-3 shrink-0">
           <button
+            type="button"
             onClick={onClose}
             className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
           >
-            关闭
+            关闭窗口
           </button>
 
           <button
+            type="button"
             onClick={handleDownload}
             disabled={isExporting}
-            className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-md ${
+            className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shadow-md active:scale-95 ${
               downloadSuccess 
                 ? "bg-emerald-600 text-white shadow-emerald-500/20" 
-                : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-blue-500/20"
+                : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-blue-500/20 disabled:opacity-60"
             }`}
           >
-            {downloadSuccess ? <Check className="w-4 h-4" /> : <Download className="w-4 h-4" />}
-            <span>{downloadSuccess ? "已下载到本地" : (isExporting ? "生成中..." : "下载高清长图 (PNG)")}</span>
+            {downloadSuccess ? (
+              <>
+                <Check className="w-4 h-4 stroke-[2.5]" />
+                <span>已成功保存到本地</span>
+              </>
+            ) : isExporting ? (
+              <>
+                <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin shrink-0" />
+                <span>正在渲染高清长图...</span>
+              </>
+            ) : (
+              <>
+                <Download className="w-4 h-4" />
+                <span>保存档案长图 (PNG)</span>
+              </>
+            )}
           </button>
         </div>
       </div>
