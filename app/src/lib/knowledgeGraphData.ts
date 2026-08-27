@@ -54,7 +54,7 @@ export function getNodeActivation(nodeId: string, profile: PatientProfile | null
 
   switch (nodeId) {
     case "SURVEILLANCE": {
-      // For all Stage IA & CTR <= 0.5, regular surveillance is the primary guideline baseline (85%-100% cure)
+      // For all Stage IA & CTR <= 0.5, regular surveillance is the primary guideline baseline (90%-100% cure)
       if (isStageIA || (profile.ctr != null && profile.ctr <= 0.5)) return "primary";
       if (profile.stage === "IIIA" || profile.stage === "IIIB" || profile.nStage === "N2") return "dim";
       return "normal";
@@ -68,7 +68,7 @@ export function getNodeActivation(nodeId: string, profile: PatientProfile | null
         profile.vpi === "positive",
       ].filter(Boolean).length;
 
-      // In Stage IA, STAS/CTR is a secondary caution alert (~10-15%), not a dominant primary failure event
+      // In Stage IA, STAS/CTR is a secondary caution alert (<10%), not a dominant primary failure event
       if (isStageIA && riskCount > 0) return "warning";
       if (riskCount >= 2 && !isStageIA) return "active";
       if (riskCount === 0) return "dim";
@@ -87,15 +87,14 @@ export function getNodeActivation(nodeId: string, profile: PatientProfile | null
       if (profile.vpi === "negative") return "dim";
       return "normal";
     case "CTR":
-      if (profile.ctr > 0.5) return "active";
-      if (profile.ctr <= 0.5 && profile.ctr > 0) return "dim";
+      if (profile.ctr != null && profile.ctr > 0) return "active";
       return "normal";
     case "IASLC":
       if (profile.iaslcGrade === "3") return "active";
-      if (profile.iaslcGrade === "1") return "dim";
+      if (profile.iaslcGrade === "1" || profile.iaslcGrade === "2") return "active";
       return "normal";
     case "EGFR":
-      if (profile.egfr === "positive") return "active";
+      if (profile.egfr === "positive" || (profile.geneMutations && profile.geneMutations.length > 0)) return "active";
       if (profile.egfr === "negative") return "dim";
       return "normal";
     case "METASTASIS":
@@ -103,7 +102,7 @@ export function getNodeActivation(nodeId: string, profile: PatientProfile | null
       if (profile.lvi === "negative") return "dim";
       return "normal";
     case "TARGETED":
-      if (profile.egfr === "positive") return "active";
+      if (profile.egfr === "positive" || (profile.geneMutations && profile.geneMutations.some((m: any) => m.gene === "EGFR" || m.gene === "ALK"))) return "active";
       if (profile.egfr === "negative") return "dim";
       return "normal";
     case "ADJUVANT":
