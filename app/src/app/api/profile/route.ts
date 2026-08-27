@@ -53,127 +53,193 @@ export async function POST(request: Request) {
     );
     let psychState = data.psychologicalState || (isStas || isVpi ? 'decision' : 'understanding');
 
-    // 1. Save Patient Profile to Database
-    const profile = await prisma.patientProfile.create({
-      data: {
-        userId: targetUserId,
-        age: data.age ? parseInt(data.age) : 55,
-        sex: data.sex || data.gender || 'male',
-        organ: data.organ || 'lung',
-        histology: data.histology || 'adenocarcinoma',
-        noduleType: stagingResult.noduleType,
-        sizeMm: stagingResult.tumorSize * 10,
-        ctr: stagingResult.ctr,
-        tumorSize: stagingResult.tumorSize,
-        grade: data.grade || data.iaslcGrade || '2',
-        tStage: stagingResult.tStage,
-        nStage: stagingResult.nStage,
-        mStage: stagingResult.mStage,
-        stas: isStas,
-        vpi: isVpi,
-        lvi: isLvi,
-        surgeryType: data.surgeryType || (data.reportType === 'ct_imaging' ? 'unknown' : 'segmentectomy'),
-        marginStatus: marginStatus,
-        
-        // State Engine
-        currentStage: currentStage,
-        riskLevel: riskLevel,
-        nextAction: nextAction,
-        psychologicalState: psychState,
-
-        // Report persistence if provided
-        reportMarkdown: data.reportMarkdown || null,
-        reportGeneratedAt: data.reportMarkdown ? new Date() : null,
-      }
+    // 1. Save or Update Patient Profile to Database (Idempotent Upsert)
+    const existingProfile = await prisma.patientProfile.findFirst({
+      where: {
+        OR: [
+          { userId: targetUserId },
+          ...(data.userId ? [{ userId: data.userId }] : [])
+        ]
+      },
+      orderBy: { createdAt: 'desc' }
     });
 
-    // 2. Automatic Timeline Ingestion (自动无缝归集至检查报告时间生命线)
+    const profileData = {
+      userId: targetUserId,
+      age: data.age ? parseInt(data.age) : 55,
+      sex: data.sex || data.gender || 'male',
+      organ: data.organ || 'lung',
+      histology: data.histology || 'adenocarcinoma',
+      noduleType: stagingResult.noduleType,
+      sizeMm: stagingResult.tumorSize * 10,
+      ctr: stagingResult.ctr,
+      tumorSize: stagingResult.tumorSize,
+      grade: data.grade || data.iaslcGrade || '2',
+      tStage: stagingResult.tStage,
+      nStage: stagingResult.nStage,
+      mStage: stagingResult.mStage,
+      stas: isStas,
+      vpi: isVpi,
+      lvi: isLvi,
+      surgeryType: data.surgeryType || (data.reportType === 'ct_imaging' ? 'unknown' : 'segmentectomy'),
+      marginStatus: marginStatus,
+      
+      // State Engine
+      currentStage: currentStage,
+      riskLevel: riskLevel,
+      nextAction: nextAction,
+      psychologicalState: psychState,
+
+      // Report persistence if provided
+      reportMarkdown: data.reportMarkdown || null,
+      reportGeneratedAt: data.reportMarkdown ? new Date() : null,
+    };
+
+    let profile;
+    if (existingProfile) {
+      profile = await prisma.patientProfile.update({
+        where: { id: existingProfile.id },
+        data: profileData,
+      });
+    } else {
+      profile = await prisma.patientProfile.create({
+        data: profileData,
+      });
+    }
+
+    // 2. Automatic Timeline Ingestion (基于报告指纹与唯一性去重更新)
     try {
       const eventDate = data.examDate ? new Date(data.examDate) : new Date();
       const isCT = data.reportType === 'ct_imaging' || currentStage === 'evaluation' || currentStage === 'discovery';
 
       if (isCT) {
-        // Ingest CT Imaging Event
-        await prisma.timelineEvent.create({
-          data: {
+        // Upsert CT Imaging Event
+        const existingCT = await prisma.timelineEvent.findFirst({
+          where: {
             userId: targetUserId,
-            profileId: profile.id,
-            eventDate,
             category: 'imaging',
-            subType: 'CT',
-            hospital: data.hospital || '三甲医院放射影像中心',
-            title: data.examName || '胸部薄层高分辨 CT 平扫',
-            summary: nextAction || 'CT 影像已结构化归档',
-            keyFindings: {
-              sizeMm: stagingResult.tumorSize * 10,
-              ctr: stagingResult.ctr,
-              noduleType: stagingResult.noduleType,
-              location: data.noduleLocation || '肺部结节',
-            },
-            tags: JSON.stringify([
-              data.noduleLocation || '肺部',
-              `${(stagingResult.tumorSize * 10).toFixed(1)}mm`,
-              stagingResult.noduleType === 'pure_ggo' ? '纯磨玻璃' : stagingResult.noduleType === 'pure_solid' ? '实性结节' : '混合磨玻璃'
-            ]),
-            riskStatus: riskLevel === 'high' ? 'warning' : 'watch',
-          }
-        });
-      } else {
-        // Ingest Pathology Event
-        await prisma.timelineEvent.create({
-          data: {
-            userId: targetUserId,
-            profileId: profile.id,
-            eventDate,
-            category: 'pathology',
-            subType: 'Pathology',
-            hospital: data.hospital || '三甲医院病理诊断中心',
-            title: '手术标本常规组织病理学诊断',
-            summary: `【病理诊断】${stagingResult.stage ? `${stagingResult.stage}期，` : ''}${data.histology || '浸润性腺癌'}，切缘${marginStatus === 'positive' ? '阳性' : 'R0安全阴性'}，STAS${isStas ? '阳性' : '阴性'}，VPI${isVpi ? '阳性' : '阴性'}。`,
-            keyFindings: {
-              histology: data.histology || '浸润性腺癌',
-              stage: stagingResult.stage,
-              stas: isStas,
-              vpi: isVpi,
-              lvi: isLvi,
-              marginStatus: marginStatus === 'positive' ? '切缘阳性' : 'R0切缘阴性',
-              sizeMm: stagingResult.tumorSize * 10,
-            },
-            tags: JSON.stringify([
-              stagingResult.stage || '早期肺癌',
-              isStas ? 'STAS阳性' : 'STAS阴性',
-              isVpi ? 'VPI阳性' : 'VPI阴性',
-              marginStatus === 'positive' ? '切缘阳性' : 'R0根治切除'
-            ]),
-            riskStatus: (isStas || isVpi || isLvi || marginStatus === 'positive') ? 'warning' : 'normal',
-          }
+            subType: 'CT'
+          },
+          orderBy: { eventDate: 'desc' }
         });
 
-        // Ingest Surgery Milestone Event if applicable
+        const ctEventData = {
+          userId: targetUserId,
+          profileId: profile.id,
+          eventDate,
+          category: 'imaging',
+          subType: 'CT',
+          hospital: data.hospital || (existingCT?.hospital || '三甲医院放射影像中心'),
+          title: data.examName || (existingCT?.title || '胸部薄层高分辨 CT 平扫'),
+          summary: nextAction || 'CT 影像已结构化归档',
+          keyFindings: {
+            sizeMm: stagingResult.tumorSize * 10,
+            ctr: stagingResult.ctr,
+            noduleType: stagingResult.noduleType,
+            location: data.noduleLocation || '肺部结节',
+          },
+          tags: JSON.stringify([
+            data.noduleLocation || '肺部',
+            `${(stagingResult.tumorSize * 10).toFixed(1)}mm`,
+            stagingResult.noduleType === 'pure_ggo' ? '纯磨玻璃' : stagingResult.noduleType === 'pure_solid' ? '实性结节' : '混合磨玻璃'
+          ]),
+          riskStatus: riskLevel === 'high' ? 'warning' : 'watch',
+        };
+
+        if (existingCT) {
+          await prisma.timelineEvent.update({
+            where: { id: existingCT.id },
+            data: ctEventData
+          });
+        } else {
+          await prisma.timelineEvent.create({ data: ctEventData });
+        }
+      } else {
+        // Upsert Pathology Event
+        const existingPathology = await prisma.timelineEvent.findFirst({
+          where: {
+            userId: targetUserId,
+            category: 'pathology',
+          },
+          orderBy: { eventDate: 'desc' }
+        });
+
+        const pathEventData = {
+          userId: targetUserId,
+          profileId: profile.id,
+          eventDate,
+          category: 'pathology',
+          subType: 'Pathology',
+          hospital: data.hospital || (existingPathology?.hospital || '三甲医院病理诊断中心'),
+          title: '手术标本常规组织病理学诊断',
+          summary: `【病理诊断】${stagingResult.stage ? `${stagingResult.stage}期，` : ''}${data.histology || '浸润性腺癌'}，切缘${marginStatus === 'positive' ? '阳性' : 'R0安全阴性'}，STAS${isStas ? '阳性' : '阴性'}，VPI${isVpi ? '阳性' : '阴性'}。`,
+          keyFindings: {
+            histology: data.histology || '浸润性腺癌',
+            stage: stagingResult.stage,
+            stas: isStas,
+            vpi: isVpi,
+            lvi: isLvi,
+            marginStatus: marginStatus === 'positive' ? '切缘阳性' : 'R0切缘阴性',
+            sizeMm: stagingResult.tumorSize * 10,
+          },
+          tags: JSON.stringify([
+            stagingResult.stage || '早期肺癌',
+            isStas ? 'STAS阳性' : 'STAS阴性',
+            isVpi ? 'VPI阳性' : 'VPI阴性',
+            marginStatus === 'positive' ? '切缘阳性' : 'R0根治切除'
+          ]),
+          riskStatus: (isStas || isVpi || isLvi || marginStatus === 'positive') ? 'warning' : 'normal',
+        };
+
+        if (existingPathology) {
+          await prisma.timelineEvent.update({
+            where: { id: existingPathology.id },
+            data: pathEventData
+          });
+        } else {
+          await prisma.timelineEvent.create({ data: pathEventData });
+        }
+
+        // Ingest / Update Surgery Milestone Event if applicable
         if (data.surgeryType && data.surgeryType !== 'unknown') {
           const surgeryName = 
             data.surgeryType === 'segmentectomy' ? '单孔胸腔镜解剖性肺段切除术' :
             data.surgeryType === 'lobectomy' ? '胸腔镜标准肺叶切除术' :
             data.surgeryType === 'wedge' ? '胸腔镜肺局部楔形切除术' : data.surgeryType;
 
-          await prisma.timelineEvent.create({
-            data: {
+          const existingSurgery = await prisma.timelineEvent.findFirst({
+            where: {
               userId: targetUserId,
-              profileId: profile.id,
-              eventDate: data.surgeryDate ? new Date(data.surgeryDate) : eventDate,
               category: 'milestone',
-              subType: 'Surgery',
-              hospital: data.hospital || '三甲医院胸外科',
-              title: `重大治疗里程碑：${surgeryName}`,
-              summary: `顺利完成微创胸外科切除，切缘充分（R0），病灶完全切除。`,
-              keyFindings: {
-                surgeryType: surgeryName,
-                marginStatus: marginStatus === 'positive' ? '切缘阳性' : 'R0切缘阴性',
-              },
-              tags: JSON.stringify(['胸外科微创手术', '解剖性切除', 'R0切除']),
-              riskStatus: 'normal',
+              subType: 'Surgery'
             }
           });
+
+          const surgeryEventData = {
+            userId: targetUserId,
+            profileId: profile.id,
+            eventDate: data.surgeryDate ? new Date(data.surgeryDate) : eventDate,
+            category: 'milestone',
+            subType: 'Surgery',
+            hospital: data.hospital || (existingSurgery?.hospital || '三甲医院胸外科'),
+            title: `重大治疗里程碑：${surgeryName}`,
+            summary: `顺利完成微创胸外科切除，切缘充分（R0），病灶完全切除。`,
+            keyFindings: {
+              surgeryType: surgeryName,
+              marginStatus: marginStatus === 'positive' ? '切缘阳性' : 'R0切缘阴性',
+            },
+            tags: JSON.stringify(['胸外科微创手术', '解剖性切除', 'R0切除']),
+            riskStatus: 'normal',
+          };
+
+          if (existingSurgery) {
+            await prisma.timelineEvent.update({
+              where: { id: existingSurgery.id },
+              data: surgeryEventData
+            });
+          } else {
+            await prisma.timelineEvent.create({ data: surgeryEventData });
+          }
         }
       }
 
@@ -182,52 +248,61 @@ export async function POST(request: Request) {
         ? data.tumorMarkersHistory
         : (data.tumorMarkers ? [data.tumorMarkers] : []);
 
-      for (const tm of markersList) {
-        const hasAnyMarker = tm.cea != null || tm.cyfra211 != null || tm.nse != null || tm.scc != null || tm.ca125 != null || tm.ca199 != null || tm.ca153 != null || tm.proGrp != null || tm.ferritin != null;
-        if (hasAnyMarker) {
-          const tmDate = tm.testDate ? new Date(tm.testDate) : eventDate;
-          const summaryParts: string[] = [];
-          if (tm.cea != null) summaryParts.push(`CEA: ${tm.cea} ng/mL`);
-          if (tm.cyfra211 != null) summaryParts.push(`CYFRA21-1: ${tm.cyfra211} ng/mL`);
-          if (tm.nse != null) summaryParts.push(`NSE: ${tm.nse} ng/mL`);
-          if (tm.scc != null) summaryParts.push(`SCC: ${tm.scc} ng/mL`);
-          if (tm.ca125 != null) summaryParts.push(`CA125: ${tm.ca125} U/mL`);
-          if (tm.ca199 != null) summaryParts.push(`CA19-9: ${tm.ca199} U/mL`);
-          if (tm.ca153 != null) summaryParts.push(`CA15-3: ${tm.ca153} U/mL`);
-          if (tm.proGrp != null) summaryParts.push(`ProGRP: ${tm.proGrp} pg/mL`);
-          if (tm.ferritin != null) summaryParts.push(`FER: ${tm.ferritin} ng/mL`);
+      if (markersList.length > 0) {
+        await prisma.timelineEvent.deleteMany({
+          where: {
+            userId: targetUserId,
+            category: 'serology'
+          }
+        }).catch(() => {});
 
-          const isElevated = (tm.cea != null && Number(tm.cea) > 5.0) || (tm.cyfra211 != null && Number(tm.cyfra211) > 3.3) || (tm.ca125 != null && Number(tm.ca125) > 35.0);
+        for (const tm of markersList) {
+          const hasAnyMarker = tm.cea != null || tm.cyfra211 != null || tm.nse != null || tm.scc != null || tm.ca125 != null || tm.ca199 != null || tm.ca153 != null || tm.proGrp != null || tm.ferritin != null;
+          if (hasAnyMarker) {
+            const tmDate = tm.testDate ? new Date(tm.testDate) : eventDate;
+            const summaryParts: string[] = [];
+            if (tm.cea != null) summaryParts.push(`CEA: ${tm.cea} ng/mL`);
+            if (tm.cyfra211 != null) summaryParts.push(`CYFRA21-1: ${tm.cyfra211} ng/mL`);
+            if (tm.nse != null) summaryParts.push(`NSE: ${tm.nse} ng/mL`);
+            if (tm.scc != null) summaryParts.push(`SCC: ${tm.scc} ng/mL`);
+            if (tm.ca125 != null) summaryParts.push(`CA125: ${tm.ca125} U/mL`);
+            if (tm.ca199 != null) summaryParts.push(`CA19-9: ${tm.ca199} U/mL`);
+            if (tm.ca153 != null) summaryParts.push(`CA15-3: ${tm.ca153} U/mL`);
+            if (tm.proGrp != null) summaryParts.push(`ProGRP: ${tm.proGrp} pg/mL`);
+            if (tm.ferritin != null) summaryParts.push(`FER: ${tm.ferritin} ng/mL`);
 
-          await prisma.timelineEvent.create({
-            data: {
-              userId: targetUserId,
-              profileId: profile.id,
-              eventDate: tmDate,
-              category: 'serology',
-              subType: 'TumorMarkers',
-              hospital: tm.hospital || data.hospital || '三甲医院检验科',
-              title: tm.testDate ? `血清肿瘤标志物生化检测 (${tm.testDate})` : '血清肿瘤标志物生化检测',
-              summary: summaryParts.join('，') || '常规肿瘤标志物检测已归档',
-              keyFindings: {
-                cea: tm.cea != null ? parseFloat(tm.cea) : undefined,
-                cyfra211: tm.cyfra211 != null ? parseFloat(tm.cyfra211) : undefined,
-                nse: tm.nse != null ? parseFloat(tm.nse) : undefined,
-                scc: tm.scc != null ? parseFloat(tm.scc) : undefined,
-                proGrp: tm.proGrp != null ? parseFloat(tm.proGrp) : undefined,
-                ca125: tm.ca125 != null ? parseFloat(tm.ca125) : undefined,
-                ca199: tm.ca199 != null ? parseFloat(tm.ca199) : undefined,
-                ca153: tm.ca153 != null ? parseFloat(tm.ca153) : undefined,
-                ferritin: tm.ferritin != null ? parseFloat(tm.ferritin) : undefined,
-              },
-              tags: JSON.stringify([
-                '肿瘤标志物',
-                tm.cea != null ? (Number(tm.cea) <= 5 ? 'CEA正常' : 'CEA偏高') : '血检',
-                tm.cyfra211 != null ? (Number(tm.cyfra211) <= 3.3 ? 'CYFRA正常' : 'CYFRA偏高') : '生化'
-              ]),
-              riskStatus: isElevated ? 'warning' : 'normal',
-            }
-          });
+            const isElevated = (tm.cea != null && Number(tm.cea) > 5.0) || (tm.cyfra211 != null && Number(tm.cyfra211) > 3.3) || (tm.ca125 != null && Number(tm.ca125) > 35.0);
+
+            await prisma.timelineEvent.create({
+              data: {
+                userId: targetUserId,
+                profileId: profile.id,
+                eventDate: tmDate,
+                category: 'serology',
+                subType: 'TumorMarkers',
+                hospital: tm.hospital || data.hospital || '三甲医院检验科',
+                title: tm.testDate ? `血清肿瘤标志物生化检测 (${tm.testDate})` : '血清肿瘤标志物生化检测',
+                summary: summaryParts.join('，') || '常规肿瘤标志物检测已归档',
+                keyFindings: {
+                  cea: tm.cea != null ? parseFloat(tm.cea) : undefined,
+                  cyfra211: tm.cyfra211 != null ? parseFloat(tm.cyfra211) : undefined,
+                  nse: tm.nse != null ? parseFloat(tm.nse) : undefined,
+                  scc: tm.scc != null ? parseFloat(tm.scc) : undefined,
+                  proGrp: tm.proGrp != null ? parseFloat(tm.proGrp) : undefined,
+                  ca125: tm.ca125 != null ? parseFloat(tm.ca125) : undefined,
+                  ca199: tm.ca199 != null ? parseFloat(tm.ca199) : undefined,
+                  ca153: tm.ca153 != null ? parseFloat(tm.ca153) : undefined,
+                  ferritin: tm.ferritin != null ? parseFloat(tm.ferritin) : undefined,
+                },
+                tags: JSON.stringify([
+                  '肿瘤标志物',
+                  tm.cea != null ? (Number(tm.cea) <= 5 ? 'CEA正常' : 'CEA偏高') : '血检',
+                  tm.cyfra211 != null ? (Number(tm.cyfra211) <= 3.3 ? 'CYFRA正常' : 'CYFRA偏高') : '生化'
+                ]),
+                riskStatus: isElevated ? 'warning' : 'normal',
+              }
+            });
+          }
         }
       }
 

@@ -125,13 +125,6 @@ export default function HomePage() {
                   <FileText className="w-5 h-5" />
                   <span>{hasProfile || userEmail ? "进入我的临床数字档案" : "建立临床数字档案"}</span>
                 </Link>
-                <Link
-                  href="/wiki"
-                  className="btn-secondary px-6 py-3.5 rounded-2xl text-base font-semibold border-slate-200 text-slate-700 hover:bg-slate-50 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-2xs"
-                >
-                  <BookOpen className="w-4 h-4 text-slate-600" />
-                  <span>探索循证百科</span>
-                </Link>
               </div>
 
               {/* Quick Trust Highlights */}

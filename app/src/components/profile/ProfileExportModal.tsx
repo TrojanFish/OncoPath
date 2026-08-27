@@ -25,8 +25,6 @@ import { toPng } from "html-to-image";
 import type { PatientProfile } from "@/lib/types";
 import { getClinicalCohortForProfile } from "@/lib/staging";
 import { ONCOPATH_LOGO_DATA_URI } from "@/lib/brandLogo";
-import { exportElementToA4Pdf } from "@/lib/pdfExporter";
-import { FileText } from "lucide-react";
 
 interface ProfileExportModalProps {
   profile: PatientProfile;
@@ -35,11 +33,9 @@ interface ProfileExportModalProps {
 
 export default function ProfileExportModal({ profile, onClose }: ProfileExportModalProps) {
   const [isExporting, setIsExporting] = useState(false);
-  const [isExportingPdf, setIsExportingPdf] = useState(false);
   const [exportedImageUrl, setExportedImageUrl] = useState<string | null>(null);
   const [generationError, setGenerationError] = useState<string | null>(null);
   const [downloadSuccess, setDownloadSuccess] = useState(false);
-  const [pdfSuccess, setPdfSuccess] = useState(false);
   const offscreenPosterRef = useRef<HTMLDivElement>(null);
 
   const cohort = getClinicalCohortForProfile(profile);
@@ -164,27 +160,6 @@ export default function ProfileExportModal({ profile, onClose }: ProfileExportMo
     }
   };
 
-  const handleExportPdf = async () => {
-    if (!offscreenPosterRef.current || isExportingPdf) return;
-    try {
-      setIsExportingPdf(true);
-      const dateStr = new Date().toISOString().split("T")[0];
-      const success = await exportElementToA4Pdf(offscreenPosterRef.current, {
-        fileName: `OncoPath-患者数字档案-${profile.stage || "临床"}-${dateStr}.pdf`,
-        headerTitle: "OncoPath 肺结节与肺腺癌临床数字档案 · 全景速览卡",
-        reportDate: dateStr,
-      });
-      if (success) {
-        setPdfSuccess(true);
-        setTimeout(() => setPdfSuccess(false), 2500);
-      }
-    } catch (err) {
-      console.error("PDF export error:", err);
-    } finally {
-      setIsExportingPdf(false);
-    }
-  };
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in overflow-y-auto">
       {/* Modal Container */}
@@ -201,7 +176,7 @@ export default function ProfileExportModal({ profile, onClose }: ProfileExportMo
                 患者数字档案 · 循证全景高清速览卡
               </h2>
               <p className="text-[11px] text-slate-400">
-                可保存为高清长图或 A4 PDF，便于门诊就医沟通或归档
+                可保存为高清长图，便于门诊就医沟通或微信备份
               </p>
             </div>
           </div>
@@ -258,42 +233,26 @@ export default function ProfileExportModal({ profile, onClose }: ProfileExportMo
         </div>
 
         {/* Modal Footer Actions */}
-        <div className="px-5 py-4 bg-slate-900 border-t border-slate-800 flex items-center justify-between gap-2.5 shrink-0 flex-wrap sm:flex-nowrap">
+        <div className="px-5 py-4 bg-slate-900 border-t border-slate-800 flex items-center justify-between gap-3 shrink-0">
           <button
             onClick={onClose}
-            className="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+            className="px-4 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
           >
             关闭
           </button>
 
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={handleExportPdf}
-              disabled={isExportingPdf}
-              className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-lg ${
-                pdfSuccess
-                  ? "bg-emerald-600 text-white"
-                  : "bg-slate-800 hover:bg-slate-700 text-blue-300 border border-blue-500/40"
-              }`}
-            >
-              {pdfSuccess ? <Check className="w-4 h-4" /> : <FileText className="w-4 h-4 text-blue-400" />}
-              <span>{pdfSuccess ? "已下载 A4 PDF" : (isExportingPdf ? "合成 PDF 中..." : "下载 A4 PDF")}</span>
-            </button>
-
-            <button
-              onClick={handleDownload}
-              disabled={isExporting}
-              className={`px-4 sm:px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-lg ${
-                downloadSuccess 
-                  ? "bg-emerald-600 text-white" 
-                  : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-blue-500/20"
-              }`}
-            >
-              {downloadSuccess ? <Check className="w-4 h-4" /> : <Download className="w-4 h-4" />}
-              <span>{downloadSuccess ? "已下载到本地" : (isExporting ? "生成中..." : "保存长图 (PNG)")}</span>
-            </button>
-          </div>
+          <button
+            onClick={handleDownload}
+            disabled={isExporting}
+            className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-lg ${
+              downloadSuccess 
+                ? "bg-emerald-600 text-white" 
+                : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-blue-500/20"
+            }`}
+          >
+            {downloadSuccess ? <Check className="w-4 h-4" /> : <Download className="w-4 h-4" />}
+            <span>{downloadSuccess ? "已下载到本地" : (isExporting ? "生成中..." : "下载高清长图 (PNG)")}</span>
+          </button>
         </div>
       </div>
 
