@@ -14,7 +14,8 @@ import {
   ClipboardList, 
   Sparkles, 
   Check, 
-  AlertTriangle 
+  AlertTriangle,
+  ShieldCheck
 } from "lucide-react";
 import type { PatientProfile } from "@/lib/types";
 import { getGuestId } from "@/lib/guest";
