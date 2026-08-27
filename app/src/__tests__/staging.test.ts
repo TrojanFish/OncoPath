@@ -185,34 +185,112 @@ describe('AJCC 8th/9th Edition & IASLC TNM Staging Engine', () => {
   });
 
   describe('Lymph Node & Distant Metastasis Rules (N and M Stages)', () => {
-    it('should stage N1 involvement with T1a as Stage IIB', () => {
-      const result = computeClinicalTnmStage({
+    it('should stage N1 involvement with T1a-T2b as Stage IIB', () => {
+      const r1 = computeClinicalTnmStage({
         noduleType: 'pure_solid',
         tumorSize: 1.0,
         nStage: 'N1',
         mStage: 'M0'
       });
-      expect(result.stage).toBe('IIB');
+      expect(r1.stage).toBe('IIB');
+
+      const r2 = computeClinicalTnmStage({
+        noduleType: 'pure_solid',
+        tumorSize: 4.5, // T2b
+        nStage: 'N1',
+        mStage: 'M0'
+      });
+      expect(r2.stage).toBe('IIB');
     });
 
-    it('should stage N2 involvement (ipsilateral mediastinal) as Stage IIIA', () => {
-      const result = computeClinicalTnmStage({
+    it('should stage N1 involvement with T3/T4 as Stage IIIA', () => {
+      const r3 = computeClinicalTnmStage({
+        noduleType: 'pure_solid',
+        tumorSize: 6.0, // T3
+        nStage: 'N1',
+        mStage: 'M0'
+      });
+      expect(r3.stage).toBe('IIIA');
+
+      const r4 = computeClinicalTnmStage({
+        noduleType: 'pure_solid',
+        tumorSize: 8.0, // T4
+        nStage: 'N1',
+        mStage: 'M0'
+      });
+      expect(r4.stage).toBe('IIIA');
+    });
+
+    it('should stage N2 involvement with T1-T2 as Stage IIIA', () => {
+      const r1 = computeClinicalTnmStage({
         noduleType: 'pure_solid',
         tumorSize: 1.5,
         nStage: 'N2',
         mStage: 'M0'
       });
-      expect(result.stage).toBe('IIIA');
+      expect(r1.stage).toBe('IIIA');
+
+      const r2 = computeClinicalTnmStage({
+        noduleType: 'pure_solid',
+        tumorSize: 4.5, // T2b
+        nStage: 'N2',
+        mStage: 'M0'
+      });
+      expect(r2.stage).toBe('IIIA');
     });
 
-    it('should stage N3 involvement (contralateral mediastinal/supraclavicular) as Stage IIIB', () => {
-      const result = computeClinicalTnmStage({
+    it('should stage N2 involvement with T3/T4 as Stage IIIB (AJCC 8th/9th Rule)', () => {
+      const r3 = computeClinicalTnmStage({
+        noduleType: 'pure_solid',
+        tumorSize: 6.0, // T3
+        nStage: 'N2',
+        mStage: 'M0'
+      });
+      expect(r3.stage).toBe('IIIB');
+
+      const r4 = computeClinicalTnmStage({
+        noduleType: 'pure_solid',
+        tumorSize: 8.0, // T4
+        nStage: 'N2',
+        mStage: 'M0'
+      });
+      expect(r4.stage).toBe('IIIB');
+    });
+
+    it('should stage N3 involvement with T1-T2 as Stage IIIB', () => {
+      const r1 = computeClinicalTnmStage({
         noduleType: 'pure_solid',
         tumorSize: 1.5,
         nStage: 'N3',
         mStage: 'M0'
       });
-      expect(result.stage).toBe('IIIB');
+      expect(r1.stage).toBe('IIIB');
+
+      const r2 = computeClinicalTnmStage({
+        noduleType: 'pure_solid',
+        tumorSize: 4.5, // T2b
+        nStage: 'N3',
+        mStage: 'M0'
+      });
+      expect(r2.stage).toBe('IIIB');
+    });
+
+    it('should stage N3 involvement with T3/T4 as Stage IIIC (AJCC 8th/9th Rule)', () => {
+      const r3 = computeClinicalTnmStage({
+        noduleType: 'pure_solid',
+        tumorSize: 6.0, // T3
+        nStage: 'N3',
+        mStage: 'M0'
+      });
+      expect(r3.stage).toBe('IIIC');
+
+      const r4 = computeClinicalTnmStage({
+        noduleType: 'pure_solid',
+        tumorSize: 8.0, // T4
+        nStage: 'N3',
+        mStage: 'M0'
+      });
+      expect(r4.stage).toBe('IIIC');
     });
 
     it('should stage any M1 distant metastasis as Stage IV', () => {
@@ -227,6 +305,18 @@ describe('AJCC 8th/9th Edition & IASLC TNM Staging Engine', () => {
   });
 
   describe('Dynamic Multi-Cohort Prognosis & Survival Matching Engine (getClinicalCohortForProfile)', () => {
+    it('should match IIIC cohort correctly', () => {
+      const cohort = getClinicalCohortForProfile({
+        noduleType: 'pure_solid',
+        tumorSize: 6.0,
+        stage: 'IIIC',
+        nStage: 'N3',
+        mStage: 'M0'
+      });
+      expect(cohort.stage).toContain('IIIC期');
+      expect(cohort.source).toContain('PACIFIC');
+      expect(cohort.description).toContain('PACIFIC 方案');
+    });
     it('should calculate 100% RFS and OS for Stage 0 (AIS / AAH)', () => {
       const cohort = getClinicalCohortForProfile({
         noduleType: 'pure_ggo',

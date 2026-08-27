@@ -11,13 +11,15 @@ class MedicalRulesEngine:
     # Rows = T descriptor, columns = N descriptor. M0 implied; M1 => IV.
     # Source: AJCC Cancer Staging Manual, 8th edition (Lung chapter).
     STAGE_TABLE = {
-        "T1a": {"N0": "IA1", "N1": "IIB",  "N2": "IIIA", "N3": "IIIB"},
-        "T1b": {"N0": "IA2", "N1": "IIB",  "N2": "IIIA", "N3": "IIIB"},
-        "T1c": {"N0": "IA3", "N1": "IIB",  "N2": "IIIA", "N3": "IIIB"},
-        "T2a": {"N0": "IB",  "N1": "IIB",  "N2": "IIIA", "N3": "IIIB"},
-        "T2b": {"N0": "IIA", "N1": "IIIA", "N2": "IIIB", "N3": "IIIC"},
-        "T3":  {"N0": "IIB", "N1": "IIIA", "N2": "IIIB", "N3": "IIIC"},
-        "T4":  {"N0": "IIIA","N1": "IIIA", "N2": "IIIB", "N3": "IIIC"},
+        "Tis":  {"N0": "0",   "N1": "IIB",  "N2": "IIIA", "N3": "IIIB"},
+        "T1mi": {"N0": "IA1", "N1": "IIB",  "N2": "IIIA", "N3": "IIIB"},
+        "T1a":  {"N0": "IA1", "N1": "IIB",  "N2": "IIIA", "N3": "IIIB"},
+        "T1b":  {"N0": "IA2", "N1": "IIB",  "N2": "IIIA", "N3": "IIIB"},
+        "T1c":  {"N0": "IA3", "N1": "IIB",  "N2": "IIIA", "N3": "IIIB"},
+        "T2a":  {"N0": "IB",  "N1": "IIB",  "N2": "IIIA", "N3": "IIIB"},
+        "T2b":  {"N0": "IIA", "N1": "IIB",  "N2": "IIIA", "N3": "IIIB"},
+        "T3":   {"N0": "IIB", "N1": "IIIA", "N2": "IIIB", "N3": "IIIC"},
+        "T4":   {"N0": "IIIA","N1": "IIIA", "N2": "IIIB", "N3": "IIIC"},
     }
 
     @staticmethod
@@ -28,12 +30,19 @@ class MedicalRulesEngine:
         for subsolid nodules.
         """
         # T descriptor relies on solid size for subsolid nodules according to AJCC 8th ed.
-        size_to_use = solid_size_cm if solid_size_cm is not None else tumor_size_cm
-        if size_to_use is None:
+        if solid_size_cm is not None:
+            size_to_use = solid_size_cm
+        elif tumor_size_cm is not None:
+            size_to_use = tumor_size_cm
+        else:
             size_to_use = 0.0
 
         t = "Tx"
-        if size_to_use <= 1.0:
+        if size_to_use == 0.0 and tumor_size_cm and tumor_size_cm > 0:
+            t = "Tis"
+        elif size_to_use <= 0.5 and solid_size_cm is not None and tumor_size_cm and tumor_size_cm > solid_size_cm:
+            t = "T1mi"
+        elif size_to_use <= 1.0:
             t = "T1a"
         elif size_to_use <= 2.0:
             t = "T1b"

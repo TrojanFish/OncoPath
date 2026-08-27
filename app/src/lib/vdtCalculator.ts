@@ -40,12 +40,53 @@ export function calculateVdtAndGrowth(history?: FollowUpRecord[] | null, current
     actionGuidance: "遵照当前结节大小与实性成分比，安排下一次薄层高分辨 CT (HRCT) 复查。"
   };
 
-  if (!history || history.length === 0) {
+  // 1. Synthesize full longitudinal records array with current profile parameters if provided
+  let records: FollowUpRecord[] = history ? [...history] : [];
+  
+  if (currentTumorSizeCm != null && !isNaN(Number(currentTumorSizeCm)) && Number(currentTumorSizeCm) > 0) {
+    const currTumor = Number(currentTumorSizeCm);
+    const currSolid = currentSolidSizeCm != null && !isNaN(Number(currentSolidSizeCm)) 
+      ? Number(currentSolidSizeCm) 
+      : (currentCtr != null ? Math.round(currTumor * Number(currentCtr) * 10) / 10 : 0);
+    const currCtrVal = currentCtr != null && !isNaN(Number(currentCtr)) 
+      ? Number(currentCtr) 
+      : (currTumor > 0 ? currSolid / currTumor : 0);
+    
+    const todayStr = new Date().toISOString().split("T")[0];
+    const isAlreadyPresent = records.some(r => r.tumorSize === currTumor && r.solidSize === currSolid && r.date === todayStr);
+    
+    if (!isAlreadyPresent) {
+      if (records.length > 0) {
+        const lastRecord = records[records.length - 1];
+        if (lastRecord.date !== todayStr || lastRecord.tumorSize !== currTumor || lastRecord.solidSize !== currSolid) {
+          records.push({
+            id: 'current_scan',
+            date: todayStr,
+            tumorSize: currTumor,
+            solidSize: currSolid,
+            ctr: Math.round(currCtrVal * 100) / 100,
+            note: '当前影像记录'
+          });
+        }
+      } else {
+        records.push({
+          id: 'current_scan',
+          date: todayStr,
+          tumorSize: currTumor,
+          solidSize: currSolid,
+          ctr: Math.round(currCtrVal * 100) / 100,
+          note: '当前基线影像'
+        });
+      }
+    }
+  }
+
+  if (!records || records.length === 0) {
     return fallbackResult;
   }
 
   // Sort history chronologically by date
-  const sorted = [...history].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  const sorted = [...records].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
   if (sorted.length < 2) {
     const single = sorted[0];
@@ -101,12 +142,13 @@ export function calculateVdtAndGrowth(history?: FollowUpRecord[] | null, current
       vdtDays = Math.round((days * Math.log(2)) / (3 * Math.log(d2Mm / d1Mm)));
     }
 
-    if (solidDiffMm >= 2.0 || ctrDiff >= 0.25 || (vdtDays !== null && vdtDays < 365)) {
+    // Critical Clinical Rule: In part-solid nodules, solid component growth >= 1.5mm or CTR jump is the primary indicator of invasiveness
+    if (solidDiffMm >= 1.5 || ctrDiff >= 0.20 || (vdtDays !== null && vdtDays < 365)) {
       category = "active_growth";
-      label = "活跃进展期 (实性增多)";
+      label = "活跃进展期 (实性增多/CTR跃升)";
       badgeColor = "rose";
-      interpretation = `相隔 ${days} 天，结节实性成分增多 ${solidDiffMm} mm (CTR 上升 ${(ctrDiff * 100).toFixed(0)}%)。实性成分的明确增长提示肿瘤细胞侵袭性有所增强。`;
-      guidance = "建议近期携带完整前后对比影像至三甲胸外科门诊评估，探讨胸腔镜解剖性肺段/肺叶微创手术的适宜时机。";
+      interpretation = `相隔 ${days} 天，结节实性成分增多 ${solidDiffMm} mm (CTR 上升 ${(ctrDiff * 100).toFixed(0)}%)。在部分实性磨玻璃结节中，实性成分的明确增长提示肿瘤细胞侵袭性有所增强。`;
+      guidance = "建议近期携带完整前后对比高分辨 CT 影像至三甲胸外科门诊评估，探讨胸腔镜解剖性肺段/肺叶微创手术的适宜时机。";
     } else {
       category = "slow_indolent";
       label = "慢速惰性演进期 (VDT 400~800天)";

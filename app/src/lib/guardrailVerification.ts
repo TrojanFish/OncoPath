@@ -231,16 +231,43 @@ export function runAllGuardrailTests(): GuardrailTestResult[] {
     });
     const vpiPassed = vpiUpstagingResult.tStage === 'T2a' && vpiUpstagingResult.stage === 'IB';
 
-    const stagingSuitePassed = mGgoPassed && vpiPassed;
+    // Case C: T3 (6.0cm) with N2 -> Stage IIIB (AJCC 8th/9th)
+    const t3n2Result = computeClinicalTnmStage({
+      noduleType: 'pure_solid',
+      tumorSize: 6.0,
+      nStage: 'N2',
+      mStage: 'M0',
+    });
+    const t3n2Passed = t3n2Result.tStage === 'T3' && t3n2Result.stage === 'IIIB';
+
+    // Case D: T3 (6.0cm) with N3 -> Stage IIIC (AJCC 8th/9th)
+    const t3n3Result = computeClinicalTnmStage({
+      noduleType: 'pure_solid',
+      tumorSize: 6.0,
+      nStage: 'N3',
+      mStage: 'M0',
+    });
+    const t3n3Passed = t3n3Result.tStage === 'T3' && t3n3Result.stage === 'IIIC';
+
+    // Case E: T2b (4.5cm) with N1 -> Stage IIB (AJCC 8th/9th)
+    const t2bn1Result = computeClinicalTnmStage({
+      noduleType: 'pure_solid',
+      tumorSize: 4.5,
+      nStage: 'N1',
+      mStage: 'M0',
+    });
+    const t2bn1Passed = t2bn1Result.tStage === 'T2b' && t2bn1Result.stage === 'IIB';
+
+    const stagingSuitePassed = mGgoPassed && vpiPassed && t3n2Passed && t3n3Passed && t2bn1Passed;
 
     results.push({
       suite: 'Deterministic Staging Engine (P0)',
-      name: 'mGGO Solid Component Staging & VPI Upstaging Rules',
+      name: 'AJCC 8th/9th Full Matrix & Pleural Upstaging Rules',
       passed: stagingSuitePassed,
       message: stagingSuitePassed
-        ? '磨玻璃实性成分折算 (T1a/IA1) 与胸膜侵犯自动升期 (T2a/IB) 逻辑严密验证通过'
+        ? '磨玻璃实性成分折算 (T1a/IA1)、胸膜升期 (T2a/IB)、T3N2(IIIB)、T3N3(IIIC) 与 T2bN1(IIB) 逻辑严密验证通过'
         : '分期公式计算不符合 AJCC/IASLC 规范',
-      details: { mGgoResult, vpiUpstagingResult }
+      details: { mGgoResult, vpiUpstagingResult, t3n2Result, t3n3Result, t2bn1Result }
     });
   } catch (err: any) {
     results.push({

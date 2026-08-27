@@ -57,7 +57,7 @@ describe('VDT (Volume Doubling Time) & Nodule Growth Calculator', () => {
     expect(res.vdtDays).toBeGreaterThan(365);
   });
 
-  it('should detect active rapid growth when solid component increases >= 2.0mm', () => {
+  it('should detect active rapid growth when solid component increases >= 1.5mm', () => {
     const history: FollowUpRecord[] = [
       { id: '1', date: '2024-01-01', tumorSize: 1.4, solidSize: 0.3, ctr: 0.21 },
       { id: '2', date: '2024-07-01', tumorSize: 1.8, solidSize: 0.9, ctr: 0.5 } // solid increased by +6mm
@@ -67,6 +67,30 @@ describe('VDT (Volume Doubling Time) & Nodule Growth Calculator', () => {
     expect(res.categoryLabel).toContain('活跃进展期');
     expect(res.categoryBadgeColor).toBe('rose');
     expect(res.actionGuidance).toContain('探讨胸腔镜解剖性肺段/肺叶微创手术');
+  });
+
+  it('should correctly synthesize single history record with current profile parameters', () => {
+    const history: FollowUpRecord[] = [
+      { id: '1', date: '2024-01-01', tumorSize: 1.0, solidSize: 0.2, ctr: 0.2 }
+    ];
+    // Pass current parameters: 1.4cm total, 0.6cm solid (+4mm solid growth)
+    const res = calculateVdtAndGrowth(history, 1.4, 0.6, 0.43);
+    expect(res.hasHistory).toBe(true);
+    expect(res.recordCount).toBe(2);
+    expect(res.growthCategory).toBe('active_growth');
+    expect(res.solidChangeMm).toBe(4);
+  });
+
+  it('should detect active growth when total diameter is constant but solid component grows in part-solid nodule', () => {
+    const history: FollowUpRecord[] = [
+      { id: '1', date: '2024-01-01', tumorSize: 1.5, solidSize: 0.2, ctr: 0.13 },
+      { id: '2', date: '2024-07-01', tumorSize: 1.5, solidSize: 0.5, ctr: 0.33 } // solid increased by +3mm, total size 0mm change
+    ];
+    const res = calculateVdtAndGrowth(history);
+    expect(res.growthCategory).toBe('active_growth');
+    expect(res.categoryLabel).toContain('活跃进展期');
+    expect(res.solidChangeMm).toBe(3);
+    expect(res.sizeChangeMm).toBe(0);
   });
 });
 

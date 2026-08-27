@@ -121,21 +121,29 @@ export function computeClinicalTnmStage(input: StagingInput): StagingResult {
     explanation += ` (提示：伴有脏层胸膜侵犯 VPI+，依据指南自动升期为 T2a)`;
   }
 
-  // 3. Compute Group TNM Stage
+  // 3. Compute Group TNM Stage (Full AJCC 8th/9th Matrix)
   let stage = "IA1";
+  const isT3orT4 = effectiveT === "T3" || effectiveT === "T4";
+
   if (mStage.startsWith("M1")) {
     stage = "IV";
   } else if (nStage === "N3") {
-    stage = "IIIB";
+    if (isT3orT4) {
+      stage = "IIIC";
+    } else {
+      stage = "IIIB";
+    }
   } else if (nStage === "N2") {
-    stage = "IIIA";
-  } else if (nStage === "N1") {
-    if (effectiveT === "T1a" || effectiveT === "T1b" || effectiveT === "T1c" || effectiveT === "T2a") {
-      stage = "IIB";
-    } else if (effectiveT === "T2b") {
-      stage = "IIB";
+    if (isT3orT4) {
+      stage = "IIIB";
     } else {
       stage = "IIIA";
+    }
+  } else if (nStage === "N1") {
+    if (isT3orT4) {
+      stage = "IIIA";
+    } else {
+      stage = "IIB";
     }
   } else {
     // N0 M0
@@ -438,10 +446,26 @@ export function getClinicalCohortForProfile(rawProfile: any): ClinicalCohortResu
     };
   }
 
-  if (stage === "IIIB" || stage === "IIIC") {
+  if (stage === "IIIC") {
+    return {
+      name: "PACIFIC_IIIC_Cohort",
+      stage: "IIIC期 (局部不可切除进展期)",
+      cohortSize: 1250,
+      rfs5Year: "28.0% ~ 38.0%",
+      os5Year: "35.0% ~ 44.0%",
+      confidenceRating: "⭐⭐⭐⭐☆",
+      confidenceLevel: "高置信度 (1级证据)",
+      source: "PACIFIC Trial & ASCO/ESMO 局部进展期指南",
+      description: "IIIC 期（T3-T4 N3）属于局部进展期不可切除肺癌。指南标准推荐根治性同步放化疗（cCRT）序贯度伐利尤单抗（Durvalumab）免疫巩固治疗（PACIFIC 方案），争取长程无疾病进展生存与生活质量。",
+      isPreOp: false,
+      keyFactors,
+    };
+  }
+
+  if (stage === "IIIB") {
     return {
       name: "PACIFIC_IIIB_Cohort",
-      stage: `${stage}期 (局部进展期)`,
+      stage: "IIIB期 (局部进展期)",
       cohortSize: 1850,
       rfs5Year: "35.0% ~ 45.0%",
       os5Year: "42.0% ~ 51.5%",

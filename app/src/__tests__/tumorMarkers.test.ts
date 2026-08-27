@@ -15,9 +15,9 @@ describe('Tumor Markers Evaluation & Physiological Fluctuation Engine', () => {
     expect(cea.key).toBe('cea');
     expect(cea.value).toBe(2.4);
     expect(cea.status).toBe('normal');
-    expect(cea.statusLabel).toBe('正常安全区间');
+    expect(cea.statusLabel).toBe('正常参考区间');
     expect(cea.statusColor).toBe('emerald');
-    expect(cea.reassuranceText).toContain('属于人体自然生理代谢波动');
+    expect(cea.reassuranceText).toContain('早早期肺结节与微浸润腺癌标志物敏感性较低');
   });
 
   it('should correctly evaluate mildly elevated CEA (5.0 < val <= 10.0)', () => {
@@ -35,14 +35,14 @@ describe('Tumor Markers Evaluation & Physiological Fluctuation Engine', () => {
     expect(cea.status).toBe('significantly_elevated');
     expect(cea.statusLabel).toContain('显著升高');
     expect(cea.statusColor).toBe('rose');
-    expect(cea.reassuranceText).toContain('建议携带胸部薄层 CT 影像至胸外科/肿瘤科门诊复查');
+    expect(cea.reassuranceText).toContain('建议携带完整胸部薄层 CT 影像');
   });
 
   it('should evaluate expanded multi-marker panels (CA125, CA19-9, CA15-3, Ferritin) accurately', () => {
     const results = evaluateTumorMarkers({
       cea: 2.1,
       ca125: 18.5,  // normal (ref 35.0)
-      ca199: 45.0,  // mildly elevated (ref 27.0)
+      ca199: 45.0,  // mildly elevated (ref 37.0)
       ca153: 12.0,  // normal (ref 25.0)
       ferritin: 750.0 // significantly elevated (ref 300.0, >600)
     });
@@ -60,6 +60,18 @@ describe('Tumor Markers Evaluation & Physiological Fluctuation Engine', () => {
     const ferritin = results.find(r => r.key === 'ferritin')!;
     expect(ferritin.status).toBe('significantly_elevated');
     expect(ferritin.statusColor).toBe('rose');
+  });
+
+  it('should evaluate gender-specific Ferritin reference ranges correctly', () => {
+    // Female with ferritin = 200 ng/mL -> mildly elevated (ref max 150)
+    const femaleRes = evaluateTumorMarkers({ ferritin: 200 }, 'female');
+    expect(femaleRes[0].status).toBe('mildly_elevated');
+    expect(femaleRes[0].refMax).toBe(150);
+
+    // Male with ferritin = 200 ng/mL -> normal (ref max 300)
+    const maleRes = evaluateTumorMarkers({ ferritin: 200 }, 'male');
+    expect(maleRes[0].status).toBe('normal');
+    expect(maleRes[0].refMax).toBe(300);
   });
 });
 

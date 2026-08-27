@@ -82,8 +82,8 @@ export const TUMOR_MARKER_DEFINITIONS: Record<string, {
     nameZh: "糖类抗原 19-9 (CA19-9)",
     enName: "Carbohydrate Antigen 19-9",
     unit: "U/mL",
-    refMax: 27.0,
-    refRange: "0 ~ 27.0 U/mL",
+    refMax: 37.0,
+    refRange: "0 ~ 37.0 U/mL",
     benignFactors: ["慢性胆囊炎/胆石症", "浅表性胃炎/反流性食管炎", "结肠良性息肉", "轻度肝胆代谢负担"],
     clinicalSignificance: "消化道与肺腺癌辅助参考指标。消化系统常见良性炎症即可导致一过性轻度上浮。"
   },
@@ -101,39 +101,49 @@ export const TUMOR_MARKER_DEFINITIONS: Record<string, {
     enName: "Serum Ferritin",
     unit: "ng/mL",
     refMax: 300.0,
-    refRange: "20 ~ 300.0 ng/mL",
+    refRange: "30 ~ 300.0 ng/mL",
     benignFactors: ["机体良性急性/慢性炎症反应", "口服或注射补铁剂后", "脂肪肝/高血脂代谢综合征", "感冒发热期"],
-    clinicalSignificance: "反映体内铁储备与急性时相反应蛋白。感冒发热、肝功能异常或轻度炎症时极易出现良性偏高。"
+    clinicalSignificance: "反映体内铁储备与急性时相反应蛋白。感冒发热、肝功能异常或轻度炎症时极易出现良性偏高。女性育龄期受月经生理失血影响正常上限通常较低（约150 ng/mL）。"
   }
 };
 
 
 /**
- * Evaluate patient's tumor markers dataset
+ * Evaluate patient's tumor markers dataset with gender-aware reference ranges and clinical safety guardrails.
  */
-export function evaluateTumorMarkers(data?: TumorMarkersData | null): MarkerEvaluation[] {
+export function evaluateTumorMarkers(data?: TumorMarkersData | null, gender?: "female" | "male" | string | null): MarkerEvaluation[] {
   if (!data) return [];
   const results: MarkerEvaluation[] = [];
+  const isFemale = gender === "female";
 
   for (const [key, def] of Object.entries(TUMOR_MARKER_DEFINITIONS)) {
     const rawVal = (data as any)[key];
     if (rawVal !== undefined && rawVal !== null && rawVal !== "" && !isNaN(Number(rawVal))) {
       const val = Number(rawVal);
-      let status: "normal" | "mildly_elevated" | "significantly_elevated" = "normal";
-      let statusLabel = "正常安全区间";
-      let statusColor = "emerald";
-      let reassuranceText = `当前数值处于绝对安全参考范围（${def.refRange}）内。在正常区间内的轻微起伏属于人体自然生理代谢波动，完全无需担心！`;
+      
+      // Gender-specific adjustment for Ferritin
+      let effectiveRefMax = def.refMax;
+      let effectiveRefRange = def.refRange;
+      if (key === "ferritin" && isFemale) {
+        effectiveRefMax = 150.0;
+        effectiveRefRange = "15 ~ 150.0 ng/mL";
+      }
 
-      if (val > def.refMax * 2) {
+      let status: "normal" | "mildly_elevated" | "significantly_elevated" = "normal";
+      let statusLabel = "正常参考区间";
+      let statusColor = "emerald";
+      let reassuranceText = `当前数值处于实验室正常参考范围（${effectiveRefRange}）内。临床提示：早早期肺结节与微浸润腺癌标志物敏感性较低（绝大多数呈阴性），正常数值属于良好基线，但不可替代胸部薄层高分辨 CT（HRCT）的定期随访对比。`;
+
+      if (val > effectiveRefMax * 2) {
         status = "significantly_elevated";
         statusLabel = "显著升高 (需结合CT复查)";
         statusColor = "rose";
-        reassuranceText = `当前数值超过正常上限两倍，建议携带胸部薄层 CT 影像至胸外科/肿瘤科门诊复查，排除气道活动性炎症或病灶代谢活跃。`;
-      } else if (val > def.refMax) {
+        reassuranceText = `当前数值超过正常上限两倍（${val} ${def.unit} > ${effectiveRefMax * 2}），提示体内可能存在局部活动性炎症或细胞代谢活跃。建议携带完整胸部薄层 CT 影像前往胸外科/肿瘤科门诊复查评估。`;
+      } else if (val > effectiveRefMax) {
         status = "mildly_elevated";
         statusLabel = "轻度偏高 (多为良性/生理性)";
         statusColor = "amber";
-        reassuranceText = `当前数值仅略高于参考上限。临床数据显示，超过 85% 的单项轻度偏高由【${def.benignFactors.slice(0, 3).join('、')}】等良性因素引起，以胸部薄层 CT 影像为准，建议 1~2 个月后复查对比。`;
+        reassuranceText = `当前数值略高于参考上限。临床循证数据显示，单项轻度偏高极常见于【${def.benignFactors.slice(0, 3).join('、')}】等良性炎性或生理波动，诊断与随访请严格以胸部薄层 CT 影像为金标准，建议 1~2 个月后同院复查对比。`;
       }
 
       results.push({
@@ -142,8 +152,8 @@ export function evaluateTumorMarkers(data?: TumorMarkersData | null): MarkerEval
         enName: def.enName,
         value: val,
         unit: def.unit,
-        refRange: def.refRange,
-        refMax: def.refMax,
+        refRange: effectiveRefRange,
+        refMax: effectiveRefMax,
         status,
         statusLabel,
         statusColor,

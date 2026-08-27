@@ -80,11 +80,31 @@ export async function generateReport(profile: any) {
   });
 
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.detail || error.error || "生成报告失败");
+    let errorMsg = "生成报告失败";
+    try {
+      const error = await response.json();
+      errorMsg = error.detail || error.error || errorMsg;
+    } catch {
+      try {
+        errorMsg = (await response.text()) || errorMsg;
+      } catch {
+        // ignore
+      }
+    }
+    throw new Error(errorMsg);
   }
   
-  return response.json();
+  const contentType = response.headers.get("content-type") || "";
+  if (contentType.includes("application/json")) {
+    return response.json();
+  }
+
+  const rawText = await response.text();
+  return {
+    evidence_summary: rawText,
+    rawMarkdown: rawText,
+    risk_level: profile.riskLevel || "standard"
+  };
 }
 
 export async function getCases() {
