@@ -306,13 +306,16 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
                 onClick={() => setShowMobileLegend(true)}
                 className="px-2.5 py-1.5 rounded-xl bg-white/95 backdrop-blur-md border border-slate-200 shadow-md text-[11px] font-bold text-slate-700 flex items-center gap-1.5 active:scale-95 transition-all cursor-pointer"
               >
-                <span className="w-2 h-2 rounded-full bg-accent-blue" />
+                <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse" />
                 <span>图例注解</span>
               </button>
             ) : (
-              <div className="bg-white/95 backdrop-blur-md p-3 rounded-2xl border border-slate-200 shadow-xl max-w-[260px] animate-fade-in text-[11px]">
+              <div className="bg-white/95 backdrop-blur-md p-3 rounded-2xl border border-slate-200 shadow-xl max-w-[280px] animate-fade-in text-[11px]">
                 <div className="flex items-center justify-between gap-2 mb-2 pb-1.5 border-b border-slate-100 font-bold text-slate-800">
-                  <span>图谱图例说明</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-blue-600" />
+                    <span>知识图谱图例说明</span>
+                  </div>
                   <button 
                     onClick={() => setShowMobileLegend(false)}
                     className="w-5 h-5 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-xs hover:bg-slate-200 cursor-pointer"
@@ -320,32 +323,49 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
                     ✕
                   </button>
                 </div>
-                <div className="grid grid-cols-2 gap-1.5">
-                  {[
-                    { type: "factor", label: "病理因素", dot: "#2563eb" },
-                    { type: "outcome", label: "临床结局", dot: "#dc2626" },
-                    { type: "evidence", label: "证据节点", dot: "#d97706" },
-                    { type: "guideline", label: "指南建议", dot: "#0d9488" },
-                  ].map((item) => (
-                    <div key={item.type} className="flex items-center gap-1.5">
-                      <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: item.dot }} />
-                      <span className="text-slate-600 font-medium">{item.label}</span>
-                    </div>
-                  ))}
-                </div>
-                <div className="mt-2 pt-1.5 border-t border-slate-100 space-y-1">
+                
+                {/* Node Categories */}
+                <div className="grid grid-cols-2 gap-x-2 gap-y-1.5 mb-2">
                   <div className="flex items-center gap-1.5">
-                    <div className="w-3.5 h-0.5 rounded-full bg-rose-500" />
-                    <span className="text-slate-600 font-medium">风险关联</span>
+                    <div className="w-2.5 h-2.5 rounded-full bg-blue-600 flex-shrink-0" />
+                    <span className="text-slate-600 font-medium">病理特征</span>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <div className="w-3.5 h-0.5 border-t border-dashed border-teal-500" />
-                    <span className="text-slate-600 font-medium">指南关联</span>
+                    <div className="w-2.5 h-2.5 rounded-full bg-teal-600 flex-shrink-0" />
+                    <span className="text-slate-600 font-medium">临床决策/指南</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-2.5 h-2.5 rounded-full bg-emerald-600 flex-shrink-0" />
+                    <span className="text-slate-600 font-medium">根治主导结局</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-2.5 h-2.5 rounded-full bg-rose-600 flex-shrink-0" />
+                    <span className="text-slate-600 font-medium">复发/进展结局</span>
+                  </div>
+                </div>
+
+                {/* Connection Types */}
+                <div className="pt-2 border-t border-slate-100 space-y-1.5 text-[10.5px]">
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-1 rounded-full bg-emerald-600 flex-shrink-0" />
+                    <span className="text-slate-600 font-medium">保护/根治主干 (流动绿光)</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-0.5 rounded-full bg-rose-500 flex-shrink-0" />
+                    <span className="text-slate-600 font-medium">风险关联通路 (红色)</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-0.5 border-t border-dashed border-teal-500 flex-shrink-0" />
+                    <span className="text-slate-600 font-medium">指南规范指引 (青色)</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-0.5 border-t border-dashed border-amber-500 flex-shrink-0" />
+                    <span className="text-slate-600 font-medium">警示随访支线 (琥珀色)</span>
                   </div>
                   {personalMode && (
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-2 h-2 rounded-full bg-teal-500 animate-pulse" />
-                      <span className="text-teal-700 font-semibold">您的专属路径</span>
+                    <div className="flex items-center gap-1.5 pt-1 text-teal-700 font-bold border-t border-slate-100">
+                      <span className="w-2 h-2 rounded-full bg-teal-500 animate-pulse" />
+                      <span>✨ 脉冲光环与流光代表您的专属推演</span>
                     </div>
                   )}
                 </div>
@@ -354,41 +374,55 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
           </div>
 
           {/* Desktop Static Legend (Positioned at Bottom-Right with Frosted Glass Badge, hidden on mobile) */}
-          <div className="hidden sm:block absolute bottom-3 right-3 sm:bottom-4 sm:right-4 z-20 bg-white/92 backdrop-blur-md p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border border-slate-200 shadow-sm max-w-[280px] sm:max-w-xs pointer-events-none">
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[11px] sm:text-xs">
-              {[
-                { type: "factor", label: "病理因素", dot: "#2563eb" },
-                { type: "outcome", label: "临床结局", dot: "#dc2626" },
-                { type: "evidence", label: "证据节点", dot: "#d97706" },
-                { type: "guideline", label: "指南建议", dot: "#0d9488" },
-              ].map((item) => (
-                <div key={item.type} className="flex items-center gap-1.5">
-                  <div
-                    className="w-2 h-2 rounded-full flex-shrink-0"
-                    style={{ backgroundColor: item.dot }}
-                  />
-                  <span className="text-slate-600 font-medium">{item.label}</span>
-                </div>
-              ))}
+          <div className="hidden sm:block absolute bottom-3 right-3 sm:bottom-4 sm:right-4 z-20 bg-white/95 backdrop-blur-md p-3 rounded-2xl border border-slate-200/90 shadow-md max-w-xs pointer-events-none select-none text-[11px]">
+            {/* Node Category Grid */}
+            <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
+              <div className="flex items-center gap-1.5">
+                <div className="w-2.5 h-2.5 rounded-full bg-blue-600 flex-shrink-0 shadow-xs" />
+                <span className="text-slate-700 font-medium">病理特征</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <div className="w-2.5 h-2.5 rounded-full bg-teal-600 flex-shrink-0 shadow-xs" />
+                <span className="text-slate-700 font-medium">临床决策/指南</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <div className="w-2.5 h-2.5 rounded-full bg-emerald-600 flex-shrink-0 shadow-xs" />
+                <span className="text-slate-700 font-medium">根治主导结局</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <div className="w-2.5 h-2.5 rounded-full bg-rose-600 flex-shrink-0 shadow-xs" />
+                <span className="text-slate-700 font-medium">复发/进展结局</span>
+              </div>
             </div>
 
-            <div className="w-full mt-2 pt-1.5 border-t border-slate-100 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] sm:text-xs">
-              <div className="flex items-center gap-1.5">
-                <div className="w-3.5 h-0.5 rounded-full bg-rose-500" />
-                <span className="text-slate-600 font-medium">风险关联</span>
+            {/* Causal Line Types */}
+            <div className="w-full mt-2.5 pt-2 border-t border-slate-100 space-y-1.5 text-[11px]">
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-1 rounded-full bg-emerald-600 flex-shrink-0" />
+                <span className="text-slate-600 font-medium">保护/根治主干 (流动绿光)</span>
               </div>
-              <div className="flex items-center gap-1.5">
-                <div className="w-3.5 h-0.5 border-t border-dashed border-teal-500" />
-                <span className="text-slate-600 font-medium">指南关联</span>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-0.5 rounded-full bg-rose-500 flex-shrink-0" />
+                <span className="text-slate-600 font-medium">风险关联通路 (红色)</span>
               </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-0.5 border-t border-dashed border-teal-500 flex-shrink-0" />
+                <span className="text-slate-600 font-medium">指南规范指引 (青色)</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-0.5 border-t border-dashed border-amber-500 flex-shrink-0" />
+                <span className="text-slate-600 font-medium">警示随访支线 (琥珀色)</span>
+              </div>
+
               {personalMode && (
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1.5 pt-1 text-teal-800 font-semibold border-t border-slate-100">
                   <div className="w-2 h-2 rounded-full bg-teal-500 animate-pulse" />
-                  <span className="text-teal-700 font-semibold">您的专属路径</span>
+                  <span>✨ 脉冲光环与流光代表您的专属推演</span>
                 </div>
               )}
-              <div className="flex items-center gap-1 text-slate-400 text-[10px] w-full mt-0.5">
-                <span>💡 点击任意连线/药丸徽章查看文献</span>
+              
+              <div className="flex items-center gap-1 text-slate-400 text-[10px] w-full pt-0.5">
+                <span>💡 点击任意连线/药丸徽章查看顶刊文献依据</span>
               </div>
             </div>
           </div>
