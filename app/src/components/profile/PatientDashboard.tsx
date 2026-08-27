@@ -24,6 +24,8 @@ import {
   Image as ImageIcon,
   Dna,
   Award,
+  Pill,
+  Sparkles,
 } from "lucide-react";
 import dynamic from "next/dynamic";
 
@@ -32,6 +34,7 @@ import SimilarCasesCard from "./SimilarCasesCard";
 import { NoduleTimelineChart } from "./NoduleTimelineChart";
 import { GlossaryTooltip } from "@/components/common/GlossaryTooltip";
 import ProfileExportModal from "./ProfileExportModal";
+import { DdiCheckerVisual } from "@/components/wiki/visuals/DdiCheckerVisual";
 
 
 // Dynamically import ReportUploader modal for instant dashboard rendering
@@ -60,6 +63,38 @@ export default function PatientDashboard() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
+  const [showDdiModal, setShowDdiModal] = useState(false);
+
+  const { recommendedTargetDrugId, matchedGeneLabel } = React.useMemo(() => {
+    if (!profile) return { recommendedTargetDrugId: 'osimertinib', matchedGeneLabel: '常规用药参考' };
+    const mutations = (Array.isArray(profile.geneMutations) && profile.geneMutations.length > 0)
+      ? profile.geneMutations
+      : (Array.isArray(profile.molecular?.mutations) && profile.molecular.mutations.length > 0)
+      ? profile.molecular.mutations
+      : (profile.egfr === 'positive' ? [{ gene: 'EGFR', subtype: '敏感突变' }] : []);
+    
+    const egfrMut = mutations.find((m: any) => m.gene === 'EGFR');
+    const alkMut = mutations.find((m: any) => m.gene === 'ALK');
+    const krasMut = mutations.find((m: any) => m.gene === 'KRAS');
+    const metMut = mutations.find((m: any) => m.gene === 'MET');
+
+    if (egfrMut || profile.egfr === 'positive') {
+      return { recommendedTargetDrugId: 'osimertinib', matchedGeneLabel: `EGFR 突变 (${egfrMut?.subtype || '敏感突变'})` };
+    }
+    if (alkMut) {
+      return { recommendedTargetDrugId: 'alectinib', matchedGeneLabel: `ALK 融合 (${alkMut?.subtype || '阳性'})` };
+    }
+    if (krasMut) {
+      return { recommendedTargetDrugId: 'sotorasib', matchedGeneLabel: `KRAS 突变 (${krasMut?.subtype || 'G12C'})` };
+    }
+    if (metMut) {
+      return { recommendedTargetDrugId: 'savolitinib', matchedGeneLabel: `MET 异常 (${metMut?.subtype || 'exon 14'})` };
+    }
+    return { 
+      recommendedTargetDrugId: 'osimertinib', 
+      matchedGeneLabel: profile.stage ? `${profile.stage}期常规辅助用药评估` : '常规靶向辅助用药评估' 
+    };
+  }, [profile]);
 
   const loadProfile = async (showLoadingSpinner = true) => {
     try {
@@ -268,7 +303,20 @@ export default function PatientDashboard() {
             <ArrowRight className="w-3 h-3 text-indigo-400 transition-transform group-hover:translate-x-0.5 flex-shrink-0" />
           </Link>
 
-          {/* 2. Export Profile Poster Image */}
+          {/* 2. DDI Self-Check Button */}
+          <button
+            onClick={() => setShowDdiModal(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-purple-800 bg-purple-50 hover:bg-purple-100 border border-purple-200 transition-all cursor-pointer shadow-2xs group whitespace-nowrap"
+            title="靶向药与慢病用药相互作用 (DDI) 自检排查"
+          >
+            <Pill className="w-3.5 h-3.5 text-purple-600 transition-transform group-hover:scale-110 flex-shrink-0" />
+            <span>用药自检</span>
+            <span className="text-[10px] px-1 py-0.2 rounded bg-purple-200/70 text-purple-900 font-bold hidden sm:inline">
+              DDI
+            </span>
+          </button>
+
+          {/* 3. Export Profile Poster Image */}
           <button
             onClick={() => setShowExportModal(true)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-teal-800 bg-teal-50 hover:bg-teal-100 border border-teal-200 transition-all cursor-pointer shadow-2xs group whitespace-nowrap"
@@ -278,7 +326,7 @@ export default function PatientDashboard() {
             <span>导出图片</span>
           </button>
 
-          {/* 3. Edit Profile */}
+          {/* 4. Edit Profile */}
           <button 
             onClick={() => setShowUpdateModal(true)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-blue-800 bg-blue-50 hover:bg-blue-100 border border-blue-200 transition-all cursor-pointer shadow-2xs group whitespace-nowrap"
@@ -288,7 +336,7 @@ export default function PatientDashboard() {
             <span>修改档案</span>
           </button>
 
-          {/* 4. Clear/Delete Profile */}
+          {/* 5. Clear/Delete Profile */}
           <button 
             onClick={() => setShowDeleteModal(true)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-rose-800 bg-rose-50 hover:bg-rose-100 border border-rose-200 transition-all cursor-pointer shadow-2xs group whitespace-nowrap"
@@ -861,6 +909,31 @@ export default function PatientDashboard() {
                 </div>
               )}
 
+              {/* DDI Drug Interaction Quick Action Banner */}
+              <div className="p-3.5 bg-gradient-to-r from-purple-50/90 via-indigo-50/70 to-blue-50/80 rounded-2xl border border-purple-200/90 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs shadow-2xs">
+                <div className="space-y-1">
+                  <div className="font-extrabold text-purple-950 flex items-center gap-1.5">
+                    <Pill className="w-4 h-4 text-purple-600 shrink-0" />
+                    <span>靶向药与慢病用药相互作用 (DDI) 动态排查：</span>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-200/80 text-purple-900 font-bold">
+                      已关联 {matchedGeneLabel}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-purple-900/90">
+                    正在服用降压降脂药、胃药（奥美拉唑）、抗凝抗栓药或日常西柚？一键自检合并用药禁忌并生成 24 小时错峰服药规划。
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowDdiModal(true)}
+                  className="px-3.5 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold text-xs rounded-xl shadow-sm flex items-center gap-1.5 shrink-0 transition-all cursor-pointer"
+                >
+                  <Pill className="w-3.5 h-3.5" />
+                  <span>一键自检当前用药</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
               {/* Clinical Guardrail & Guidance */}
               {isStageIA && (hasEgfr || hasAlk) ? (
                 <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-200 text-xs text-emerald-950 flex items-start gap-2">
@@ -1047,6 +1120,20 @@ export default function PatientDashboard() {
           profile={profile}
           onClose={() => setShowExportModal(false)}
         />
+      )}
+
+      {/* DDI Drug-Drug Interaction Modal */}
+      {showDdiModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in overflow-y-auto">
+          <div className="relative w-full max-w-4xl max-h-[92vh] overflow-y-auto rounded-3xl shadow-2xl my-auto">
+            <DdiCheckerVisual
+              initialTargetDrugId={recommendedTargetDrugId}
+              geneInfo={matchedGeneLabel}
+              isModalMode={true}
+              onClose={() => setShowDdiModal(false)}
+            />
+          </div>
+        </div>
       )}
       
     </div>

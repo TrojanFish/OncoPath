@@ -23,13 +23,29 @@ import {
   TargetedDrug
 } from "@/lib/ddiData";
 
-export function DdiCheckerVisual() {
-  const [selectedTargetId, setSelectedTargetId] = useState<string>("osimertinib");
-  const [selectedChronicIds, setSelectedChronicIds] = useState<string[]>([
-    "omeprazole",
-    "atorvastatin",
-    "amlodipine"
-  ]);
+export interface DdiCheckerVisualProps {
+  initialTargetDrugId?: string;
+  initialChronicDrugIds?: string[];
+  patientName?: string;
+  geneInfo?: string;
+  isModalMode?: boolean;
+  onClose?: () => void;
+}
+
+export function DdiCheckerVisual({
+  initialTargetDrugId,
+  initialChronicDrugIds,
+  patientName,
+  geneInfo,
+  isModalMode = false,
+  onClose,
+}: DdiCheckerVisualProps = {}) {
+  const [selectedTargetId, setSelectedTargetId] = useState<string>(initialTargetDrugId || "osimertinib");
+  const [selectedChronicIds, setSelectedChronicIds] = useState<string[]>(
+    initialChronicDrugIds && initialChronicDrugIds.length > 0 
+      ? initialChronicDrugIds 
+      : ["omeprazole", "atorvastatin", "amlodipine"]
+  );
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState<string>("all");
 
@@ -70,24 +86,52 @@ export function DdiCheckerVisual() {
 
   return (
     <div className="bg-slate-900 rounded-3xl p-3.5 sm:p-6 text-white border border-slate-800 shadow-xl select-none space-y-5">
+      {/* Patient Profile Linked Banner */}
+      {geneInfo && (
+        <div className="bg-gradient-to-r from-blue-950/80 to-indigo-950/80 border border-blue-700/80 p-3 sm:p-3.5 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs text-blue-200 shadow-md">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+            <span>
+              已根据患者档案【<strong>{geneInfo}</strong>】自动一键关联靶向药：
+              <strong className="text-white ml-1">{selectedTarget.genericName} ({selectedTarget.brandName})</strong>
+            </span>
+          </div>
+          <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-400/40 shrink-0 font-bold self-start sm:self-auto">
+            ✓ 档案精准互联
+          </span>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-4 border-b border-slate-800">
         <div>
-          <div className="flex items-center gap-2">
-            <span className="p-2 rounded-xl bg-blue-500/20 text-blue-400 border border-blue-500/30">
-              <Pill className="w-4 h-4 sm:w-5 sm:h-5" />
-            </span>
-            <div>
-              <h3 className="text-sm sm:text-base font-extrabold text-white tracking-tight flex items-center gap-2">
-                <span>靶向药与日常慢病用药相互作用 (DDI) 动态自检</span>
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-mono">
-                  临床药学级
-                </span>
-              </h3>
-              <p className="text-[11px] text-slate-400 mt-0.5">
-                覆盖 EGFR / ALK / KRAS 靶向药 vs 抑酸胃药、降压降脂、抗凝抗栓及日常西柚饮食
-              </p>
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <span className="p-2 rounded-xl bg-blue-500/20 text-blue-400 border border-blue-500/30">
+                <Pill className="w-4 h-4 sm:w-5 sm:h-5" />
+              </span>
+              <div>
+                <h3 className="text-sm sm:text-base font-extrabold text-white tracking-tight flex items-center gap-2">
+                  <span>靶向药与日常慢病用药相互作用 (DDI) 动态自检</span>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-mono">
+                    临床药学级
+                  </span>
+                </h3>
+                <p className="text-[11px] text-slate-400 mt-0.5">
+                  覆盖 EGFR / ALK / KRAS 靶向药 vs 抑酸胃药、降压降脂、抗凝抗栓及日常西柚饮食
+                </p>
+              </div>
             </div>
+
+            {isModalMode && onClose && (
+              <button
+                type="button"
+                onClick={onClose}
+                className="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer shrink-0"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
           </div>
         </div>
         
