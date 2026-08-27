@@ -707,7 +707,7 @@ export default function PatientDashboard() {
             <span className="text-xs font-semibold text-indigo-700 bg-indigo-50 px-2.5 py-0.5 rounded-full border border-indigo-200 whitespace-nowrap">
               {(() => {
                 const mutations = profile.geneMutations || profile.molecular?.mutations || [];
-                const status = profile.molecular?.testStatus || (mutations.length > 0 ? "tested" : (profile.egfr ? "tested" : "not_tested"));
+                const status = profile.molecularTestStatus || profile.molecular?.testStatus || (mutations.length > 0 ? "tested" : (profile.egfr === 'positive' ? "tested" : (profile.egfr === 'negative' ? 'negative' : "not_tested")));
                 if (status === "negative") return "全野生型 (全阴性)";
                 if (status === "not_tested") return "未做基因检测";
                 if (status === "in_progress") return "送检中";
@@ -719,8 +719,12 @@ export default function PatientDashboard() {
 
         {/* Content Body */}
         {(() => {
-          const mutations = profile.geneMutations || profile.molecular?.mutations || (profile.egfr === 'positive' ? [{ id: 'mut_egfr', gene: 'EGFR', subtype: '敏感突变', status: 'positive' }] : []);
-          const testStatus = profile.molecular?.testStatus || (mutations.length > 0 ? "tested" : (profile.egfr ? "tested" : "not_tested"));
+          const mutations = (Array.isArray(profile.geneMutations) && profile.geneMutations.length > 0)
+            ? profile.geneMutations
+            : (Array.isArray(profile.molecular?.mutations) && profile.molecular.mutations.length > 0)
+            ? profile.molecular.mutations
+            : (profile.egfr === 'positive' ? [{ id: 'mut_egfr', gene: 'EGFR', subtype: '敏感突变', status: 'positive' }] : []);
+          const testStatus = profile.molecularTestStatus || profile.molecular?.testStatus || (mutations.length > 0 ? "tested" : (profile.egfr === 'positive' ? "tested" : (profile.egfr === 'negative' ? 'negative' : "not_tested")));
           const pdl1 = profile.pdl1Tps || profile.molecular?.pdl1Tps;
           const isStageIA = profile.stage?.startsWith("IA");
           const hasEgfr = mutations.some((m: any) => m.gene === "EGFR");

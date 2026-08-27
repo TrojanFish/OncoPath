@@ -234,7 +234,17 @@ export async function POST(request: Request) {
 
       // Ingest Molecular / Gene Mutation NGS Event if present
       const molecularMutations = data.geneMutations || data.molecular?.mutations || [];
-      if (Array.isArray(molecularMutations) && molecularMutations.length > 0) {
+      const testStatus = data.molecularTestStatus || data.molecular?.testStatus || (Array.isArray(molecularMutations) && molecularMutations.length > 0 ? "tested" : "not_tested");
+
+      // Clean up previous molecular events for this user to avoid stale duplicate records
+      await prisma.timelineEvent.deleteMany({
+        where: {
+          userId: targetUserId,
+          category: 'molecular'
+        }
+      }).catch(() => {});
+
+      if (testStatus === "tested" && Array.isArray(molecularMutations) && molecularMutations.length > 0) {
         const geneNames = molecularMutations.map((m: any) => `${m.gene}${m.subtype ? ` (${m.subtype})` : ''}`);
         const hasCoMutation = molecularMutations.some((m: any) => m.isComutation || m.gene === 'TP53');
         
@@ -250,6 +260,7 @@ export async function POST(request: Request) {
             summary: `检出基因变异：${geneNames.join('、')}${data.pdl1Tps ? ` · PD-L1 TPS: ${data.pdl1Tps}` : ''}`,
             keyFindings: {
               mutations: molecularMutations,
+              testStatus: "tested",
               pdl1Tps: data.pdl1Tps || data.molecular?.pdl1Tps || undefined,
               testMethod: data.molecular?.testMethod || 'NGS_panel',
             },
@@ -259,6 +270,27 @@ export async function POST(request: Request) {
               hasCoMutation ? '伴随突变' : '驱动基因'
             ]),
             riskStatus: hasCoMutation ? 'warning' : 'normal',
+          }
+        });
+      } else if (testStatus === "negative") {
+        await prisma.timelineEvent.create({
+          data: {
+            userId: targetUserId,
+            profileId: profile.id,
+            eventDate: data.examDate ? new Date(data.examDate) : new Date(),
+            category: 'molecular',
+            subType: 'NGS',
+            hospital: data.hospital || '分子病理与基因诊断中心',
+            title: '肿瘤驱动基因检测 (全野生型/阴性)',
+            summary: '常见驱动基因（EGFR、ALK、ROS1、KRAS 等）未检出致病突变变异。',
+            keyFindings: {
+              mutations: [],
+              testStatus: "negative",
+              pdl1Tps: data.pdl1Tps || data.molecular?.pdl1Tps || undefined,
+              testMethod: data.molecular?.testMethod || 'NGS_panel',
+            },
+            tags: JSON.stringify(['全野生型', '阴性', '无突变']),
+            riskStatus: 'normal',
           }
         });
       }
@@ -294,12 +326,14 @@ export async function POST(request: Request) {
     }
 
     // Determine EGFR status from geneMutations if present
-    const hasEgfr = (data.geneMutations || data.molecular?.mutations || []).some(
+    const molecularMutations = data.geneMutations || data.molecular?.mutations || [];
+    const testStatus = data.molecularTestStatus || data.molecular?.testStatus || (Array.isArray(molecularMutations) && molecularMutations.length > 0 ? "tested" : "not_tested");
+    const hasEgfr = molecularMutations.some(
       (m: any) => m.gene === 'EGFR' && m.status !== 'negative'
     );
     const egfrStatus = hasEgfr 
       ? 'positive' 
-      : data.egfr || (data.molecular?.testStatus === 'not_tested' ? 'not_tested' : 'unknown');
+      : (testStatus === 'not_tested' ? 'not_tested' : (testStatus === 'negative' ? 'negative' : (data.egfr || 'unknown')));
 
     // Return enriched profile object with normalized strings for UI
     const enriched = {
@@ -312,12 +346,14 @@ export async function POST(request: Request) {
       clinicalRecommendation: data.clinicalRecommendation || nextAction,
 
       // Molecular & Gene Mutation Fields
-      geneMutations: data.geneMutations || data.molecular?.mutations || [],
-      molecular: data.molecular || {
-        testStatus: data.geneMutations && data.geneMutations.length > 0 ? 'tested' : (data.molecularTestStatus || 'not_tested'),
-        mutations: data.geneMutations || [],
-        pdl1Tps: data.pdl1Tps || 'unknown',
+      geneMutations: molecularMutations,
+      molecular: {
+        testStatus: testStatus,
+        testMethod: data.molecular?.testMethod || 'NGS_panel',
+        mutations: molecularMutations,
+        pdl1Tps: data.pdl1Tps || data.molecular?.pdl1Tps || 'unknown',
       },
+      molecularTestStatus: testStatus,
       pdl1Tps: data.pdl1Tps || data.molecular?.pdl1Tps || undefined,
       egfr: egfrStatus,
 
@@ -327,7 +363,8 @@ export async function POST(request: Request) {
       followUpHistory: data.followUpHistory || [],
       tumorMarkers: data.tumorMarkers || null,
 
-      gender: profile.sex,
+      gender: profile.sex || 'female',
+      sex: profile.sex || 'female',
       stas: profile.stas ? 'positive' : 'negative',
       vpi: profile.vpi ? 'positive' : 'negative',
       lvi: profile.lvi ? 'positive' : 'negative',
@@ -425,10 +462,96 @@ export async function GET(request: Request) {
       marginStatus: profile.marginStatus,
     });
 
+    // Query latest molecular event for gene mutations
+    const molecularEvent = await prisma.timelineEvent.findFirst({
+      where: {
+        OR: [
+          { profileId: profile.id, category: 'molecular' },
+          ...(profile.userId ? [{ userId: profile.userId, category: 'molecular' }] : []),
+          { profileId: profile.id, subType: 'NGS' },
+          ...(profile.userId ? [{ userId: profile.userId, subType: 'NGS' }] : [])
+        ]
+      },
+      orderBy: { eventDate: 'desc' }
+    });
+
+    const molecularKeyFindings: any = (molecularEvent?.keyFindings as any) || {};
+    const geneMutations = Array.isArray(molecularKeyFindings.mutations) ? molecularKeyFindings.mutations : [];
+    const testStatus = molecularKeyFindings.testStatus || (geneMutations.length > 0 ? 'tested' : (molecularEvent ? 'negative' : 'not_tested'));
+    const pdl1Tps = molecularKeyFindings.pdl1Tps;
+    const testMethod = molecularKeyFindings.testMethod || 'NGS_panel';
+    const hasEgfr = geneMutations.some((m: any) => m.gene === 'EGFR' && m.status !== 'negative');
+    const egfrStatus = hasEgfr ? 'positive' : (testStatus === 'not_tested' ? 'not_tested' : (testStatus === 'negative' ? 'negative' : 'unknown'));
+
+    // Query serology events for tumor markers
+    const serologyEvent = await prisma.timelineEvent.findFirst({
+      where: {
+        OR: [
+          { profileId: profile.id, category: 'serology' },
+          ...(profile.userId ? [{ userId: profile.userId, category: 'serology' }] : []),
+          { profileId: profile.id, subType: 'TumorMarkers' },
+          ...(profile.userId ? [{ userId: profile.userId, subType: 'TumorMarkers' }] : [])
+        ]
+      },
+      orderBy: { eventDate: 'desc' }
+    });
+    const tumorMarkers = (serologyEvent?.keyFindings as any) || null;
+
+    // Query imaging events for CT features, location, and follow-up history
+    const imagingEvents = await prisma.timelineEvent.findMany({
+      where: {
+        OR: [
+          { profileId: profile.id, category: 'imaging' },
+          ...(profile.userId ? [{ userId: profile.userId, category: 'imaging' }] : [])
+        ]
+      },
+      orderBy: { eventDate: 'asc' }
+    });
+
+    const latestImaging = imagingEvents[imagingEvents.length - 1];
+    const latestImagingFindings: any = (latestImaging?.keyFindings as any) || {};
+
+    const followUpHistory = imagingEvents.map(ev => {
+      const findings: any = ev.keyFindings || {};
+      return {
+        id: ev.id,
+        date: ev.eventDate ? ev.eventDate.toISOString().split('T')[0] : '',
+        tumorSize: findings.sizeMm ? findings.sizeMm / 10 : undefined,
+        solidSize: findings.solidSize,
+        ctr: findings.ctr,
+        noduleType: findings.noduleType || 'mixed_ggo',
+        lungRads: findings.lungRads,
+        note: ev.summary || ev.title,
+      };
+    });
+
     const enriched = {
       ...profile,
-      gender: profile.sex || 'male',
-      sex: profile.sex || 'male',
+      reportType: profile.surgeryType === 'unknown' ? 'ct_imaging' : 'pathology',
+      noduleLocation: latestImagingFindings.location || '右肺上叶尖段',
+      imagingFeatures: latestImagingFindings.imagingFeatures || [],
+      lungRads: latestImagingFindings.lungRads || null,
+      malignancyRisk: profile.riskLevel || 'low',
+      clinicalRecommendation: profile.nextAction,
+
+      // Molecular & Gene Mutations (NGS Panel)
+      geneMutations: geneMutations,
+      molecular: {
+        testStatus: testStatus,
+        testMethod: testMethod,
+        mutations: geneMutations,
+        pdl1Tps: pdl1Tps || 'unknown',
+      },
+      molecularTestStatus: testStatus,
+      pdl1Tps: pdl1Tps,
+      egfr: egfrStatus,
+
+      // Serology & Imaging History
+      tumorMarkers: tumorMarkers,
+      followUpHistory: followUpHistory,
+
+      gender: profile.sex || 'female',
+      sex: profile.sex || 'female',
       stas: profile.stas ? 'positive' : 'negative',
       vpi: profile.vpi ? 'positive' : 'negative',
       lvi: profile.lvi ? 'positive' : 'negative',

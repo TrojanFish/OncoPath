@@ -226,6 +226,22 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
   const [stagingPreview, setStagingPreview] = useState<any>(null);
 
   useEffect(() => {
+    if (initialData) {
+      const muts = Array.isArray(initialData.geneMutations) 
+        ? initialData.geneMutations 
+        : (Array.isArray(initialData.molecular?.mutations) ? initialData.molecular.mutations : []);
+      const status = initialData.molecularTestStatus || initialData.molecular?.testStatus || (
+        muts.length > 0 ? "tested" : (initialData.egfr === 'positive' ? "tested" : (initialData.egfr === 'negative' ? 'negative' : "not_tested"))
+      );
+      setParsedData({
+        ...initialData,
+        geneMutations: muts,
+        molecularTestStatus: status,
+      });
+    }
+  }, [initialData]);
+
+  useEffect(() => {
     if (parsedData) {
       const tumorVal = parsedData.tumorSize !== "" && parsedData.tumorSize != null ? parseFloat(String(parsedData.tumorSize)) : 1.5;
       const solidVal = parsedData.solidSize !== "" && parsedData.solidSize != null ? parseFloat(String(parsedData.solidSize)) : 0.8;
@@ -451,17 +467,22 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
         // Molecular & Gene Mutations
         geneMutations: Array.isArray(parsedData.geneMutations) 
           ? parsedData.geneMutations 
-          : (Array.isArray(base.geneMutations) ? base.geneMutations : []),
-        molecular: parsedData.molecular || {
-          testStatus: parsedData.molecularTestStatus || (Array.isArray(parsedData.geneMutations) && parsedData.geneMutations.length > 0 ? "tested" : (base.molecular?.testStatus || "not_tested")),
-          testMethod: parsedData.molecular?.testMethod || "NGS_panel",
-          mutations: Array.isArray(parsedData.geneMutations) ? parsedData.geneMutations : (base.geneMutations || []),
-          pdl1Tps: parsedData.pdl1Tps || base.pdl1Tps || "unknown",
+          : (Array.isArray(base.geneMutations) ? base.geneMutations : (Array.isArray(base.molecular?.mutations) ? base.molecular.mutations : [])),
+        molecular: {
+          testStatus: parsedData.molecularTestStatus || (
+            (Array.isArray(parsedData.geneMutations) && parsedData.geneMutations.length > 0) ? "tested" : (base.molecularTestStatus || base.molecular?.testStatus || "not_tested")
+          ),
+          testMethod: parsedData.molecular?.testMethod || base.molecular?.testMethod || "NGS_panel",
+          mutations: Array.isArray(parsedData.geneMutations) ? parsedData.geneMutations : (base.geneMutations || base.molecular?.mutations || []),
+          pdl1Tps: parsedData.pdl1Tps || base.pdl1Tps || base.molecular?.pdl1Tps || "unknown",
         },
-        pdl1Tps: parsedData.pdl1Tps || base.pdl1Tps || undefined,
+        molecularTestStatus: parsedData.molecularTestStatus || (
+          (Array.isArray(parsedData.geneMutations) && parsedData.geneMutations.length > 0) ? "tested" : (base.molecularTestStatus || base.molecular?.testStatus || "not_tested")
+        ),
+        pdl1Tps: parsedData.pdl1Tps || base.pdl1Tps || base.molecular?.pdl1Tps || undefined,
         egfr: (Array.isArray(parsedData.geneMutations) && parsedData.geneMutations.some((m: any) => m.gene === "EGFR" && m.status !== "negative"))
           ? "positive"
-          : (parsedData.molecularTestStatus === "not_tested" ? "not_tested" : (parsedData.egfr || base.egfr || "unknown")),
+          : (parsedData.molecularTestStatus === "not_tested" ? "not_tested" : (parsedData.molecularTestStatus === "negative" ? "negative" : (parsedData.egfr || base.egfr || "unknown"))),
 
         // Systemic Staging & M0 Confirmation
         brainMri: parsedData.brainMri || base.brainMri || "not_performed",
