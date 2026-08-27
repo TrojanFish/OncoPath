@@ -21,6 +21,7 @@ import type { PatientProfile } from "@/lib/types";
 import { getGuestId } from "@/lib/guest";
 import { GlossaryTooltip } from "@/components/common/GlossaryTooltip";
 import ReasoningTicker from "@/components/profile/ReasoningTicker";
+import { ONCOPATH_LOGO_DATA_URI } from "@/lib/brandLogo";
 
 
 export default function EvidenceReportPage() {
@@ -1004,7 +1005,7 @@ export default function EvidenceReportPage() {
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-xl overflow-hidden shadow-md flex-shrink-0 bg-slate-800">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/logo.png" alt="OncoPath Logo" className="w-full h-full object-cover" crossOrigin="anonymous" />
+                <img src={ONCOPATH_LOGO_DATA_URI} alt="OncoPath Logo" className="w-full h-full object-cover" />
               </div>
               <div>
                 <div className="text-xs font-black tracking-wider text-white">OncoPath · 肺癌循证决策系统</div>

@@ -24,6 +24,7 @@ import {
 import { toPng } from "html-to-image";
 import type { PatientProfile } from "@/lib/types";
 import { getClinicalCohortForProfile } from "@/lib/staging";
+import { ONCOPATH_LOGO_DATA_URI } from "@/lib/brandLogo";
 
 interface ProfileExportModalProps {
   profile: PatientProfile;
@@ -289,7 +290,7 @@ export default function ProfileExportModal({ profile, onClose }: ProfileExportMo
             <div className="flex items-center gap-2.5">
               <div className="w-9 h-9 rounded-xl overflow-hidden shadow-md shadow-blue-500/30 shrink-0 bg-slate-800">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/logo.png" alt="OncoPath Logo" className="w-full h-full object-cover" crossOrigin="anonymous" />
+                <img src={ONCOPATH_LOGO_DATA_URI} alt="OncoPath Logo" className="w-full h-full object-cover" />
               </div>
               <div>
                 <div className="text-sm font-extrabold text-white tracking-tight flex items-center gap-1.5">

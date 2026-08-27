@@ -14,8 +14,8 @@ import {
   Activity,
   Dna,
   ShieldCheck
-} from "lucide-react";
 import { TimelineEventItem } from "@/lib/timelineTypes";
+import { ONCOPATH_LOGO_DATA_URI } from "@/lib/brandLogo";
 
 interface DoctorSummaryModalProps {
   events: TimelineEventItem[];
@@ -189,7 +189,7 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl overflow-hidden shrink-0 shadow-xs bg-slate-100">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/logo.png" alt="OncoPath Logo" className="w-full h-full object-cover" crossOrigin="anonymous" />
+                <img src={ONCOPATH_LOGO_DATA_URI} alt="OncoPath Logo" className="w-full h-full object-cover" />
               </div>
               <div>
                 <h1 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">

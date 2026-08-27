@@ -6,6 +6,7 @@ import { X, Download, Share2, Check, Sparkles, HeartPulse, ShieldCheck, BookOpen
 import { toPng } from "html-to-image";
 import type { WikiTopic } from "@/lib/wikiData";
 import { RISK_LEVEL_CONFIG, WIKI_CATEGORIES } from "@/lib/wikiData";
+import { ONCOPATH_LOGO_DATA_URI } from "@/lib/brandLogo";
 import WikiTopicIcon from "./WikiTopicIcon";
 import { WikiVisualRenderer } from "./WikiVisualRenderer";
 
@@ -139,7 +140,7 @@ export default function WikiSharePosterModal({ topic, visualDomHtml, onClose }: 
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-xl overflow-hidden shadow-md flex-shrink-0 bg-slate-800">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/logo.png" alt="OncoPath Logo" className="w-full h-full object-cover" crossOrigin="anonymous" />
+                <img src={ONCOPATH_LOGO_DATA_URI} alt="OncoPath Logo" className="w-full h-full object-cover" />
               </div>
               <div>
                 <div className="text-xs font-black tracking-wider text-white">OncoPath · 肺癌循证决策系统</div>
