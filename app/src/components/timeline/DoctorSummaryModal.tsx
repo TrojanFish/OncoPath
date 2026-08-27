@@ -14,6 +14,7 @@ import {
   Activity,
   Dna,
   ShieldCheck
+} from "lucide-react";
 import { TimelineEventItem } from "@/lib/timelineTypes";
 import { ONCOPATH_LOGO_DATA_URI } from "@/lib/brandLogo";
 
