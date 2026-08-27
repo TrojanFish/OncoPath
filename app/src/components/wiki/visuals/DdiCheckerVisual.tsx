@@ -211,23 +211,24 @@ export function DdiCheckerVisual({
                 key={d.id}
                 type="button"
                 onClick={() => setSelectedTargetId(d.id)}
-                className={`p-2.5 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
+                title={`${d.brandName} (${d.genericName})`}
+                className={`p-2 sm:p-2.5 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between min-w-0 w-full overflow-hidden ${
                   isSelected
                     ? "bg-blue-50/90 border-blue-500 shadow-sm ring-1 ring-blue-400/60 text-blue-950"
                     : "bg-white border-slate-200 hover:bg-slate-50 text-slate-700 hover:border-slate-300"
                 }`}
               >
-                <div>
-                  <div className="flex items-center justify-between gap-1 mb-1">
-                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${
+                <div className="min-w-0 w-full">
+                  <div className="flex items-center justify-between gap-1 mb-1 min-w-0 w-full">
+                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md shrink-0 ${
                       isSelected ? "bg-blue-200/80 text-blue-900" : "bg-slate-100 text-slate-600"
                     }`}>
                       {d.target}
                     </span>
-                    <span className="text-[9px] text-slate-400 font-medium truncate">{d.generation}</span>
+                    <span className="text-[9px] text-slate-400 font-medium truncate shrink-1 min-w-0">{d.generation}</span>
                   </div>
-                  <div className="text-xs font-bold text-slate-900 truncate">{d.brandName.split(" / ")[0]}</div>
-                  <div className="text-[10px] text-slate-500 truncate">{d.genericName}</div>
+                  <div className="text-xs font-bold text-slate-900 truncate w-full min-w-0">{d.brandName.split(" / ")[0]}</div>
+                  <div className="text-[10px] text-slate-500 truncate w-full min-w-0 mt-0.5">{d.genericName}</div>
                 </div>
               </button>
             );
