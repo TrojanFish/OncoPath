@@ -13,10 +13,12 @@ import {
   TestTube2, 
   Activity,
   Dna,
-  ShieldCheck
+  ShieldCheck,
+  FileText
 } from "lucide-react";
 import { TimelineEventItem } from "@/lib/timelineTypes";
 import { ONCOPATH_LOGO_DATA_URI } from "@/lib/brandLogo";
+import { exportElementToA4Pdf } from "@/lib/pdfExporter";
 
 interface DoctorSummaryModalProps {
   events: TimelineEventItem[];
@@ -25,7 +27,9 @@ interface DoctorSummaryModalProps {
 
 export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryModalProps) {
   const [isExportingImage, setIsExportingImage] = useState(false);
+  const [isExportingPdf, setIsExportingPdf] = useState(false);
   const [downloadSuccess, setDownloadSuccess] = useState(false);
+  const [pdfSuccess, setPdfSuccess] = useState(false);
   const printableDocRef = useRef<HTMLDivElement>(null);
 
   // Sort events chronologically descending
@@ -38,11 +42,10 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
   const serologyList = sortedEvents.filter((e) => e.category === "serology");
   const milestoneList = sortedEvents.filter((e) => e.category === "milestone");
   const molecularList = sortedEvents.filter((e) => e.category === "molecular" || e.subType === "NGS");
-
   const latestImaging = imagingList[0];
   const latestSerology = serologyList[0];
   const latestPathology = pathologyList[0];
-  const latestMolecular = molecularList[0];
+  const latestMolecular = sortedEvents.find((e) => e.category === "molecular" || e.subType === "NGS");
   const surgeryMilestone = milestoneList.find((e) => e.subType === "Surgery") || milestoneList[0];
 
   const molecularFindings: any = latestMolecular?.keyFindings || {};
@@ -53,6 +56,28 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
 
   const handlePrint = () => {
     window.print();
+  };
+
+  const handleExportPdf = async () => {
+    if (!printableDocRef.current || isExportingPdf) return;
+    try {
+      setIsExportingPdf(true);
+      const dateStr = new Date().toISOString().split("T")[0];
+      const success = await exportElementToA4Pdf(printableDocRef.current, {
+        fileName: `OncoPath-名医就诊汇报便签-${dateStr}.pdf`,
+        headerTitle: "OncoPath 肺结节与肺腺癌临床数字档案 · 名医就诊汇报便签",
+        reportDate: dateStr,
+      });
+      if (success) {
+        setPdfSuccess(true);
+        setTimeout(() => setPdfSuccess(false), 2500);
+      }
+    } catch (err) {
+      console.error("PDF export error:", err);
+      alert("生成 PDF 遇到浏览器限制，建议使用打印选项。");
+    } finally {
+      setIsExportingPdf(false);
+    }
   };
 
   const handleExportImage = async () => {
@@ -110,7 +135,7 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
       }
     } catch (err: any) {
       console.error("Export image error:", err);
-      alert("生成问诊清单图片遇到浏览器限制，建议直接点击'打印 / 导出 PDF'。");
+      alert("生成问诊清单图片遇到浏览器限制，建议直接点击'下载 A4 PDF'或'打印'。");
     } finally {
       setIsExportingImage(false);
     }
@@ -118,12 +143,8 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-6 animate-fade-in print:p-0 print:static">
-      {/* Backdrop */}
       <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm print:hidden" onClick={onClose} />
-
-      {/* Modal Card */}
       <div className="bg-white w-full max-w-3xl rounded-3xl p-4 sm:p-8 md:p-10 border border-slate-200 shadow-2xl relative z-10 animate-fade-in-up text-slate-900 max-h-[92vh] overflow-y-auto custom-scrollbar print:max-h-none print:shadow-none print:border-none print:p-4">
-        {/* Actions Bar */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-200 print:hidden">
           <div className="flex items-center justify-between sm:justify-start gap-2.5">
             <div className="flex items-center gap-2.5">
@@ -140,8 +161,6 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
                 </p>
               </div>
             </div>
-
-            {/* Mobile Close Button in Top Row */}
             <button
               onClick={onClose}
               className="sm:hidden w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center cursor-pointer shrink-0"
@@ -151,8 +170,20 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
             </button>
           </div>
 
-          {/* Action Buttons */}
           <div className="flex items-center gap-2 self-stretch sm:self-auto flex-wrap sm:flex-nowrap">
+            <button
+              type="button"
+              onClick={handleExportPdf}
+              disabled={isExportingPdf}
+              className={`flex-1 sm:flex-initial px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold shadow-xs flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap active:scale-95 transition-all ${
+                pdfSuccess
+                  ? "bg-emerald-600 text-white"
+                  : "bg-blue-600 hover:bg-blue-700 text-white"
+              }`}
+            >
+              {pdfSuccess ? <Check className="w-3.5 h-3.5" /> : <FileText className="w-3.5 h-3.5" />}
+              <span>{pdfSuccess ? "已下载 A4 PDF" : (isExportingPdf ? "正在合成 PDF..." : "下载 A4 便签 PDF")}</span>
+            </button>
             <button
               type="button"
               onClick={handleExportImage}
@@ -164,14 +195,14 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
               }`}
             >
               {downloadSuccess ? <Check className="w-3.5 h-3.5" /> : <Download className="w-3.5 h-3.5" />}
-              <span>{downloadSuccess ? "已下载图片" : (isExportingImage ? "生成长图中..." : "导出长图 (PNG)")}</span>
+              <span>{downloadSuccess ? "已下载图片" : (isExportingImage ? "生成长图中..." : "保存长图 (PNG)")}</span>
             </button>
             <button
               onClick={handlePrint}
-              className="flex-1 sm:flex-initial btn-primary px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold shadow-xs flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap active:scale-95 transition-transform"
+              className="flex-1 sm:flex-initial bg-slate-100 hover:bg-slate-200 text-slate-700 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold shadow-xs flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap active:scale-95 transition-transform"
             >
               <Printer className="w-3.5 h-3.5" />
-              <span>打印 / 导出 PDF</span>
+              <span>打印</span>
             </button>
             <button
               onClick={onClose}

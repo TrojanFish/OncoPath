@@ -22,6 +22,7 @@ import { getGuestId } from "@/lib/guest";
 import { GlossaryTooltip } from "@/components/common/GlossaryTooltip";
 import ReasoningTicker from "@/components/profile/ReasoningTicker";
 import { ONCOPATH_LOGO_DATA_URI } from "@/lib/brandLogo";
+import { exportElementToA4Pdf } from "@/lib/pdfExporter";
 
 
 export default function EvidenceReportPage() {
@@ -33,6 +34,7 @@ export default function EvidenceReportPage() {
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
   const [isExportingCard, setIsExportingCard] = useState(false);
+  const [isExportingDirectPdf, setIsExportingDirectPdf] = useState(false);
   const [exportedImageUrl, setExportedImageUrl] = useState<string | null>(null);
 
   
@@ -277,6 +279,27 @@ export default function EvidenceReportPage() {
     window.print();
   };
 
+  const handleDirectPdfExport = async () => {
+    if (!reportContainerRef.current || isExportingDirectPdf) return;
+    try {
+      setIsExportingDirectPdf(true);
+      const dateStr = new Date().toISOString().split("T")[0];
+      const success = await exportElementToA4Pdf(reportContainerRef.current, {
+        fileName: `OncoPath-临床专属循证解读报告-${profile?.stage || "临床"}-${dateStr}.pdf`,
+        headerTitle: "OncoPath 肺结节与肺腺癌临床数字档案 · 专属循证解读报告",
+        reportDate: dateStr,
+      });
+      if (!success) {
+        window.print();
+      }
+    } catch (e) {
+      console.warn("Direct PDF failed, fallback to print:", e);
+      window.print();
+    } finally {
+      setIsExportingDirectPdf(false);
+    }
+  };
+
   const handleExportCardImage = async () => {
     if (!consultationCardRef.current || isExportingCard) return;
     try {
@@ -495,14 +518,24 @@ export default function EvidenceReportPage() {
               <div className="flex items-center gap-1 sm:gap-2">
                 {/* 1. Export / Print PDF Button */}
                 <button 
-                  onClick={handlePrint}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-white hover:bg-slate-50 text-slate-700 hover:text-blue-700 border border-slate-200 hover:border-blue-300 transition-all shadow-2xs cursor-pointer group whitespace-nowrap"
-                  title="导出 / 打印 PDF 文档 (适合 A4 打印与纸质病历)"
+                  onClick={handleDirectPdfExport}
+                  disabled={isExportingDirectPdf}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-white hover:bg-slate-50 text-slate-700 hover:text-blue-700 border border-slate-200 hover:border-blue-300 transition-all shadow-2xs cursor-pointer group whitespace-nowrap disabled:opacity-50"
+                  title="一键直接下载 A4 PDF 文档 (零服务器消耗，适合物理打印与就医归档)"
                 >
-
-                  <Printer className="w-3.5 h-3.5 text-slate-500 group-hover:text-blue-600 transition-transform group-hover:-translate-y-0.5 flex-shrink-0" />
-                  <span className="sm:hidden">PDF</span>
-                  <span className="hidden sm:inline">导出 PDF</span>
+                  {isExportingDirectPdf ? (
+                    <>
+                      <span className="w-3.5 h-3.5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin flex-shrink-0" />
+                      <span className="sm:hidden">生成中</span>
+                      <span className="hidden sm:inline">生成 PDF 中...</span>
+                    </>
+                  ) : (
+                    <>
+                      <FileText className="w-3.5 h-3.5 text-blue-600 transition-transform group-hover:-translate-y-0.5 flex-shrink-0" />
+                      <span className="sm:hidden">PDF</span>
+                      <span className="hidden sm:inline">下载 A4 PDF</span>
+                    </>
+                  )}
                 </button>
 
                 {/* 2. Export Consultation Pocket Card Button */}
