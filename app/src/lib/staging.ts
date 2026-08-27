@@ -66,10 +66,10 @@ export function computeClinicalTnmStage(input: StagingInput): StagingResult {
     isSubsolidAdjusted = true;
     if (solidSize <= 0.5) {
       effectiveT = "T1mi";
-      explanation = `混合磨玻璃结节 (磨玻璃最大径 ${tumorSize}cm，CT实性成分 ${solidSize}cm, CTR=${ctr}) ➔ 依据 AJCC 8th/9th 规则以实性成分判定为 T1mi (IA1期)`;
+      explanation = `混合磨玻璃结节 (结节总全径 ${tumorSize}cm，CT实性成分 ${solidSize}cm, CTR=${ctr}) ➔ 依据 AJCC 8th/9th 规则以实性成分判定为 T1mi (IA1期)`;
     } else if (solidSize <= 1.0) {
       effectiveT = "T1a";
-      explanation = `混合磨玻璃结节 (磨玻璃最大径 ${tumorSize}cm，CT实性成分 ${solidSize}cm, CTR=${ctr}) ➔ 依据 AJCC 8th/9th 规则以实性成分判定为 T1a (IA1期)，非磨玻璃全径对应的更高分期`;
+      explanation = `混合磨玻璃结节 (结节总全径 ${tumorSize}cm，CT实性成分 ${solidSize}cm, CTR=${ctr}) ➔ 依据 AJCC 8th/9th 规则以实性成分判定为 T1a (IA1期)，非结节全径对应的更高分期`;
     } else if (solidSize <= 2.0) {
       effectiveT = "T1b";
       explanation = `混合磨玻璃结节 (CT实性成分 ${solidSize}cm ≤2.0cm, CTR=${ctr}) ➔ 判定为 T1b (IA2期)`;

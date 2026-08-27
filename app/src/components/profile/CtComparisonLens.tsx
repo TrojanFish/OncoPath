@@ -135,7 +135,7 @@ export default function CtComparisonLens({ records, profile }: CtComparisonLensP
         {/* Metric 1: Tumor Size (Total Diameter) */}
         <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-2">
           <div className="flex items-center justify-between text-xs">
-            <span className="text-slate-500 font-medium">磨玻璃最大总径</span>
+            <span className="text-slate-500 font-medium">病灶/结节最大全径</span>
             <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
               tumorDiffMm > 0 ? "bg-amber-100 text-amber-800" : tumorDiffMm < 0 ? "bg-emerald-100 text-emerald-800" : "bg-slate-200 text-slate-700"
             }`}>

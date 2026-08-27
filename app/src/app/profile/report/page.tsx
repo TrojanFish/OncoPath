@@ -437,6 +437,16 @@ export default function EvidenceReportPage() {
   const solidVal = profile?.solidSize != null ? profile.solidSize : 0.8;
   const calculatedCtr = profile?.ctr != null ? profile.ctr : (tumorVal > 0 ? Math.round((solidVal / tumorVal) * 100) / 100 : 0.32);
 
+  const isPureSolid = profile?.noduleType === 'pure_solid' || calculatedCtr >= 1.0 || (profile?.solidSize != null && profile?.tumorSize != null && profile.solidSize >= profile.tumorSize);
+  const isPureGgo = profile?.noduleType === 'pure_ggo' || calculatedCtr === 0 || profile?.solidSize === 0;
+
+  const histologyText = 
+    profile?.histology === 'squamous' ? '原发性肺鳞癌' :
+    profile?.histology === 'sclc' ? '原发性小细胞肺癌' :
+    profile?.histology === 'large_cell' ? '原发性大细胞肺癌' :
+    profile?.histology === 'adenocarcinoma' ? '原发性肺腺癌' :
+    (profile?.histology ? `原发性${profile.histology}` : '原发性肺腺癌');
+
   return (
     <div className="min-h-screen bg-slate-50/70 pb-8 sm:pb-12 print:bg-white print:pb-0 text-slate-900">
       
@@ -571,7 +581,7 @@ export default function EvidenceReportPage() {
                   <h2 className="text-base sm:text-lg md:text-xl font-black text-slate-900">
                     {profile.currentStage === 'evaluation' || profile.currentStage === 'discovery' || profile.reportType === 'ct_imaging'
                       ? (profile.stage ? `c${profile.stage} 期肺结节 (CT 影像初估)` : '早期肺结节 (待病理确诊)')
-                      : (profile.stage ? `${profile.stage} 期原发性肺腺癌` : '早期原发性肺腺癌')
+                      : (profile.stage ? `${profile.stage} 期${histologyText}` : `早期${histologyText}`)
                     }
                   </h2>
                   <span className="px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 text-xs font-black">
@@ -585,14 +595,20 @@ export default function EvidenceReportPage() {
                   </span>
                   <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-xs font-medium">
                     {profile.currentStage === 'evaluation' || profile.currentStage === 'discovery' || profile.reportType === 'ct_imaging'
-                      ? `结节部位: ${profile.noduleLocation || '肺部结节'} (尚未手术)`
-                      : (profile.surgeryType === 'lobectomy' ? '标准肺叶切除' : profile.surgeryType === 'segmentectomy' ? '解剖性肺段切除' : profile.surgeryType || '手术切除')
+                      ? `结节部位: ${profile.noduleLocation || '肺部结节'} (动态随访中)`
+                      : (profile.surgeryType === 'lobectomy' ? '标准肺叶切除' : profile.surgeryType === 'segmentectomy' ? '解剖性肺段切除' : profile.surgeryType === 'wedge' ? '肺楔形切除' : profile.surgeryType || '根治性手术切除')
                     }
                   </span>
                 </div>
-                {profile.solidSize != null && (
+                {profile.tumorSize != null && (
                   <div className="text-[11px] sm:text-[12px] text-slate-500 mt-1">
-                    📏 磨玻璃最大径: {profile.tumorSize || 1.5} cm · CT 实性成分: <strong className="text-teal-700">{profile.solidSize} cm</strong> (CTR: {profile.ctr ?? (profile.solidSize && profile.tumorSize ? Math.round((profile.solidSize / profile.tumorSize) * 100) / 100 : 0.53)})
+                    {isPureSolid ? (
+                      <span>📏 <strong>病灶最大径</strong>: {profile.tumorSize} cm · 性质: <strong className="text-blue-700">纯实性软组织结节</strong> (CTR: 1.0)</span>
+                    ) : isPureGgo ? (
+                      <span>📏 <strong>结节最大径</strong>: {profile.tumorSize} cm · 性质: <strong className="text-emerald-700">纯磨玻璃密度/无实性成分</strong> (CTR: 0)</span>
+                    ) : (
+                      <span>📏 <strong>结节总全径</strong>: {profile.tumorSize} cm · CT 实性成分: <strong className="text-teal-700">{profile.solidSize != null ? `${profile.solidSize} cm` : '微量'}</strong> (CTR: {profile.ctr ?? (profile.solidSize && profile.tumorSize ? Math.round((profile.solidSize / profile.tumorSize) * 100) / 100 : 0.53)})</span>
+                    )}
                   </div>
                 )}
               </div>
@@ -1034,7 +1050,7 @@ export default function EvidenceReportPage() {
                   <div className="text-xs font-bold text-sky-400">
                     {profile.currentStage === 'evaluation' || profile.currentStage === 'discovery' || profile.reportType === 'ct_imaging'
                       ? (profile.stage ? `c${profile.stage} 期肺结节` : '早期肺结节')
-                      : (profile.stage ? `${profile.stage} 期原发性肺腺癌` : '早期原发性肺腺癌')
+                      : (profile.stage ? `${profile.stage} 期${histologyText}` : `早期${histologyText}`)
                     }
                   </div>
                 </div>
@@ -1062,9 +1078,15 @@ export default function EvidenceReportPage() {
               <div className="bg-slate-900/90 p-2.5 rounded-xl border border-slate-700/60 text-xs flex items-center justify-between flex-wrap gap-2">
                 <span className="text-slate-300 flex items-center gap-1.5">
                   <span>📏</span>
-                  <span><strong>磨玻璃最大径</strong>: {tumorVal} cm · <strong>CT 实性成分</strong>: {solidVal} cm</span>
+                  {isPureSolid ? (
+                    <span><strong>病灶最大径</strong>: {tumorVal} cm · <strong>性质</strong>: 纯实性软组织病变</span>
+                  ) : isPureGgo ? (
+                    <span><strong>结节最大径</strong>: {tumorVal} cm · <strong>性质</strong>: 纯磨玻璃密度 (无实性)</span>
+                  ) : (
+                    <span><strong>结节总全径</strong>: {tumorVal} cm · <strong>CT 实性成分</strong>: {solidVal} cm</span>
+                  )}
                 </span>
-                <span className="px-2 py-0.5 rounded-md bg-teal-500/20 text-teal-300 border border-teal-400/30 font-mono font-bold text-[11px]">
+                <span className="px-2 py-0.5 rounded-md bg-teal-500/20 text-teal-300 border border-teal-400/30 font-mono font-bold text-[11px] shrink-0">
                   CTR: {calculatedCtr}
                 </span>
               </div>

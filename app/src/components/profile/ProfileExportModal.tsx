@@ -349,7 +349,12 @@ export default function ProfileExportModal({ profile, onClose }: ProfileExportMo
                   <span>结节全径与实性浸润</span>
                 </span>
                 <div className="font-bold text-slate-200 text-[11px]">
-                  全径 {profile.tumorSize || 1.5} cm / 实性 {profile.solidSize != null ? `${profile.solidSize} cm` : "微小"} (CTR: {profile.ctr ?? 0.5})
+                  {profile.noduleType === 'pure_solid' || (profile.ctr != null && profile.ctr >= 1.0)
+                    ? `病灶全径 ${profile.tumorSize || 1.5} cm · 纯实性 (CTR: 1.0)`
+                    : profile.noduleType === 'pure_ggo' || (profile.ctr != null && profile.ctr === 0)
+                    ? `结节全径 ${profile.tumorSize || 1.5} cm · 纯磨玻璃 (CTR: 0)`
+                    : `全径 ${profile.tumorSize || 1.5} cm / 实性 ${profile.solidSize != null ? `${profile.solidSize} cm` : "微小"} (CTR: ${profile.ctr ?? 0.5})`
+                  }
                 </div>
               </div>
             </div>
@@ -484,7 +489,7 @@ export default function ProfileExportModal({ profile, onClose }: ProfileExportMo
                     <span>驱动基因突变与分子靶向 (NGS Panel)</span>
                   </span>
                   <span className="text-[10px] text-slate-400 font-mono">
-                    {testStatus === "tested" ? `已检出 ${mutations.length} 项突变` : testStatus === "negative" ? "全野生型(全阴性)" : "未做检测"}
+                    {testStatus === "tested" ? `已检出 ${mutations.length} 项突变` : testStatus === "negative" ? "全野生型 (未检出敏感突变)" : "未做检测"}
                   </span>
                 </div>
 

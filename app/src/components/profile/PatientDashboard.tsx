@@ -652,8 +652,10 @@ export default function PatientDashboard() {
             <p className="text-xs text-slate-600 leading-relaxed">
               {profile.currentStage === 'evaluation' || profile.currentStage === 'discovery'
                 ? (profile.riskLevel === 'high' 
-                    ? 'CT 影像提示伴有实性浸润或分叶毛刺征象，建议携带影像 DICOM 光盘至三甲胸外科门诊进行多学科会诊。'
-                    : '目前结节以磨玻璃成分为主，生长极其缓慢，恶性危险度较低，首选遵循国际指南进行动态薄层 CT 随访。')
+                    ? 'CT 影像提示伴有实性浸润或高危征象，建议携带影像 DICOM 数据至三甲胸外科门诊进行多学科 (MDT) 会诊评估。'
+                    : (profile.noduleType === 'pure_solid' || (profile.ctr != null && profile.ctr >= 1.0)
+                        ? '目前结节为纯实性密度，体积较小，恶性危险度处于观察期，建议严格遵循国际指南进行动态薄层 CT 增强复查与严密随访。'
+                        : '目前结节以磨玻璃成分为主，生长极其缓慢，恶性危险度较低，首选遵循国际指南进行动态薄层 CT 随访。'))
                 : (isAllSafe 
                     ? '您的关键优势因素（R0切除、N0淋巴结阴性、无 STAS/VPI/LVI、高/中分化）显著降低了术后复发概率。' 
                     : '存在局部高危病理因素，建议密切关注局部影像与长程管理计划。')
@@ -708,7 +710,7 @@ export default function PatientDashboard() {
               {(() => {
                 const mutations = profile.geneMutations || profile.molecular?.mutations || [];
                 const status = profile.molecularTestStatus || profile.molecular?.testStatus || (mutations.length > 0 ? "tested" : (profile.egfr === 'positive' ? "tested" : (profile.egfr === 'negative' ? 'negative' : "not_tested")));
-                if (status === "negative") return "全野生型 (全阴性)";
+                if (status === "negative") return "全野生型 (未检出敏感突变)";
                 if (status === "not_tested") return "未做基因检测";
                 if (status === "in_progress") return "送检中";
                 return `检出 ${mutations.length > 0 ? mutations.length : (profile.egfr === 'positive' ? 1 : 0)} 项基因变异`;

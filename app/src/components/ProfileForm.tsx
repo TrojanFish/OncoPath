@@ -625,7 +625,7 @@ function Step3({ form, updateForm }: StepProps) {
         <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
           <div className="flex items-center justify-between mb-2">
             <span className="text-text-secondary text-sm">
-              CTR（实性成分比例 = 实性成分最大径 ÷ 磨玻璃最大径）
+              CTR（实性成分比例 = 实性成分最大径 ÷ 结节总全径）
             </span>
           <div className="text-2xl font-bold text-gray-900">{computedCTR}</div>
           </div>

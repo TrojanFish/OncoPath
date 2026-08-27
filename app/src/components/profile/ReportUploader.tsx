@@ -971,7 +971,7 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
                   </span>
                 ) : (
                   <span>
-                    <strong>CTR 计算公式</strong>：<strong>CT 实性成分最大径 ({solidVal}cm) ÷ 磨玻璃最大径 ({tumorVal}cm) = {currentCtr}</strong>
+                    <strong>CTR 计算公式</strong>：<strong>CT 实性成分最大径 ({solidVal}cm) ÷ 结节总全径 ({tumorVal}cm) = {currentCtr}</strong>
                   </span>
                 )}
               </span>
