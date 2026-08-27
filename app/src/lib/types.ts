@@ -95,6 +95,11 @@ export interface PatientProfile {
   benignFindings?: string[]; // e.g. ["肝囊肿", "肺钙化灶", "胆囊息肉", "肾囊肿"]
   systemicStagingConfirmed?: boolean;
 
+  // Molecular Biomarkers & Gene Mutations Panel
+  molecular?: MolecularPanelData;
+  geneMutations?: GeneMutationItem[];
+  pdl1Tps?: "<1%" | "1-49%" | ">=50%" | "unknown" | string;
+
   // Pathological High-Risk Factors
   stas: "negative" | "positive" | "unknown";
   lvi: "negative" | "positive" | "unknown";
@@ -118,4 +123,24 @@ export interface PatientProfile {
   // Persisted Report
   reportMarkdown?: string;
   reportGeneratedAt?: string | Date;
+}
+
+export interface GeneMutationItem {
+  id: string;
+  gene: "EGFR" | "ALK" | "KRAS" | "ROS1" | "BRAF" | "MET" | "RET" | "HER2" | "TP53" | "RB1" | "PIK3CA" | "Other" | string;
+  subtype?: string;              // 如 "19del", "L858R", "20-ins", "T790M", "G12C", "EML4-ALK", "Exon 5-8 Missense"
+  abundance?: string | number;  // 突变丰度 / VAF (%) 如 "23.5%"
+  status?: "positive" | "negative" | "unknown";
+  isComutation?: boolean;       // 是否为伴随突变 (如 TP53, RB1)
+  note?: string;                // 备注说明
+}
+
+export interface MolecularPanelData {
+  testStatus: "tested" | "not_tested" | "in_progress" | "not_indicated" | string;
+  testMethod?: "NGS_panel" | "PCR" | "IHC_FISH" | "liquid_biopsy" | "other" | string;
+  mutations: GeneMutationItem[];
+  pdl1Tps?: "<1%" | "1-49%" | ">=50%" | "unknown" | string;
+  tmb?: string | number;
+  msi?: string;
+  rawDetails?: string;
 }

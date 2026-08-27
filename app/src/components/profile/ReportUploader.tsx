@@ -91,6 +91,109 @@ const CT_SIGN_DEFINITIONS: Record<string, { label: string; enName: string; desc:
   }
 };
 
+const PRESET_DRIVER_GENES = [
+  { 
+    gene: "EGFR", 
+    label: "EGFR (主驱动靶点)", 
+    badge: "50%~60%高频",
+    subtypes: [
+      { key: "19del", name: "19号外显子缺失 (19del)", isSensitive: true },
+      { key: "L858R", name: "21号外显子 L858R 置换", isSensitive: true },
+      { key: "20-ins", name: "20号外显子插入 (20-ins)", isSensitive: false },
+      { key: "T790M", name: "20号外显子 T790M (耐药突变)", isSensitive: true },
+      { key: "G719X/L861Q/S768I", name: "18/21/20外显子罕见敏感突变", isSensitive: true }
+    ]
+  },
+  { 
+    gene: "ALK", 
+    label: "ALK (融合靶点)", 
+    badge: "5%~8%年轻非吸烟",
+    subtypes: [
+      { key: "EML4-ALK", name: "EML4-ALK 融合 (阿来/洛拉替尼)", isSensitive: true },
+      { key: "other_alk", name: "其他伴侣基因 ALK 融合", isSensitive: true }
+    ]
+  },
+  { 
+    gene: "KRAS", 
+    label: "KRAS (突变靶点)", 
+    badge: "8%~12%",
+    subtypes: [
+      { key: "G12C", name: "G12C 突变 (索托拉西布/格索雷塞)", isSensitive: true },
+      { key: "non_G12C", name: "非 G12C 突变 (G12D/G12V等)", isSensitive: false }
+    ]
+  },
+  { 
+    gene: "ROS1", 
+    label: "ROS1 (融合靶点)", 
+    badge: "1%~2%",
+    subtypes: [
+      { key: "ROS1_fusion", name: "ROS1 阳性融合 (克唑替尼/恩曲替尼)", isSensitive: true }
+    ]
+  },
+  { 
+    gene: "MET", 
+    label: "MET (异常靶点)", 
+    badge: "1%~3%",
+    subtypes: [
+      { key: "exon14_skip", name: "14外显子跳跃突变 (赛沃替尼/谷美替尼)", isSensitive: true },
+      { key: "MET_amp", name: "MET 高水平扩增", isSensitive: true }
+    ]
+  },
+  { 
+    gene: "RET", 
+    label: "RET (融合靶点)", 
+    badge: "1%~2%",
+    subtypes: [
+      { key: "RET_fusion", name: "RET 阳性融合 (普拉替尼/塞普替尼)", isSensitive: true }
+    ]
+  },
+  { 
+    gene: "HER2", 
+    label: "HER2 / ERBB2", 
+    badge: "2%~4%",
+    subtypes: [
+      { key: "HER2_exon20ins", name: "20号外显子插入突变 (德曲妥珠单抗)", isSensitive: true }
+    ]
+  },
+  { 
+    gene: "BRAF", 
+    label: "BRAF", 
+    badge: "1%~3%",
+    subtypes: [
+      { key: "V600E", name: "V600E 突变 (达拉非尼+曲美替尼)", isSensitive: true },
+      { key: "non_V600E", name: "非 V600E 突变", isSensitive: false }
+    ]
+  }
+];
+
+const PRESET_CO_MUTATIONS = [
+  {
+    gene: "TP53",
+    label: "TP53 (抑癌基因失活)",
+    riskDesc: "最常见伴随突变(30%~50%)，提示轻度复发侵袭倾向，需关注随访",
+    subtypes: [
+      { key: "exon5_8", name: "外显子 5-8 错义/无义突变 (DNA结合区)" },
+      { key: "other_tp53", name: "其他位点 TP53 变异" }
+    ]
+  },
+  {
+    gene: "RB1",
+    label: "RB1 (转录抑制失活)",
+    riskDesc: "与小细胞肺癌表型转化风险相关",
+    subtypes: [
+      { key: "loss_of_function", name: "RB1 功能缺失性突变" }
+    ]
+  },
+  {
+    gene: "PIK3CA",
+    label: "PIK3CA (旁路激活)",
+    riskDesc: "PI3K-AKT 信号通路活化突变",
+    subtypes: [
+      { key: "E545K_H1047R", name: "外显子 9/20 错义突变 (E545K/H1047R)" }
+    ]
+  }
+];
+
 export default function ReportUploader({ onParsed, initialData, existingProfile, onCancel }: ReportUploaderProps) {
   const [reportText, setReportText] = useState("");
   const [isParsing, setIsParsing] = useState(false);
@@ -110,6 +213,12 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
   const [newHistTumorSize, setNewHistTumorSize] = useState("");
   const [newHistSolidSize, setNewHistSolidSize] = useState("");
   const [newHistNote, setNewHistNote] = useState("");
+
+  // Gene Mutations state
+  const [customGeneName, setCustomGeneName] = useState("");
+  const [customGeneSubtype, setCustomGeneSubtype] = useState("");
+  const [customGeneAbundance, setCustomGeneAbundance] = useState("");
+  const [customIsComutation, setCustomIsComutation] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -339,6 +448,21 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
         // P2-2 Tumor Markers
         tumorMarkers: parsedData.tumorMarkers || base.tumorMarkers || null,
 
+        // Molecular & Gene Mutations
+        geneMutations: Array.isArray(parsedData.geneMutations) 
+          ? parsedData.geneMutations 
+          : (Array.isArray(base.geneMutations) ? base.geneMutations : []),
+        molecular: parsedData.molecular || {
+          testStatus: parsedData.molecularTestStatus || (Array.isArray(parsedData.geneMutations) && parsedData.geneMutations.length > 0 ? "tested" : (base.molecular?.testStatus || "not_tested")),
+          testMethod: parsedData.molecular?.testMethod || "NGS_panel",
+          mutations: Array.isArray(parsedData.geneMutations) ? parsedData.geneMutations : (base.geneMutations || []),
+          pdl1Tps: parsedData.pdl1Tps || base.pdl1Tps || "unknown",
+        },
+        pdl1Tps: parsedData.pdl1Tps || base.pdl1Tps || undefined,
+        egfr: (Array.isArray(parsedData.geneMutations) && parsedData.geneMutations.some((m: any) => m.gene === "EGFR" && m.status !== "negative"))
+          ? "positive"
+          : (parsedData.molecularTestStatus === "not_tested" ? "not_tested" : (parsedData.egfr || base.egfr || "unknown")),
+
         // Systemic Staging & M0 Confirmation
         brainMri: parsedData.brainMri || base.brainMri || "not_performed",
         abdominalUltrasound: parsedData.abdominalUltrasound || base.abdominalUltrasound || "not_performed",
@@ -351,6 +475,75 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
 
       onParsed(finalData);
     }
+  };
+
+  const handleToggleGene = (geneName: string, defaultSubtype: string, isComutation: boolean = false) => {
+    const currentList = Array.isArray(parsedData?.geneMutations) ? [...parsedData.geneMutations] : [];
+    const exists = currentList.find((m: any) => m.gene === geneName);
+    if (exists) {
+      const updated = currentList.filter((m: any) => m.gene !== geneName);
+      setParsedData({
+        ...parsedData,
+        geneMutations: updated,
+        molecularTestStatus: updated.length > 0 ? "tested" : (parsedData.molecularTestStatus || "tested")
+      });
+    } else {
+      const newMut = {
+        id: `mut_${Date.now()}_${geneName}`,
+        gene: geneName,
+        subtype: defaultSubtype,
+        abundance: "",
+        isComutation: isComutation,
+        status: "positive"
+      };
+      setParsedData({
+        ...parsedData,
+        geneMutations: [...currentList, newMut],
+        molecularTestStatus: "tested"
+      });
+    }
+  };
+
+  const handleUpdateGeneSubtype = (geneName: string, subtype: string) => {
+    const currentList = Array.isArray(parsedData?.geneMutations) ? [...parsedData.geneMutations] : [];
+    const updated = currentList.map((m: any) => m.gene === geneName ? { ...m, subtype } : m);
+    setParsedData({ ...parsedData, geneMutations: updated });
+  };
+
+  const handleUpdateGeneAbundance = (geneName: string, abundance: string) => {
+    const currentList = Array.isArray(parsedData?.geneMutations) ? [...parsedData.geneMutations] : [];
+    const updated = currentList.map((m: any) => m.gene === geneName ? { ...m, abundance } : m);
+    setParsedData({ ...parsedData, geneMutations: updated });
+  };
+
+  const handleAddCustomGene = () => {
+    if (!customGeneName.trim()) return;
+    const currentList = Array.isArray(parsedData?.geneMutations) ? [...parsedData.geneMutations] : [];
+    const newMut = {
+      id: `mut_${Date.now()}`,
+      gene: customGeneName.trim().toUpperCase(),
+      subtype: customGeneSubtype.trim() || "突变",
+      abundance: customGeneAbundance.trim(),
+      isComutation: customIsComutation,
+      status: "positive"
+    };
+    setParsedData({
+      ...parsedData,
+      geneMutations: [...currentList, newMut],
+      molecularTestStatus: "tested"
+    });
+    setCustomGeneName("");
+    setCustomGeneSubtype("");
+    setCustomGeneAbundance("");
+    setCustomIsComutation(false);
+  };
+
+  const handleRemoveGene = (id: string) => {
+    const currentList = Array.isArray(parsedData?.geneMutations) ? [...parsedData.geneMutations] : [];
+    setParsedData({
+      ...parsedData,
+      geneMutations: currentList.filter((m: any) => m.id !== id)
+    });
   };
 
   const handleAddBenignFinding = () => {
@@ -1309,6 +1502,318 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
 
             </div>
           )}
+
+          {/* Section: Molecular Pathology & Driver Gene Mutation Panel (NGS / PCR / PD-L1) */}
+          <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-blue-50/60 via-slate-50 to-indigo-50/60 border-2 border-blue-200/80 space-y-4 shadow-xs">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <div className="flex items-center gap-2">
+                <Dna className="w-5 h-5 text-blue-600" />
+                <div>
+                  <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+                    分子病理与驱动基因突变谱 (NGS / PCR / 免疫组化)
+                  </h3>
+                  <p className="text-[11px] text-slate-500">
+                    录入驱动突变 (EGFR/ALK等)、高危伴随共突变 (TP53等) 与 PD-L1，指导靶向用药与复发监测
+                  </p>
+                </div>
+              </div>
+
+              {/* Status Switch Pills */}
+              <div className="flex items-center gap-1.5 flex-wrap">
+                {[
+                  { val: "tested", label: "已检出突变", color: "bg-blue-600 text-white" },
+                  { val: "negative", label: "全野生型(阴性)", color: "bg-emerald-600 text-white" },
+                  { val: "not_tested", label: "未做基因检测", color: "bg-slate-700 text-white" },
+                  { val: "in_progress", label: "送检中", color: "bg-amber-600 text-white" }
+                ].map(s => {
+                  const currentStatus = parsedData.molecularTestStatus || (
+                    Array.isArray(parsedData.geneMutations) && parsedData.geneMutations.length > 0 ? "tested" : "not_tested"
+                  );
+                  const isSelected = currentStatus === s.val;
+                  return (
+                    <button
+                      key={s.val}
+                      type="button"
+                      onClick={() => {
+                        if (s.val === "negative" || s.val === "not_tested") {
+                          setParsedData({ ...parsedData, molecularTestStatus: s.val, geneMutations: [] });
+                        } else {
+                          setParsedData({ ...parsedData, molecularTestStatus: s.val });
+                        }
+                      }}
+                      className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                        isSelected ? `${s.color} shadow-2xs` : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
+                      }`}
+                    >
+                      {s.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* If Not Tested or Negative, Show Reassuring Guidelines info */}
+            {(parsedData.molecularTestStatus === "not_tested" || parsedData.molecularTestStatus === "negative") && (
+              <div className="p-3.5 bg-white rounded-xl border border-slate-200 text-xs text-slate-600 space-y-1.5">
+                <div className="font-bold text-slate-800 flex items-center gap-1.5">
+                  <Info className="w-4 h-4 text-blue-600 shrink-0" />
+                  <span>
+                    {parsedData.molecularTestStatus === "negative" ? "全基因野生型（全阴性）临床指引：" : "未做基因检测临床指引："}
+                  </span>
+                </div>
+                <p className="text-[11px] leading-relaxed text-slate-600">
+                  {stagingPreview?.stage?.startsWith("IA") || parsedData?.stage?.startsWith("IA") ? (
+                    <span>对于 <strong>IA 期早期肺癌</strong>，指南（CSCO/NCCN）明文确立：彻底手术切除已实现近 100% 根治，常规不强制推荐昂贵的驱动基因大 Panel 检测，无需焦虑。</span>
+                  ) : (
+                    <span>对于 <strong>IB 期以上或具备高危病理因素</strong> 的患者，若后续考虑辅助靶向（如奥希替尼）治疗，可向主治医生咨询是否送检组织标本或外周血 ctDNA 基因检测。</span>
+                  )}
+                </p>
+              </div>
+            )}
+
+            {/* Active Driver Mutations Selection Panel */}
+            {parsedData.molecularTestStatus !== "not_tested" && parsedData.molecularTestStatus !== "negative" && (
+              <div className="space-y-3.5">
+                
+                {/* 1. Main Driver Genes */}
+                <div className="space-y-2">
+                  <div className="text-[11px] font-bold text-slate-700 uppercase tracking-wider flex items-center justify-between">
+                    <span>经典驱动基因突变（点击选择已检出的基因）：</span>
+                    <span className="text-slate-400 font-normal">支持多选 / 双突变</span>
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    {PRESET_DRIVER_GENES.map(item => {
+                      const currentMut = (parsedData.geneMutations || []).find((m: any) => m.gene === item.gene);
+                      const isSelected = !!currentMut;
+                      return (
+                        <div key={item.gene} className={`p-2.5 rounded-xl border transition-all ${
+                          isSelected ? "bg-white border-blue-400 shadow-xs ring-1 ring-blue-400/30" : "bg-white/80 border-slate-200 hover:border-slate-300"
+                        }`}>
+                          <div className="flex items-center justify-between mb-1.5">
+                            <button
+                              type="button"
+                              onClick={() => handleToggleGene(item.gene, item.subtypes[0]?.name || "阳性", false)}
+                              className="flex items-center gap-1.5 font-bold text-xs text-left cursor-pointer flex-1"
+                            >
+                              <div className={`w-3.5 h-3.5 rounded-md flex items-center justify-center border ${
+                                isSelected ? "bg-blue-600 border-blue-600 text-white" : "border-slate-300 bg-slate-50"
+                              }`}>
+                                {isSelected && <Check className="w-2.5 h-2.5 stroke-[3]" />}
+                              </div>
+                              <span className={isSelected ? "text-blue-900 font-extrabold" : "text-slate-700"}>
+                                {item.gene}
+                              </span>
+                            </button>
+                            <span className="text-[9px] text-slate-400 font-medium">{item.badge}</span>
+                          </div>
+
+                          {/* If Selected, Show Subtype Selector and Abundance */}
+                          {isSelected && (
+                            <div className="space-y-1.5 pt-1 border-t border-slate-100">
+                              <select
+                                value={currentMut.subtype || item.subtypes[0]?.name}
+                                onChange={e => handleUpdateGeneSubtype(item.gene, e.target.value)}
+                                className="w-full p-1 bg-slate-50 border border-slate-200 rounded-lg text-[10px] font-semibold text-slate-800 outline-none"
+                              >
+                                {item.subtypes.map(sub => (
+                                  <option key={sub.key} value={sub.name}>{sub.name}</option>
+                                ))}
+                              </select>
+                              <div className="flex items-center gap-1">
+                                <span className="text-[10px] text-slate-400 shrink-0">丰度:</span>
+                                <input
+                                  type="text"
+                                  placeholder="如 24.5%"
+                                  value={currentMut.abundance || ""}
+                                  onChange={e => handleUpdateGeneAbundance(item.gene, e.target.value)}
+                                  className="w-full px-1.5 py-0.5 bg-slate-50 border border-slate-200 rounded text-[10px] text-slate-800 outline-none"
+                                />
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* 2. High-Risk Co-mutations Panel */}
+                <div className="p-3 bg-amber-50/70 rounded-xl border border-amber-200/80 space-y-2">
+                  <div className="flex items-center justify-between text-[11px] font-bold text-amber-950">
+                    <span className="flex items-center gap-1.5">
+                      <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                      <span>高危预后伴随突变（Co-mutations · 影响复发风险与耐药速度）：</span>
+                    </span>
+                    <span className="text-[10px] font-normal text-amber-700">可与 EGFR 等共存</span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    {PRESET_CO_MUTATIONS.map(item => {
+                      const currentMut = (parsedData.geneMutations || []).find((m: any) => m.gene === item.gene);
+                      const isSelected = !!currentMut;
+                      return (
+                        <div key={item.gene} className={`p-2 rounded-xl border transition-all ${
+                          isSelected ? "bg-white border-amber-400 shadow-2xs" : "bg-white/90 border-amber-200/60"
+                        }`}>
+                          <div className="flex items-center justify-between mb-1">
+                            <button
+                              type="button"
+                              onClick={() => handleToggleGene(item.gene, item.subtypes[0]?.name || "阳性", true)}
+                              className="flex items-center gap-1.5 font-bold text-xs text-left cursor-pointer flex-1"
+                            >
+                              <div className={`w-3.5 h-3.5 rounded-md flex items-center justify-center border ${
+                                isSelected ? "bg-amber-600 border-amber-600 text-white" : "border-slate-300 bg-slate-50"
+                              }`}>
+                                {isSelected && <Check className="w-2.5 h-2.5 stroke-[3]" />}
+                              </div>
+                              <span className={isSelected ? "text-amber-950 font-extrabold" : "text-slate-700"}>
+                                {item.gene} 伴随突变
+                              </span>
+                            </button>
+                          </div>
+                          <p className="text-[9px] text-amber-700 leading-tight mb-1">{item.riskDesc}</p>
+                          {isSelected && (
+                            <select
+                              value={currentMut.subtype || item.subtypes[0]?.name}
+                              onChange={e => handleUpdateGeneSubtype(item.gene, e.target.value)}
+                              className="w-full p-1 bg-amber-50/50 border border-amber-200 rounded text-[10px] font-semibold text-amber-900 outline-none"
+                            >
+                              {item.subtypes.map(sub => (
+                                <option key={sub.key} value={sub.name}>{sub.name}</option>
+                              ))}
+                            </select>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* 3. PD-L1 & Custom Mutation Row */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                  {/* PD-L1 Expression */}
+                  <div className="bg-white p-3 rounded-xl border border-slate-200 space-y-1.5">
+                    <div className="text-xs font-bold text-slate-800 flex items-center justify-between">
+                      <span className="flex items-center gap-1">
+                        <Activity className="w-3.5 h-3.5 text-indigo-600" />
+                        <span>PD-L1 蛋白表达 (TPS)</span>
+                      </span>
+                      <span className="text-[10px] text-slate-400">免疫治疗评估</span>
+                    </div>
+                    <div className="grid grid-cols-4 gap-1">
+                      {[
+                        { val: "<1%", label: "<1% (阴性)" },
+                        { val: "1-49%", label: "1%~49% (低)" },
+                        { val: ">=50%", label: "≥50% (高)" },
+                        { val: "unknown", label: "未检测" }
+                      ].map(opt => (
+                        <button
+                          key={opt.val}
+                          type="button"
+                          onClick={() => setParsedData({ ...parsedData, pdl1Tps: opt.val })}
+                          className={`py-1 rounded-lg text-[11px] font-bold border transition-all cursor-pointer ${
+                            (parsedData.pdl1Tps || "unknown") === opt.val
+                              ? "bg-indigo-600 text-white border-indigo-600 shadow-2xs"
+                              : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
+                          }`}
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Add Custom Gene Mutation */}
+                  <div className="bg-white p-3 rounded-xl border border-slate-200 space-y-1.5">
+                    <div className="text-xs font-bold text-slate-800 flex items-center justify-between">
+                      <span>+ 添加其他罕见突变/融合</span>
+                      <label className="flex items-center gap-1 text-[10px] text-slate-500 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={customIsComutation}
+                          onChange={e => setCustomIsComutation(e.target.checked)}
+                          className="rounded text-amber-600"
+                        />
+                        <span>设为伴随突变</span>
+                      </label>
+                    </div>
+                    <div className="flex gap-1.5">
+                      <input
+                        type="text"
+                        placeholder="基因 (如: NRG1)"
+                        value={customGeneName}
+                        onChange={e => setCustomGeneName(e.target.value)}
+                        className="w-1/3 px-2 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none"
+                      />
+                      <input
+                        type="text"
+                        placeholder="位点/丰度 (如: 融合)"
+                        value={customGeneSubtype}
+                        onChange={e => setCustomGeneSubtype(e.target.value)}
+                        className="flex-1 px-2 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleAddCustomGene}
+                        className="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg transition-colors cursor-pointer shrink-0"
+                      >
+                        添加
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 4. Smart Clinical Cross-Check Alert Banner */}
+                {(() => {
+                  const mutations = parsedData.geneMutations || [];
+                  const isStageIA = stagingPreview?.stage?.startsWith("IA") || parsedData?.stage?.startsWith("IA");
+                  const hasTargetable = mutations.some((m: any) => ["EGFR", "ALK", "ROS1", "RET", "MET", "BRAF"].includes(m.gene));
+                  const hasTp53 = mutations.some((m: any) => m.gene === "TP53");
+
+                  if (isStageIA && hasTargetable) {
+                    return (
+                      <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-200 text-xs text-emerald-950 flex items-start gap-2">
+                        <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                        <div>
+                          <div className="font-bold">早期 IA 期治愈定心丸（指南 1 类强烈推荐）：</div>
+                          <div className="text-[11px] text-emerald-800 leading-relaxed mt-0.5">
+                            已检出敏感驱动突变，但您的病灶处于 <strong>IA 期早期</strong>。国际权威指南明确确立：IA 期经 R0 根治切除后治愈率极高（90%~100%），<strong>严禁盲目服用靶向药辅助治疗</strong>（避免过度医疗与耐药），仅需遵医嘱定期复查即可。
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  } else if (!isStageIA && hasTargetable) {
+                    return (
+                      <div className="p-3 bg-blue-50 rounded-xl border border-blue-200 text-xs text-blue-950 flex items-start gap-2">
+                        <Award className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
+                        <div>
+                          <div className="font-bold">精准靶向辅助治疗获益指征确立：</div>
+                          <div className="text-[11px] text-blue-800 leading-relaxed mt-0.5">
+                            已检出敏感靶点，符合 <strong>ADAURA (奥希替尼) / ALINA (阿来替尼)</strong> 术后辅助治疗获益人群，III 期临床证实可降低 70%~83% 复发风险，且相关药物已纳入国家医保门特报销。
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  } else if (hasTp53) {
+                    return (
+                      <div className="p-3 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-950 flex items-start gap-2">
+                        <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                        <div>
+                          <div className="font-bold">高危伴随突变随访提示：</div>
+                          <div className="text-[11px] text-amber-800 leading-relaxed mt-0.5">
+                            检出 TP53 伴随共突变，文献提示可能存在轻度增殖活性。建议术后前 2 年严格执行每 3~6 个月薄层胸部 CT 规律随访。
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
+
+              </div>
+            )}
+          </div>
 
           {/* Section 4: Systemic Staging & M0 Confirmation Matrix (Strict 3-Column Symmetrical Grid: 5 Organs + 1 Benign Findings) */}
           <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-indigo-50/70 via-slate-50 to-teal-50/70 border-2 border-indigo-200/80 space-y-3.5 shadow-xs">

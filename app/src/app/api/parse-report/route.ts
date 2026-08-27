@@ -66,6 +66,13 @@ const SYSTEM_PROMPT = `
 - 脏层胸膜侵犯 (VPI): "未见" / "PL0" ➔ "negative"; "突破脏层胸膜" / "PL1" / "PL2" ➔ "positive"; 未提及 ➔ "negative"
 - 切缘状态 (Margin): "切缘阴性" / "切缘未见癌" / "R0" ➔ "negative"; "切缘阳性" / "R1" ➔ "positive"; 未提及 ➔ "negative"
 
+【第六步：分子驱动基因与伴随突变识别规则 (NGS / PCR / 免疫组化)】：
+- 识别常见驱动基因：EGFR (19del, L858R, 20-ins, T790M, G719X/L861Q/S768I)、ALK (EML4-ALK 融合)、KRAS (G12C 等)、ROS1、MET (14外显子跳跃/扩增)、RET、HER2、BRAF (V600E) 等。
+- 识别高危伴随突变 (Co-mutations)：TP53、RB1、PIK3CA 等，设置 isComutation 为 true。
+- 提取突变丰度 (abundance / VAF 如 "24.5%")。
+- 提取 PD-L1 表达 (pdl1Tps)："<1%" | "1-49%" | ">=50%" | "unknown"。
+- 判断基因检测状态 (molecularTestStatus)：检出突变 ➔ "tested"；全野生型/阴性 ➔ "negative"；未做检测 ➔ "not_tested"；检测中 ➔ "in_progress"。
+
 请严格遵守以下 JSON 结构输出，不要包含任何 Markdown 标记或多余的文字：
 {
   "reportType": "ct_imaging" | "pathology" | "systemic_staging" | "comprehensive",
@@ -128,6 +135,18 @@ const SYSTEM_PROMPT = `
       "note": "历史化验单"
     }
   ],
+  "geneMutations": [
+    {
+      "id": "mut_1",
+      "gene": "EGFR" | "ALK" | "KRAS" | "TP53" | "ROS1" | "MET" | "RET" | "HER2" | "BRAF" | "RB1" | "PIK3CA" | String,
+      "subtype": String | null,
+      "abundance": String | null,
+      "isComutation": Boolean,
+      "status": "positive" | "negative"
+    }
+  ],
+  "molecularTestStatus": "tested" | "negative" | "not_tested" | "in_progress",
+  "pdl1Tps": "<1%" | "1-49%" | ">=50%" | "unknown",
   "brainMri": "negative" | "positive" | "not_performed",
   "abdominalUltrasound": "negative" | "benign_findings" | "positive" | "not_performed",
   "boneScan": "negative" | "positive" | "not_performed",
@@ -349,6 +368,20 @@ export async function POST(request: Request) {
 
       // P2-2 Tumor Markers
       tumorMarkers,
+
+      // Molecular & Gene Mutations
+      geneMutations: Array.isArray(extracted.geneMutations) ? extracted.geneMutations : [],
+      molecularTestStatus: extracted.molecularTestStatus || (Array.isArray(extracted.geneMutations) && extracted.geneMutations.length > 0 ? "tested" : "not_tested"),
+      molecular: {
+        testStatus: extracted.molecularTestStatus || (Array.isArray(extracted.geneMutations) && extracted.geneMutations.length > 0 ? "tested" : "not_tested"),
+        testMethod: "NGS_panel",
+        mutations: Array.isArray(extracted.geneMutations) ? extracted.geneMutations : [],
+        pdl1Tps: extracted.pdl1Tps || "unknown"
+      },
+      pdl1Tps: extracted.pdl1Tps || undefined,
+      egfr: (Array.isArray(extracted.geneMutations) && extracted.geneMutations.some((m: any) => m.gene === "EGFR" && m.status !== "negative"))
+        ? "positive"
+        : (extracted.egfr || (extracted.molecularTestStatus === "not_tested" ? "not_tested" : "unknown")),
 
       age: extracted.age || 55,
       sex: extracted.sex || "male",

@@ -415,22 +415,86 @@ function Step2({ form, updateForm }: StepProps) {
         </div>
       </FormField>
 
-      <FormField label="EGFR 基因突变" tooltip="EGFR是一种基因。如果突变，则可以使用“靶向药”（如奄沙替尼）等口服药。中国肺癌患者阳性率约40–60%。在基因检测报告或就诊评估中可以找到">
-        <div className="flex gap-2">
-          {(["positive", "negative", "not_tested", "unknown"] as const).map((e) => (
-            <button
-              key={e}
-              id={`egfr-${e}`}
-              onClick={() => updateForm("egfr", e)}
-              className={`flex-1 py-2.5 rounded-lg text-xs font-medium transition-all cursor-pointer ${
-                form.egfr === e
-                  ? "bg-blue-50 border border-blue-500 text-blue-600"
-                  : "bg-white border border-gray-200 text-gray-500 hover:bg-gray-50"
-              }`}
-            >
-              {e === "positive" ? "阳性（有突变）" : e === "negative" ? "阴性（无突变）" : e === "not_tested" ? "未检测" : "未知"}
-            </button>
-          ))}
+      <FormField label="分子驱动基因与伴随突变（支持多选）" tooltip="检出敏感突变（EGFR/ALK等）可指导靶向药使用；伴随 TP53 等突变提示需关注随访密度。在病理/NGS基因报告中可找到">
+        <div className="space-y-2">
+          <div className="grid grid-cols-4 gap-2">
+            {[
+              { gene: "EGFR", label: "EGFR 突变", isComutation: false },
+              { gene: "ALK", label: "ALK 融合", isComutation: false },
+              { gene: "KRAS", label: "KRAS 突变", isComutation: false },
+              { gene: "ROS1", label: "ROS1 融合", isComutation: false },
+              { gene: "MET", label: "MET 异常", isComutation: false },
+              { gene: "RET", label: "RET 融合", isComutation: false },
+              { gene: "HER2", label: "HER2 突变", isComutation: false },
+              { gene: "BRAF", label: "BRAF 突变", isComutation: false },
+            ].map((item) => {
+              const currentList = Array.isArray(form.geneMutations) ? form.geneMutations : [];
+              const isSelected = currentList.some((m: any) => m.gene === item.gene);
+              return (
+                <button
+                  key={item.gene}
+                  type="button"
+                  onClick={() => {
+                    let updated;
+                    if (isSelected) {
+                      updated = currentList.filter((m: any) => m.gene !== item.gene);
+                    } else {
+                      updated = [...currentList, { id: `mut_${Date.now()}_${item.gene}`, gene: item.gene, subtype: "阳性", status: "positive", isComutation: item.isComutation }];
+                    }
+                    updateForm("geneMutations" as any, updated as any);
+                    const hasEgfr = updated.some((m: any) => m.gene === "EGFR");
+                    updateForm("egfr", hasEgfr ? "positive" : (updated.length > 0 ? "negative" : "not_tested"));
+                  }}
+                  className={`py-2 rounded-lg text-xs font-semibold transition-all cursor-pointer border ${
+                    isSelected
+                      ? "bg-blue-50 border-blue-500 text-blue-700 shadow-2xs font-bold"
+                      : "bg-white border-gray-200 text-gray-500 hover:bg-gray-50"
+                  }`}
+                >
+                  {item.label}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* TP53 & RB1 Co-mutations */}
+          <div className="p-2.5 bg-amber-50/70 border border-amber-200 rounded-lg flex items-center justify-between gap-2 flex-wrap">
+            <span className="text-xs font-bold text-amber-900 flex items-center gap-1">
+              <span>⚠️ 高危伴随突变 (Co-mutations):</span>
+            </span>
+            <div className="flex gap-1.5">
+              {[
+                { gene: "TP53", label: "TP53 伴随突变" },
+                { gene: "RB1", label: "RB1 突变" },
+                { gene: "PIK3CA", label: "PIK3CA 突变" }
+              ].map((co) => {
+                const currentList = Array.isArray(form.geneMutations) ? form.geneMutations : [];
+                const isSelected = currentList.some((m: any) => m.gene === co.gene);
+                return (
+                  <button
+                    key={co.gene}
+                    type="button"
+                    onClick={() => {
+                      let updated;
+                      if (isSelected) {
+                        updated = currentList.filter((m: any) => m.gene !== co.gene);
+                      } else {
+                        updated = [...currentList, { id: `mut_${Date.now()}_${co.gene}`, gene: co.gene, subtype: "阳性", status: "positive", isComutation: true }];
+                      }
+                      updateForm("geneMutations" as any, updated as any);
+                    }}
+                    className={`px-2.5 py-1 rounded-md text-xs transition-all cursor-pointer font-bold border ${
+                      isSelected
+                        ? "bg-amber-500 border-amber-600 text-white shadow-2xs"
+                        : "bg-white border-amber-300 text-amber-900 hover:bg-amber-100/50"
+                    }`}
+                  >
+                    {co.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
         </div>
       </FormField>
     </div>

@@ -232,6 +232,37 @@ export async function POST(request: Request) {
       }
 
 
+      // Ingest Molecular / Gene Mutation NGS Event if present
+      const molecularMutations = data.geneMutations || data.molecular?.mutations || [];
+      if (Array.isArray(molecularMutations) && molecularMutations.length > 0) {
+        const geneNames = molecularMutations.map((m: any) => `${m.gene}${m.subtype ? ` (${m.subtype})` : ''}`);
+        const hasCoMutation = molecularMutations.some((m: any) => m.isComutation || m.gene === 'TP53');
+        
+        await prisma.timelineEvent.create({
+          data: {
+            userId: targetUserId,
+            profileId: profile.id,
+            eventDate: data.examDate ? new Date(data.examDate) : new Date(),
+            category: 'molecular',
+            subType: 'NGS',
+            hospital: data.hospital || '分子病理与基因诊断中心',
+            title: `肿瘤驱动基因与分子靶向检测 (${data.molecular?.testMethod || 'NGS Panel'})`,
+            summary: `检出基因变异：${geneNames.join('、')}${data.pdl1Tps ? ` · PD-L1 TPS: ${data.pdl1Tps}` : ''}`,
+            keyFindings: {
+              mutations: molecularMutations,
+              pdl1Tps: data.pdl1Tps || data.molecular?.pdl1Tps || undefined,
+              testMethod: data.molecular?.testMethod || 'NGS_panel',
+            },
+            tags: JSON.stringify([
+              ...molecularMutations.map((m: any) => m.gene),
+              data.pdl1Tps ? `PD-L1 ${data.pdl1Tps}` : '分子靶向',
+              hasCoMutation ? '伴随突变' : '驱动基因'
+            ]),
+            riskStatus: hasCoMutation ? 'warning' : 'normal',
+          }
+        });
+      }
+
       // Ingest Historical Scans if followUpHistory is present
       if (Array.isArray(data.followUpHistory) && data.followUpHistory.length > 0) {
         for (const historyItem of data.followUpHistory) {
@@ -262,6 +293,14 @@ export async function POST(request: Request) {
       console.warn("Notice: Timeline auto-ingestion error (non-fatal):", timelineSyncErr);
     }
 
+    // Determine EGFR status from geneMutations if present
+    const hasEgfr = (data.geneMutations || data.molecular?.mutations || []).some(
+      (m: any) => m.gene === 'EGFR' && m.status !== 'negative'
+    );
+    const egfrStatus = hasEgfr 
+      ? 'positive' 
+      : data.egfr || (data.molecular?.testStatus === 'not_tested' ? 'not_tested' : 'unknown');
+
     // Return enriched profile object with normalized strings for UI
     const enriched = {
       ...profile,
@@ -271,6 +310,16 @@ export async function POST(request: Request) {
       lungRads: data.lungRads || null,
       malignancyRisk: data.malignancyRisk || riskLevel,
       clinicalRecommendation: data.clinicalRecommendation || nextAction,
+
+      // Molecular & Gene Mutation Fields
+      geneMutations: data.geneMutations || data.molecular?.mutations || [],
+      molecular: data.molecular || {
+        testStatus: data.geneMutations && data.geneMutations.length > 0 ? 'tested' : (data.molecularTestStatus || 'not_tested'),
+        mutations: data.geneMutations || [],
+        pdl1Tps: data.pdl1Tps || 'unknown',
+      },
+      pdl1Tps: data.pdl1Tps || data.molecular?.pdl1Tps || undefined,
+      egfr: egfrStatus,
 
       // P0 & P2 Fields
       isMultipleNodules: data.isMultipleNodules || (Array.isArray(data.secondaryNodules) && data.secondaryNodules.length > 0) || false,
