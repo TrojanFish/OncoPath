@@ -152,6 +152,19 @@ export default function PatientDashboard() {
     };
   }, []);
 
+  // Support Esc key to dismiss update or delete modals
+  useEffect(() => {
+    if (!showUpdateModal && !showDeleteModal) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        if (showUpdateModal) setShowUpdateModal(false);
+        if (showDeleteModal) setShowDeleteModal(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [showUpdateModal, showDeleteModal]);
+
   const handleParsed = async (parsedData: any) => {
     try {
       const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
@@ -984,9 +997,16 @@ export default function PatientDashboard() {
 
       {/* Profile Update Intent Router Modal (方案 A: 意图分流弹窗) */}
 
+      {/* Profile Update Intent Router Modal (方案 A: 意图分流弹窗) */}
       {showUpdateModal && (
-        <div className="fixed inset-0 z-[9999] bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 animate-fade-in">
-          <div className="bg-white rounded-3xl max-w-lg w-full border border-slate-200 shadow-2xl overflow-hidden flex flex-col p-6 sm:p-7 text-slate-900 animate-fade-in-up space-y-5">
+        <div 
+          onClick={() => setShowUpdateModal(false)}
+          className="fixed inset-0 z-[9999] bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 animate-fade-in overflow-y-auto"
+        >
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white rounded-3xl max-w-lg w-full border border-slate-200 shadow-2xl overflow-hidden flex flex-col p-6 sm:p-7 text-slate-900 animate-fade-in-up space-y-5 my-auto"
+          >
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
@@ -1002,10 +1022,13 @@ export default function PatientDashboard() {
                 </div>
               </div>
               <button 
+                type="button"
                 onClick={() => setShowUpdateModal(false)}
-                className="text-slate-400 hover:text-slate-600 p-1 cursor-pointer"
+                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-900 flex items-center justify-center cursor-pointer transition-colors shrink-0"
+                aria-label="关闭窗口"
+                title="关闭窗口"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
 
@@ -1078,11 +1101,29 @@ export default function PatientDashboard() {
 
       {/* PIPL Right-to-be-Forgotten Wipe Confirmation Modal */}
       {showDeleteModal && (
-        <div className="fixed inset-0 z-[9999] bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 animate-fade-in">
-          <div className="bg-white rounded-3xl max-w-md w-full border border-slate-200 shadow-2xl overflow-hidden flex flex-col p-6 text-slate-900 animate-fade-in-up">
-            <div className="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center text-2xl mb-4">
-              <Trash2 className="w-6 h-6 text-rose-600" />
+        <div 
+          onClick={() => setShowDeleteModal(false)}
+          className="fixed inset-0 z-[9999] bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 animate-fade-in overflow-y-auto"
+        >
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white rounded-3xl max-w-md w-full border border-slate-200 shadow-2xl overflow-hidden flex flex-col p-6 sm:p-7 text-slate-900 animate-fade-in-up my-auto"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center text-2xl">
+                <Trash2 className="w-6 h-6 text-rose-600" />
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowDeleteModal(false)}
+                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-900 flex items-center justify-center cursor-pointer transition-colors shrink-0"
+                aria-label="关闭窗口"
+                title="关闭窗口"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
+
             <h3 className="text-lg font-bold text-slate-900 mb-2">
               确认彻底销毁与注销您的临床档案？
             </h3>
@@ -1097,6 +1138,7 @@ export default function PatientDashboard() {
 
             <div className="flex items-center justify-end gap-3">
               <button
+                type="button"
                 onClick={() => setShowDeleteModal(false)}
                 disabled={isDeleting}
                 className="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-all cursor-pointer"
@@ -1104,9 +1146,10 @@ export default function PatientDashboard() {
                 取消
               </button>
               <button
+                type="button"
                 onClick={handleWipeProfile}
                 disabled={isDeleting}
-                className="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-rose-600 hover:bg-rose-700 text-white shadow-md shadow-rose-600/20 transition-all cursor-pointer flex items-center gap-2"
+                className="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-rose-600 hover:bg-rose-700 text-white shadow-md shadow-rose-600/20 transition-all cursor-pointer flex items-center gap-2 active:scale-95"
               >
                 {isDeleting ? (
                   <>

@@ -181,44 +181,76 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
             </button>
           </div>
 
-          <div className="flex items-center gap-2 self-stretch sm:self-auto flex-wrap sm:flex-nowrap">
+          <div className="flex items-center gap-1.5 sm:gap-2 self-stretch sm:self-auto shrink-0">
             <button
               type="button"
               onClick={handleExportPdf}
               disabled={isExportingPdf}
-              className={`flex-1 sm:flex-initial px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold shadow-xs flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap active:scale-95 transition-all ${
+              className={`flex-1 sm:flex-initial px-3 sm:px-4 py-2 rounded-xl text-xs font-bold shadow-xs flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap active:scale-95 transition-all ${
                 pdfSuccess
                   ? "bg-emerald-600 text-white"
                   : "bg-blue-600 hover:bg-blue-700 text-white"
               }`}
             >
               {pdfSuccess ? <Check className="w-3.5 h-3.5" /> : <FileText className="w-3.5 h-3.5" />}
-              <span>{pdfSuccess ? "已下载 A4 PDF" : (isExportingPdf ? "正在合成 PDF..." : "下载 A4 便签 PDF")}</span>
+              <span>
+                {pdfSuccess ? (
+                  "已下载 PDF"
+                ) : isExportingPdf ? (
+                  "生成中..."
+                ) : (
+                  <>
+                    <span className="sm:hidden">A4 PDF</span>
+                    <span className="hidden sm:inline">下载 A4 便签 PDF</span>
+                  </>
+                )}
+              </span>
             </button>
+
             <button
               type="button"
               onClick={handleExportImage}
               disabled={isExportingImage}
-              className={`flex-1 sm:flex-initial px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold shadow-xs flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap active:scale-95 transition-all ${
+              className={`flex-1 sm:flex-initial px-3 sm:px-4 py-2 rounded-xl text-xs font-bold shadow-xs flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap active:scale-95 transition-all ${
                 downloadSuccess
                   ? "bg-emerald-600 text-white shadow-emerald-500/20"
                   : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-blue-500/20"
               }`}
             >
-              {downloadSuccess ? <Check className="w-3.5 h-3.5 stroke-[2.5]" /> : <Download className="w-3.5 h-3.5" />}
-              <span>{downloadSuccess ? "已成功保存到本地" : (isExportingImage ? "正在渲染长图..." : "保存病历长图 (PNG)")}</span>
+              {downloadSuccess ? (
+                <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+              ) : (
+                <Download className="w-3.5 h-3.5" />
+              )}
+              <span>
+                {downloadSuccess ? (
+                  "已保存图片"
+                ) : isExportingImage ? (
+                  "渲染中..."
+                ) : (
+                  <>
+                    <span className="sm:hidden">保存长图</span>
+                    <span className="hidden sm:inline">保存病历长图 (PNG)</span>
+                  </>
+                )}
+              </span>
             </button>
+
             <button
+              type="button"
               onClick={handlePrint}
-              className="flex-1 sm:flex-initial bg-slate-100 hover:bg-slate-200 text-slate-700 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold shadow-xs flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap active:scale-95 transition-transform"
+              className="hidden sm:flex bg-slate-100 hover:bg-slate-200 text-slate-700 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold shadow-xs items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap active:scale-95 transition-transform"
             >
               <Printer className="w-3.5 h-3.5" />
               <span>打印</span>
             </button>
+
             <button
+              type="button"
               onClick={onClose}
-              className="hidden sm:flex w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 items-center justify-center cursor-pointer shrink-0 transition-colors"
-              aria-label="关闭"
+              className="hidden sm:flex w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-900 items-center justify-center cursor-pointer shrink-0 transition-colors"
+              aria-label="关闭窗口"
+              title="关闭窗口"
             >
               <X className="w-4 h-4" />
             </button>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { 
   HeartHandshake, 
@@ -26,6 +26,18 @@ export default function AboutPage() {
   const [copied, setCopied] = useState(false);
   const [previewImage, setPreviewImage] = useState<{ src: string; title: string } | null>(null);
   const contactEmail = "contact@oncopath.org";
+
+  // Support Esc key to dismiss QR modal
+  useEffect(() => {
+    if (!previewImage) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setPreviewImage(null);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [previewImage]);
 
   const handleCopyEmail = () => {
     navigator.clipboard.writeText(contactEmail);

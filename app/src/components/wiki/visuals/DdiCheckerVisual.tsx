@@ -184,12 +184,11 @@ export function DdiCheckerVisual({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="h-8 px-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 flex items-center gap-1 text-xs font-bold transition-all cursor-pointer shrink-0 shadow-2xs"
-                  aria-label="关闭自检窗口"
-                  title="关闭窗口 (Esc)"
+                  className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-900 flex items-center justify-center transition-all cursor-pointer shrink-0"
+                  aria-label="关闭窗口"
+                  title="关闭窗口"
                 >
                   <X className="w-4 h-4" />
-                  <span className="text-[10px] font-mono font-normal text-slate-400">Esc</span>
                 </button>
               </div>
             )}

@@ -82,6 +82,18 @@ export default function EvidenceReport({
       });
   }, [profile]);
 
+  // Support Esc key to dismiss graph overlay
+  useEffect(() => {
+    if (!showGraphOverlay) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setShowGraphOverlay(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [showGraphOverlay]);
+
   if (loading) return <LoadingScreen />;
   if (!result) return null;
 
@@ -104,32 +116,35 @@ export default function EvidenceReport({
       {/* Knowledge Graph Overlay */}
       {showGraphOverlay && (
         <div
-          className="fixed inset-0 z-[100] bg-gray-900/40 backdrop-blur-sm flex flex-col p-4 md:p-8"
+          className="fixed inset-0 z-[100] bg-slate-950/70 backdrop-blur-md flex flex-col p-3 sm:p-6 md:p-8 animate-fade-in overflow-y-auto"
           onClick={(e) => { if (e.target === e.currentTarget) setShowGraphOverlay(false); }}
         >
           {/* Overlay Header */}
-          <div className="bg-white border-b border-gray-200 rounded-t-2xl px-4 md:px-6 py-4 flex items-center justify-between flex-shrink-0 w-full max-w-6xl mx-auto mt-4">
+          <div className="bg-white border-b border-slate-200 rounded-t-3xl px-4 sm:px-6 py-4 flex items-center justify-between flex-shrink-0 w-full max-w-6xl mx-auto mt-2">
             <div className="flex items-center gap-2 md:gap-3">
-              <div className="w-2 h-2 rounded-full bg-accent-teal animate-pulse" />
-              <span className="text-text-primary font-semibold text-sm md:text-base">专属路径图谱</span>
-              <span className="text-text-muted text-xs md:text-sm hidden sm:inline">— 根据您的病理特征高亮显示</span>
+              <div className="w-2.5 h-2.5 rounded-full bg-teal-500 animate-pulse" />
+              <span className="text-slate-900 font-extrabold text-sm md:text-base">专属路径图谱</span>
+              <span className="text-slate-500 text-xs md:text-sm hidden sm:inline">— 根据您的病理特征高亮显示</span>
             </div>
             <button
+              type="button"
               onClick={() => setShowGraphOverlay(false)}
-              className="text-text-muted hover:text-text-primary transition-colors text-2xl leading-none cursor-pointer w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/5"
+              className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-900 flex items-center justify-center cursor-pointer transition-colors"
+              aria-label="关闭窗口"
+              title="关闭窗口"
             >
-              &times;
+              <span className="text-lg leading-none">✕</span>
             </button>
           </div>
           {/* Overlay Content */}
-          <div className="flex-1 overflow-y-auto px-6 pb-8">
-            <div className="max-w-6xl mx-auto">
+          <div className="flex-1 overflow-y-auto px-4 sm:px-6 pb-8 bg-slate-900/90 rounded-b-3xl max-w-6xl mx-auto w-full border-x border-b border-slate-800">
+            <div className="max-w-6xl mx-auto pt-4">
               <KnowledgeMapPreview profile={profile} />
             </div>
           </div>
           {/* Bottom hint */}
-          <div className="flex-shrink-0 px-6 py-3 border-t border-white/5 text-center">
-            <span className="text-text-muted text-xs">点击连线可查看文献依据 · 点击背景关闭</span>
+          <div className="flex-shrink-0 px-6 py-3 text-center">
+            <span className="text-slate-400 text-xs">点击连线可查看文献依据 · 点击背景或按 Esc 键关闭</span>
           </div>
         </div>
       )}

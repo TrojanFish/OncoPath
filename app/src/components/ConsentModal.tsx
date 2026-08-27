@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
+import { ONCOPATH_LOGO_DATA_URI } from "@/lib/brandLogo";
 
 interface ConsentModalProps {
   onConsentAccepted?: () => void;
@@ -32,15 +33,19 @@ export default function ConsentModal({ onConsentAccepted }: ConsentModalProps) {
   if (!mounted || !isOpen) return null;
 
   const modalContent = (
-    <div className="fixed inset-0 z-[9999] bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 animate-fade-in">
-      <div className="bg-white rounded-3xl max-w-xl w-full border border-slate-200 shadow-2xl overflow-hidden flex flex-col max-h-[90vh] text-slate-900 animate-fade-in-up">
+    <div className="fixed inset-0 z-[9999] bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 animate-fade-in overflow-y-auto">
+      <div 
+        onClick={(e) => e.stopPropagation()}
+        className="bg-white rounded-3xl max-w-xl w-full border border-slate-200 shadow-2xl overflow-hidden flex flex-col max-h-[90vh] text-slate-900 animate-fade-in-up my-auto"
+      >
         {/* Header */}
-        <div className="p-6 border-b border-slate-100 flex items-center gap-3 bg-gradient-to-r from-blue-50/70 to-teal-50/70">
-          <div className="w-10 h-10 rounded-2xl overflow-hidden shadow-xs flex items-center justify-center flex-shrink-0 bg-white border border-slate-200">
-            <img src="/logo.png" alt="OncoPath Logo" className="w-full h-full object-cover" />
+        <div className="p-5 sm:p-6 border-b border-slate-100 flex items-center gap-3 bg-white shrink-0">
+          <div className="w-10 h-10 rounded-2xl overflow-hidden shadow-xs flex items-center justify-center shrink-0 bg-slate-800 border border-slate-700">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={ONCOPATH_LOGO_DATA_URI} alt="OncoPath Logo" className="w-full h-full object-cover" />
           </div>
           <div>
-            <h2 className="text-base sm:text-lg font-bold text-slate-900">使用知情同意与医学免责声明</h2>
+            <h2 className="text-base sm:text-lg font-extrabold text-slate-900">使用知情同意与医学免责声明</h2>
             <p className="text-xs text-slate-500">OncoPath 循证肿瘤医学导航平台</p>
           </div>
         </div>
