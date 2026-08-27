@@ -524,42 +524,40 @@ export default function EvidenceReportPage() {
 
       {/* Main Page Layout Wrapper */}
       <div className="max-w-5xl mx-auto px-2.5 sm:px-6 lg:px-8 pt-16 sm:pt-20 md:pt-22 pb-12 print:pt-0 print:px-0">
-        
-        {/* Smart Cache Notification Banner (Outside printable report) */}
-        {isLoadedFromCache && !isGenerating && (
-          <div className="mb-4 p-3 sm:p-3.5 px-3.5 sm:px-4 rounded-2xl bg-gradient-to-r from-sky-50 via-blue-50/70 to-teal-50/50 border border-sky-200/80 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs text-slate-600 print:hidden">
-            <div className="flex items-center gap-2">
-              <svg className="w-4 h-4 text-sky-600 flex-shrink-0" viewBox="0 0 24 24" fill="none">
-                <path d="M7 3h7l5 5v13a1 1 0 01-1 1H7a1 1 0 01-1-1V4a1 1 0 011-1z" fill="currentColor" fillOpacity="0.2" stroke="currentColor" strokeWidth="1.75" />
-                <path d="M14 3v5h5M9 13h6M9 17h4" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
-              </svg>
-              <span>
-                已载入您的专属深度循证解读报告
-                {cachedTime && <span className="font-semibold text-sky-800 ml-1 bg-sky-100/80 px-1.5 py-0.5 rounded-md">生成于 {cachedTime}</span>}
-              </span>
-            </div>
-
-            <Link
-              href="/profile"
-              className="self-end sm:self-center flex items-center gap-1 text-[11px] font-bold text-sky-700 hover:text-sky-900 bg-white px-2.5 py-1 rounded-lg border border-sky-200 shadow-2xs hover:bg-sky-50 transition-all cursor-pointer"
-            >
-              <span>若指标有更新，前往档案修改</span>
-            </Link>
-          </div>
-        )}
 
         {/* Pure printable & long-image exportable container (No trailing blank space) */}
         <div id="report-printable-area" ref={reportContainerRef} className="space-y-4 sm:space-y-5 bg-slate-50/90 p-3.5 sm:p-6 md:p-7 rounded-3xl border border-slate-200/90 shadow-sm print:bg-white print:border-none print:shadow-none print:p-0">
           
-          {/* Professional Clinical Report Brand Header (Visible in Exported Long Image & Print) */}
-          <div className="flex items-center justify-between pb-3 border-b border-slate-200/90 text-xs text-slate-500">
-            <div className="flex items-center gap-2">
-              <span className="font-black text-blue-700 text-sm tracking-tight">OncoPath Navigator</span>
-              <span className="text-slate-300">|</span>
-              <span className="font-bold text-slate-700">肺癌循证医学决策系统 · 临床专属循证解读报告</span>
+          {/* Professional Clinical Report Integrated Header (Streamlined, Brand + Sync Status + Edit Action) */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-3.5 border-b border-slate-200/90 text-xs text-slate-500">
+            <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex items-center gap-2">
+                <span className="font-black text-blue-700 text-sm sm:text-base tracking-tight">OncoPath Navigator</span>
+                <span className="text-slate-300">|</span>
+                <span className="font-bold text-slate-800 text-xs sm:text-sm">临床专属循证解读报告</span>
+              </div>
+              {isLoadedFromCache && !isGenerating && cachedTime && (
+                <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-sky-700 bg-sky-50 px-2 py-0.5 rounded-md border border-sky-200/80 print:hidden">
+                  <span className="w-1.5 h-1.5 rounded-full bg-sky-500"></span>
+                  <span>已同步档案 ({cachedTime})</span>
+                </span>
+              )}
             </div>
-            <div className="text-[11px] text-slate-400 font-medium font-mono">
-              报告时间: {new Date().toLocaleDateString('zh-CN')}
+
+            <div className="flex items-center gap-2.5 self-end sm:self-auto shrink-0">
+              <Link
+                href="/profile"
+                className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-700 hover:text-blue-700 bg-white hover:bg-slate-50 px-2.5 py-1 rounded-xl border border-slate-200 shadow-2xs hover:border-blue-200 transition-all cursor-pointer print:hidden group"
+                title="若指标有更新，点击前往个人档案修改"
+              >
+                <span className="text-slate-400 group-hover:text-blue-600 transition-colors">✏️</span>
+                <span>修改指标 / 重新生成</span>
+              </Link>
+              <div className="text-[11px] text-slate-400 font-medium font-mono whitespace-nowrap">
+                <span className="hidden print:inline">报告归档时间: </span>
+                <span className="print:hidden">报告时间: </span>
+                <span>{new Date().toLocaleDateString('zh-CN')}</span>
+              </div>
             </div>
           </div>
 
