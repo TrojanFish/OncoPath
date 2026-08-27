@@ -62,66 +62,101 @@ export default function ProfileExportModal({ profile, onClose }: ProfileExportMo
     day: "2-digit"
   }).replace(/\//g, "-");
 
-  const handleGenerateImage = async () => {
-    if (!offscreenPosterRef.current || isExporting) return;
+  const handleGenerateImage = async (): Promise<string | null> => {
+    if (!offscreenPosterRef.current) return null;
     try {
       setIsExporting(true);
       setGenerationError(null);
 
       const element = offscreenPosterRef.current;
-      await new Promise((r) => setTimeout(r, 200));
+      
+      // Ensure document fonts and layouts are settled
+      if (typeof document !== "undefined" && (document as any).fonts) {
+        try {
+          await (document as any).fonts.ready;
+        } catch {}
+      }
+      await new Promise((r) => setTimeout(r, 150));
 
       let imgData = "";
+      
+      // Engine 1: html-to-image with fontEmbedCSS bypass for Next.js/Tailwind CORS protection
       try {
         imgData = await toPng(element, {
           quality: 0.98,
           pixelRatio: 2,
+          skipAutoScale: true,
+          fontEmbedCSS: "", // Critical to prevent cross-origin stylesheet SecurityErrors
           cacheBust: true,
         });
       } catch (primaryErr) {
         console.warn("Primary html-to-image failed, trying html2canvas fallback:", primaryErr);
-        const html2canvas = (await import("html2canvas")).default;
-        const canvas = await html2canvas(element, {
-          scale: 2,
-          useCORS: true,
-          allowTaint: true,
-          backgroundColor: "#020617",
-          logging: false,
-        });
-        imgData = canvas.toDataURL("image/png");
       }
 
-      if (imgData) {
+      // Engine 2: html2canvas fallback with precise viewport bounds
+      if (!imgData || imgData.length < 500) {
+        try {
+          const html2canvas = (await import("html2canvas")).default;
+          const canvas = await html2canvas(element, {
+            scale: 2,
+            useCORS: true,
+            allowTaint: true,
+            backgroundColor: "#020617",
+            logging: false,
+            scrollX: 0,
+            scrollY: 0,
+            x: 0,
+            y: 0,
+            width: 560,
+            windowWidth: 1200,
+          });
+          imgData = canvas.toDataURL("image/png");
+        } catch (secondaryErr) {
+          console.error("Secondary html2canvas also failed:", secondaryErr);
+        }
+      }
+
+      if (imgData && imgData.length >= 500) {
         setExportedImageUrl(imgData);
+        return imgData;
       } else {
-        throw new Error("生成图片数据为空");
+        throw new Error("生成长图数据为空");
       }
     } catch (err: any) {
       console.error("Failed to generate profile export poster:", err);
-      setGenerationError("生成长图遇到浏览器限制，请长按下方卡片或使用系统截图。");
+      setGenerationError("生成长图遇到限制，请点击下方重试或使用系统截图。");
+      return null;
     } finally {
       setIsExporting(false);
     }
   };
 
-
   useEffect(() => {
     const timer = setTimeout(() => {
       handleGenerateImage();
-    }, 200);
+    }, 250);
     return () => clearTimeout(timer);
   }, []);
 
-  const handleDownload = () => {
-    if (!exportedImageUrl) return;
-    const a = document.createElement("a");
-    a.href = exportedImageUrl;
-    a.download = `OncoPath-患者数字档案-${profile.stage || "临床"}-${currentDateStr}.png`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    setDownloadSuccess(true);
-    setTimeout(() => setDownloadSuccess(false), 2500);
+  const handleDownload = async () => {
+    let imgUrl = exportedImageUrl;
+    if (!imgUrl) {
+      imgUrl = await handleGenerateImage();
+    }
+    if (!imgUrl) return;
+
+    try {
+      const a = document.createElement("a");
+      a.href = imgUrl;
+      a.download = `OncoPath-患者数字档案-${profile.stage || "临床"}-${currentDateStr}.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setDownloadSuccess(true);
+      setTimeout(() => setDownloadSuccess(false), 2500);
+    } catch (downloadErr) {
+      console.error("Download failed:", downloadErr);
+    }
   };
 
   return (
@@ -167,9 +202,16 @@ export default function ProfileExportModal({ profile, onClose }: ProfileExportMo
           )}
 
           {generationError && (
-            <div className="p-4 bg-rose-950/50 border border-rose-800 rounded-2xl text-rose-300 text-xs text-center space-y-2 max-w-sm">
+            <div className="p-4 bg-rose-950/50 border border-rose-800 rounded-2xl text-rose-300 text-xs text-center space-y-3 max-w-sm">
               <AlertTriangle className="w-5 h-5 text-rose-400 mx-auto" />
               <p>{generationError}</p>
+              <button
+                type="button"
+                onClick={() => handleGenerateImage()}
+                className="px-3.5 py-1.5 bg-rose-900/80 hover:bg-rose-800 text-rose-100 rounded-xl text-xs font-bold transition-colors cursor-pointer"
+              >
+                点击重试生成
+              </button>
             </div>
           )}
 
@@ -200,7 +242,7 @@ export default function ProfileExportModal({ profile, onClose }: ProfileExportMo
 
           <button
             onClick={handleDownload}
-            disabled={!exportedImageUrl || isExporting}
+            disabled={isExporting}
             className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-lg ${
               downloadSuccess 
                 ? "bg-emerald-600 text-white" 
@@ -208,13 +250,25 @@ export default function ProfileExportModal({ profile, onClose }: ProfileExportMo
             }`}
           >
             {downloadSuccess ? <Check className="w-4 h-4" /> : <Download className="w-4 h-4" />}
-            <span>{downloadSuccess ? "已下载到本地" : "下载高清长图 (PNG)"}</span>
+            <span>{downloadSuccess ? "已下载到本地" : (isExporting ? "生成中..." : "下载高清长图 (PNG)")}</span>
           </button>
         </div>
       </div>
 
-      {/* OFFSCREEN DOM TO RENDER FOR HIGH RES POSTER (Fixed 560px Width, Beautiful Medical Dark Aesthetics) */}
-      <div className="absolute left-[-9999px] top-[-9999px] pointer-events-none" aria-hidden="true">
+      {/* OFFSCREEN DOM TO RENDER FOR HIGH RES POSTER (Fixed 560px Width, Precise Geometry at 0,0) */}
+      <div 
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "560px",
+          zIndex: -9999,
+          opacity: 0,
+          pointerEvents: "none",
+          overflow: "hidden",
+        }}
+        aria-hidden="true"
+      >
         <div
           ref={offscreenPosterRef}
           className="w-[560px] text-white p-7 font-sans relative overflow-hidden"
@@ -233,9 +287,8 @@ export default function ProfileExportModal({ profile, onClose }: ProfileExportMo
           {/* Header Brand */}
           <div className="flex items-center justify-between border-b border-slate-800/80 pb-4 mb-5 relative z-10">
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl overflow-hidden shadow-md shadow-blue-500/30 shrink-0">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/logo.png" alt="OncoPath Logo" className="w-full h-full object-cover" />
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-blue-500/30 shrink-0 font-black text-sm">
+                <ShieldCheck className="w-5 h-5 text-white" />
               </div>
               <div>
                 <div className="text-sm font-extrabold text-white tracking-tight flex items-center gap-1.5">

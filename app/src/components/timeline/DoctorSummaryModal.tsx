@@ -1,16 +1,19 @@
 "use client";
 
-import { useMemo } from "react";
+import { useState, useRef, useMemo } from "react";
 import { 
   Stethoscope, 
   Printer, 
+  Download,
+  Check,
   X, 
   Scan, 
   Microscope, 
   Zap, 
   TestTube2, 
   Activity,
-  Dna
+  Dna,
+  ShieldCheck
 } from "lucide-react";
 import { TimelineEventItem } from "@/lib/timelineTypes";
 
@@ -20,6 +23,10 @@ interface DoctorSummaryModalProps {
 }
 
 export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryModalProps) {
+  const [isExportingImage, setIsExportingImage] = useState(false);
+  const [downloadSuccess, setDownloadSuccess] = useState(false);
+  const printableDocRef = useRef<HTMLDivElement>(null);
+
   // Sort events chronologically descending
   const sortedEvents = useMemo(() => {
     return [...events].sort((a, b) => new Date(b.eventDate).getTime() - new Date(a.eventDate).getTime());
@@ -45,6 +52,67 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
 
   const handlePrint = () => {
     window.print();
+  };
+
+  const handleExportImage = async () => {
+    if (!printableDocRef.current || isExportingImage) return;
+    try {
+      setIsExportingImage(true);
+      const element = printableDocRef.current;
+
+      if (typeof document !== "undefined" && (document as any).fonts) {
+        try {
+          await (document as any).fonts.ready;
+        } catch {}
+      }
+      await new Promise((r) => setTimeout(r, 100));
+
+      let imgData = "";
+      try {
+        const { toPng } = await import("html-to-image");
+        imgData = await toPng(element, {
+          quality: 0.98,
+          pixelRatio: 2,
+          skipAutoScale: true,
+          fontEmbedCSS: "",
+          backgroundColor: "#ffffff",
+          cacheBust: true,
+        });
+      } catch (err1) {
+        console.warn("toPng failed, trying html2canvas:", err1);
+      }
+
+      if (!imgData || imgData.length < 500) {
+        const html2canvas = (await import("html2canvas")).default;
+        const canvas = await html2canvas(element, {
+          scale: 2,
+          useCORS: true,
+          allowTaint: true,
+          backgroundColor: "#ffffff",
+          logging: false,
+        });
+        imgData = canvas.toDataURL("image/png");
+      }
+
+      if (imgData && imgData.length >= 500) {
+        const dateStr = new Date().toISOString().split("T")[0];
+        const a = document.createElement("a");
+        a.href = imgData;
+        a.download = `OncoPath-名医就诊汇报清单-${dateStr}.png`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setDownloadSuccess(true);
+        setTimeout(() => setDownloadSuccess(false), 2500);
+      } else {
+        throw new Error("未能生成问诊清单图片数据");
+      }
+    } catch (err: any) {
+      console.error("Export image error:", err);
+      alert("生成问诊清单图片遇到浏览器限制，建议直接点击'打印 / 导出 PDF'。");
+    } finally {
+      setIsExportingImage(false);
+    }
   };
 
   return (
@@ -83,10 +151,23 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center gap-2 self-stretch sm:self-auto">
+          <div className="flex items-center gap-2 self-stretch sm:self-auto flex-wrap sm:flex-nowrap">
+            <button
+              type="button"
+              onClick={handleExportImage}
+              disabled={isExportingImage}
+              className={`flex-1 sm:flex-initial px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold shadow-xs flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap active:scale-95 transition-all ${
+                downloadSuccess
+                  ? "bg-emerald-600 text-white"
+                  : "bg-slate-900 hover:bg-slate-800 text-white"
+              }`}
+            >
+              {downloadSuccess ? <Check className="w-3.5 h-3.5" /> : <Download className="w-3.5 h-3.5" />}
+              <span>{downloadSuccess ? "已下载图片" : (isExportingImage ? "生成长图中..." : "导出长图 (PNG)")}</span>
+            </button>
             <button
               onClick={handlePrint}
-              className="flex-1 sm:flex-initial btn-primary px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold shadow-sm flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap active:scale-95 transition-transform"
+              className="flex-1 sm:flex-initial btn-primary px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold shadow-xs flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap active:scale-95 transition-transform"
             >
               <Printer className="w-3.5 h-3.5" />
               <span>打印 / 导出 PDF</span>
@@ -102,12 +183,13 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
         </div>
 
         {/* Printable Document Body */}
-        <div className="mt-4 sm:mt-6 space-y-5 sm:space-y-6 print:mt-0 font-sans">
+        <div ref={printableDocRef} className="mt-4 sm:mt-6 space-y-5 sm:space-y-6 print:mt-0 font-sans p-1 bg-white">
           {/* Clinic Header */}
           <div className="border-b-2 border-slate-900 pb-3 sm:pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div className="flex items-center gap-3">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo.png" alt="OncoPath Logo" className="w-10 h-10 rounded-xl object-cover shrink-0 shadow-xs" />
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-white shrink-0 shadow-xs">
+                <ShieldCheck className="w-6 h-6 text-white" />
+              </div>
               <div>
                 <h1 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
                   肺部疾病长程随访与临床时序摘要

@@ -33,8 +33,12 @@ export default function WikiSharePosterModal({ topic, visualDomHtml, onClose }: 
 
       const element = offscreenPosterRef.current;
       
-      // Ensure SVG micro visuals, fonts and layout are completely mounted
-      await new Promise((r) => setTimeout(r, 250));
+      if (typeof document !== "undefined" && (document as any).fonts) {
+        try {
+          await (document as any).fonts.ready;
+        } catch {}
+      }
+      await new Promise((r) => setTimeout(r, 150));
 
       const fullWidth = 520;
       const fullHeight = element.scrollHeight;
@@ -44,6 +48,8 @@ export default function WikiSharePosterModal({ topic, visualDomHtml, onClose }: 
         imgData = await toPng(element, {
           quality: 0.98,
           pixelRatio: 2,
+          skipAutoScale: true,
+          fontEmbedCSS: "",
           width: fullWidth,
           height: fullHeight,
           canvasWidth: fullWidth * 2,
@@ -131,9 +137,8 @@ export default function WikiSharePosterModal({ topic, visualDomHtml, onClose }: 
           {/* Header */}
           <div className="flex items-center justify-between border-b border-slate-800 pb-4">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl overflow-hidden shadow-md flex-shrink-0">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/logo.png" alt="OncoPath Logo" className="w-full h-full object-cover" />
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white shrink-0 shadow-md font-bold text-xs">
+                <ShieldCheck className="w-4 h-4 text-white" />
               </div>
               <div>
                 <div className="text-xs font-black tracking-wider text-white">OncoPath · 肺癌循证决策系统</div>

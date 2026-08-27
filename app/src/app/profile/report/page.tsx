@@ -280,29 +280,51 @@ export default function EvidenceReportPage() {
     try {
       setIsExportingCard(true);
 
+      if (typeof document !== "undefined" && (document as any).fonts) {
+        try {
+          await (document as any).fonts.ready;
+        } catch {}
+      }
+      await new Promise((r) => setTimeout(r, 100));
+
       // Fast, lightweight, pixel-perfect render of the Consultation Pocket Card (560px)
       let imgData = "";
       try {
         imgData = await toPng(consultationCardRef.current, {
           quality: 0.98,
           pixelRatio: 2,
+          skipAutoScale: true,
+          fontEmbedCSS: "",
           backgroundColor: "#0f172a",
           cacheBust: true,
         });
       } catch (primaryErr) {
         console.warn("Primary html-to-image engine hit error, trying html2canvas fallback:", primaryErr);
-        const html2canvas = (await import("html2canvas")).default;
-        const canvas = await html2canvas(consultationCardRef.current, {
-          scale: 2,
-          useCORS: true,
-          allowTaint: true,
-          backgroundColor: "#0f172a",
-          logging: false,
-        });
-        imgData = canvas.toDataURL("image/png");
       }
 
-      if (imgData) {
+      if (!imgData || imgData.length < 500) {
+        try {
+          const html2canvas = (await import("html2canvas")).default;
+          const canvas = await html2canvas(consultationCardRef.current, {
+            scale: 2,
+            useCORS: true,
+            allowTaint: true,
+            backgroundColor: "#0f172a",
+            logging: false,
+            scrollX: 0,
+            scrollY: 0,
+            x: 0,
+            y: 0,
+            width: 560,
+            windowWidth: 1200,
+          });
+          imgData = canvas.toDataURL("image/png");
+        } catch (secondaryErr) {
+          console.error("Secondary html2canvas also failed:", secondaryErr);
+        }
+      }
+
+      if (imgData && imgData.length >= 500) {
         setExportedImageUrl(imgData);
       } else {
         throw new Error("未能生成问诊便签卡图片数据");
@@ -960,7 +982,16 @@ export default function EvidenceReportPage() {
 
       {/* Dedicated Consultation Pocket Card Container (Fixed 560px for Instant Pixel-Perfect 2x Export) */}
       <div
-        style={{ position: 'fixed', left: '-9999px', top: '-9999px', width: '560px' }}
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "560px",
+          zIndex: -9999,
+          opacity: 0,
+          pointerEvents: "none",
+          overflow: "hidden",
+        }}
         aria-hidden="true"
       >
         <div
@@ -970,9 +1001,8 @@ export default function EvidenceReportPage() {
           {/* Header */}
           <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-800 relative z-10">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl overflow-hidden shadow-md flex-shrink-0">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/logo.png" alt="OncoPath Logo" className="w-full h-full object-cover" />
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white shrink-0 shadow-md font-bold text-xs">
+                <ShieldCheck className="w-4 h-4 text-white" />
               </div>
               <div>
                 <div className="text-xs font-black tracking-wider text-white">OncoPath · 肺癌循证决策系统</div>
