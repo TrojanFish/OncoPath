@@ -1021,39 +1021,43 @@ export default function EvidenceReportPage() {
 
           {/* Patient Overview & Clinical Parameters */}
           {profile && (
-            <div className="mb-4 bg-slate-800/90 rounded-2xl p-3.5 border border-slate-700/80 relative z-10 space-y-2.5">
-              {/* Row 1: Age, Gender, Stage, TNM */}
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className="text-sm font-black text-white">
-                    {profile.age || 55}岁 · {genderText}
-                  </span>
-                  <span className="text-xs font-bold text-slate-300">
-                    · {profile.currentStage === 'evaluation' || profile.currentStage === 'discovery' || profile.reportType === 'ct_imaging'
-                        ? (profile.stage ? `c${profile.stage} 期肺结节` : '早期肺结节')
-                        : (profile.stage ? `${profile.stage} 期原发性肺腺癌` : '早期原发性肺腺癌')
-                      }
-                  </span>
+            <div className="mb-4 bg-slate-800/90 rounded-2xl p-4 border border-slate-700/80 relative z-10 space-y-3">
+              {/* Row 1: Age, Gender, Stage & Risk Badge */}
+              <div className="flex items-start justify-between gap-3 border-b border-slate-700/60 pb-3">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-black text-white">
+                      {profile.age || 55}岁 · {genderText}
+                    </span>
+                    <span className="px-2 py-0.5 rounded-md bg-blue-500/20 text-blue-300 border border-blue-400/30 text-[11px] font-black font-mono">
+                      {profile.tStage || "T1a"}{profile.nStage || "N0"}{profile.mStage || "M0"}
+                    </span>
+                  </div>
+                  <div className="text-xs font-bold text-sky-400">
+                    {profile.currentStage === 'evaluation' || profile.currentStage === 'discovery' || profile.reportType === 'ct_imaging'
+                      ? (profile.stage ? `c${profile.stage} 期肺结节` : '早期肺结节')
+                      : (profile.stage ? `${profile.stage} 期原发性肺腺癌` : '早期原发性肺腺癌')
+                    }
+                  </div>
                 </div>
-                <span className="px-2 py-0.5 rounded-md bg-blue-500/20 text-blue-300 border border-blue-400/30 text-[11px] font-black">
-                  {profile.tStage || "T1a"}{profile.nStage || "N0"}{profile.mStage || "M0"}
-                </span>
-              </div>
 
-              {/* Row 2: Surgery Type & Risk Rating */}
-              <div className="flex items-center justify-between flex-wrap gap-2 text-xs pt-1 border-t border-slate-700/60">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-slate-400 text-[11px]">手术术式:</span>
-                  <span className="font-bold text-white bg-slate-700/80 px-2 py-0.5 rounded-md border border-slate-600/50">
-                    {surgeryText}
-                  </span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="text-slate-400 text-[11px]">风险评级:</span>
-                  <span className={`px-2 py-0.5 rounded-md font-extrabold text-[11px] border ${isAllSafe ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' : 'bg-amber-500/20 text-amber-300 border-amber-500/30'}`}>
+                <div className="text-right shrink-0">
+                  <span className={`inline-flex items-center px-2.5 py-1 rounded-lg font-extrabold text-[11px] border shadow-xs ${
+                    isAllSafe 
+                      ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' 
+                      : 'bg-amber-500/20 text-amber-300 border-amber-500/30'
+                  }`}>
                     {riskLabel}
                   </span>
                 </div>
+              </div>
+
+              {/* Row 2: Surgery Type */}
+              <div className="flex items-center justify-between text-xs bg-slate-900/60 px-3 py-2 rounded-xl border border-slate-700/50">
+                <span className="text-slate-400 text-[11px]">手术术式</span>
+                <span className="font-bold text-white bg-slate-800 px-2.5 py-0.5 rounded-md border border-slate-600/60 text-[11px]">
+                  {surgeryText}
+                </span>
               </div>
 
               {/* Row 3: CT Tumor Size & CTR Calculation */}
