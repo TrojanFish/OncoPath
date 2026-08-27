@@ -98,6 +98,7 @@ export interface PatientProfile {
   // Molecular Biomarkers & Gene Mutations Panel
   molecular?: MolecularPanelData;
   geneMutations?: GeneMutationItem[];
+  molecularTestStatus?: "tested" | "negative" | "not_tested" | "in_progress" | string;
   pdl1Tps?: "<1%" | "1-49%" | ">=50%" | "unknown" | string;
 
   // Pathological High-Risk Factors
