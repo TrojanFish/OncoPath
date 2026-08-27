@@ -85,39 +85,39 @@ export function DdiCheckerVisual({
   };
 
   return (
-    <div className="bg-slate-900 rounded-3xl p-3.5 sm:p-6 text-white border border-slate-800 shadow-xl select-none space-y-5">
+    <div className="bg-white rounded-3xl p-3.5 sm:p-6 text-slate-900 border border-slate-200 shadow-xl select-none space-y-5">
       {/* Patient Profile Linked Banner */}
       {geneInfo && (
-        <div className="bg-gradient-to-r from-blue-950/80 to-indigo-950/80 border border-blue-700/80 p-3 sm:p-3.5 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs text-blue-200 shadow-md">
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 p-3 sm:p-3.5 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs text-blue-950 shadow-2xs">
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
             <span>
               已根据患者档案【<strong>{geneInfo}</strong>】自动一键关联靶向药：
-              <strong className="text-white ml-1">{selectedTarget.genericName} ({selectedTarget.brandName})</strong>
+              <strong className="text-blue-700 ml-1">{selectedTarget.genericName} ({selectedTarget.brandName})</strong>
             </span>
           </div>
-          <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-400/40 shrink-0 font-bold self-start sm:self-auto">
+          <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800 border border-blue-300 shrink-0 font-bold self-start sm:self-auto">
             ✓ 档案精准互联
           </span>
         </div>
       )}
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-4 border-b border-slate-800">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-4 border-b border-slate-100">
         <div>
           <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
-              <span className="p-2 rounded-xl bg-blue-500/20 text-blue-400 border border-blue-500/30">
+            <div className="flex items-center gap-2.5">
+              <span className="p-2 rounded-xl bg-purple-50 text-purple-600 border border-purple-200">
                 <Pill className="w-4 h-4 sm:w-5 sm:h-5" />
               </span>
               <div>
-                <h3 className="text-sm sm:text-base font-extrabold text-white tracking-tight flex items-center gap-2">
+                <h3 className="text-sm sm:text-base font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
                   <span>靶向药与日常慢病用药相互作用 (DDI) 动态自检</span>
-                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-mono">
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-mono font-bold">
                     临床药学级
                   </span>
                 </h3>
-                <p className="text-[11px] text-slate-400 mt-0.5">
+                <p className="text-[11px] text-slate-500 mt-0.5">
                   覆盖 EGFR / ALK / KRAS 靶向药 vs 抑酸胃药、降压降脂、抗凝抗栓及日常西柚饮食
                 </p>
               </div>
@@ -127,7 +127,8 @@ export function DdiCheckerVisual({
               <button
                 type="button"
                 onClick={onClose}
-                className="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer shrink-0"
+                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-900 flex items-center justify-center transition-colors cursor-pointer shrink-0"
+                aria-label="关闭"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -138,27 +139,27 @@ export function DdiCheckerVisual({
         {/* Presets */}
         <div className="flex flex-wrap items-center gap-1.5 self-start sm:self-auto">
           <span className="text-[10px] text-slate-400 font-semibold mr-1 flex items-center gap-1">
-            <Sparkles className="w-3 h-3 text-amber-400" />
+            <Sparkles className="w-3 h-3 text-amber-500" />
             常见组合:
           </span>
           <button
             type="button"
             onClick={() => applyPreset(["omeprazole", "atorvastatin", "amlodipine"])}
-            className="text-[10px] px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg border border-slate-700 transition-all cursor-pointer"
+            className="text-[10px] px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl border border-slate-200 font-medium transition-all cursor-pointer"
           >
             三高+胃反酸
           </button>
           <button
             type="button"
             onClick={() => applyPreset(["grapefruit", "rifampin"])}
-            className="text-[10px] px-2 py-1 bg-rose-950/60 hover:bg-rose-900/60 text-rose-300 rounded-lg border border-rose-800/80 transition-all cursor-pointer font-bold"
+            className="text-[10px] px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-xl border border-rose-200 transition-all cursor-pointer font-bold"
           >
             高危禁忌测试
           </button>
           <button
             type="button"
             onClick={() => applyPreset(["valsartan", "rosuvastatin", "famotidine"])}
-            className="text-[10px] px-2 py-1 bg-emerald-950/60 hover:bg-emerald-900/60 text-emerald-300 rounded-lg border border-emerald-800/80 transition-all cursor-pointer"
+            className="text-[10px] px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-xl border border-emerald-200 transition-all cursor-pointer font-medium"
           >
             安全黄金搭档
           </button>
@@ -167,12 +168,12 @@ export function DdiCheckerVisual({
 
       {/* Step 1: Target Drug Selection */}
       <div className="space-y-2">
-        <div className="text-xs font-bold text-slate-300 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
+        <div className="text-xs font-bold text-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
           <div className="flex items-center gap-2">
             <span className="w-5 h-5 min-w-[20px] rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px] font-mono font-bold shrink-0 shadow-xs">1</span>
-            <span className="font-bold">第一步：选择您目前服用的抗肿瘤靶向药</span>
+            <span className="font-bold text-slate-900">第一步：选择您目前服用的抗肿瘤靶向药</span>
           </div>
-          <span className="text-[11px] text-blue-400 font-mono font-normal">
+          <span className="text-[11px] text-blue-600 font-mono font-medium">
             当前: {selectedTarget.genericName} ({selectedTarget.standardDosage})
           </span>
         </div>
@@ -187,19 +188,21 @@ export function DdiCheckerVisual({
                 onClick={() => setSelectedTargetId(d.id)}
                 className={`p-2.5 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
                   isSelected
-                    ? "bg-blue-600/30 border-blue-400 shadow-md ring-1 ring-blue-400/50"
-                    : "bg-slate-800/60 border-slate-700/80 hover:bg-slate-800 text-slate-300 hover:border-slate-600"
+                    ? "bg-blue-50/90 border-blue-500 shadow-sm ring-1 ring-blue-400/60 text-blue-950"
+                    : "bg-slate-50/80 border-slate-200 hover:bg-slate-100 text-slate-700 hover:border-slate-300"
                 }`}
               >
                 <div>
-                  <div className="flex items-center justify-between gap-1 mb-0.5">
-                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-slate-700/80 text-blue-300">
+                  <div className="flex items-center justify-between gap-1 mb-1">
+                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${
+                      isSelected ? "bg-blue-200/80 text-blue-900" : "bg-slate-200/80 text-slate-700"
+                    }`}>
                       {d.target}
                     </span>
-                    <span className="text-[9px] text-slate-400">{d.generation}</span>
+                    <span className="text-[9px] text-slate-400 font-medium">{d.generation}</span>
                   </div>
-                  <div className="text-xs font-bold text-white truncate">{d.brandName.split(" / ")[0]}</div>
-                  <div className="text-[10px] text-slate-400 truncate">{d.genericName}</div>
+                  <div className="text-xs font-bold text-slate-900 truncate">{d.brandName.split(" / ")[0]}</div>
+                  <div className="text-[10px] text-slate-500 truncate">{d.genericName}</div>
                 </div>
               </button>
             );
@@ -210,9 +213,9 @@ export function DdiCheckerVisual({
       {/* Step 2: Chronic Drugs Selector */}
       <div className="space-y-2.5 pt-2">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <div className="text-xs font-bold text-slate-300 flex items-center gap-2">
+          <div className="text-xs font-bold text-slate-800 flex items-center gap-2">
             <span className="w-5 h-5 min-w-[20px] rounded-full bg-indigo-600 text-white flex items-center justify-center text-[10px] font-mono font-bold shrink-0 shadow-xs">2</span>
-            <span>第二步：勾选您日常同时服用的慢病药、保健品或饮食（已选 {selectedChronicIds.length} 种）</span>
+            <span>第二步：勾选您日常同时服用的慢病药、保健品或饮食（已选 <strong className="text-indigo-600 font-bold">{selectedChronicIds.length}</strong> 种）</span>
           </div>
 
           {/* Search box */}
@@ -223,13 +226,13 @@ export function DdiCheckerVisual({
               placeholder="搜索药物名 (如: 胃药、降压药、他汀)..."
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              className="w-full pl-8 pr-3 py-1.5 bg-slate-800 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-all"
+              className="w-full pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:bg-white transition-all shadow-2xs"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery("")}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700"
               >
                 <X className="w-3 h-3" />
               </button>
@@ -244,8 +247,8 @@ export function DdiCheckerVisual({
             onClick={() => setActiveCategory("all")}
             className={`px-2.5 py-1 rounded-xl whitespace-nowrap transition-all cursor-pointer font-medium ${
               activeCategory === "all"
-                ? "bg-blue-600 text-white font-bold"
-                : "bg-slate-800 text-slate-400 hover:text-slate-200"
+                ? "bg-indigo-600 text-white font-bold shadow-xs"
+                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
             }`}
           >
             全部分类 ({ALL_CHRONIC_DRUGS.length})
@@ -257,8 +260,8 @@ export function DdiCheckerVisual({
               onClick={() => setActiveCategory(cat.id)}
               className={`px-2.5 py-1 rounded-xl whitespace-nowrap transition-all cursor-pointer font-medium ${
                 activeCategory === cat.id
-                  ? "bg-blue-600 text-white font-bold"
-                  : "bg-slate-800 text-slate-400 hover:text-slate-200"
+                  ? "bg-indigo-600 text-white font-bold shadow-xs"
+                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
               }`}
             >
               {cat.title.split(" / ")[0]} ({cat.drugs.length})
@@ -267,7 +270,7 @@ export function DdiCheckerVisual({
         </div>
 
         {/* Chips Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 max-h-56 overflow-y-auto custom-scrollbar p-1 bg-slate-950/40 rounded-2xl border border-slate-800/80">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 max-h-56 overflow-y-auto custom-scrollbar p-1.5 bg-slate-50/80 rounded-2xl border border-slate-200">
           {filteredChronicDrugs.map(drug => {
             const isSelected = selectedChronicIds.includes(drug.id);
             return (
@@ -277,16 +280,16 @@ export function DdiCheckerVisual({
                 onClick={() => toggleChronicDrug(drug.id)}
                 className={`p-2 rounded-xl text-left border transition-all cursor-pointer flex items-start justify-between gap-1.5 ${
                   isSelected
-                    ? "bg-indigo-600/30 border-indigo-400 text-white shadow-xs"
-                    : "bg-slate-800/50 border-slate-700/60 text-slate-300 hover:bg-slate-800"
+                    ? "bg-indigo-50 border-indigo-400 text-indigo-950 shadow-2xs"
+                    : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50"
                 }`}
               >
                 <div className="min-w-0 flex-1">
-                  <div className="text-xs font-bold truncate">{drug.name}</div>
+                  <div className="text-xs font-bold truncate text-slate-900">{drug.name}</div>
                   <div className="text-[10px] text-slate-400 truncate">{drug.categoryLabel}</div>
                 </div>
                 <div className={`w-4 h-4 rounded-md flex items-center justify-center shrink-0 mt-0.5 ${
-                  isSelected ? "bg-indigo-500 text-white" : "border border-slate-600 bg-slate-700/50"
+                  isSelected ? "bg-indigo-600 text-white shadow-2xs" : "border border-slate-300 bg-white"
                 }`}>
                   {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
                 </div>
@@ -298,38 +301,38 @@ export function DdiCheckerVisual({
 
       {/* Step 3: Analysis Results Banner */}
       <div className="space-y-4 pt-2">
-        <div className="text-xs font-bold text-slate-300 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div className="text-xs font-bold text-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <span className="w-5 h-5 min-w-[20px] rounded-full bg-emerald-600 text-white flex items-center justify-center text-[10px] font-mono font-bold shrink-0 shadow-xs">3</span>
-            <span className="font-bold">第三步：临床相互作用排查报告与服药时钟</span>
+            <span className="font-bold text-slate-900">第三步：临床相互作用排查报告与服药时钟</span>
           </div>
           <div className="flex items-center gap-2 text-[11px] self-start sm:self-auto">
-            <span className="text-rose-400 font-bold">禁忌: {analysisResult.severeCount}</span>
-            <span className="text-amber-400 font-bold">需错峰: {analysisResult.cautionCount}</span>
-            <span className="text-emerald-400 font-bold">安全: {analysisResult.safeCount}</span>
+            <span className="text-rose-700 bg-rose-50 px-2 py-0.5 rounded-full border border-rose-200 font-bold">禁忌: {analysisResult.severeCount}</span>
+            <span className="text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200 font-bold">需错峰: {analysisResult.cautionCount}</span>
+            <span className="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 font-bold">安全: {analysisResult.safeCount}</span>
           </div>
         </div>
 
         {/* Overall Status Box */}
         <div className={`p-3.5 sm:p-4 rounded-2xl border flex items-start gap-3 ${
           analysisResult.overallStatus === "danger"
-            ? "bg-rose-950/70 border-rose-500/80 text-rose-100"
+            ? "bg-rose-50 border-rose-300 text-rose-950 shadow-xs"
             : analysisResult.overallStatus === "warning"
-            ? "bg-amber-950/60 border-amber-500/80 text-amber-100"
-            : "bg-emerald-950/60 border-emerald-500/80 text-emerald-100"
+            ? "bg-amber-50 border-amber-300 text-amber-950 shadow-xs"
+            : "bg-emerald-50 border-emerald-300 text-emerald-950 shadow-xs"
         }`}>
           {analysisResult.overallStatus === "danger" ? (
-            <AlertOctagon className="w-5 h-5 sm:w-6 sm:h-6 text-rose-400 shrink-0 mt-0.5 animate-pulse" />
+            <AlertOctagon className="w-5 h-5 sm:w-6 sm:h-6 text-rose-600 shrink-0 mt-0.5 animate-pulse" />
           ) : analysisResult.overallStatus === "warning" ? (
-            <AlertTriangle className="w-5 h-5 sm:w-6 sm:h-6 text-amber-400 shrink-0 mt-0.5" />
+            <AlertTriangle className="w-5 h-5 sm:w-6 sm:h-6 text-amber-600 shrink-0 mt-0.5" />
           ) : (
-            <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-400 shrink-0 mt-0.5" />
+            <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600 shrink-0 mt-0.5" />
           )}
           <div className="space-y-1">
-            <div className="text-xs sm:text-sm font-extrabold flex items-center gap-2">
+            <div className="text-xs sm:text-sm font-extrabold flex items-center gap-2 text-slate-900">
               <span>{analysisResult.summaryText}</span>
             </div>
-            <p className="text-[11px] opacity-90 leading-relaxed">
+            <p className="text-[11px] text-slate-600 leading-relaxed">
               基于 {selectedTarget.genericName} 药品说明书及 CYP450 肝药酶代谢动力学模型，请遵照以下细则管理服药节点。
             </p>
           </div>
@@ -348,47 +351,47 @@ export function DdiCheckerVisual({
                 key={chronicDrug.id + idx}
                 className={`p-3.5 rounded-2xl border transition-all ${
                   isSevere
-                    ? "bg-rose-950/40 border-rose-500/60 shadow-xs"
+                    ? "bg-rose-50/60 border-rose-200 shadow-xs"
                     : isCaution
-                    ? "bg-amber-950/30 border-amber-500/50 shadow-xs"
-                    : "bg-slate-800/40 border-slate-700/60"
+                    ? "bg-amber-50/50 border-amber-200 shadow-xs"
+                    : "bg-slate-50/70 border-slate-200 shadow-2xs"
                 }`}
               >
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 mb-2 border-b border-slate-800/80">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 mb-2 border-b border-slate-200/80">
                   <div className="flex items-center gap-2">
                     <span className={`px-2 py-0.5 rounded-md text-[10px] font-black ${
                       isSevere
-                        ? "bg-rose-500 text-white"
+                        ? "bg-rose-600 text-white"
                         : isCaution
-                        ? "bg-amber-500 text-slate-950"
-                        : "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                        ? "bg-amber-500 text-slate-950 font-bold"
+                        : "bg-emerald-100 text-emerald-800 border border-emerald-200"
                     }`}>
                       {rule.riskLabel}
                     </span>
-                    <h4 className="text-xs font-bold text-white">
+                    <h4 className="text-xs font-bold text-slate-900">
                       {selectedTarget.brandName.split(" / ")[0]} + {chronicDrug.name}
                     </h4>
                   </div>
-                  <span className="text-[10px] text-slate-400 font-mono self-start sm:self-auto">
+                  <span className="text-[10px] text-slate-500 font-mono self-start sm:self-auto">
                     证据来源: {rule.evidenceLevel}
                   </span>
                 </div>
 
                 <div className="space-y-1.5 text-xs">
-                  <div className="text-[11px] font-semibold text-slate-300">
-                    <strong className="text-slate-100">{rule.title}</strong>
+                  <div className="text-[11px] font-bold text-slate-900">
+                    {rule.title}
                   </div>
-                  <p className="text-[11px] text-slate-400 leading-relaxed">
-                    <span className="text-slate-300 font-medium">机制解析：</span>
+                  <p className="text-[11px] text-slate-600 leading-relaxed">
+                    <span className="text-slate-800 font-semibold">机制解析：</span>
                     {rule.mechanism}
                   </p>
-                  <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 text-[11px] text-blue-200 leading-relaxed">
-                    <span className="font-bold text-blue-300">💡 临床用药指引：</span>
+                  <div className="p-2.5 rounded-xl bg-blue-50/80 border border-blue-200 text-[11px] text-blue-950 leading-relaxed">
+                    <span className="font-bold text-blue-800">💡 临床用药指引：</span>
                     {rule.clinicalGuidance}
                   </div>
                   {rule.timingRecommendation && (
-                    <div className="flex items-center gap-1.5 text-[10px] font-bold text-amber-300 bg-amber-500/10 px-2.5 py-1 rounded-lg border border-amber-500/20">
-                      <Clock className="w-3.5 h-3.5 shrink-0" />
+                    <div className="flex items-center gap-1.5 text-[10px] font-bold text-amber-900 bg-amber-100/90 px-2.5 py-1 rounded-lg border border-amber-200">
+                      <Clock className="w-3.5 h-3.5 text-amber-700 shrink-0" />
                       <span>错峰建议：{rule.timingRecommendation}</span>
                     </div>
                   )}
@@ -400,30 +403,30 @@ export function DdiCheckerVisual({
 
         {/* Daily Schedule Plan */}
         {analysisResult.dailySchedulePlan.length > 0 && (
-          <div className="mt-4 p-4 rounded-2xl bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950/40 border border-indigo-900/50 space-y-3">
+          <div className="mt-4 p-4 rounded-2xl bg-gradient-to-br from-indigo-50/80 via-slate-50 to-blue-50/60 border border-indigo-200 space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-indigo-300 flex items-center gap-1.5">
-                <Calendar className="w-4 h-4 text-indigo-400" />
+              <span className="text-xs font-bold text-indigo-950 flex items-center gap-1.5">
+                <Calendar className="w-4 h-4 text-indigo-600" />
                 <span>个性化 24 小时服药时钟规划建议表</span>
               </span>
-              <span className="text-[10px] text-slate-400">避开胃药/降压药代谢高峰</span>
+              <span className="text-[10px] text-slate-500">避开胃药/降压药代谢高峰</span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
               {analysisResult.dailySchedulePlan.map((slot, idx) => (
-                <div key={idx} className="p-3 rounded-xl bg-slate-900/90 border border-slate-800 space-y-1.5 flex flex-col justify-between">
+                <div key={idx} className="p-3 rounded-xl bg-white border border-slate-200 space-y-1.5 flex flex-col justify-between shadow-2xs">
                   <div>
-                    <div className="text-[11px] font-bold text-indigo-400">{slot.timeSlot}</div>
+                    <div className="text-[11px] font-bold text-indigo-700">{slot.timeSlot}</div>
                     <div className="space-y-1 mt-1.5">
                       {slot.drugs.map((d, dIdx) => (
-                        <div key={dIdx} className="text-[11px] font-semibold text-slate-200 flex items-center gap-1">
+                        <div key={dIdx} className="text-[11px] font-bold text-slate-800 flex items-center gap-1">
                           <ChevronRight className="w-3 h-3 text-indigo-500 shrink-0" />
                           <span className="truncate">{d}</span>
                         </div>
                       ))}
                     </div>
                   </div>
-                  <div className="text-[10px] text-slate-400 pt-1 border-t border-slate-800/80 leading-tight">
+                  <div className="text-[10px] text-slate-500 pt-1.5 border-t border-slate-100 leading-tight">
                     {slot.note}
                   </div>
                 </div>

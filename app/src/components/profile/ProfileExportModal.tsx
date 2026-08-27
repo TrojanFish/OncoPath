@@ -161,55 +161,56 @@ export default function ProfileExportModal({ profile, onClose }: ProfileExportMo
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/60 backdrop-blur-md animate-fade-in overflow-y-auto">
       {/* Modal Container */}
-      <div className="relative w-full max-w-lg bg-slate-900 border border-slate-700/80 rounded-3xl shadow-2xl overflow-hidden flex flex-col my-auto max-h-[92vh]">
+      <div className="relative w-full max-w-lg bg-white border border-slate-200 rounded-3xl shadow-2xl overflow-hidden flex flex-col my-auto max-h-[92vh] text-slate-900">
         
         {/* Modal Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-800 bg-slate-900/90 shrink-0">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 bg-white shrink-0">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold shrink-0">
               <Share2 className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="text-sm sm:text-base font-extrabold text-white">
+              <h2 className="text-sm sm:text-base font-extrabold text-slate-900 leading-snug">
                 患者数字档案 · 循证全景高清速览卡
               </h2>
-              <p className="text-[11px] text-slate-400">
+              <p className="text-[11px] text-slate-500 mt-0.5">
                 可保存为高清长图，便于门诊就医沟通或微信备份
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+            className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-900 flex items-center justify-center transition-colors cursor-pointer shrink-0"
+            aria-label="关闭"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Modal Body / Image Preview Area */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-slate-950 flex flex-col items-center justify-center min-h-[360px]">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-slate-50/80 flex flex-col items-center justify-center min-h-[360px]">
           {isExporting && (
             <div className="flex flex-col items-center justify-center py-16 space-y-3">
-              <div className="w-10 h-10 border-3 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
-              <div className="text-xs font-bold text-slate-300">
+              <div className="w-10 h-10 border-3 border-blue-500/30 border-t-blue-600 rounded-full animate-spin" />
+              <div className="text-xs font-bold text-slate-700">
                 正在高保真渲染患者数字档案长图...
               </div>
-              <div className="text-[11px] text-slate-500">
+              <div className="text-[11px] text-slate-400">
                 已自动整合 T/N/M 临床分期、病理指标与 5 年生存率
               </div>
             </div>
           )}
 
           {generationError && (
-            <div className="p-4 bg-rose-950/50 border border-rose-800 rounded-2xl text-rose-300 text-xs text-center space-y-3 max-w-sm">
-              <AlertTriangle className="w-5 h-5 text-rose-400 mx-auto" />
-              <p>{generationError}</p>
+            <div className="p-4 bg-rose-50 border border-rose-200 rounded-2xl text-rose-900 text-xs text-center space-y-3 max-w-sm shadow-xs">
+              <AlertTriangle className="w-5 h-5 text-rose-600 mx-auto" />
+              <p className="font-medium">{generationError}</p>
               <button
                 type="button"
                 onClick={() => handleGenerateImage()}
-                className="px-3.5 py-1.5 bg-rose-900/80 hover:bg-rose-800 text-rose-100 rounded-xl text-xs font-bold transition-colors cursor-pointer"
+                className="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold transition-colors cursor-pointer shadow-xs"
               >
                 点击重试生成
               </button>
@@ -218,14 +219,14 @@ export default function ProfileExportModal({ profile, onClose }: ProfileExportMo
 
           {exportedImageUrl && !isExporting && (
             <div className="w-full flex flex-col items-center space-y-3">
-              <div className="relative rounded-2xl overflow-hidden border border-slate-700/80 shadow-2xl max-h-[60vh] overflow-y-auto">
+              <div className="relative rounded-2xl overflow-hidden border border-slate-200 shadow-xl max-h-[60vh] overflow-y-auto bg-slate-950">
                 <img
                   src={exportedImageUrl}
                   alt="患者临床数字档案全景速览卡"
                   className="w-full h-auto object-contain rounded-2xl"
                 />
               </div>
-              <p className="text-[11px] text-slate-400 text-center">
+              <p className="text-[11px] text-slate-500 text-center">
                 💡 手机端可长按上方图片直接保存到相册；电脑端请点击下方下载按钮。
               </p>
             </div>
@@ -233,10 +234,10 @@ export default function ProfileExportModal({ profile, onClose }: ProfileExportMo
         </div>
 
         {/* Modal Footer Actions */}
-        <div className="px-5 py-4 bg-slate-900 border-t border-slate-800 flex items-center justify-between gap-3 shrink-0">
+        <div className="px-5 py-4 bg-white border-t border-slate-100 flex items-center justify-between gap-3 shrink-0">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+            className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
           >
             关闭
           </button>
@@ -244,10 +245,10 @@ export default function ProfileExportModal({ profile, onClose }: ProfileExportMo
           <button
             onClick={handleDownload}
             disabled={isExporting}
-            className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-lg ${
+            className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-md ${
               downloadSuccess 
-                ? "bg-emerald-600 text-white" 
-                : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-blue-500/20"
+                ? "bg-emerald-600 text-white shadow-emerald-500/20" 
+                : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-blue-500/20"
             }`}
           >
             {downloadSuccess ? <Check className="w-4 h-4" /> : <Download className="w-4 h-4" />}
