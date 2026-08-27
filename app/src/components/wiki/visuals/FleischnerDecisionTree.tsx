@@ -90,8 +90,8 @@ export function FleischnerDecisionTree() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 my-6">
         {/* Step 1: Nodule Type */}
         <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-2.5">
-          <div className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-            <span className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[11px] font-mono">1</span>
+          <div className="text-xs font-bold text-slate-700 flex items-center gap-2">
+            <span className="w-5 h-5 min-w-[20px] rounded-full bg-blue-600 text-white flex items-center justify-center text-[11px] font-mono font-bold shrink-0 shadow-xs">1</span>
             <span>结节影像性质</span>
           </div>
           <div className="space-y-1.5">
@@ -118,8 +118,8 @@ export function FleischnerDecisionTree() {
 
         {/* Step 2: Nodule Size */}
         <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-2.5">
-          <div className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-            <span className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[11px] font-mono">2</span>
+          <div className="text-xs font-bold text-slate-700 flex items-center gap-2">
+            <span className="w-5 h-5 min-w-[20px] rounded-full bg-blue-600 text-white flex items-center justify-center text-[11px] font-mono font-bold shrink-0 shadow-xs">2</span>
             <span>结节最大径</span>
           </div>
           <div className="space-y-1.5">
@@ -146,8 +146,8 @@ export function FleischnerDecisionTree() {
 
         {/* Step 3: High Risk Factors */}
         <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-2.5">
-          <div className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-            <span className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[11px] font-mono">3</span>
+          <div className="text-xs font-bold text-slate-700 flex items-center gap-2">
+            <span className="w-5 h-5 min-w-[20px] rounded-full bg-blue-600 text-white flex items-center justify-center text-[11px] font-mono font-bold shrink-0 shadow-xs">3</span>
             <span>个人风险背景</span>
           </div>
           <div className="space-y-1.5">

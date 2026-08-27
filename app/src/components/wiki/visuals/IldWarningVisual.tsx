@@ -25,7 +25,7 @@ export function IldWarningVisual() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
         <div className="p-3 bg-slate-800/80 rounded-xl border border-rose-500/30 space-y-1">
           <div className="font-extrabold text-rose-400 flex items-center gap-1.5">
-            <span className="w-4 h-4 rounded-full bg-rose-500/20 text-rose-300 flex items-center justify-center text-[10px]">1</span>
+            <span className="w-4 h-4 min-w-[16px] rounded-full bg-rose-500/20 text-rose-300 flex items-center justify-center text-[10px] shrink-0 font-bold">1</span>
             <span>突发剧烈干咳</span>
           </div>
           <p className="text-[11px] text-slate-300 leading-relaxed">
@@ -35,7 +35,7 @@ export function IldWarningVisual() {
 
         <div className="p-3 bg-slate-800/80 rounded-xl border border-rose-500/30 space-y-1">
           <div className="font-extrabold text-rose-400 flex items-center gap-1.5">
-            <span className="w-4 h-4 rounded-full bg-rose-500/20 text-rose-300 flex items-center justify-center text-[10px]">2</span>
+            <span className="w-4 h-4 min-w-[16px] rounded-full bg-rose-500/20 text-rose-300 flex items-center justify-center text-[10px] shrink-0 font-bold">2</span>
             <span>活动后胸闷气促</span>
           </div>
           <p className="text-[11px] text-slate-300 leading-relaxed">
@@ -45,7 +45,7 @@ export function IldWarningVisual() {
 
         <div className="p-3 bg-slate-800/80 rounded-xl border border-rose-500/30 space-y-1">
           <div className="font-extrabold text-rose-400 flex items-center gap-1.5">
-            <span className="w-4 h-4 rounded-full bg-rose-500/20 text-rose-300 flex items-center justify-center text-[10px]">3</span>
+            <span className="w-4 h-4 min-w-[16px] rounded-full bg-rose-500/20 text-rose-300 flex items-center justify-center text-[10px] shrink-0 font-bold">3</span>
             <span>伴或不伴低热</span>
           </div>
           <p className="text-[11px] text-slate-300 leading-relaxed">

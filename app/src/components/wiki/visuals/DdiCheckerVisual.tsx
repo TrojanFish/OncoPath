@@ -123,11 +123,11 @@ export function DdiCheckerVisual() {
 
       {/* Step 1: Target Drug Selection */}
       <div className="space-y-2">
-        <div className="text-xs font-bold text-slate-300 flex items-center justify-between">
-          <span className="flex items-center gap-1.5">
-            <span className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px] font-mono">1</span>
-            <span>第一步：选择您目前服用的抗肿瘤靶向药</span>
-          </span>
+        <div className="text-xs font-bold text-slate-300 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
+          <div className="flex items-center gap-2">
+            <span className="w-5 h-5 min-w-[20px] rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px] font-mono font-bold shrink-0 shadow-xs">1</span>
+            <span className="font-bold">第一步：选择您目前服用的抗肿瘤靶向药</span>
+          </div>
           <span className="text-[11px] text-blue-400 font-mono font-normal">
             当前: {selectedTarget.genericName} ({selectedTarget.standardDosage})
           </span>
@@ -166,8 +166,8 @@ export function DdiCheckerVisual() {
       {/* Step 2: Chronic Drugs Selector */}
       <div className="space-y-2.5 pt-2">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <div className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
-            <span className="w-5 h-5 rounded-full bg-indigo-600 text-white flex items-center justify-center text-[10px] font-mono">2</span>
+          <div className="text-xs font-bold text-slate-300 flex items-center gap-2">
+            <span className="w-5 h-5 min-w-[20px] rounded-full bg-indigo-600 text-white flex items-center justify-center text-[10px] font-mono font-bold shrink-0 shadow-xs">2</span>
             <span>第二步：勾选您日常同时服用的慢病药、保健品或饮食（已选 {selectedChronicIds.length} 种）</span>
           </div>
 
@@ -254,12 +254,12 @@ export function DdiCheckerVisual() {
 
       {/* Step 3: Analysis Results Banner */}
       <div className="space-y-4 pt-2">
-        <div className="text-xs font-bold text-slate-300 flex items-center justify-between">
-          <span className="flex items-center gap-1.5">
-            <span className="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[10px] font-mono">3</span>
-            <span>第三步：临床相互作用排查报告与服药时钟</span>
-          </span>
-          <div className="flex items-center gap-2 text-[11px]">
+        <div className="text-xs font-bold text-slate-300 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <span className="w-5 h-5 min-w-[20px] rounded-full bg-emerald-600 text-white flex items-center justify-center text-[10px] font-mono font-bold shrink-0 shadow-xs">3</span>
+            <span className="font-bold">第三步：临床相互作用排查报告与服药时钟</span>
+          </div>
+          <div className="flex items-center gap-2 text-[11px] self-start sm:self-auto">
             <span className="text-rose-400 font-bold">禁忌: {analysisResult.severeCount}</span>
             <span className="text-amber-400 font-bold">需错峰: {analysisResult.cautionCount}</span>
             <span className="text-emerald-400 font-bold">安全: {analysisResult.safeCount}</span>
