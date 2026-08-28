@@ -32,6 +32,7 @@ export default function ClinicalTimelineView() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingEvent, setEditingEvent] = useState<TimelineEventItem | null>(null);
   const [showSummaryModal, setShowSummaryModal] = useState(false);
+  const [hoveredTimelineDate, setHoveredTimelineDate] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
 
@@ -607,14 +608,40 @@ export default function ClinicalTimelineView() {
           {viewMode === "charts" ? (
             /* Trend Charts View */
             <div className="space-y-6">
+              {/* Synchronized Crosshair Banner */}
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-2 p-3 bg-gradient-to-r from-blue-50 via-indigo-50 to-sky-50 border border-blue-200/80 rounded-2xl text-xs text-blue-950 shadow-2xs">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-blue-600 animate-ping" />
+                  <span className="font-bold text-blue-900">🔗 跨模态时空十字准线已激活</span>
+                  <span className="text-slate-500 text-2xs hidden md:inline">
+                    （悬停或轻触任一节点，上方结节全径与下方肿瘤标志物将毫秒级对齐联动）
+                  </span>
+                </div>
+                {hoveredTimelineDate && (
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-white border border-blue-300 text-blue-800 font-mono font-bold text-xs shadow-2xs">
+                    <span>当前对准节点：</span>
+                    <span className="text-blue-600">{hoveredTimelineDate}</span>
+                  </div>
+                )}
+              </div>
+
               {/* Mobile chart swipe hint */}
               <div className="sm:hidden text-center text-[11px] text-slate-400 bg-slate-100/80 p-2 rounded-xl border border-slate-200 flex items-center justify-center gap-1.5">
                 <span>👉</span>
                 <span>在手机端可横向左右滑动图表查看完整时间跨度</span>
                 <span>👈</span>
               </div>
-              <TimelineGrowthChart events={events} />
-              <TumorMarkerTrendChart events={events} />
+              
+              <TimelineGrowthChart 
+                events={events} 
+                hoveredDate={hoveredTimelineDate}
+                onHoverDate={setHoveredTimelineDate}
+              />
+              <TumorMarkerTrendChart 
+                events={events} 
+                hoveredDate={hoveredTimelineDate}
+                onHoverDate={setHoveredTimelineDate}
+              />
             </div>
 
           ) : (

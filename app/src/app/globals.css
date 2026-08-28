@@ -80,6 +80,13 @@
   background: #94a3b8;
 }
 
+/* WCAG 2.1 AA Accessible Focus Rings */
+:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.38);
+  border-radius: inherit;
+}
+
 /* Uplifting, Luminous Medical Buttons (消除暗沉压抑) */
 .btn-primary {
   background: linear-gradient(135deg, #2563eb 0%, #0ea5e9 60%, #06b6d4 100%);
@@ -131,6 +138,35 @@
   border-color: #cbd5e1;
 }
 
+/* Medical Shimmer Skeleton Loading */
+@keyframes medicalShimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.skeleton-shimmer {
+  position: relative;
+  overflow: hidden;
+  background-color: #f1f5f9;
+}
+
+.skeleton-shimmer::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: linear-gradient(
+    90deg, 
+    transparent 0%, 
+    rgba(14, 165, 233, 0.09) 35%, 
+    rgba(13, 148, 136, 0.09) 65%, 
+    transparent 100%
+  );
+  animation: medicalShimmer 1.8s infinite ease-in-out;
+}
+
 /* Medical Risk Badges */
 .risk-badge-low {
   background-color: #ecfdf5;
@@ -173,6 +209,11 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes slideUpDrawer {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
 @keyframes pulseGlow {
   0%, 100% { opacity: 0.8; transform: scale(1); }
   50% { opacity: 1; transform: scale(1.03); }
@@ -180,6 +221,10 @@
 
 .animate-fade-in-up {
   animation: fadeInUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-slide-up-drawer {
+  animation: slideUpDrawer 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .animate-pulse-glow {
@@ -192,3 +237,14 @@
 .stagger-3 { animation-delay: 0.15s; }
 .stagger-4 { animation-delay: 0.2s; }
 .stagger-5 { animation-delay: 0.25s; }
+
+/* Claude Artifact Style Print Styles */
+@media print {
+  body {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+  }
+  .print\:hidden {
+    display: none !important;
+  }
+}

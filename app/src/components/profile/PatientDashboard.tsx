@@ -34,6 +34,7 @@ import SimilarCasesCard from "./SimilarCasesCard";
 import { NoduleTimelineChart } from "./NoduleTimelineChart";
 import { GlossaryTooltip } from "@/components/common/GlossaryTooltip";
 import ProfileExportModal from "./ProfileExportModal";
+import ConsultationSheetModal from "./ConsultationSheetModal";
 import { DdiCheckerVisual } from "@/components/wiki/visuals/DdiCheckerVisual";
 
 
@@ -63,6 +64,7 @@ export default function PatientDashboard() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
+  const [showConsultationModal, setShowConsultationModal] = useState(false);
   const [showDdiModal, setShowDdiModal] = useState(false);
 
   const { recommendedTargetDrugId, matchedGeneLabel } = React.useMemo(() => {
@@ -329,7 +331,17 @@ export default function PatientDashboard() {
             </span>
           </button>
 
-          {/* 3. Export Profile Poster Image */}
+          {/* 3. Export Consultation Sheet (Claude Artifact Style) */}
+          <button
+            onClick={() => setShowConsultationModal(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-sky-800 bg-sky-50 hover:bg-sky-100 border border-sky-200 transition-all cursor-pointer shadow-2xs group whitespace-nowrap"
+            title="一键生成并打印极简门诊问诊沟通卡 (A4 / 微信)"
+          >
+            <FileText className="w-3.5 h-3.5 text-sky-600 transition-transform group-hover:scale-110 flex-shrink-0" />
+            <span>门诊沟通单</span>
+          </button>
+
+          {/* 4. Export Profile Poster Image */}
           <button
             onClick={() => setShowExportModal(true)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-teal-800 bg-teal-50 hover:bg-teal-100 border border-teal-200 transition-all cursor-pointer shadow-2xs group whitespace-nowrap"
@@ -1170,6 +1182,15 @@ export default function PatientDashboard() {
         <ProfileExportModal
           profile={profile}
           onClose={() => setShowExportModal(false)}
+        />
+      )}
+
+      {/* Claude Artifact Style Consultation Sheet Modal */}
+      {showConsultationModal && profile && (
+        <ConsultationSheetModal
+          isOpen={showConsultationModal}
+          onClose={() => setShowConsultationModal(false)}
+          profile={profile}
         />
       )}
 

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Check, ClipboardList, Microscope, Scan, AlertTriangle } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Check, ClipboardList, Microscope, Scan, AlertTriangle, Sparkles, RotateCcw } from "lucide-react";
 import type { PatientProfile } from "@/lib/types";
 
 interface ProfileFormProps {
@@ -9,22 +9,53 @@ interface ProfileFormProps {
   initialData?: PatientProfile;
 }
 
-export default function ProfileForm({ onSubmit }: ProfileFormProps) {
+const DRAFT_STORAGE_KEY = "oncopath_profile_draft";
+
+export default function ProfileForm({ onSubmit, initialData }: ProfileFormProps) {
   const [step, setStep] = useState(1);
-  const [form, setForm] = useState<Partial<PatientProfile>>({
-    gender: "female",
-    stage: "IA1",
-    morphology: "mixed_ggo",
-    stas: "negative",
-    lvi: "negative",
-    vpi: "negative",
-    iaslcGrade: "2",
-    egfr: "unknown",
-    lymphNodes: "N0",
-    margin: "negative",
-    surgeryType: "lobectomy",
-    histology: [{ type: "papillary" }, { type: "acinar" }],
+  const [hasDraftRestored, setHasDraftRestored] = useState(false);
+  const [form, setForm] = useState<Partial<PatientProfile>>(() => {
+    if (initialData) return initialData;
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem(DRAFT_STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          return { ...parsed };
+        }
+      } catch {}
+    }
+    return {
+      gender: "female",
+      stage: "IA1",
+      morphology: "mixed_ggo",
+      stas: "negative",
+      lvi: "negative",
+      vpi: "negative",
+      iaslcGrade: "2",
+      egfr: "unknown",
+      lymphNodes: "N0",
+      margin: "negative",
+      surgeryType: "lobectomy",
+      histology: [{ type: "papillary" }, { type: "acinar" }],
+    };
   });
+
+  // Auto-save draft on form changes
+  useEffect(() => {
+    if (typeof window !== "undefined" && form) {
+      try {
+        localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(form));
+      } catch {}
+    }
+  }, [form]);
+
+  const clearDraft = () => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem(DRAFT_STORAGE_KEY);
+      window.location.reload();
+    }
+  };
 
   const totalSteps = 3;
 
@@ -56,6 +87,10 @@ export default function ProfileForm({ onSubmit }: ProfileFormProps) {
       surgeryType: form.surgeryType || "unknown",
       notes: form.notes,
     };
+    // Clear draft on successful submission
+    if (typeof window !== "undefined") {
+      localStorage.removeItem(DRAFT_STORAGE_KEY);
+    }
     onSubmit(profile);
   };
 
@@ -620,30 +655,75 @@ function Step3({ form, updateForm }: StepProps) {
         </FormField>
       </div>
 
-      {/* CTR Display */}
-      {form.tumorSize && form.solidSize && (
-        <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-text-secondary text-sm">
-              CTR（实性成分比例 = 实性成分最大径 ÷ 结节总全径）
+      {/* CTR Display with 2D Dynamic Mini-Nodule Visualization */}
+      {(form.tumorSize || form.solidSize !== undefined) && (
+        <div className="bg-sky-50/80 rounded-2xl p-5 border border-sky-200/90 space-y-4">
+          <div className="flex items-center justify-between">
+            <span className="text-slate-700 text-xs sm:text-sm font-semibold">
+              CTR 实性成分占比（实性最大径 ÷ 结节总全径）
             </span>
-          <div className="text-2xl font-bold text-gray-900">{computedCTR}</div>
+            <div className="text-2xl font-extrabold text-sky-900 font-mono">
+              {computedCTR} <span className="text-xs text-sky-700 font-normal">({Math.round(computedCTR * 100)}%)</span>
+            </div>
           </div>
-          <div className="progress-bar">
-            <div className="progress-fill" style={{ width: `${computedCTR * 100}%` }} />
-          </div>
-          <div className="flex justify-between text-xs text-text-muted mt-1">
-            <span>纯GGO (0)</span>
-            <span>
-              {computedCTR <= 0.25
-                ? "极低风险"
-                : computedCTR <= 0.5
-                ? "低风险"
-                : computedCTR <= 0.75
-                ? "中等风险"
-                : "较高风险"}
-            </span>
-            <span>纯实性 (1.0)</span>
+
+          <div className="grid sm:grid-cols-12 gap-4 items-center bg-white p-3.5 rounded-xl border border-sky-100">
+            {/* 2D Mini-Nodule Dynamic SVG */}
+            <div className="sm:col-span-4 flex flex-col items-center justify-center">
+              <svg width="100" height="100" viewBox="0 0 100 100" className="drop-shadow-xs">
+                {/* Background Grid */}
+                <circle cx="50" cy="50" r="46" fill="none" stroke="#e2e8f0" strokeDasharray="3 3" strokeWidth="1" />
+                {/* Outer Ground Glass Aura (GGO) */}
+                <circle
+                  cx="50"
+                  cy="50"
+                  r={Math.min(42, Math.max(12, ((form.tumorSize || 15) / 30) * 42))}
+                  fill={form.morphology === "pure_solid" ? "transparent" : "rgba(14, 165, 233, 0.22)"}
+                  stroke="#0284c7"
+                  strokeWidth="1.5"
+                  strokeDasharray={form.morphology === "pure_solid" ? "none" : "4 2"}
+                />
+                {/* Inner Solid Core */}
+                {computedCTR > 0 && (
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r={Math.min(42, Math.max(4, (((form.tumorSize || 15) / 30) * 42) * computedCTR))}
+                    fill="#0369a1"
+                    opacity="0.85"
+                  />
+                )}
+                {/* Center marker */}
+                <circle cx="50" cy="50" r="1.5" fill="#ffffff" />
+              </svg>
+              <span className="text-2xs text-slate-500 font-medium mt-1">2D 结节形态实时切面图解</span>
+            </div>
+
+            {/* Scale & Interpretation */}
+            <div className="sm:col-span-8 space-y-2">
+              <div className="progress-bar h-2.5 rounded-full bg-slate-100 overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-teal-500 via-sky-500 to-blue-600 transition-all duration-300"
+                  style={{ width: `${computedCTR * 100}%` }}
+                />
+              </div>
+              <div className="flex justify-between text-2xs font-semibold text-slate-500">
+                <span>纯GGO (0%)</span>
+                <span className="text-sky-800 font-bold">
+                  {computedCTR <= 0.25
+                    ? "极低风险 (纯/微实性)"
+                    : computedCTR <= 0.5
+                    ? "低风险 (实性<50%)"
+                    : computedCTR <= 0.75
+                    ? "中风险 (实性为主)"
+                    : "实性结节 (浸润风险较高)"}
+                </span>
+                <span>纯实性 (100%)</span>
+              </div>
+              <p className="text-2xs text-slate-500 leading-tight">
+                JCOG 0804/0201 等多中心研究表明：CTR ≤ 0.5 时术后 5 年无复发生存率超过 95% 以上。
+              </p>
+            </div>
           </div>
         </div>
       )}

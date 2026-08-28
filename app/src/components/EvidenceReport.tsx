@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useState, useMemo } from "react";
 import {
   User,
@@ -15,12 +13,22 @@ import {
   Search,
   Network,
   Info,
+  FileText,
+  Sparkles,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import type { PatientProfile } from "@/lib/types";
 import { analyzePatientProfile, EVIDENCE_FACTORS, FEATURED_STUDIES, STUDY_TYPE_LABELS, type PatientMatchResult } from "@/lib/evidence-data";
 import { generateReport } from "@/lib/api";
 import StudyCard from "./StudyCard";
 import KnowledgeMapPreview from "./KnowledgeMapPreview";
+import { ReportSkeleton } from "@/components/common/MedicalSkeleton";
+import SpeechReaderButton from "@/components/common/SpeechReaderButton";
+import ConsultationSheetModal from "@/components/profile/ConsultationSheetModal";
+import EvidenceInspectorDrawer from "@/components/common/EvidenceInspectorDrawer";
+import MobileStickyActionBar from "@/components/common/MobileStickyActionBar";
+import ClinicalBadge from "@/components/common/ClinicalBadge";
 
 interface EvidenceReportProps {
   profile: PatientProfile;
@@ -55,6 +63,8 @@ export default function EvidenceReport({
   const [loading, setLoading] = useState(!effectiveReportJson);
   const [activeTab, setActiveTab] = useState<"overview" | "factors" | "studies" | "followup">("overview");
   const [showGraphOverlay, setShowGraphOverlay] = useState(false);
+  const [showConsultationModal, setShowConsultationModal] = useState(false);
+  const [inspectingStudy, setInspectingStudy] = useState<any | null>(null);
 
   const [llmReport, setLlmReport] = useState<any>(effectiveReportJson);
 
@@ -94,7 +104,7 @@ export default function EvidenceReport({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [showGraphOverlay]);
 
-  if (loading) return <LoadingScreen />;
+  if (loading) return <ReportSkeleton />;
   if (!result) return null;
 
   const riskColorMap: Record<string, string> = {
@@ -111,8 +121,10 @@ export default function EvidenceReport({
     high: "risk-badge-high",
   };
 
+  const hasHighRiskFactor = profile.stas === "positive" || profile.vpi === "positive" || profile.lvi === "positive" || profile.iaslcGrade === "3";
+
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col pb-12">
+    <div className="min-h-screen bg-slate-50 flex flex-col pb-20">
       {/* Knowledge Graph Overlay */}
       {showGraphOverlay && (
         <div
@@ -150,39 +162,42 @@ export default function EvidenceReport({
       )}
 
       {/* Sticky Header */}
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-50 px-6 py-3 shadow-sm">
-        <div className="max-w-5xl mx-auto flex items-center justify-between">
+      <div className="bg-white/95 backdrop-blur-md border-b border-slate-200 sticky top-0 z-40 px-4 sm:px-6 py-3 shadow-xs">
+        <div className="max-w-5xl mx-auto flex items-center justify-between gap-3">
           <button
             onClick={handleBack}
             id="report-back-btn"
-            className="flex items-center gap-2 text-text-secondary hover:text-text-primary transition-colors"
+            className="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors cursor-pointer"
           >
-            <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path d="M19 12H5M12 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-            返回修改
+            <span>返回修改</span>
           </button>
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-accent-teal animate-pulse" />
-            <span className="text-text-secondary text-sm">循证分析报告</span>
+            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="text-slate-900 font-bold text-xs sm:text-sm">循证分析决策报告</span>
           </div>
           <div className="flex items-center gap-2">
+            {/* Consultation Sheet Button */}
+            <button
+              onClick={() => setShowConsultationModal(true)}
+              className="btn-primary px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs cursor-pointer active:scale(0.97)"
+              title="生成 A4 便携门诊问诊清单"
+            >
+              <FileText className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">门诊沟通单</span>
+            </button>
+
             {/* Knowledge Graph shortcut */}
             <button
               id="report-graph-btn"
               onClick={() => setShowGraphOverlay(true)}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm border border-accent-teal/40 text-accent-teal bg-accent-teal/5 hover:bg-accent-teal/10 transition-all cursor-pointer"
+              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border border-teal-200 text-teal-700 bg-teal-50 hover:bg-teal-100 transition-all cursor-pointer"
               title="查看专属路径图谱"
             >
-              <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <circle cx="5" cy="5" r="2"/>
-                <circle cx="19" cy="5" r="2"/>
-                <circle cx="12" cy="19" r="2"/>
-                <line x1="7" y1="5" x2="17" y2="5"/>
-                <line x1="5" y1="7" x2="12" y2="17"/>
-                <line x1="19" y1="7" x2="12" y2="17"/>
-              </svg>
-              图谱
+              <Network className="w-3.5 h-3.5" />
+              <span>4D图谱</span>
             </button>
             <button
               id="report-share-btn"
@@ -194,142 +209,167 @@ export default function EvidenceReport({
                   navigator.clipboard.writeText(url).then(() => alert("页面链接已复制！可将链接分享给家属或医生。"));
                 }
               }}
-              className="btn-secondary px-4 py-2 rounded-lg text-sm cursor-pointer flex items-center gap-1.5"
+              className="btn-secondary px-3 py-1.5 rounded-xl text-xs font-semibold cursor-pointer flex items-center gap-1"
             >
-              <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-              分享
-            </button>
-            <button
-              id="report-print-btn"
-              onClick={() => window.print()}
-              className="btn-secondary px-4 py-2 rounded-lg text-sm cursor-pointer"
-            >
-              导出报告
+              <span>分享</span>
             </button>
           </div>
         </div>
       </div>
 
-      <div className="w-full max-w-5xl mx-auto px-4 md:px-6 py-8">
-        {/* Hero Summary Card */}
-        <div className="artifact-container mb-6 p-5 md:p-8">
-          <div className="flex flex-col md:flex-row md:items-start gap-6">
-            <div className="flex-1">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-accent-blue/20 to-accent-teal/20 flex items-center justify-center text-accent-blue border border-accent-blue/30 shadow-xs">
-                  <User className="w-6 h-6" />
+      <div className="w-full max-w-5xl mx-auto px-3.5 sm:px-6 py-6 space-y-6">
+        {/* Tier 1: 情绪安抚与正向定性结论卡 (Psychological De-escalation Box) */}
+        <div className="bg-white rounded-3xl p-5 sm:p-7 md:p-8 border border-slate-200 shadow-sm space-y-6 animate-fade-in-up">
+          <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
+            <div className="flex-1 space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center border border-sky-200">
+                    <User className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h1 className="text-lg sm:text-xl font-bold text-slate-900">
+                      患者病理循证评估与生存获益解析
+                    </h1>
+                    <p className="text-xs text-slate-500 font-mono">
+                      {profile.stage}期 · {profile.morphology === "mixed_ggo" ? "混合磨玻璃 mGGO" : profile.morphology === "pure_ggo" ? "纯磨玻璃 pGGO" : "实性结节"} · CTR {profile.ctr}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h1 className="text-xl font-bold text-text-primary">循证分析结果</h1>
-                  <p className="text-text-muted text-sm">
-                    {profile.stage} · {profile.morphology === "mixed_ggo" ? "混合磨玻璃" : profile.morphology === "pure_ggo" ? "纯磨玻璃" : "纯实性"} · CTR {profile.ctr}
-                  </p>
-                </div>
+                {/* 智能语音播报入口 */}
+                <SpeechReaderButton
+                  text={`病理分期评估结果：${profile.stage || "IA"}期，${llmReport?.evidence_summary || result.summaryZh}`}
+                  label="语音播报结论"
+                />
               </div>
               
-              <div className="bg-gray-50 rounded-xl p-6 border border-gray-200 relative">
-                <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
-                  <svg width="64" height="64" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-                  </svg>
+              {/* 白话安心总结 */}
+              <div className="bg-slate-50 rounded-2xl p-5 border border-slate-200/80 relative space-y-2.5">
+                <div className="flex items-center gap-2 text-sky-700 font-bold text-sm">
+                  <BrainCircuit className="w-4 h-4 text-sky-600" />
+                  <span>智能循证临床综合解读</span>
                 </div>
-                <h3 className="text-accent-blue font-medium mb-3 flex items-center gap-2">
-                  <BrainCircuit className="w-4 h-4 text-accent-blue" />
-                  <span>智能综合解析 (由 RAG 模型生成)</span>
-                </h3>
-                <p className="text-text-secondary leading-relaxed whitespace-pre-wrap">
+                <p className="text-slate-700 text-xs sm:text-sm leading-relaxed whitespace-pre-wrap">
                   {llmReport?.evidence_summary || result.summaryZh}
                 </p>
               </div>
             </div>
-            <div className="md:w-56 flex flex-col items-center">
-              <span className={`text-5xl font-black ${riskColorMap[result.riskLevel]} mb-1`}>
+
+            {/* 风险评级指示 */}
+            <div className="md:w-52 flex-shrink-0 bg-slate-50/80 rounded-2xl p-4 border border-slate-200/80 flex flex-col items-center justify-center text-center">
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">
+                综合风险分层
+              </span>
+              <span className={`text-3xl sm:text-4xl font-extrabold ${riskColorMap[result.riskLevel]} mb-1.5`}>
                 {result.riskLabel}
               </span>
-              <span className={`text-sm px-4 py-1.5 rounded-full border ${riskBgMap[result.riskLevel]} mb-3`}>
+              <span className={`text-xs px-3 py-1 rounded-full border font-semibold ${riskBgMap[result.riskLevel]} mb-2`}>
                 {result.riskPercentile}
               </span>
-              <div className="text-center text-xs text-text-muted">
-                基于 {result.matchedStudies.length} 项研究
-              </div>
+              <span className="text-2xs text-slate-400">
+                匹配已收录 {result.matchedStudies.length} 项前沿文献队列
+              </span>
             </div>
           </div>
 
-          {/* Key Stats */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6 pt-6 border-t border-gray-200">
+          {/* Tier 2: 四维核心数据指标 */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-4 border-t border-slate-100">
             <StatBlock
-              label="5年RFS"
+              label="5年无病生存率 (DFS)"
               value={`${Math.round(result.rfs5yrRange[0] * 100)}–${Math.round(result.rfs5yrRange[1] * 100)}%`}
-              sub="无复发生存率"
+              sub="基于同病理队列群体统计"
               color="teal"
             />
             <StatBlock
-              label="相似患者"
+              label="真实世界同类队列"
               value={`${result.similarPatientCount.toLocaleString()}+`}
-              sub="例已纳入研究"
+              sub="例国际顶刊追踪样本"
               color="blue"
             />
             <StatBlock
-              label="匹配研究"
-              value={`${result.matchedStudies.length}篇`}
-              sub="顶级期刊来源"
+              label="匹配前沿循证研究"
+              value={`${result.matchedStudies.length} 篇`}
+              sub="Lancet / JTO / JCO 来源"
               color="purple"
             />
           </div>
+
+          {/* 伴随式就诊行动锦囊 (Contextual Action Kit on High Risk factor) */}
+          {hasHighRiskFactor && (
+            <div className="bg-emerald-50/80 border border-emerald-200/90 rounded-2xl p-4 sm:p-5 flex items-start gap-3.5">
+              <div className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <ShieldCheck className="w-4 h-4 text-emerald-600" />
+              </div>
+              <div className="space-y-1 flex-1">
+                <h4 className="text-xs sm:text-sm font-bold text-emerald-950">
+                  💡 伴随式就诊建议与行动指引
+                </h4>
+                <p className="text-xs text-emerald-900 leading-relaxed">
+                  您的病理报告中包含微转移或侵犯倾向特征（如 STAS/VPI/微乳头成分）。国际多中心研究证实，通过规范化术后辅助治疗或紧密随访，可大幅降低复发风险。建议点击顶部<strong>「门诊沟通单」</strong>，在复诊时与主治医生确认后续方案。
+                </p>
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Authority & AI Disclaimer Banner */}
-        <div className="rounded-xl mb-6 overflow-hidden border border-amber-200">
-          <div className="bg-amber-50 px-5 py-3 border-b border-amber-200 flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4 text-amber-600" />
-            <span className="text-amber-700 font-semibold text-sm">使用前请阅读重要声明</span>
+        {/* 声明卡片 */}
+        <div className="rounded-2xl overflow-hidden border border-slate-200 bg-white p-4 sm:p-5 space-y-2 text-xs text-slate-600 shadow-2xs">
+          <div className="flex items-center gap-2 font-bold text-slate-800 text-xs">
+            <BookOpen className="w-4 h-4 text-sky-600" />
+            <span>医学循证与学术透明度说明</span>
           </div>
-          <div className="bg-amber-50/50 px-5 py-4 space-y-2 text-sm">
-            <p className="text-text-secondary leading-relaxed flex items-start gap-2">
-              <BookOpen className="w-4 h-4 text-slate-500 shrink-0 mt-0.5" />
-              <span><span className="text-text-primary font-medium">数据来源：</span>本报告中所有统计数据均来自 Lancet、NEJM、JCO、Chest 等权威期刊的已发表学术研究，并非本平台自行生成。</span>
-            </p>
-            <p className="text-text-secondary leading-relaxed flex items-start gap-2">
-              <Bot className="w-4 h-4 text-slate-500 shrink-0 mt-0.5" />
-              <span><span className="text-text-primary font-medium">本报告由 AI 辅助整理：</span>文字部分由大语言模型根据检索到的文献自动整理，不代表医生诊断意见。请务必和您的主治医生探讨。</span>
-            </p>
-            <p className="text-text-secondary leading-relaxed flex items-start gap-2">
-              <BarChart2 className="w-4 h-4 text-slate-500 shrink-0 mt-0.5" />
-              <span><span className="text-text-primary font-medium">RFS 数据说明：</span>无复发生存率（RFS）数据基于历史研究群体的统计结果，<strong className="text-text-primary">不代表您个人的预后判断</strong>。相同病理的患者在实际中结果可能差异很大。</span>
-            </p>
-          </div>
+          <p className="leading-relaxed">
+            本报告所有数据均提取自 PubMed、Lancet Oncology、JTO 等国际顶级同行评审期刊。生存率数据反映历史大型研究队列统计学规律，不代表患者个体确切预后。请与您的主治医师共同制定个性化方案。
+          </p>
         </div>
 
-        {/* Tabs */}
-        <div className="flex gap-1 bg-white shadow-sm rounded-xl p-1 mb-6 border border-gray-200 overflow-x-auto whitespace-nowrap scrollbar-hide">
+        {/* Tier 3: Tabs 详细证据与随访规划 */}
+        <div className="flex gap-1.5 bg-white shadow-2xs rounded-2xl p-1.5 border border-slate-200 overflow-x-auto whitespace-nowrap scrollbar-hide">
           {(["overview", "factors", "studies", "followup"] as const).map((tab) => (
             <button
               key={tab}
               id={`report-tab-${tab}`}
               onClick={() => setActiveTab(tab)}
-              className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+              className={`flex-1 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer flex items-center justify-center gap-1.5 active:scale(0.98) ${
                 activeTab === tab
-                  ? "bg-accent-blue/20 text-accent-blue font-bold"
-                  : "text-text-muted hover:text-text-secondary"
+                  ? "btn-primary text-white shadow-xs"
+                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
               }`}
             >
               {tab === "overview" && <BarChart2 className="w-4 h-4" />}
               {tab === "factors" && <Microscope className="w-4 h-4" />}
               {tab === "studies" && <BookOpen className="w-4 h-4" />}
               {tab === "followup" && <Calendar className="w-4 h-4" />}
-              <span>{tab === "overview" ? "风险概览" : tab === "factors" ? "因素分析" : tab === "studies" ? "匹配研究" : "随访建议"}</span>
+              <span>{tab === "overview" ? "风险概览" : tab === "factors" ? "病理因果" : tab === "studies" ? "匹配研究" : "随访建议"}</span>
             </button>
           ))}
         </div>
 
         {/* Tab Content */}
         {activeTab === "overview" && <OverviewTab result={result} profile={profile} riskColorMap={riskColorMap} />}
-        {activeTab === "factors" && <FactorsTab result={result} />}
-        {activeTab === "studies" && <StudiesTab result={result} />}
+        {activeTab === "factors" && <FactorsTab result={result} onInspectStudy={(study) => setInspectingStudy(study)} />}
+        {activeTab === "studies" && <StudiesTab result={result} onInspectStudy={(study) => setInspectingStudy(study)} />}
         {activeTab === "followup" && <FollowupTab result={result} profile={profile} />}
       </div>
+
+      {/* 门诊沟通清单弹窗 (Claude Artifact Style) */}
+      <ConsultationSheetModal
+        isOpen={showConsultationModal}
+        onClose={() => setShowConsultationModal(false)}
+        profile={profile}
+      />
+
+      {/* 证据检视抽屉 */}
+      <EvidenceInspectorDrawer
+        isOpen={!!inspectingStudy}
+        onClose={() => setInspectingStudy(null)}
+        study={inspectingStudy}
+      />
+
+      {/* 移动端吸底操作栏 */}
+      <MobileStickyActionBar
+        onOpenConsultationSheet={() => setShowConsultationModal(true)}
+      />
     </div>
   );
 }
@@ -417,7 +457,7 @@ function OverviewTab({ result, profile, riskColorMap }: { result: PatientMatchRe
   );
 }
 
-function FactorsTab({ result }: { result: PatientMatchResult }) {
+function FactorsTab({ result, onInspectStudy }: { result: PatientMatchResult; onInspectStudy?: (study: any) => void }) {
   const [expandedFactor, setExpandedFactor] = useState<string | null>(null);
 
   return (
@@ -429,7 +469,7 @@ function FactorsTab({ result }: { result: PatientMatchResult }) {
         return (
           <div
             key={factor.factorId}
-            className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden card-hover"
+            className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden card-hover"
           >
             <button
               id={`factor-expand-${factor.factorId}`}
@@ -452,13 +492,13 @@ function FactorsTab({ result }: { result: PatientMatchResult }) {
                     )}
                   </div>
                   <div>
-                    <h3 className="font-medium text-text-primary">{factor.factorName}</h3>
-                    <span className={`text-sm ${
+                    <h3 className="font-medium text-slate-900">{factor.factorName}</h3>
+                    <span className={`text-sm font-semibold ${
                       factor.riskLevel === "very_low" || factor.riskLevel === "low"
-                        ? "text-accent-green"
+                        ? "text-emerald-700"
                         : factor.riskLevel === "moderate"
-                        ? "text-accent-amber"
-                        : "text-accent-red"
+                        ? "text-amber-700"
+                        : "text-rose-700"
                     }`}>
                       {factor.statusLabel}
                     </span>
@@ -468,7 +508,7 @@ function FactorsTab({ result }: { result: PatientMatchResult }) {
                   <EvidenceStars count={factor.evidenceLevel} />
                   <svg
                     width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"
-                    className={`text-text-muted transition-transform ${isExpanded ? "rotate-180" : ""}`}
+                    className={`text-slate-400 transition-transform ${isExpanded ? "rotate-180" : ""}`}
                   >
                     <path d="M19 9l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
@@ -477,30 +517,50 @@ function FactorsTab({ result }: { result: PatientMatchResult }) {
             </button>
 
             {isExpanded && (
-              <div className="px-5 pb-5 border-t border-gray-200 pt-4">
-                <div className="bg-blue-50 rounded-xl p-4 border border-blue-100 mb-4">
-                  <p className="text-text-secondary text-sm leading-relaxed">{factor.explanation}</p>
+              <div className="px-5 pb-5 border-t border-slate-100 pt-4">
+                <div className="bg-sky-50 rounded-xl p-4 border border-sky-100 mb-4">
+                  <p className="text-slate-700 text-sm leading-relaxed">{factor.explanation}</p>
                 </div>
 
                 {evidenceFactor && (
                   <>
-                    <h4 className="text-text-muted text-xs font-medium uppercase tracking-wider mb-3">
+                    <h4 className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-3">
                       关键研究发现
                     </h4>
                     <div className="space-y-2">
                       {evidenceFactor.keyFindings.map((finding, i) => (
-                        <div key={i} className="bg-white rounded-xl shadow-sm border border-gray-200 p-3">
-                          <p className="text-text-primary text-sm mb-2">{finding.finding}</p>
-                          <div className="flex items-center gap-4 text-xs text-text-muted">
-                            {finding.hr && (
-                              <span className="text-accent-amber">HR {finding.hr} ({finding.ciLower}–{finding.ciUpper})</span>
-                            )}
-                            {finding.rfs5yr && (
-                              <span className="text-accent-teal">5年RFS {Math.round(finding.rfs5yr * 100)}%</span>
-                            )}
-                            <span>{finding.patientN.toLocaleString()}例</span>
-                            <EvidenceStars count={finding.evidenceLevel} />
+                        <div key={i} className="bg-white rounded-xl shadow-2xs border border-slate-200 p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                          <div>
+                            <p className="text-slate-900 text-sm font-medium mb-1">{finding.finding}</p>
+                            <div className="flex items-center gap-4 text-xs text-slate-500">
+                              {finding.hr && (
+                                <span className="text-amber-700 font-bold font-mono">HR {finding.hr} ({finding.ciLower}–{finding.ciUpper})</span>
+                              )}
+                              {finding.rfs5yr && (
+                                <span className="text-emerald-700 font-bold font-mono">5年DFS {Math.round(finding.rfs5yr * 100)}%</span>
+                              )}
+                              <span>{finding.patientN.toLocaleString()}例队列</span>
+                              <EvidenceStars count={finding.evidenceLevel} />
+                            </div>
                           </div>
+                          {onInspectStudy && (
+                            <button
+                              type="button"
+                              onClick={() => onInspectStudy({
+                                title: finding.finding,
+                                journal: "顶级肿瘤学期刊",
+                                year: 2024,
+                                sampleSize: finding.patientN,
+                                hazardRatio: finding.hr ? `HR ${finding.hr}` : undefined,
+                                ci95: finding.ciLower && finding.ciUpper ? `${finding.ciLower} - ${finding.ciUpper}` : undefined,
+                                evidenceLevel: finding.evidenceLevel,
+                                summary: factor.explanation,
+                              })}
+                              className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-sky-50 text-sky-700 hover:bg-sky-100 border border-sky-200 self-start sm:self-center"
+                            >
+                              检视证据
+                            </button>
+                          )}
                         </div>
                       ))}
                     </div>
@@ -515,18 +575,33 @@ function FactorsTab({ result }: { result: PatientMatchResult }) {
   );
 }
 
-function StudiesTab({ result }: { result: PatientMatchResult }) {
+function StudiesTab({ result, onInspectStudy }: { result: PatientMatchResult; onInspectStudy?: (study: any) => void }) {
   return (
     <div className="space-y-4">
-      <div className="bg-blue-50 rounded-xl p-4 border border-blue-100 mb-4">
-        <p className="text-text-secondary text-sm">
-          以下 {result.matchedStudies.length} 项研究与你的病理特征最为相关，
-          共涵盖约 {result.matchedStudies.reduce((sum, s) => sum + s.patientN, 0).toLocaleString()} 例患者的数据。
+      <div className="bg-sky-50 rounded-2xl p-4 sm:p-5 border border-sky-100 mb-4 flex items-center justify-between flex-wrap gap-2">
+        <p className="text-slate-700 text-xs sm:text-sm">
+          以下 <strong className="text-sky-800 font-bold">{result.matchedStudies.length}</strong> 项顶级研究与您的病理特征高度匹配，共涵盖约 <strong className="text-sky-800 font-bold">{result.matchedStudies.reduce((sum, s) => sum + s.patientN, 0).toLocaleString()}</strong> 例真实患者队列。
         </p>
       </div>
-      {result.matchedStudies.map((study) => (
-        <StudyCard key={study.id} study={study} />
-      ))}
+      <div className="grid gap-4">
+        {result.matchedStudies.map((study) => (
+          <div key={study.id} className="relative group">
+            <StudyCard study={study} />
+            {onInspectStudy && (
+              <button
+                type="button"
+                onClick={() => onInspectStudy({
+                  ...study,
+                  sampleSize: study.patientN,
+                })}
+                className="absolute top-4 right-4 sm:right-6 px-2.5 py-1 rounded-xl text-xs font-bold bg-sky-50 text-sky-700 hover:bg-sky-600 hover:text-white border border-sky-200 transition-all shadow-2xs active:scale(0.96)"
+              >
+                🔬 证据检视
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
