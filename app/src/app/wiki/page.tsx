@@ -204,10 +204,10 @@ export default function WikiPage() {
       {/* Top Floating Island Navigation Bar */}
       <SubpageNavbar />
 
-      {/* Main Page Container (Standard max-w-7xl) */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-2.5 sm:px-6 pt-24 pb-16 space-y-6 sm:space-y-8">
+      {/* Main Page Container (Standard max-w-7xl aligned with /knowledge, /studies, /reimbursement, /resources) */}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-2.5 sm:px-6 pt-28 md:pt-32 pb-16 space-y-6 sm:space-y-8">
         {/* Hero Section */}
-        <section className="text-center space-y-4 pt-2 pb-4">
+        <section className="text-center space-y-4 pb-4">
           <div className="inline-flex items-center gap-2 bg-white px-4 py-1.5 rounded-full text-xs font-bold text-sky-700 border border-sky-200 shadow-xs">
             <BookOpen className="w-3.5 h-3.5 text-sky-600" />
             <span>肺结节与肺癌全景循证视觉百科</span>
