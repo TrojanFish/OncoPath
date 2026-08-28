@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
-import { BookOpen, User, Search, Layers, Compass, Sparkles, Lightbulb } from "lucide-react";
+import { BookOpen, User, Search, Layers, Compass, Sparkles } from "lucide-react";
 import SubpageNavbar from "@/components/SubpageNavbar";
 import Footer from "@/components/Footer";
 import { WIKI_TOPICS, WIKI_CATEGORIES, type WikiCategory, type RiskLevel } from "@/lib/wikiData";
@@ -206,25 +206,6 @@ export default function WikiPage() {
 
       {/* Main Page Container (Standard max-w-7xl) */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-2.5 sm:px-6 pt-24 pb-16 space-y-6 sm:space-y-8">
-        
-        {/* Distinction Banner: Patient Wiki vs Academic Navigation (/resources) */}
-        <div className="bg-gradient-to-r from-blue-50 via-sky-50 to-indigo-50 border border-blue-200/80 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs shadow-xs">
-          <div className="flex items-start sm:items-center gap-2.5">
-            <Lightbulb className="w-5 h-5 text-blue-700 shrink-0 mt-0.5 sm:mt-0" />
-            <div>
-              <span className="font-black text-blue-950 text-sm">OncoWiki 循证视觉百科定位：</span>
-              <span className="text-slate-600 ml-1">面向患者与家属的生活化大白话破译、结节消恐与微观图解。</span>
-            </div>
-          </div>
-          <Link
-            href="/resources"
-            className="flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-blue-200 text-blue-700 font-bold hover:bg-blue-50 transition-colors cursor-pointer text-xs"
-          >
-            <BookOpen className="w-3.5 h-3.5" />
-            <span>查阅医生临床指南</span>
-          </Link>
-        </div>
-
         {/* Hero Section */}
         <section className="text-center space-y-4 pt-2 pb-4">
           <div className="inline-flex items-center gap-2 bg-white px-4 py-1.5 rounded-full text-xs font-bold text-sky-700 border border-sky-200 shadow-xs">
