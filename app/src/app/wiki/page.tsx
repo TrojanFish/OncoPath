@@ -216,7 +216,7 @@ export default function WikiPage() {
           </div>
 
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
-            从<span className="text-blue-600">未知恐慌</span>走向<span className="text-teal-600">从容笃定</span>
+            从未知恐慌走向 · <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-sky-500 to-teal-500">从容笃定</span>
           </h1>
 
           <p className="max-w-3xl mx-auto text-sm sm:text-base text-slate-600 leading-relaxed font-normal">
@@ -371,7 +371,7 @@ export default function WikiPage() {
       <button
         type="button"
         onClick={() => setIsSpotlightOpen(true)}
-        className="fixed bottom-20 right-4 z-40 md:hidden w-14 h-14 rounded-full bg-gradient-to-tr from-blue-500 to-indigo-500 text-white shadow-xl shadow-blue-500/30 flex items-center justify-center cursor-pointer transition-all duration-300 hover:scale-110 active:scale-95 animate-fade-in"
+        className="fixed bottom-20 right-4 z-40 md:hidden w-14 h-14 rounded-full btn-primary text-white shadow-xl shadow-sky-500/30 flex items-center justify-center cursor-pointer transition-all duration-300 hover:scale-110 active:scale-95 animate-fade-in"
         aria-label="快速搜索百科词条"
       >
         <Search className="w-6 h-6" />

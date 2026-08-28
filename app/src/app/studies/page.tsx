@@ -50,7 +50,7 @@ export default function StudiesPage() {
 
         {/* Unified H1 */}
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
-          汇聚全球顶刊 · <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-sky-600 to-teal-600">严谨循证文献矩阵</span>
+          汇聚全球顶刊 · <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-sky-500 to-teal-500">严谨循证文献矩阵</span>
         </h1>
 
         {/* Unified Subtitle */}

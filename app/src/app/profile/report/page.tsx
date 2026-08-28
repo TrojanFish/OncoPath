@@ -1007,25 +1007,25 @@ export default function EvidenceReportPage() {
               </div>
 
               {/* Option 2: Pocket Consultation Card */}
-              <div className="bg-gradient-to-br from-teal-900 via-slate-900 to-slate-950 rounded-2xl p-4 sm:p-5 text-white shadow-md shadow-teal-950/20 flex flex-col justify-between space-y-3.5 group border border-teal-500/30">
+              <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 hover:border-sky-300 shadow-xs hover:shadow-sm transition-all flex flex-col justify-between space-y-3.5 group">
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs sm:text-sm font-bold text-teal-300 flex items-center gap-1.5">
-                      <ClipboardList className="w-4 h-4 text-teal-400" />
+                    <span className="text-xs sm:text-sm font-bold text-slate-900 flex items-center gap-1.5">
+                      <ClipboardList className="w-4 h-4 text-sky-600" />
                       <span>门诊就医问诊便签卡</span>
                     </span>
-                    <span className="text-[10px] font-bold text-teal-200 bg-teal-500/20 px-2 py-0.5 rounded-full border border-teal-400/30">
+                    <span className="text-[10px] font-bold text-sky-700 bg-sky-50 px-2 py-0.5 rounded-full border border-sky-200">
                       轻量 2x PNG
                     </span>
                   </div>
-                  <p className="text-xs text-slate-300 leading-relaxed">
+                  <p className="text-xs text-slate-500 leading-relaxed">
                     专为门诊 3 分钟高效面诊设计，浓缩提炼向主治医生请教的核心疑问清单，手机查看清晰流畅。
                   </p>
                 </div>
                 <button
                   onClick={handleExportCardImage}
                   disabled={isExportingCard}
-                  className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-white font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                  className="w-full py-2.5 px-3 rounded-xl btn-primary text-xs font-bold shadow-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
                 >
                   {isExportingCard ? (
                     <>
@@ -1301,7 +1301,7 @@ export default function EvidenceReportPage() {
                 className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shadow-md active:scale-95 ${
                   cardDownloadSuccess
                     ? "bg-emerald-600 text-white shadow-emerald-500/20"
-                    : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-blue-500/20"
+                    : "btn-primary text-white shadow-blue-500/20"
                 }`}
               >
                 {cardDownloadSuccess ? (

@@ -545,7 +545,7 @@ export function DdiCheckerVisual({
             <button
               type="button"
               onClick={onClose}
-              className="w-full sm:w-auto px-5 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-bold shadow-md shadow-blue-500/20 flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+              className="w-full sm:w-auto px-5 py-2 rounded-xl btn-primary text-white text-xs font-bold shadow-md flex items-center justify-center gap-1.5 transition-all cursor-pointer"
             >
               <Check className="w-4 h-4 stroke-[2.5]" />
               <span>完成自检并返回</span>

@@ -234,7 +234,7 @@ export default function ResourcesPage() {
 
         {/* Unified H1 */}
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
-          权威临床指南 · <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 via-emerald-600 to-cyan-600">专业医学循证导航</span>
+          权威临床指南 · <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-sky-500 to-teal-500">专业医学循证导航</span>
         </h1>
 
         {/* Unified Subtitle */}

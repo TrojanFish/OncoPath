@@ -2308,7 +2308,7 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
           <button 
             type="button"
             onClick={handleConfirm}
-            className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-sky-600 hover:from-blue-700 hover:to-sky-700 text-white font-bold text-sm shadow-md shadow-blue-500/20 transition-all cursor-pointer"
+            className="px-6 py-2.5 rounded-xl btn-primary text-white font-bold text-sm shadow-md transition-all cursor-pointer"
           >
             {initialData ? "保存修改并同步档案" : "确认无误，保存医疗档案"}
           </button>

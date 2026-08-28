@@ -60,7 +60,7 @@ export default function KnowledgePage() {
 
         {/* Unified H1 */}
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
-          推演病理因果 · <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-500">洞悉 4D 证据网络</span>
+          推演病理因果 · <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-sky-500 to-teal-500">洞悉 4D 证据网络</span>
         </h1>
 
         {/* Unified Subtitle */}

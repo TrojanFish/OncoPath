@@ -740,7 +740,7 @@ export default function PatientDashboard() {
 
           <Link 
             href="/profile/report" 
-            className="w-full mt-5 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-sky-600 hover:from-blue-700 hover:to-sky-700 text-white text-xs sm:text-sm font-bold shadow-md shadow-blue-500/20 text-center flex items-center justify-center gap-2 transition-all cursor-pointer"
+            className="w-full mt-5 py-3 rounded-xl btn-primary text-white text-xs sm:text-sm font-bold shadow-md text-center flex items-center justify-center gap-2 transition-all cursor-pointer"
           >
             <span>生成专属深度循证报告</span>
             <ArrowRight className="w-4 h-4" />

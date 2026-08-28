@@ -214,7 +214,7 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
               className={`flex-1 sm:flex-initial px-3 sm:px-4 py-2 rounded-xl text-xs font-bold shadow-xs flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap active:scale-95 transition-all ${
                 downloadSuccess
                   ? "bg-emerald-600 text-white shadow-emerald-500/20"
-                  : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-blue-500/20"
+                  : "btn-primary text-white shadow-blue-500/20"
               }`}
             >
               {downloadSuccess ? (

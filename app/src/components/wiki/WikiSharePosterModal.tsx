@@ -393,7 +393,7 @@ export default function WikiSharePosterModal({ topic, visualDomHtml, onClose }: 
             className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shadow-md active:scale-95 ${
               downloadSuccess 
                 ? "bg-emerald-600 text-white shadow-emerald-500/20" 
-                : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-blue-500/20 disabled:opacity-60"
+                : "btn-primary text-white shadow-blue-500/20 disabled:opacity-60"
             }`}
           >
             {downloadSuccess ? (
