@@ -4,14 +4,12 @@ import React from "react";
 import { FileText, Volume2, ArrowUp, Sparkles, Share2 } from "lucide-react";
 
 interface MobileStickyActionBarProps {
-  onOpenConsultationSheet?: () => void;
   onTriggerSpeech?: () => void;
   onShare?: () => void;
   isSpeaking?: boolean;
 }
 
 export default function MobileStickyActionBar({
-  onOpenConsultationSheet,
   onTriggerSpeech,
   onShare,
   isSpeaking = false,
@@ -22,22 +20,33 @@ export default function MobileStickyActionBar({
     }
   };
 
+  const handleShare = () => {
+    if (onShare) {
+      onShare();
+    } else if (typeof window !== "undefined") {
+      const url = window.location.href;
+      if (navigator.share) {
+        navigator.share({ title: "OncoPath 循证分析报告", url });
+      } else {
+        navigator.clipboard.writeText(url).then(() => alert("页面链接已复制！可分享给家属或医生。"));
+      }
+    }
+  };
+
   return (
     <aside
       aria-label="移动端快捷操作栏"
       className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/90 px-3 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-lg shadow-slate-900/10 flex items-center justify-between gap-2 print:hidden"
     >
-      {/* 问诊沟通单主按钮 */}
-      {onOpenConsultationSheet && (
-        <button
-          type="button"
-          onClick={onOpenConsultationSheet}
-          className="flex-1 btn-primary py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm active:scale(0.97)"
-        >
-          <FileText className="w-3.5 h-3.5" />
-          <span>导出门诊沟通单</span>
-        </button>
-      )}
+      {/* 分享报告主按钮 */}
+      <button
+        type="button"
+        onClick={handleShare}
+        className="flex-1 btn-primary py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm active:scale(0.97)"
+      >
+        <Share2 className="w-3.5 h-3.5" />
+        <span>分享报告</span>
+      </button>
 
       {/* 语音朗读按钮 */}
       {onTriggerSpeech && (

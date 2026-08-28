@@ -25,7 +25,6 @@ import StudyCard from "./StudyCard";
 import KnowledgeMapPreview from "./KnowledgeMapPreview";
 import { ReportSkeleton } from "@/components/common/MedicalSkeleton";
 import SpeechReaderButton from "@/components/common/SpeechReaderButton";
-import ConsultationSheetModal from "@/components/profile/ConsultationSheetModal";
 import EvidenceInspectorDrawer from "@/components/common/EvidenceInspectorDrawer";
 import MobileStickyActionBar from "@/components/common/MobileStickyActionBar";
 import ClinicalBadge from "@/components/common/ClinicalBadge";
@@ -63,7 +62,6 @@ export default function EvidenceReport({
   const [loading, setLoading] = useState(!effectiveReportJson);
   const [activeTab, setActiveTab] = useState<"overview" | "factors" | "studies" | "followup">("overview");
   const [showGraphOverlay, setShowGraphOverlay] = useState(false);
-  const [showConsultationModal, setShowConsultationModal] = useState(false);
   const [inspectingStudy, setInspectingStudy] = useState<any | null>(null);
 
   const [llmReport, setLlmReport] = useState<any>(effectiveReportJson);
@@ -179,16 +177,6 @@ export default function EvidenceReport({
             <span className="text-slate-900 font-bold text-xs sm:text-sm">循证分析决策报告</span>
           </div>
           <div className="flex items-center gap-2">
-            {/* Consultation Sheet Button */}
-            <button
-              onClick={() => setShowConsultationModal(true)}
-              className="btn-primary px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs cursor-pointer active:scale(0.97)"
-              title="生成 A4 便携门诊问诊清单"
-            >
-              <FileText className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">门诊沟通单</span>
-            </button>
-
             {/* Knowledge Graph shortcut */}
             <button
               id="report-graph-btn"
@@ -305,7 +293,7 @@ export default function EvidenceReport({
                   💡 伴随式就诊建议与行动指引
                 </h4>
                 <p className="text-xs text-emerald-900 leading-relaxed">
-                  您的病理报告中包含微转移或侵犯倾向特征（如 STAS/VPI/微乳头成分）。国际多中心研究证实，通过规范化术后辅助治疗或紧密随访，可大幅降低复发风险。建议点击顶部<strong>「门诊沟通单」</strong>，在复诊时与主治医生确认后续方案。
+                  您的病理报告中包含微转移或侵犯倾向特征（如 STAS/VPI/微乳头成分）。国际多中心研究证实，通过规范化术后辅助治疗或紧密随访，可大幅降低复发风险。建议在复诊时与主治医生进一步确认个性化随访与辅助治疗方案。
                 </p>
               </div>
             </div>
@@ -352,13 +340,6 @@ export default function EvidenceReport({
         {activeTab === "followup" && <FollowupTab result={result} profile={profile} />}
       </div>
 
-      {/* 门诊沟通清单弹窗 (Claude Artifact Style) */}
-      <ConsultationSheetModal
-        isOpen={showConsultationModal}
-        onClose={() => setShowConsultationModal(false)}
-        profile={profile}
-      />
-
       {/* 证据检视抽屉 */}
       <EvidenceInspectorDrawer
         isOpen={!!inspectingStudy}
@@ -367,9 +348,7 @@ export default function EvidenceReport({
       />
 
       {/* 移动端吸底操作栏 */}
-      <MobileStickyActionBar
-        onOpenConsultationSheet={() => setShowConsultationModal(true)}
-      />
+      <MobileStickyActionBar />
     </div>
   );
 }
