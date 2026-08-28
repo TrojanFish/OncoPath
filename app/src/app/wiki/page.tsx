@@ -11,6 +11,7 @@ import { WikiScenarioEntry } from "@/components/wiki/WikiScenarioEntry";
 import { WikiSearchBar } from "@/components/wiki/WikiSearchBar";
 import { WikiTopicCard } from "@/components/wiki/WikiTopicCard";
 import { WikiFloatingNav } from "@/components/wiki/WikiFloatingNav";
+import { WikiSpotlightSearchModal } from "@/components/wiki/WikiSpotlightSearchModal";
 import PostOpSymptomTriage from "@/components/profile/PostOpSymptomTriage";
 import type { PatientProfile } from "@/lib/types";
 
@@ -21,6 +22,42 @@ export default function WikiPage() {
   const [selectedRisk, setSelectedRisk] = useState<RiskLevel | "all">("all");
   const [userProfile, setUserProfile] = useState<PatientProfile | null>(null);
   const [highlightedTopicId, setHighlightedTopicId] = useState<string | null>(null);
+  const [isSpotlightOpen, setIsSpotlightOpen] = useState(false);
+
+  // Ctrl+K / ⌘K 全局快捷键呼出 Spotlight 搜索
+  useEffect(() => {
+    const handleGlobalKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setIsSpotlightOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener("keydown", handleGlobalKey);
+    return () => window.removeEventListener("keydown", handleGlobalKey);
+  }, []);
+
+  // Spotlight 词条穿梭跳转回调
+  const handleSelectTopicFromSpotlight = (topicId: string, category: WikiCategory) => {
+    // 切换分类，确保目标卡片在 DOM 中渲染
+    setActiveCategory(category);
+    setSearchQuery("");
+    setSelectedRisk("all");
+    setHighlightedTopicId(topicId);
+
+    // URL hash 同步（Deep Link）
+    if (typeof window !== "undefined") {
+      window.history.replaceState(null, "", `#topic-${topicId}`);
+    }
+
+    // 短延迟后平滑滚动，等待 DOM 渲染
+    setTimeout(() => {
+      const el = document.getElementById(`topic-${topicId}`);
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 120);
+
+    // 4.5 秒后自动消除高光
+    setTimeout(() => setHighlightedTopicId(null), 4500);
+  };
 
   // Load patient profile from localStorage if present
   useEffect(() => {
@@ -346,6 +383,25 @@ export default function WikiPage() {
         }}
         totalTopics={WIKI_TOPICS.length}
         categoryCounts={categoryCounts}
+        onOpenSearch={() => setIsSpotlightOpen(true)}
+      />
+
+      {/* Mobile FAB — 右下角悬浮搜索气泡（仅 md 以下可见） */}
+      <button
+        type="button"
+        onClick={() => setIsSpotlightOpen(true)}
+        className="fixed bottom-20 right-4 z-40 md:hidden w-14 h-14 rounded-full bg-gradient-to-tr from-blue-500 to-indigo-500 text-white shadow-xl shadow-blue-500/30 flex items-center justify-center cursor-pointer transition-all duration-300 hover:scale-110 active:scale-95 animate-fade-in"
+        aria-label="快速搜索百科词条"
+      >
+        <Search className="w-6 h-6" />
+      </button>
+
+      {/* Spotlight 搜索面板 */}
+      <WikiSpotlightSearchModal
+        isOpen={isSpotlightOpen}
+        onClose={() => setIsSpotlightOpen(false)}
+        userProfile={userProfile}
+        onSelectTopic={handleSelectTopicFromSpotlight}
       />
     </div>
   );

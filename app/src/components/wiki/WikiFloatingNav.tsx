@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { Search } from "lucide-react";
 import type { WikiCategory } from "@/lib/wikiData";
 import { WIKI_CATEGORIES } from "@/lib/wikiData";
 
@@ -9,6 +10,7 @@ interface WikiFloatingNavProps {
   onSelectCategory: (category: WikiCategory | "all") => void;
   totalTopics: number;
   categoryCounts: Record<WikiCategory, number>;
+  onOpenSearch: () => void;
 }
 
 export function WikiFloatingNav({
@@ -16,6 +18,7 @@ export function WikiFloatingNav({
   onSelectCategory,
   totalTopics,
   categoryCounts,
+  onOpenSearch,
 }: WikiFloatingNavProps) {
   // Smooth scroll helper
   const scrollToSection = (sectionId: string) => {
@@ -112,6 +115,28 @@ export function WikiFloatingNav({
       aria-label="百科专区快速电梯导轨"
       className="fixed right-3 sm:right-5 top-1/2 -translate-y-1/2 z-40 hidden md:flex flex-col items-center gap-2 p-2 rounded-full bg-white/80 backdrop-blur-xl border border-slate-200/90 shadow-2xl shadow-slate-900/10 transition-all duration-300 select-none animate-fade-in"
     >
+      {/* 🔍 全局搜索球（统领位，最顶端） */}
+      <div className="relative group">
+        <button
+          type="button"
+          onClick={onOpenSearch}
+          className="w-9 h-9 rounded-full aspect-square flex items-center justify-center transition-all duration-200 cursor-pointer bg-gradient-to-tr from-blue-500 to-indigo-500 text-white shadow-md shadow-blue-400/40 hover:scale-110 active:scale-95 ring-2 ring-blue-400/20"
+          aria-label="全局快速搜索 (Ctrl+K)"
+        >
+          <Search className="w-4 h-4" />
+        </button>
+        {/* 左侧 Tooltip */}
+        <div className="absolute right-full mr-3 top-1/2 -translate-y-1/2 px-3 py-1.5 rounded-xl bg-slate-900/95 text-white text-xs font-bold whitespace-nowrap shadow-xl opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-200 flex items-center gap-2 z-50">
+          <Search className="w-3 h-3 text-blue-400" />
+          <span>全局快速搜索</span>
+          <kbd className="px-1.5 py-0.5 rounded bg-slate-700 text-slate-300 text-[10px] font-mono ml-1">⌘K</kbd>
+          <div className="absolute left-full top-1/2 -translate-y-1/2 border-4 border-transparent border-l-slate-900/95" />
+        </div>
+      </div>
+
+      {/* 分隔线 */}
+      <div className="w-5 h-px bg-slate-200/90 my-0.5" />
+
       {/* Category Fast Switcher Items */}
       {categories.map((item) => {
         const isActive = activeCategory === item.id;
