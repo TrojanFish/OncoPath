@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Search, Globe, DownloadCloud, BookOpen, AlertCircle, CheckCircle2 } from "lucide-react";
 import { StudyListSkeleton } from "@/components/common/MedicalSkeleton";
+import EmptyState from "@/components/common/EmptyState";
 
 interface EvidenceResponse {
   id: string;
@@ -19,6 +20,7 @@ export default function PubMedSearch() {
   const [source, setSource] = useState("pubmed");
   const [results, setResults] = useState<EvidenceResponse[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
   const [message, setMessage] = useState("");
 
   const API_BASE_URL = "/api";
@@ -26,6 +28,7 @@ export default function PubMedSearch() {
   const handleSearch = async () => {
     if (!query) return;
     setIsLoading(true);
+    setHasSearched(true);
     setMessage("");
     try {
       const res = await fetch(`${API_BASE_URL}/evidence/search?q=${encodeURIComponent(query)}`, {
@@ -34,9 +37,6 @@ export default function PubMedSearch() {
       if (res.ok) {
         const data = await res.json();
         setResults(Array.isArray(data) ? data : []);
-        if (!Array.isArray(data) || data.length === 0) {
-          setMessage("本地数据库未找到相关论文，请尝试从外部库抓取。");
-        }
       }
     } catch (error) {
       console.error(error);
@@ -144,6 +144,16 @@ export default function PubMedSearch() {
           <div className="pt-2">
             <StudyListSkeleton count={2} />
           </div>
+        )}
+
+        {/* 空结果状态 */}
+        {!isLoading && hasSearched && results.length === 0 && (
+          <EmptyState
+            compact
+            icon="search"
+            title="本地数据库暂未收录该关键词的文献"
+            description="您可以尝试更换检索词（支持英文/中文 MeSH 词），或点击上方「从外部抓取」按钮直接从 PubMed 官方拉取最新研究。"
+          />
         )}
 
         {/* 检索结果展示 */}

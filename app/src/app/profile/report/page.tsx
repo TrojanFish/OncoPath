@@ -23,6 +23,7 @@ import { GlossaryTooltip } from "@/components/common/GlossaryTooltip";
 import ReasoningTicker from "@/components/profile/ReasoningTicker";
 import { ONCOPATH_LOGO_DATA_URI } from "@/lib/brandLogo";
 import { exportElementToA4Pdf } from "@/lib/pdfExporter";
+import { showToast } from "@/components/common/Toast";
 
 
 export default function EvidenceReportPage() {
@@ -357,7 +358,7 @@ export default function EvidenceReportPage() {
       }
     } catch (err: any) {
       console.error("Failed to generate consultation card image:", err);
-      alert("生成问诊便签卡遇到浏览器限制，请长按文本复制或直接点击'导出 / 打印PDF'。");
+      showToast("生成便签卡遇到浏览器限制，建议复制文本或直接导出 PDF", "warning");
     } finally {
       setIsExportingCard(false);
     }
@@ -446,9 +447,10 @@ export default function EvidenceReportPage() {
     const success = await copyTextSafe(textToCopy);
     if (success) {
       setCopied(true);
+      showToast("✓ 门诊问诊清单已成功复制到剪贴板", "success");
       setTimeout(() => setCopied(false), 3000);
     } else {
-      alert("复制遇到浏览器限制，请长按文本手动选择复制。");
+      showToast("复制遇到浏览器限制，请长按文本手动选择复制", "warning");
     }
   };
 

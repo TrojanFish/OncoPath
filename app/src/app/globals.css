@@ -127,6 +127,23 @@
   transform: scale(0.98);
 }
 
+.btn-ghost {
+  background: transparent;
+  border: 1px solid transparent;
+  color: #475569;
+  font-weight: 600;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-ghost:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.btn-ghost:active {
+  transform: scale(0.98);
+}
+
 /* Telemedicine Card & Soft Elevation */
 .card-hover {
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);

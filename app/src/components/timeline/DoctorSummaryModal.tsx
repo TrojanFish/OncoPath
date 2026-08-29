@@ -19,6 +19,7 @@ import {
 import { TimelineEventItem } from "@/lib/timelineTypes";
 import { ONCOPATH_LOGO_DATA_URI } from "@/lib/brandLogo";
 import { exportElementToA4Pdf } from "@/lib/pdfExporter";
+import { showToast } from "@/components/common/Toast";
 
 interface DoctorSummaryModalProps {
   events: TimelineEventItem[];
@@ -81,11 +82,12 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
       });
       if (success) {
         setPdfSuccess(true);
+        showToast("✓ 名医就诊汇报便签 PDF 已开始下载", "success");
         setTimeout(() => setPdfSuccess(false), 2500);
       }
     } catch (err) {
       console.error("PDF export error:", err);
-      alert("生成 PDF 遇到浏览器限制，建议使用打印选项。");
+      showToast("生成 PDF 遇到浏览器限制，建议使用打印选项", "warning");
     } finally {
       setIsExportingPdf(false);
     }
@@ -140,13 +142,14 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
         a.click();
         document.body.removeChild(a);
         setDownloadSuccess(true);
+        showToast("✓ 名医就诊汇报清单已保存到本地", "success");
         setTimeout(() => setDownloadSuccess(false), 2500);
       } else {
         throw new Error("未能生成问诊清单图片数据");
       }
     } catch (err: any) {
       console.error("Export image error:", err);
-      alert("生成问诊清单图片遇到浏览器限制，建议直接点击'下载 A4 PDF'或'打印'。");
+      showToast("生成图片遇到浏览器限制，建议点击'下载 A4 PDF'或'打印'", "warning");
     } finally {
       setIsExportingImage(false);
     }

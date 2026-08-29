@@ -21,6 +21,7 @@ import TumorMarkerTrendChart from "./TumorMarkerTrendChart";
 import AddEventModal from "./AddEventModal";
 import DoctorSummaryModal from "./DoctorSummaryModal";
 import TimelineCategoryIcon from "./TimelineCategoryIcon";
+import EmptyState from "@/components/common/EmptyState";
 
 export default function ClinicalTimelineView() {
   const [events, setEvents] = useState<TimelineEventItem[]>([]);
@@ -436,20 +437,11 @@ export default function ClinicalTimelineView() {
 
       {/* 2. Empty State (When user has 0 records) */}
       {events.length === 0 ? (
-        <div className="bg-white rounded-3xl p-8 sm:p-14 text-center border border-slate-200/90 shadow-sm space-y-6">
-          <div className="w-16 h-16 rounded-3xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto shadow-xs border border-blue-100">
-            <Calendar className="w-8 h-8 text-blue-600" />
-          </div>
-          <div className="space-y-2 max-w-md mx-auto">
-            <h3 className="text-lg sm:text-xl font-extrabold text-slate-900">
-              您尚未录入任何检查报告
-            </h3>
-            <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
-              将您的历次薄层 CT、手术大体病理、靶向基因检测与血液化验归档，系统将自动为您生成长程生长曲线、因果推演与一键就诊清单。
-            </p>
-          </div>
-
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+        <EmptyState
+          icon="calendar"
+          title="您尚未录入任何检查报告"
+          description="将您的历次薄层 CT、手术大体病理、靶向基因检测与血液化验归档，系统将自动为您生成长程生长曲线、因果推演与一键就诊清单。"
+          action={
             <button
               onClick={() => setShowAddModal(true)}
               className="w-full sm:w-auto btn-primary px-5 py-2.5 sm:py-3 rounded-2xl text-xs sm:text-sm font-bold shadow-md cursor-pointer flex items-center justify-center gap-1.5 whitespace-nowrap"
@@ -457,23 +449,26 @@ export default function ClinicalTimelineView() {
               <Plus className="w-4 h-4" />
               <span>录入首份报告</span>
             </button>
-            <Link
-              href="/profile"
-              className="w-full sm:w-auto px-5 py-2.5 sm:py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-1.5 whitespace-nowrap"
-            >
-              <Camera className="w-4 h-4 text-slate-600" />
-              <span>拍照智能识别</span>
-            </Link>
-            <button
-              onClick={handleLoadDemo}
-              className="w-full sm:w-auto px-5 py-2.5 sm:py-3 rounded-2xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 whitespace-nowrap"
-            >
-              <Sparkles className="w-4 h-4 text-amber-600" />
-              <span>体验演示数据</span>
-            </button>
-          </div>
-
-        </div>
+          }
+          secondaryAction={
+            <>
+              <Link
+                href="/profile"
+                className="w-full sm:w-auto btn-secondary px-5 py-2.5 sm:py-3 rounded-2xl text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 whitespace-nowrap"
+              >
+                <Camera className="w-4 h-4 text-slate-600" />
+                <span>拍照智能识别</span>
+              </Link>
+              <button
+                onClick={handleLoadDemo}
+                className="w-full sm:w-auto px-5 py-2.5 sm:py-3 rounded-2xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 whitespace-nowrap"
+              >
+                <Sparkles className="w-4 h-4 text-amber-600" />
+                <span>体验演示数据</span>
+              </button>
+            </>
+          }
+        />
       ) : (
         <>
           {/* 3. View Mode Toggle & Category Filter Controls */}

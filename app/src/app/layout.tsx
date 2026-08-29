@@ -49,6 +49,8 @@ export const metadata: Metadata = {
   },
 };
 
+import ToastContainer from "@/components/common/Toast";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -63,7 +65,10 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="mobile-web-app-capable" content="yes" />
       </head>
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        {children}
+        <ToastContainer />
+      </body>
     </html>
   );
 }

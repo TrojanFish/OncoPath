@@ -28,6 +28,7 @@ import SpeechReaderButton from "@/components/common/SpeechReaderButton";
 import EvidenceInspectorDrawer from "@/components/common/EvidenceInspectorDrawer";
 import MobileStickyActionBar from "@/components/common/MobileStickyActionBar";
 import ClinicalBadge from "@/components/common/ClinicalBadge";
+import { showToast } from "@/components/common/Toast";
 
 interface EvidenceReportProps {
   profile: PatientProfile;
@@ -194,7 +195,7 @@ export default function EvidenceReport({
                 if (navigator.share) {
                   navigator.share({ title: "OncoPath 循证分析报告", url });
                 } else {
-                  navigator.clipboard.writeText(url).then(() => alert("页面链接已复制！可将链接分享给家属或医生。"));
+                  navigator.clipboard.writeText(url).then(() => showToast("✓ 报告链接已复制，可分享给家属或医生", "success"));
                 }
               }}
               className="btn-secondary px-3 py-1.5 rounded-xl text-xs font-semibold cursor-pointer flex items-center gap-1"

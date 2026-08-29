@@ -3,6 +3,8 @@
 import React from "react";
 import { FileText, Volume2, ArrowUp, Sparkles, Share2 } from "lucide-react";
 
+import { showToast } from "./Toast";
+
 interface MobileStickyActionBarProps {
   onTriggerSpeech?: () => void;
   onShare?: () => void;
@@ -28,7 +30,7 @@ export default function MobileStickyActionBar({
       if (navigator.share) {
         navigator.share({ title: "OncoPath 循证分析报告", url });
       } else {
-        navigator.clipboard.writeText(url).then(() => alert("页面链接已复制！可分享给家属或医生。"));
+        navigator.clipboard.writeText(url).then(() => showToast("✓ 页面链接已复制，可分享给家属或医生", "success"));
       }
     }
   };
