@@ -5,7 +5,6 @@ import Link from "next/link";
 import { BookOpen, User, Search, Layers, Compass, Sparkles } from "lucide-react";
 import SubpageNavbar from "@/components/SubpageNavbar";
 import Footer from "@/components/Footer";
-import Breadcrumbs from "@/components/common/Breadcrumbs";
 import EmptyState from "@/components/common/EmptyState";
 import { WIKI_TOPICS, WIKI_CATEGORIES, type WikiCategory, type RiskLevel } from "@/lib/wikiData";
 
@@ -210,11 +209,6 @@ export default function WikiPage() {
       <main className="flex-1 max-w-7xl w-full mx-auto px-2.5 sm:px-6 pt-28 md:pt-32 pb-16 space-y-6 sm:space-y-8">
         {/* Hero Section */}
         <section className="text-center space-y-4 pb-4">
-          {/* Top Breadcrumbs */}
-          <div className="flex justify-center">
-            <Breadcrumbs items={[{ label: "全景循证视觉百科" }]} />
-          </div>
-
           <div className="inline-flex items-center gap-2 bg-white px-4 py-1.5 rounded-full text-xs font-bold text-sky-700 border border-sky-200 shadow-xs">
             <BookOpen className="w-3.5 h-3.5 text-sky-600" />
             <span>肺结节与肺癌全景循证视觉百科</span>

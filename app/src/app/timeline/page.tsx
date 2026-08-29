@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import SubpageNavbar from "@/components/SubpageNavbar";
 import ClinicalTimelineView from "@/components/timeline/ClinicalTimelineView";
 import Footer from "@/components/Footer";
-import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "检查报告时间生命线 - OncoPath 肺癌全景时序诊疗管理",
@@ -16,19 +15,6 @@ export default function TimelinePage() {
       <SubpageNavbar />
 
       <main className="flex-1 max-w-5xl mx-auto w-full px-2.5 sm:px-6 pt-24 sm:pt-28 pb-16">
-        {/* Breadcrumb Navigation */}
-        <div className="flex items-center gap-2 text-xs text-slate-500 mb-6 font-medium">
-          <Link href="/" className="hover:text-blue-600 transition-colors">
-            首页
-          </Link>
-          <span>/</span>
-          <Link href="/profile" className="hover:text-blue-600 transition-colors">
-            患者数字档案
-          </Link>
-          <span>/</span>
-          <span className="text-slate-900 font-bold">检查报告时间生命线</span>
-        </div>
-
         {/* Master Timeline View Container */}
         <ClinicalTimelineView />
       </main>

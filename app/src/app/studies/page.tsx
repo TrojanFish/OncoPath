@@ -5,7 +5,6 @@ import { BookOpen, Search } from "lucide-react";
 import StudyCard, { StudyItem } from "@/components/StudyCard";
 import SubpageNavbar from "@/components/SubpageNavbar";
 import Footer from "@/components/Footer";
-import Breadcrumbs from "@/components/common/Breadcrumbs";
 
 
 export default function StudiesPage() {
@@ -41,11 +40,6 @@ export default function StudiesPage() {
 
       {/* Hero Header */}
       <header className="pt-28 md:pt-32 pb-8 px-2.5 sm:px-6 max-w-4xl mx-auto text-center space-y-4">
-        {/* Top Breadcrumbs */}
-        <div className="flex justify-center">
-          <Breadcrumbs items={[{ label: "国际前沿研究文献库" }]} />
-        </div>
-
         {/* Unified Top Pill Badge */}
         <div className="inline-flex items-center gap-2 bg-white px-4 py-1.5 rounded-full text-xs font-bold text-sky-700 border border-sky-200/80 shadow-xs">
           <BookOpen className="w-3.5 h-3.5 text-sky-600" />

@@ -32,7 +32,6 @@ import {
 } from "lucide-react";
 import SubpageNavbar from "@/components/SubpageNavbar";
 import Footer from "@/components/Footer";
-import Breadcrumbs from "@/components/common/Breadcrumbs";
 
 interface DrugPolicy {
   id: string;
@@ -458,11 +457,6 @@ export default function ReimbursementPage() {
 
       {/* Unified Hero Header (Aligned with /wiki, /studies, /resources, /knowledge) */}
       <header className="pt-28 md:pt-32 pb-8 px-2.5 sm:px-6 max-w-4xl mx-auto text-center space-y-4">
-        {/* Top Breadcrumbs */}
-        <div className="flex justify-center">
-          <Breadcrumbs items={[{ label: "特药医保与慈善赠药" }]} />
-        </div>
-
         {/* Top Pill Badge */}
         <div className="inline-flex items-center gap-2 bg-white px-4 py-1.5 rounded-full text-xs font-bold text-sky-700 border border-sky-200/80 shadow-xs">
           <ShieldCheck className="w-3.5 h-3.5 text-sky-600" />
