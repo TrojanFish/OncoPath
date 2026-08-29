@@ -11,7 +11,8 @@ import {
   TrendingUp, 
   Search, 
   X, 
-  Bookmark 
+  Bookmark,
+  ClipboardList
 } from "lucide-react";
 import { TimelineCategory, TimelineEventItem, TIMELINE_CATEGORIES } from "@/lib/timelineTypes";
 import { DEFAULT_TIMELINE_EVENTS, deriveTimelineEventsFromProfile } from "@/lib/timelineData";
@@ -349,18 +350,21 @@ export default function ClinicalTimelineView() {
           {/* Quick Metrics & Actions */}
           <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 sm:gap-2.5 w-full sm:w-auto">
             <button
-              onClick={() => setShowAddModal(true)}
-              className="btn-primary px-3 sm:px-5 py-2.5 sm:py-3 rounded-2xl text-xs sm:text-sm font-bold shadow-md flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0 transition-transform active:scale-95 text-center"
+              onClick={() => {
+                setEditingEvent(null);
+                setShowAddModal(true);
+              }}
+              className="px-3 sm:px-5 py-2.5 sm:py-3 rounded-2xl btn-primary text-xs sm:text-sm font-bold shadow-md cursor-pointer flex items-center justify-center gap-1.5 whitespace-nowrap shrink-0 transition-transform active:scale-95 text-center"
             >
               <Plus className="w-4 h-4" />
-              <span>录入新报告</span>
+              <span>追加检查报告</span>
             </button>
             <button
               onClick={() => setShowSummaryModal(true)}
-              className="px-3 sm:px-5 py-2.5 sm:py-3 rounded-2xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 hover:text-slate-900 text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-xs whitespace-nowrap shrink-0 active:scale-95 text-center"
+              className="px-3 sm:px-5 py-2.5 sm:py-3 rounded-2xl btn-secondary text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap shrink-0 transition-all shadow-xs active:scale-95 text-center"
             >
-              <FileText className="w-4 h-4 text-slate-600" />
-              <span>名医就诊清单</span>
+              <ClipboardList className="w-4 h-4 text-sky-600" />
+              <span>门诊就医便签卡</span>
             </button>
           </div>
         </div>

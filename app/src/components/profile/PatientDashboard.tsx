@@ -343,10 +343,10 @@ export default function PatientDashboard() {
           <button 
             onClick={() => setShowUpdateModal(true)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-blue-800 bg-blue-50 hover:bg-blue-100 border border-blue-200 transition-all cursor-pointer shadow-2xs group whitespace-nowrap"
-            title="修改或更新患者病理、分期与临床指标"
+            title="校对或更新患者病理、分期与临床指标"
           >
             <Edit3 className="w-3.5 h-3.5 text-blue-600 transition-transform group-hover:scale-110 flex-shrink-0" />
-            <span>修改档案</span>
+            <span>校对指标</span>
           </button>
 
           {/* 5. Clear/Delete Profile */}
@@ -1049,7 +1049,7 @@ export default function PatientDashboard() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between mb-1">
                     <h4 className="text-sm font-extrabold text-slate-900 group-hover:text-blue-900">
-                      快捷核对与微调已有指标
+                      校对与微调已有病理指标
                     </h4>
                     <span className="text-[11px] font-bold text-blue-700 bg-blue-100 px-2 py-0.5 rounded-md">推荐 · 10秒</span>
                   </div>
@@ -1075,7 +1075,7 @@ export default function PatientDashboard() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between mb-1">
                     <h4 className="text-sm font-extrabold text-slate-900 group-hover:text-purple-900">
-                      追加 / 上传新医疗报告
+                      追加 / 上传新检查报告
                     </h4>
                     <span className="text-[11px] font-bold text-purple-700 bg-purple-100 px-2 py-0.5 rounded-md">AI 智能合并</span>
                   </div>

@@ -433,9 +433,9 @@ export default function EvidenceReportPage() {
 
     // Comprehensive regex extraction for Section 3 (Consultation checklist)
     const section3Match = 
-      reportMarkdown.match(/##?\s*(?:3[\.\s、]|三[\.\s、]|【向[^】]*问诊清单[^】]*】)[\s\S]*?(?=##?\s*(?:4[\.\s、]|四[\.\s、]|$))/i) ||
+      reportMarkdown.match(/##?\s*(?:3[\.\s、]|三[\.\s、]|【(?:向|门诊)[^】]*(?:问诊|便签)[^】]*】)[\s\S]*?(?=##?\s*(?:4[\.\s、]|四[\.\s、]|$))/i) ||
       reportMarkdown.match(/##?\s*3[\s\S]*?(?=##?\s*4|$)/) ||
-      reportMarkdown.match(/【向[^】]*问诊清单】[\s\S]*?(?=##?\s*\d|$)/);
+      reportMarkdown.match(/【(?:向|门诊)[^】]*(?:问诊|便签)[^】]*】[\s\S]*?(?=##?\s*\d|$)/);
 
     let textToCopy = "";
     if (section3Match) {
@@ -615,7 +615,7 @@ export default function EvidenceReportPage() {
                 title="若指标有更新，点击前往个人档案修改"
               >
                 <span className="text-slate-400 group-hover:text-blue-600 transition-colors">✏️</span>
-                <span>修改指标 / 重新生成</span>
+                <span>校对病理指标</span>
               </Link>
               <div className="text-[11px] text-slate-400 font-medium font-mono whitespace-nowrap">
                 <span className="hidden print:inline">报告归档时间: </span>

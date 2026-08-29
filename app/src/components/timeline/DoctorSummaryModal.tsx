@@ -76,13 +76,13 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
       setIsExportingPdf(true);
       const dateStr = new Date().toISOString().split("T")[0];
       const success = await exportElementToA4Pdf(printableDocRef.current, {
-        fileName: `OncoPath-名医就诊汇报便签-${dateStr}.pdf`,
-        headerTitle: "OncoPath 肺结节与肺腺癌临床数字档案 · 名医就诊汇报便签",
+        fileName: `OncoPath-门诊就医问诊便签卡-${dateStr}.pdf`,
+        headerTitle: "OncoPath 肺结节与肺腺癌临床数字档案 · 门诊就医问诊便签卡",
         reportDate: dateStr,
       });
       if (success) {
         setPdfSuccess(true);
-        showToast("✓ 名医就诊汇报便签 PDF 已开始下载", "success");
+        showToast("✓ 门诊就医问诊便签卡 PDF 已开始下载", "success");
         setTimeout(() => setPdfSuccess(false), 2500);
       }
     } catch (err) {
@@ -137,15 +137,15 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
         const dateStr = new Date().toISOString().split("T")[0];
         const a = document.createElement("a");
         a.href = imgData;
-        a.download = `OncoPath-名医就诊汇报清单-${dateStr}.png`;
+        a.download = `OncoPath-门诊就医问诊便签卡-${dateStr}.png`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
         setDownloadSuccess(true);
-        showToast("✓ 名医就诊汇报清单已保存到本地", "success");
+        showToast("✓ 门诊就医问诊便签卡已保存到本地", "success");
         setTimeout(() => setDownloadSuccess(false), 2500);
       } else {
-        throw new Error("未能生成问诊清单图片数据");
+        throw new Error("未能生成问诊便签卡图片数据");
       }
     } catch (err: any) {
       console.error("Export image error:", err);
@@ -167,11 +167,11 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
               </div>
               <div>
                 <h3 className="text-sm sm:text-base font-extrabold text-slate-900 leading-tight">
-                  名医就诊快速汇报清单
+                  门诊就医问诊便签卡
                   <span className="hidden md:inline text-xs font-normal text-slate-500 ml-1.5">(Doctor Summary)</span>
                 </h3>
                 <p className="text-[10px] sm:text-[11px] text-slate-500 mt-0.5">
-                  为三甲专家问诊精编 · 3秒扫视历次影像/病理/生化诊疗全景
+                  专为门诊 3 分钟高效面诊设计 · 3秒扫视历次影像/病理/生化诊疗全景
                 </p>
               </div>
             </div>
