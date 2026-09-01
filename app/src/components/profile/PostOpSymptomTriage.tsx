@@ -22,6 +22,7 @@ export type SymptomCategory = "cough" | "pain" | "breath" | "blood_tinge";
 interface SymptomInfo {
   id: SymptomCategory;
   name: string;
+  tag: string;
   shortDesc: string;
   icon: React.ComponentType<{ className?: string }>;
   normalReason: string;
@@ -35,6 +36,7 @@ const SYMPTOM_DATABASE: SymptomInfo[] = [
   {
     id: "cough",
     name: "术后阵发性干咳 / 喉咙发痒",
+    tag: "喉咙发痒 · 气道高反应",
     shortDesc: "说话或深呼吸时刺激性干咳，无痰或少许白黏痰",
     icon: Wind,
     normalReason:
@@ -56,6 +58,7 @@ const SYMPTOM_DATABASE: SymptomInfo[] = [
   {
     id: "pain",
     name: "切口周围麻木 / 肋间刺痛",
+    tag: "切口麻木 · 肋间神经痛",
     shortDesc: "手术切口附近皮肤触觉迟钝、偶发针刺样或抽痛",
     icon: Flame,
     normalReason:
@@ -77,6 +80,7 @@ const SYMPTOM_DATABASE: SymptomInfo[] = [
   {
     id: "breath",
     name: "活动后轻度气促 / 爬楼微喘",
+    tag: "爬楼微喘 · 肺容积代偿",
     shortDesc: "快走或爬 2~3 层楼时感觉呼吸较术前稍显费力",
     icon: Activity,
     normalReason:
@@ -98,6 +102,7 @@ const SYMPTOM_DATABASE: SymptomInfo[] = [
   {
     id: "blood_tinge",
     name: "晨起痰中偶带微量淡红血丝",
+    tag: "偶发血丝 · 支气管创面",
     shortDesc: "偶尔剧烈咳嗽后痰表面附着 1~2 根细小血丝",
     icon: Droplets,
     normalReason:
@@ -206,7 +211,7 @@ export default function PostOpSymptomTriage() {
               key={item.step}
               type="button"
               onClick={() => setCurrentStep(item.step as 1 | 2 | 3)}
-              className={`p-2.5 sm:p-3 rounded-xl text-left transition-all cursor-pointer flex flex-col justify-between ${
+              className={`p-2.5 sm:p-3 rounded-xl text-left transition-all cursor-pointer flex flex-col justify-between min-w-0 overflow-hidden ${
                 isActive
                   ? "bg-white text-teal-950 font-bold shadow-xs border border-teal-300 ring-2 ring-teal-400/20"
                   : isDone
@@ -214,13 +219,13 @@ export default function PostOpSymptomTriage() {
                   : "bg-transparent text-slate-500 hover:bg-slate-100/60 border border-transparent"
               }`}
             >
-              <div className="flex items-center justify-between">
-                <span className="font-bold text-[11px] sm:text-xs">
+              <div className="flex items-center justify-between min-w-0 w-full">
+                <span className="font-bold text-[11px] sm:text-xs truncate">
                   {item.title}
                 </span>
                 {isDone && <CheckCircle2 className="w-3.5 h-3.5 text-teal-600 shrink-0" />}
               </div>
-              <div className="text-[10px] text-slate-500 truncate mt-0.5">
+              <div className="text-[10px] text-slate-500 truncate mt-0.5 w-full">
                 {item.desc}
               </div>
             </button>
@@ -244,32 +249,33 @@ export default function PostOpSymptomTriage() {
               return (
                 <button
                   key={item.id}
+                  type="button"
                   onClick={() => setSelectedCategory(item.id)}
-                  className={`p-3 sm:p-3.5 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between space-y-2 ${
+                  className={`p-3 sm:p-3.5 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between space-y-2 min-w-0 overflow-hidden ${
                     isSelected
                       ? "bg-gradient-to-br from-teal-50/90 via-sky-50/60 to-blue-50/50 border-teal-400 shadow-sm ring-2 ring-teal-400/20"
                       : "bg-slate-50/70 border-slate-200 hover:bg-slate-100 hover:border-slate-300"
                   }`}
                 >
-                  <div className="flex items-center justify-between">
-                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${
+                  <div className="flex items-center justify-between min-w-0 w-full">
+                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${
                       isSelected ? "bg-teal-600 text-white" : "bg-slate-200 text-slate-600"
                     }`}>
                       <ItemIcon className="w-4 h-4" />
                     </div>
                     {isSelected && (
-                      <span className="w-2 h-2 rounded-full bg-teal-500 animate-pulse" />
+                      <span className="w-2 h-2 rounded-full bg-teal-500 animate-pulse shrink-0" />
                     )}
                   </div>
 
-                  <div>
-                    <div className={`text-xs font-extrabold leading-snug ${
+                  <div className="min-w-0 w-full">
+                    <div className={`text-xs font-extrabold leading-snug line-clamp-1 break-words ${
                       isSelected ? "text-teal-950" : "text-slate-800"
                     }`}>
                       {item.name.split(" / ")[0]}
                     </div>
-                    <div className="text-[10px] text-slate-500 truncate mt-0.5">
-                      {item.shortDesc}
+                    <div className="text-[10px] text-slate-500 line-clamp-1 mt-0.5 break-words">
+                      {item.tag}
                     </div>
                   </div>
                 </button>
