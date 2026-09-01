@@ -348,7 +348,14 @@ export default function ReimbursementPage() {
   const [insuranceType, setInsuranceType] = useState<"urban_employee" | "urban_resident">("urban_employee");
   const [hasHuiminbao, setHasHuiminbao] = useState<boolean>(true);
   const [copied, setCopied] = useState<boolean>(false);
-  const [activeTab, setActiveTab] = useState<"calculator" | "reimbursement_table" | "cross_province" | "dual_channel" | "pap_guide" | "faq">("calculator");
+  const [activeTab, setActiveTab] = useState<"reimbursement_table" | "calculator" | "materials" | "dual_channel" | "cross_province" | "pap_guide" | "faq">("reimbursement_table");
+  const [checkedMaterials, setCheckedMaterials] = useState<string[]>([]);
+
+  const toggleMaterial = (id: string) => {
+    setCheckedMaterials(prev => 
+      prev.includes(id) ? prev.filter(m => m !== id) : [...prev, id]
+    );
+  };
 
   const filteredDrugs = selectedCategory === "all" 
     ? DRUG_POLICIES 
@@ -497,73 +504,83 @@ export default function ReimbursementPage() {
       {/* Main Content Area (Standard max-w-7xl) */}
       <main className="flex-1 max-w-7xl mx-auto w-full px-2.5 sm:px-6 pb-16 space-y-8">
         
-        {/* Navigation Tabs Bar */}
-        <div className="bg-white p-2 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-2 overflow-x-auto no-scrollbar">
-          <button
-            onClick={() => setActiveTab("calculator")}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-1.5 cursor-pointer ${
-              activeTab === "calculator" 
-                ? "bg-blue-600 text-white shadow-xs" 
-                : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
-            }`}
-          >
-            <Calculator className="w-3.5 h-3.5" />
-            <span>自负费用在线估算器</span>
-          </button>
+        {/* Segmented Navigation Tabs Bar (Scrollable) */}
+        <div className="bg-white p-2 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-2 overflow-x-auto no-scrollbar sticky top-20 z-20 backdrop-blur-md bg-white/95">
           <button
             onClick={() => setActiveTab("reimbursement_table")}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-1.5 cursor-pointer ${
+            className={`px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-1.5 cursor-pointer ${
               activeTab === "reimbursement_table" 
                 ? "bg-blue-600 text-white shadow-xs" 
                 : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
             }`}
           >
             <FileText className="w-3.5 h-3.5" />
-            <span>16大特药医保限定与红线表</span>
+            <span>1. 特药目录与限定红线</span>
           </button>
+
           <button
-            onClick={() => setActiveTab("cross_province")}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-1.5 cursor-pointer ${
-              activeTab === "cross_province" 
+            onClick={() => setActiveTab("calculator")}
+            className={`px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-1.5 cursor-pointer ${
+              activeTab === "calculator" 
                 ? "bg-blue-600 text-white shadow-xs" 
                 : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
             }`}
           >
-            <MapPin className="w-3.5 h-3.5" />
-            <span>跨省异地就医与门特结算</span>
+            <Calculator className="w-3.5 h-3.5" />
+            <span>2. 自负费用在线测算器</span>
           </button>
+
+          <button
+            onClick={() => setActiveTab("materials")}
+            className={`px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-1.5 cursor-pointer ${
+              activeTab === "materials" 
+                ? "bg-blue-600 text-white shadow-xs" 
+                : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+            }`}
+          >
+            <FileCheck className="w-3.5 h-3.5" />
+            <span>3. 门慢门特盖章材料包</span>
+            {checkedMaterials.length > 0 && (
+              <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-white/20 text-white font-mono">
+                {checkedMaterials.length}/6
+              </span>
+            )}
+          </button>
+
           <button
             onClick={() => setActiveTab("dual_channel")}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-1.5 cursor-pointer ${
+            className={`px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-1.5 cursor-pointer ${
               activeTab === "dual_channel" 
                 ? "bg-blue-600 text-white shadow-xs" 
                 : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
             }`}
           >
             <Building2 className="w-3.5 h-3.5" />
-            <span>“双通道”药房与防推诿破局</span>
+            <span>4. 双通道药房与异地就医</span>
           </button>
+
           <button
             onClick={() => setActiveTab("pap_guide")}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-1.5 cursor-pointer ${
+            className={`px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-1.5 cursor-pointer ${
               activeTab === "pap_guide" 
                 ? "bg-blue-600 text-white shadow-xs" 
                 : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
             }`}
           >
             <HeartHandshake className="w-3.5 h-3.5" />
-            <span>官方 PAP 慈善赠药全攻略</span>
+            <span>5. 官方 PAP 慈善赠药</span>
           </button>
+
           <button
             onClick={() => setActiveTab("faq")}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-1.5 cursor-pointer ${
+            className={`px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-1.5 cursor-pointer ${
               activeTab === "faq" 
                 ? "bg-blue-600 text-white shadow-xs" 
                 : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
             }`}
           >
             <HelpCircle className="w-3.5 h-3.5" />
-            <span>医保高频避坑 FAQ</span>
+            <span>6. 医保避坑 FAQ</span>
           </button>
         </div>
 
@@ -983,6 +1000,226 @@ export default function ReimbursementPage() {
                   ))}
                 </tbody>
               </table>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 3: HOSPITAL SEALED MATERIALS & INTERACTIVE CHECKLIST */}
+        {activeTab === "materials" && (
+          <div className="bg-white rounded-3xl p-4 sm:p-7 border border-slate-200 shadow-sm space-y-6 animate-fade-in">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+              <div>
+                <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 flex items-center gap-2">
+                  <FileCheck className="w-5 h-5 text-blue-600" />
+                  <span>门慢门特与特药报销 · 三甲医院盖章材料包全套清单</span>
+                </h2>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  医保办审核标准全套材料 · 点击勾选已准备项，支持一键复制到便签
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0">
+                <span className="text-xs font-mono font-bold px-3 py-1 rounded-xl bg-blue-50 text-blue-700 border border-blue-200">
+                  备齐进度: {checkedMaterials.length} / 6 项
+                </span>
+                <button
+                  type="button"
+                  onClick={handleCopyChecklist}
+                  className="px-3 py-1 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 rounded-xl text-xs font-bold cursor-pointer transition-colors flex items-center gap-1"
+                >
+                  {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                  <span>{copied ? "已复制" : "复制文字清单"}</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Interactive Materials Checklist Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 text-xs">
+              {[
+                {
+                  id: "mat_id",
+                  title: "1. 身份凭证与医保电子码",
+                  req: "身份证、社保卡原件及复印件（或手机打开医保电子凭证二维码）。",
+                  dept: "患者自备",
+                  tip: "异地就医建议提前在国家医保服务平台 APP 完成实名激活。"
+                },
+                {
+                  id: "mat_record",
+                  title: "2. 出院小结与住院病案 (盖章件)",
+                  req: "近半年经治三甲医院住院病历、出院小结或门诊病历。",
+                  dept: "医院病案室 / 医保办盖章",
+                  tip: "必须加盖医院病案室或医保办鲜章，复印件无章医保窗口不予受理。"
+                },
+                {
+                  id: "mat_pathology",
+                  title: "3. 组织病理学诊断切片报告",
+                  req: "明确诊断为原发性非小细胞肺癌/肺腺癌的病理切片报告单原件及复印件。",
+                  dept: "病理科 / 病案室盖章",
+                  tip: "注明病理组织学亚型（如腺癌/鳞癌）及免疫组化结果。"
+                },
+                {
+                  id: "mat_genetics",
+                  title: "4. 分子基因分型 / PD-L1 报告",
+                  req: "具备资质的三甲医院或正规第三方实验室出具的 NGS / PCR 基因检测报告单。",
+                  dept: "分子病理中心 / 检验科",
+                  tip: "注明 EGFR 19del/L858R、ALK 融合或 KRAS/RET/MET 等靶点突变丰度。"
+                },
+                {
+                  id: "mat_form",
+                  title: "5. 门慢门特待遇认定申请审批表",
+                  req: "经治主诊副主任/主任医师亲笔填写诊断与用药方案并签名的《门诊慢特病待遇认定表》。",
+                  dept: "主治医师填写 + 医院医保办盖章",
+                  tip: "在医院门诊导医台或医保办窗口领取空白表格，主治医师签字后交医保办盖章。"
+                },
+                {
+                  id: "mat_pharmacy",
+                  title: "6. 定点医疗机构与“双通道”药房回执",
+                  req: "选定 1~2 家就诊定点三甲医院及 1 家“双通道”医保定点特药零售药房。",
+                  dept: "区县医保经办大厅 / 线上小程序",
+                  tip: "若医院药房缺药，可凭流转电子处方在定点双通道药房直接刷医保卡结算。"
+                }
+              ].map((item) => {
+                const isChecked = checkedMaterials.includes(item.id);
+                return (
+                  <div
+                    key={item.id}
+                    onClick={() => toggleMaterial(item.id)}
+                    className={`p-4 rounded-2xl border transition-all cursor-pointer flex items-start gap-3.5 ${
+                      isChecked 
+                        ? "bg-slate-50/80 border-slate-300 opacity-75" 
+                        : "bg-white border-slate-200/90 hover:border-blue-300 hover:shadow-2xs"
+                    }`}
+                  >
+                    <div className={`w-5 h-5 rounded-lg flex items-center justify-center mt-0.5 border shrink-0 transition-colors ${
+                      isChecked ? "bg-emerald-600 border-emerald-600 text-white" : "border-slate-300 bg-slate-50"
+                    }`}>
+                      {isChecked && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                    </div>
+
+                    <div className="flex-1 min-w-0 space-y-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className={`font-extrabold text-xs ${isChecked ? "line-through text-slate-500" : "text-slate-900"}`}>
+                          {item.title}
+                        </span>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-800 border border-blue-200 shrink-0">
+                          {item.dept}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-600 leading-relaxed">
+                        {item.req}
+                      </p>
+                      <div className="text-[10px] text-slate-400 bg-slate-50 p-2 rounded-xl border border-slate-100 mt-1">
+                        💡 <strong>避坑提示：</strong>{item.tip}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Fast Action Guidance */}
+            <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-200 text-xs text-amber-950 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="flex items-start gap-2.5">
+                <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                <div>
+                  <div className="font-bold">办妥门特后如何使用？</div>
+                  <div className="text-[11px] text-amber-900 mt-0.5">
+                    带齐上述材料交至参保地医保大厅或通过省政务小程序提交，审批通常需 1~3 个工作日。生效后在门诊开药出示医保码即享 65%~85% 直接统筹报销。
+                  </div>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActiveTab("dual_channel")}
+                className="px-3.5 py-1.5 bg-amber-700 hover:bg-amber-800 text-white font-bold rounded-xl text-xs cursor-pointer shrink-0 transition-colors whitespace-nowrap"
+              >
+                查看双通道药房流转流程 ›
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 4: DUAL-CHANNEL & CROSS-PROVINCE */}
+        {activeTab === "dual_channel" && (
+          <div className="space-y-6 animate-fade-in">
+            {/* Cross-Province Block */}
+            <div className="bg-white rounded-3xl p-4 sm:p-7 border border-slate-200 shadow-sm space-y-5">
+              <div className="border-b border-slate-100 pb-3">
+                <h2 className="text-base sm:text-lg font-extrabold text-slate-900 flex items-center gap-2">
+                  <MapPin className="w-5 h-5 text-indigo-600" />
+                  <span>跨省异地就医与门慢门特直接联网结算 4 步通</span>
+                </h2>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  国家医保局“就医地目录、参保地政策”全国联网直接报销规则
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                <div className="p-4 rounded-2xl bg-indigo-50/50 border border-indigo-200 space-y-1.5">
+                  <div className="font-bold text-indigo-900 text-sm flex items-center gap-1.5">
+                    <span className="w-5 h-5 rounded-full bg-indigo-600 text-white flex items-center justify-center text-[10px]">1</span>
+                    <span>就医前完成“异地就医线上备案”</span>
+                  </div>
+                  <p className="text-slate-700 leading-relaxed text-[11px]">
+                    打开<strong>“国家医保服务平台” APP</strong> 或微信小程序“国家异地就医备案”，选择参保地与就医地。选择“异地长期居住”或“临时就医转诊”，上传身份证与转诊单，<strong>即时或 1 工作日内办结生效</strong>。
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-indigo-50/50 border border-indigo-200 space-y-1.5">
+                  <div className="font-bold text-indigo-900 text-sm flex items-center gap-1.5">
+                    <span className="w-5 h-5 rounded-full bg-indigo-600 text-white flex items-center justify-center text-[10px]">2</span>
+                    <span>牢记国家结算核心原则</span>
+                  </div>
+                  <p className="text-slate-700 leading-relaxed text-[11px]">
+                    跨省直接结算遵循<strong>“就医地目录、参保地政策、就医地管理”</strong>：哪些药能报按就医地医院目录为准；报销起付线与比例按参保地老家政策执行。
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-indigo-50/50 border border-indigo-200 space-y-1.5">
+                  <div className="font-bold text-indigo-900 text-sm flex items-center gap-1.5">
+                    <span className="w-5 h-5 rounded-full bg-indigo-600 text-white flex items-center justify-center text-[10px]">3</span>
+                    <span>门慢门特跨省直接联网刷卡</span>
+                  </div>
+                  <p className="text-slate-700 leading-relaxed text-[11px]">
+                    异地三甲医院门诊开具奥希替尼等靶向药时，直接出示<strong>医保码或社保卡</strong>，系统自动按门特比例直接扣除报销金额，无需垫付现金拿回老家报销。
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-indigo-50/50 border border-indigo-200 space-y-1.5">
+                  <div className="font-bold text-indigo-900 text-sm flex items-center gap-1.5">
+                    <span className="w-5 h-5 rounded-full bg-indigo-600 text-white flex items-center justify-center text-[10px]">4</span>
+                    <span>未提前备案的补救措施</span>
+                  </div>
+                  <p className="text-slate-700 leading-relaxed text-[11px]">
+                    若紧急就医未提前备案，可在<strong>出院或结算前完成补备案</strong>；全额自费结算保留好全国统一医疗收费发票、费用清单与病历原件，6 个月内回老家医保窗口办理手工零星报销。
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Dual Channel Section */}
+            <div className="bg-white rounded-3xl p-4 sm:p-7 border border-slate-200 shadow-sm space-y-5">
+              <div className="border-b border-slate-100 pb-3">
+                <h2 className="text-base sm:text-lg font-extrabold text-slate-900 flex items-center gap-2">
+                  <Building2 className="w-5 h-5 text-teal-600" />
+                  <span>“双通道”定点药房处方流转与医院推诿破局攻略</span>
+                </h2>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  保障患者能在定点特药药房享受与三甲医院完全同等的医保报销比例
+                </p>
+              </div>
+
+              <div className="space-y-4 text-xs">
+                <div className="p-4 rounded-2xl bg-teal-50/60 border border-teal-200 space-y-1.5">
+                  <div className="font-bold text-teal-900 text-sm flex items-center gap-1.5">
+                    <CheckCircle2 className="w-4 h-4 text-teal-600" />
+                    <span>什么是“双通道”？</span>
+                  </div>
+                  <p className="text-slate-700 leading-relaxed text-[11px]">
+                    “双通道”是指通过<strong>定点医疗机构（医院）</strong>和<strong>定点零售药房（特药药房）</strong>两个渠道，保障患者能买到国谈特药，并享受<strong>完全相同的医保报销待遇</strong>。
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         )}

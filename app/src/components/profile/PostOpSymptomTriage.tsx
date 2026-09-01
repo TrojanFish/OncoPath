@@ -119,27 +119,68 @@ const SYMPTOM_DATABASE: SymptomInfo[] = [
 ];
 
 export default function PostOpSymptomTriage() {
+  const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
   const [selectedCategory, setSelectedCategory] = useState<SymptomCategory>("cough");
+  
+  // Step 2 Red Flag Checklist State
+  const [redFlagAnswers, setRedFlagAnswers] = useState<{
+    lowOxygen: boolean;
+    heavyBleeding: boolean;
+    highFever: boolean;
+    severePain: boolean;
+  }>({
+    lowOxygen: false,
+    heavyBleeding: false,
+    highFever: false,
+    severePain: false,
+  });
 
   const currentSymptom = SYMPTOM_DATABASE.find((s) => s.id === selectedCategory)!;
   const Icon = currentSymptom.icon;
 
+  const hasAnyRedFlag = 
+    redFlagAnswers.lowOxygen || 
+    redFlagAnswers.heavyBleeding || 
+    redFlagAnswers.highFever || 
+    redFlagAnswers.severePain;
+
+  const triageLevel: "emergency" | "outpatient" | "homecare" = hasAnyRedFlag
+    ? "emergency"
+    : "homecare";
+
+  const handleToggleRedFlag = (key: keyof typeof redFlagAnswers) => {
+    setRedFlagAnswers((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const handleReset = () => {
+    setRedFlagAnswers({
+      lowOxygen: false,
+      heavyBleeding: false,
+      highFever: false,
+      severePain: false,
+    });
+    setCurrentStep(1);
+  };
+
   return (
-    <div className="bg-white rounded-3xl p-3.5 sm:p-6 md:p-7 border border-slate-200 shadow-sm space-y-6 hover:border-teal-300 transition-all">
+    <div className="bg-white rounded-3xl p-4 sm:p-6 md:p-7 border border-slate-200 shadow-sm space-y-6 hover:border-teal-300 transition-all">
 
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
         <div className="min-w-0">
           <div className="flex items-start sm:items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-teal-50 text-teal-600 font-bold flex items-center justify-center shrink-0 mt-0.5 sm:mt-0">
-              <HeartPulse className="w-4 h-4 text-teal-600 shrink-0" />
+            <div className="w-9 h-9 rounded-2xl bg-teal-50 text-teal-600 font-bold flex items-center justify-center shrink-0 border border-teal-100">
+              <HeartPulse className="w-5 h-5 text-teal-600 shrink-0" />
             </div>
             <div className="min-w-0 flex-1">
-              <h3 className="text-xs sm:text-sm font-extrabold text-slate-900 leading-snug">
-                POST-OP TRIAGE · 术后常见症状红绿灯自查分诊器
+              <h3 className="text-sm sm:text-base font-extrabold text-slate-900 leading-snug flex items-center gap-2">
+                <span>术后症状红绿灯智能分诊器</span>
+                <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-teal-50 text-teal-800 border border-teal-200">
+                  3步分诊自查
+                </span>
               </h3>
               <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5 leading-snug">
-                科学化解出院居家康复焦虑 · 区分正常生理恢复反应与紧急返院信号
+                科学化解出院居家康复焦虑 · 区分正常生理代偿反应与紧急返院红线
               </p>
             </div>
           </div>
@@ -151,162 +192,372 @@ export default function PostOpSymptomTriage() {
         </div>
       </div>
 
-
-      {/* Category Tabs */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-        {SYMPTOM_DATABASE.map((item) => {
-          const ItemIcon = item.icon;
-          const isSelected = item.id === selectedCategory;
-
+      {/* 3-Step Wizard Navigation Bar (Segmented Stepper) */}
+      <div className="grid grid-cols-3 gap-2 p-1.5 bg-slate-50 rounded-2xl border border-slate-200/90 text-xs">
+        {[
+          { step: 1, title: "1. 症状主诉定位", desc: currentSymptom.name.split(" / ")[0] },
+          { step: 2, title: "2. 危险红线排查", desc: hasAnyRedFlag ? "🚨 检出急诊红线" : "4项指标安全" },
+          { step: 3, title: "3. 循证对策处方", desc: hasAnyRedFlag ? "急诊返院指引" : "居家舒缓与门诊金句" },
+        ].map((item) => {
+          const isActive = currentStep === item.step;
+          const isDone = currentStep > item.step;
           return (
             <button
-              key={item.id}
-              onClick={() => setSelectedCategory(item.id)}
-              className={`p-3 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between space-y-2 ${
-                isSelected
-                  ? "bg-gradient-to-br from-teal-50/90 via-sky-50/60 to-blue-50/50 border-teal-400 shadow-sm ring-2 ring-teal-400/20"
-                  : "bg-slate-50/70 border-slate-200 hover:bg-slate-100 hover:border-slate-300"
+              key={item.step}
+              type="button"
+              onClick={() => setCurrentStep(item.step as 1 | 2 | 3)}
+              className={`p-2.5 sm:p-3 rounded-xl text-left transition-all cursor-pointer flex flex-col justify-between ${
+                isActive
+                  ? "bg-white text-teal-950 font-bold shadow-xs border border-teal-300 ring-2 ring-teal-400/20"
+                  : isDone
+                  ? "bg-teal-50/60 text-teal-900 border border-teal-200/60"
+                  : "bg-transparent text-slate-500 hover:bg-slate-100/60 border border-transparent"
               }`}
             >
               <div className="flex items-center justify-between">
-                <div className={`w-7 h-7 rounded-xl flex items-center justify-center ${
-                  isSelected ? "bg-teal-600 text-white" : "bg-slate-200 text-slate-600"
-                }`}>
-                  <ItemIcon className="w-3.5 h-3.5" />
-                </div>
-                {isSelected && (
-                  <span className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse" />
-                )}
+                <span className="font-bold text-[11px] sm:text-xs">
+                  {item.title}
+                </span>
+                {isDone && <CheckCircle2 className="w-3.5 h-3.5 text-teal-600 shrink-0" />}
               </div>
-
-              <div>
-                <div className={`text-xs font-bold leading-snug ${
-                  isSelected ? "text-teal-950" : "text-slate-700"
-                }`}>
-                  {item.name.split(" / ")[0]}
-                </div>
-                <div className="text-[10px] text-slate-400 truncate mt-0.5">
-                  {item.name.split(" / ")[1] || "生理恢复"}
-                </div>
+              <div className="text-[10px] text-slate-500 truncate mt-0.5">
+                {item.desc}
               </div>
             </button>
           );
         })}
       </div>
 
-      {/* Tri-Color Detailed Triage Card */}
-      <div className="space-y-4">
-        {/* Active Symptom Title */}
-        <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-teal-100 text-teal-800 flex items-center justify-center font-bold shrink-0">
-              <Icon className="w-5 h-5 text-teal-700" />
+      {/* STEP 1: Symptom Selection */}
+      {currentStep === 1 && (
+        <div className="space-y-4 animate-fade-in">
+          <div className="text-xs font-bold text-slate-700 flex items-center justify-between">
+            <span>请点击选择您当前最困扰的术后不适：</span>
+            <span className="text-slate-400 text-[11px]">共收录 4 大高频生理不适</span>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+            {SYMPTOM_DATABASE.map((item) => {
+              const ItemIcon = item.icon;
+              const isSelected = item.id === selectedCategory;
+
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => setSelectedCategory(item.id)}
+                  className={`p-3 sm:p-3.5 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between space-y-2 ${
+                    isSelected
+                      ? "bg-gradient-to-br from-teal-50/90 via-sky-50/60 to-blue-50/50 border-teal-400 shadow-sm ring-2 ring-teal-400/20"
+                      : "bg-slate-50/70 border-slate-200 hover:bg-slate-100 hover:border-slate-300"
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${
+                      isSelected ? "bg-teal-600 text-white" : "bg-slate-200 text-slate-600"
+                    }`}>
+                      <ItemIcon className="w-4 h-4" />
+                    </div>
+                    {isSelected && (
+                      <span className="w-2 h-2 rounded-full bg-teal-500 animate-pulse" />
+                    )}
+                  </div>
+
+                  <div>
+                    <div className={`text-xs font-extrabold leading-snug ${
+                      isSelected ? "text-teal-950" : "text-slate-800"
+                    }`}>
+                      {item.name.split(" / ")[0]}
+                    </div>
+                    <div className="text-[10px] text-slate-500 truncate mt-0.5">
+                      {item.shortDesc}
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Active Symptom Highlight Preview Card */}
+          <div className="p-4 rounded-2xl bg-teal-50/50 border border-teal-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-teal-100 text-teal-800 flex items-center justify-center font-bold shrink-0">
+                <Icon className="w-5 h-5 text-teal-700" />
+              </div>
+              <div>
+                <h4 className="text-xs sm:text-sm font-black text-slate-900">{currentSymptom.name}</h4>
+                <p className="text-[11px] text-slate-600 mt-0.5">{currentSymptom.shortDesc}</p>
+              </div>
             </div>
-            <div>
-              <h4 className="text-sm font-black text-slate-900">{currentSymptom.name}</h4>
-              <p className="text-xs text-slate-500">{currentSymptom.shortDesc}</p>
+            <div className="text-xs font-mono text-slate-600 bg-white px-3 py-1.5 rounded-xl border border-teal-200/80 shrink-0">
+              ⏱️ 预期自然缓解: <strong className="text-teal-700">{currentSymptom.expectedDuration}</strong>
             </div>
           </div>
-          <div className="text-xs font-mono text-slate-500 bg-white px-3 py-1 rounded-xl border border-slate-200 self-start sm:self-auto">
-            ⏱️ 自然缓解周期: <strong className="text-teal-700">{currentSymptom.expectedDuration}</strong>
+
+          {/* Action Footer for Step 1 */}
+          <div className="flex items-center justify-end pt-2">
+            <button
+              type="button"
+              onClick={() => setCurrentStep(2)}
+              className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl text-xs cursor-pointer flex items-center gap-1.5 shadow-xs transition-colors"
+            >
+              <span>进入第 2 步：排查危险红线</span>
+              <ChevronRight className="w-4 h-4" />
+            </button>
           </div>
         </div>
+      )}
 
-        {/* 3-Color Hierarchy Container */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3.5">
-          
-          {/* Level 1: Green - Normal Physiology & Home Care */}
-          <div className="bg-emerald-50/50 rounded-2xl p-4 sm:p-5 border border-emerald-200/90 space-y-3 flex flex-col justify-between">
-            <div className="space-y-2.5">
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-bold">
-                <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                <span>🟢 正常生理反应 (安心定心丸)</span>
-              </div>
+      {/* STEP 2: Red Flag Safety Screening */}
+      {currentStep === 2 && (
+        <div className="space-y-4 animate-fade-in">
+          <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-700 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <AlertOctagon className="w-4 h-4 text-rose-600 shrink-0" />
+              <span>请如实核对以下 4 项极端红线体征（若有请勾选）：</span>
+            </div>
+            <span className="text-[11px] text-slate-500 font-mono">第 2 / 3 步</span>
+          </div>
 
-              <div className="text-xs text-emerald-950 leading-relaxed font-medium">
-                <strong>为什么会发生？</strong><br />
-                {currentSymptom.normalReason}
-              </div>
-
-              <div className="pt-2 border-t border-emerald-200/60 space-y-1.5 text-xs text-emerald-900">
-                <div className="font-bold flex items-center gap-1 text-emerald-800">
-                  <Sparkles className="w-3 h-3 text-emerald-600" />
-                  <span>居家日常舒缓技巧：</span>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            {[
+              {
+                key: "lowOxygen" as const,
+                title: "1. 静息血氧饱和度持续 < 93%",
+                desc: "指夹式血氧仪静息监测持续偏低，或伴随口唇、甲床发绀发紫。",
+              },
+              {
+                key: "heavyBleeding" as const,
+                title: "2. 咳出整口鲜血 / 咯血量 > 20 mL",
+                desc: "非微量血丝，而是连续咳出鲜红血液或暗红血块，无自行停止迹象。",
+              },
+              {
+                key: "highFever" as const,
+                title: "3. 体温持续 > 38.5℃ 或伴剧烈寒战",
+                desc: "高热持续超过 24 小时，退烧药效果不佳，伴随切口红肿热痛或脓性分泌物。",
+              },
+              {
+                key: "severePain" as const,
+                title: "4. 突发撕裂样剧痛伴急性呼吸衰竭",
+                desc: "突发一侧剧烈胸痛，坐立难安、无法平卧憋气（警惕气胸或肺栓塞）。",
+              },
+            ].map((item) => {
+              const isChecked = redFlagAnswers[item.key];
+              return (
+                <div
+                  key={item.key}
+                  onClick={() => handleToggleRedFlag(item.key)}
+                  className={`p-4 rounded-2xl border transition-all cursor-pointer flex items-start gap-3 ${
+                    isChecked
+                      ? "bg-rose-50/90 border-rose-400 text-rose-950 shadow-xs ring-2 ring-rose-400/20"
+                      : "bg-white border-slate-200 hover:border-slate-300 text-slate-800"
+                  }`}
+                >
+                  <div className={`w-5 h-5 rounded-lg flex items-center justify-center mt-0.5 border shrink-0 transition-colors ${
+                    isChecked ? "bg-rose-600 border-rose-600 text-white" : "border-slate-300 bg-slate-50"
+                  }`}>
+                    {isChecked && <CheckCircle2 className="w-3.5 h-3.5" />}
+                  </div>
+                  <div>
+                    <div className="font-extrabold text-xs">{item.title}</div>
+                    <div className="text-[11px] text-slate-500 mt-1 leading-relaxed">
+                      {item.desc}
+                    </div>
+                  </div>
                 </div>
-                <ul className="space-y-1 pl-1 text-[11px]">
-                  {currentSymptom.homeCareTips.map((tip, idx) => (
-                    <li key={idx} className="flex items-start gap-1.5 leading-snug">
-                      <span className="text-emerald-500 font-bold">•</span>
-                      <span>{tip}</span>
+              );
+            })}
+          </div>
+
+          {/* Real-time Triage Level Preview */}
+          <div className={`p-4 rounded-2xl border text-xs flex items-center justify-between gap-3 ${
+            hasAnyRedFlag
+              ? "bg-rose-50 border-rose-300 text-rose-950"
+              : "bg-emerald-50 border-emerald-300 text-emerald-950"
+          }`}>
+            <div className="flex items-center gap-2.5">
+              {hasAnyRedFlag ? (
+                <AlertTriangle className="w-5 h-5 text-rose-600 shrink-0" />
+              ) : (
+                <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+              )}
+              <div>
+                <div className="font-extrabold text-xs">
+                  {hasAnyRedFlag ? "🚨 触发紧急警示信号 (需尽快就医)" : "🟢 4项危险指标排查正常 (属于良性代偿修复)"}
+                </div>
+                <div className="text-[11px] text-slate-600 mt-0.5">
+                  {hasAnyRedFlag
+                    ? "检出可能存在感染、咯血或肺通气障碍的高危征象，建议直接走急诊就医流程。"
+                    : "未触发急诊红线指标，请继续查看居家对症舒缓手法与门诊沟通金句。"}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Action Footer for Step 2 */}
+          <div className="flex items-center justify-between pt-2">
+            <button
+              type="button"
+              onClick={() => setCurrentStep(1)}
+              className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs cursor-pointer transition-colors"
+            >
+              ‹ 返回修改症状
+            </button>
+            <button
+              type="button"
+              onClick={() => setCurrentStep(3)}
+              className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl text-xs cursor-pointer flex items-center gap-1.5 shadow-xs transition-colors"
+            >
+              <span>查看个性化循证对策 ›</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* STEP 3: Evidence-Based Actions & Homecare Guidance */}
+      {currentStep === 3 && (
+        <div className="space-y-4 animate-fade-in">
+          {/* Active Symptom Title Banner */}
+          <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+            <div className="flex items-center gap-2.5">
+              <Icon className="w-4 h-4 text-teal-600" />
+              <span className="font-extrabold text-slate-900">{currentSymptom.name} · 循证解决方案</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] text-slate-500 font-mono">
+                缓解周期: {currentSymptom.expectedDuration}
+              </span>
+              <button
+                type="button"
+                onClick={handleReset}
+                className="text-[11px] text-teal-700 hover:underline font-bold"
+              >
+                重新自查
+              </button>
+            </div>
+          </div>
+
+          {/* 3-Column Hierarchy Output Container */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-3.5">
+            
+            {/* Level 1: Green - Normal Physiology & Home Care */}
+            <div className="bg-emerald-50/50 rounded-2xl p-4 sm:p-5 border border-emerald-200/90 space-y-3 flex flex-col justify-between">
+              <div className="space-y-2.5">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-bold">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                  <span>🟢 正常生理反应 (安心定心丸)</span>
+                </div>
+
+                <div className="text-xs text-emerald-950 leading-relaxed font-medium">
+                  <strong>为什么会发生？</strong><br />
+                  {currentSymptom.normalReason}
+                </div>
+
+                <div className="pt-2 border-t border-emerald-200/60 space-y-1.5 text-xs text-emerald-900">
+                  <div className="font-bold flex items-center gap-1 text-emerald-800">
+                    <Sparkles className="w-3 h-3 text-emerald-600" />
+                    <span>居家日常舒缓技巧：</span>
+                  </div>
+                  <ul className="space-y-1 pl-1 text-[11px]">
+                    {currentSymptom.homeCareTips.map((tip, idx) => (
+                      <li key={idx} className="flex items-start gap-1.5 leading-snug">
+                        <span className="text-emerald-500 font-bold">•</span>
+                        <span>{tip}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              <div className="text-[10px] text-emerald-700 font-bold bg-white/80 p-2 rounded-xl border border-emerald-200 mt-2">
+                ✓ 属于组织代偿修复必经阶段，无需过度焦虑
+              </div>
+            </div>
+
+            {/* Level 2: Yellow - Outpatient Management */}
+            <div className="bg-amber-50/50 rounded-2xl p-4 sm:p-5 border border-amber-200/90 space-y-3 flex flex-col justify-between">
+              <div className="space-y-2.5">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[11px] font-bold">
+                  <span className="w-2 h-2 rounded-full bg-amber-500" />
+                  <span>🟡 门诊对症调理 (若影响睡眠)</span>
+                </div>
+
+                <div className="text-xs text-amber-950 leading-relaxed font-medium">
+                  <strong>复查时如何向医生提出？</strong><br />
+                  {currentSymptom.outpatientAdvice}
+                </div>
+
+                <div className="p-2.5 rounded-xl bg-white/80 border border-amber-200/80 text-[11px] text-amber-900 space-y-1">
+                  <div className="font-bold flex items-center gap-1">
+                    <Stethoscope className="w-3.5 h-3.5 text-amber-700" />
+                    <span>门诊沟通金句：</span>
+                  </div>
+                  <p className="italic text-amber-800 leading-tight">
+                    “医生，我术后有{currentSymptom.name.split(" / ")[0]}，偶尔影响睡眠，请问是否可以开具针对性的雾化或口服对症药物？”
+                  </p>
+                </div>
+              </div>
+
+              <div className="text-[10px] text-amber-800 font-bold bg-amber-100/60 p-2 rounded-xl border border-amber-200 mt-2">
+                ⚡ 常规门诊对症调理，遵医嘱用药
+              </div>
+            </div>
+
+            {/* Level 3: Red - Urgent Warning Red Flags */}
+            <div className={`rounded-2xl p-4 sm:p-5 border space-y-3 flex flex-col justify-between ${
+              hasAnyRedFlag 
+                ? "bg-rose-100/70 border-rose-400 ring-2 ring-rose-400/30" 
+                : "bg-rose-50/50 border-rose-200/90"
+            }`}>
+              <div className="space-y-2.5">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 text-[11px] font-bold">
+                  <AlertOctagon className="w-3.5 h-3.5 text-rose-600" />
+                  <span>🔴 紧急警示信号 (需立即就医)</span>
+                </div>
+
+                <div className="text-xs text-rose-950 leading-relaxed font-medium">
+                  <strong>若出现以下极端体征，请立即前往医院急诊或胸外科门诊：</strong>
+                </div>
+
+                <ul className="space-y-2 pl-1 text-[11px] text-rose-900 font-medium">
+                  {currentSymptom.redFlags.map((flag, idx) => (
+                    <li key={idx} className="flex items-start gap-1.5 bg-white/90 p-2 rounded-xl border border-rose-200 leading-snug">
+                      <AlertTriangle className="w-3.5 h-3.5 text-rose-600 shrink-0 mt-0.5" />
+                      <span>{flag}</span>
                     </li>
                   ))}
                 </ul>
               </div>
+
+              <div className={`text-[10px] font-bold p-2 rounded-xl border text-center mt-2 ${
+                hasAnyRedFlag
+                  ? "bg-rose-600 text-white border-rose-700 animate-pulse"
+                  : "bg-rose-100 text-rose-800 border-rose-300"
+              }`}>
+                {hasAnyRedFlag ? "🚨 当前已触发危险红线，请立即就近就医！" : "🚨 出现上述红线体征请勿拖延，立即就医"}
+              </div>
             </div>
 
-            <div className="text-[10px] text-emerald-700 font-bold bg-white/80 p-2 rounded-xl border border-emerald-200 mt-2">
-              ✓ 属于组织修复必经阶段，无需恐慌
-            </div>
           </div>
 
-          {/* Level 2: Yellow - Outpatient Management */}
-          <div className="bg-amber-50/50 rounded-2xl p-4 sm:p-5 border border-amber-200/90 space-y-3 flex flex-col justify-between">
-            <div className="space-y-2.5">
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[11px] font-bold">
-                <span className="w-2 h-2 rounded-full bg-amber-500" />
-                <span>🟡 门诊对症调理 (若影响生活)</span>
-              </div>
-
-              <div className="text-xs text-amber-950 leading-relaxed font-medium">
-                <strong>复查时如何向医生提出？</strong><br />
-                {currentSymptom.outpatientAdvice}
-              </div>
-
-              <div className="p-2.5 rounded-xl bg-white/80 border border-amber-200/80 text-[11px] text-amber-900 space-y-1">
-                <div className="font-bold flex items-center gap-1">
-                  <Stethoscope className="w-3.5 h-3.5 text-amber-700" />
-                  <span>门诊沟通金句：</span>
-                </div>
-                <p className="italic text-amber-800 leading-tight">
-                  “医生，我术后有{currentSymptom.name.split(" / ")[0]}，偶尔影响睡眠，请问是否可以开具针对性的雾化或口服对症药物？”
-                </p>
-              </div>
-            </div>
-
-            <div className="text-[10px] text-amber-800 font-bold bg-amber-100/60 p-2 rounded-xl border border-amber-200 mt-2">
-              ⚡ 常规门诊对症调理，遵医嘱用药
-            </div>
+          {/* Action Footer for Step 3 */}
+          <div className="flex items-center justify-between pt-2">
+            <button
+              type="button"
+              onClick={() => setCurrentStep(2)}
+              className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs cursor-pointer transition-colors"
+            >
+              ‹ 上一步 (危险排查)
+            </button>
+            <button
+              type="button"
+              onClick={() => setCurrentStep(1)}
+              className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl text-xs cursor-pointer transition-colors"
+            >
+              更换其他症状继续自查
+            </button>
           </div>
-
-          {/* Level 3: Red - Urgent Warning Red Flags */}
-          <div className="bg-rose-50/50 rounded-2xl p-4 sm:p-5 border border-rose-200/90 space-y-3 flex flex-col justify-between">
-            <div className="space-y-2.5">
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 text-[11px] font-bold">
-                <AlertOctagon className="w-3.5 h-3.5 text-rose-600" />
-                <span>🔴 紧急警示信号 (需立即就医)</span>
-              </div>
-
-              <div className="text-xs text-rose-950 leading-relaxed font-medium">
-                <strong>若出现以下极端体征，请立即前往医院急诊或胸外科门诊：</strong>
-              </div>
-
-              <ul className="space-y-2 pl-1 text-[11px] text-rose-900 font-medium">
-                {currentSymptom.redFlags.map((flag, idx) => (
-                  <li key={idx} className="flex items-start gap-1.5 bg-white/90 p-2 rounded-xl border border-rose-200 leading-snug">
-                    <AlertTriangle className="w-3.5 h-3.5 text-rose-600 shrink-0 mt-0.5" />
-                    <span>{flag}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="text-[10px] text-rose-800 font-bold bg-rose-100 p-2 rounded-xl border border-rose-300 mt-2 text-center">
-              🚨 出现上述红线体征请勿拖延，立即就近就医
-            </div>
-          </div>
-
         </div>
-      </div>
+      )}
     </div>
   );
 }
