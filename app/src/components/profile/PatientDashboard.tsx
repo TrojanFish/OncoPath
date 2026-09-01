@@ -997,7 +997,7 @@ export default function PatientDashboard() {
 
       {/* Profile Update Intent Router Modal (方案 A: 意图分流弹窗) */}
 
-      {/* Profile Update Intent Router Modal (方案 A: 意图分流弹窗) */}
+      {/* Profile Update Intent Router Modal (3-Tier Standard Architecture) */}
       {showUpdateModal && (
         <div 
           onClick={() => setShowUpdateModal(false)}
@@ -1005,19 +1005,20 @@ export default function PatientDashboard() {
         >
           <div 
             onClick={(e) => e.stopPropagation()}
-            className="bg-white rounded-3xl max-w-lg w-full border border-slate-200 shadow-2xl overflow-hidden flex flex-col p-6 sm:p-7 text-slate-900 animate-fade-in-up space-y-5 my-auto"
+            className="bg-white rounded-3xl max-w-lg w-full border border-slate-200 shadow-2xl overflow-hidden flex flex-col max-h-[92vh] text-slate-900 animate-fade-in-up my-auto"
           >
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-                  <FileText className="w-5 h-5" />
+            {/* Tier 1: Fixed Sticky Header */}
+            <div className="px-5 sm:px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-white shrink-0">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-2xl bg-blue-50 border border-blue-100 text-blue-600 flex items-center justify-center shrink-0">
+                  <FileText className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="text-base sm:text-lg font-extrabold text-slate-900">
+                  <h3 className="text-sm sm:text-base font-extrabold text-slate-900 leading-snug">
                     请选择档案更新方式
                   </h3>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    根据您的当前需求选择快速微调或增量上传新报告
+                  <p className="text-[11px] text-slate-500 mt-0.5">
+                    根据您的就医需要选择快速微调或增量解析新报告
                   </p>
                 </div>
               </div>
@@ -1032,7 +1033,8 @@ export default function PatientDashboard() {
               </button>
             </div>
 
-            <div className="space-y-3">
+            {/* Tier 2: Scrollable Body */}
+            <div className="p-5 sm:p-6 flex-1 overflow-y-auto custom-scrollbar space-y-3">
               {/* Option 1: Direct Edit on Existing Data */}
               <button
                 type="button"
@@ -1077,7 +1079,7 @@ export default function PatientDashboard() {
                     <h4 className="text-sm font-extrabold text-slate-900 group-hover:text-purple-900">
                       追加 / 上传新检查报告
                     </h4>
-                    <span className="text-[11px] font-bold text-purple-700 bg-purple-100 px-2 py-0.5 rounded-md">AI 智能合并</span>
+                    <span className="text-[11px] font-bold text-purple-700 bg-purple-100 px-2 py-0.5 rounded-md">AI 跨模态增量</span>
                   </div>
                   <p className="text-xs text-slate-500 leading-relaxed">
                     拿到了新的术后大病理、复查薄层CT、脑增强MRI或PET-CT？上传后由 AI 跨模态增量融合提取，不抹除已有记录
@@ -1086,20 +1088,21 @@ export default function PatientDashboard() {
               </button>
             </div>
 
-            <div className="pt-2 flex justify-end">
+            {/* Tier 3: Fixed Sticky Footer */}
+            <div className="px-5 sm:px-6 py-3.5 border-t border-slate-200 bg-white shrink-0 rounded-b-3xl shadow-[0_-6px_20px_rgba(0,0,0,0.05)] flex justify-end">
               <button
                 type="button"
                 onClick={() => setShowUpdateModal(false)}
-                className="px-4 py-2 text-xs font-bold text-slate-500 hover:text-slate-700 cursor-pointer"
+                className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:text-slate-900 hover:bg-slate-100 cursor-pointer transition-colors"
               >
-                取消
+                取消返回
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* PIPL Right-to-be-Forgotten Wipe Confirmation Modal */}
+      {/* PIPL Right-to-be-Forgotten Wipe Confirmation Modal (3-Tier Standard Architecture) */}
       {showDeleteModal && (
         <div 
           onClick={() => setShowDeleteModal(false)}
@@ -1107,16 +1110,28 @@ export default function PatientDashboard() {
         >
           <div 
             onClick={(e) => e.stopPropagation()}
-            className="bg-white rounded-3xl max-w-md w-full border border-slate-200 shadow-2xl overflow-hidden flex flex-col p-6 sm:p-7 text-slate-900 animate-fade-in-up my-auto"
+            className="bg-white rounded-3xl max-w-md w-full border border-slate-200 shadow-2xl overflow-hidden flex flex-col max-h-[92vh] text-slate-900 animate-fade-in-up my-auto"
           >
-            <div className="flex items-center justify-between mb-4">
-              <div className="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center text-2xl">
-                <Trash2 className="w-6 h-6 text-rose-600" />
+            {/* Tier 1: Fixed Sticky Header */}
+            <div className="px-5 sm:px-6 py-4 border-b border-rose-100 bg-rose-50/50 flex items-center justify-between shrink-0">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center shrink-0">
+                  <Trash2 className="w-4 h-4 text-rose-600" />
+                </div>
+                <div>
+                  <h3 className="text-sm sm:text-base font-extrabold text-rose-950 leading-snug">
+                    彻底销毁与注销个人档案
+                  </h3>
+                  <p className="text-[11px] text-rose-700 mt-0.5">
+                    PIPL 被遗忘权保障 · 隐私数据不可逆清除
+                  </p>
+                </div>
               </div>
+
               <button
                 type="button"
                 onClick={() => setShowDeleteModal(false)}
-                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-900 flex items-center justify-center cursor-pointer transition-colors shrink-0"
+                className="w-8 h-8 rounded-full bg-white/80 hover:bg-white text-slate-500 hover:text-slate-900 flex items-center justify-center cursor-pointer transition-colors shrink-0"
                 aria-label="关闭窗口"
                 title="关闭窗口"
               >
@@ -1124,24 +1139,25 @@ export default function PatientDashboard() {
               </button>
             </div>
 
-            <h3 className="text-lg font-bold text-slate-900 mb-2">
-              确认彻底销毁与注销您的临床档案？
-            </h3>
-            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed mb-6">
-              根据<strong>《中华人民共和国个人信息保护法》(PIPL)</strong> 被遗忘权原则，此操作将<strong>永久清除您保存在本设备浏览器（LocalStorage）中的所有病理指标、CT影像参数、深度循证报告与问诊清单</strong>，并同步从服务端彻底销毁记录。
-              <br /><br />
-              <span className="text-rose-600 font-semibold flex items-center gap-1">
-                <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
-                <span>此操作不可撤销，注销后如需使用需重新录入或上传。</span>
-              </span>
-            </p>
+            {/* Tier 2: Scrollable Body */}
+            <div className="p-5 sm:p-6 flex-1 overflow-y-auto custom-scrollbar space-y-3.5 text-xs text-slate-600 leading-relaxed">
+              <p>
+                根据<strong>《中华人民共和国个人信息保护法》(PIPL)</strong> 第四十七条【被遗忘权】，此操作将<strong>永久清除您保存在本设备浏览器（LocalStorage）中的所有病理指标、CT影像参数、深度循证报告与问诊清单</strong>，并同步彻底注销记录。
+              </p>
 
-            <div className="flex items-center justify-end gap-3">
+              <div className="p-3 bg-rose-50 border border-rose-200 rounded-2xl text-rose-800 text-xs flex items-start gap-2">
+                <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                <span><strong>高危警示：</strong>此操作完全不可撤销，注销后如需使用需重新录入或上传。</span>
+              </div>
+            </div>
+
+            {/* Tier 3: Fixed Sticky Footer */}
+            <div className="px-5 sm:px-6 py-3.5 border-t border-slate-200 bg-white shrink-0 rounded-b-3xl shadow-[0_-6px_20px_rgba(0,0,0,0.05)] flex items-center justify-end gap-2.5">
               <button
                 type="button"
                 onClick={() => setShowDeleteModal(false)}
                 disabled={isDeleting}
-                className="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-all cursor-pointer"
+                className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 transition-all cursor-pointer"
               >
                 取消
               </button>
@@ -1149,7 +1165,7 @@ export default function PatientDashboard() {
                 type="button"
                 onClick={handleWipeProfile}
                 disabled={isDeleting}
-                className="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-rose-600 hover:bg-rose-700 text-white shadow-md shadow-rose-600/20 transition-all cursor-pointer flex items-center gap-2 active:scale-95"
+                className="px-5 py-2.5 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white shadow-md shadow-rose-600/20 transition-all cursor-pointer flex items-center gap-2 active:scale-95"
               >
                 {isDeleting ? (
                   <>
