@@ -181,8 +181,10 @@ export async function POST(request: Request) {
             lvi: isLvi,
             marginStatus: marginStatus === 'positive' ? '切缘阳性' : 'R0切缘阴性',
             sizeMm: stagingResult.tumorSize * 10,
+            location: data.noduleLocation || '肺部病灶',
           },
           tags: JSON.stringify([
+            data.noduleLocation || '肺部病灶',
             stagingResult.stage || '早期肺癌',
             isStas ? 'STAS阳性' : 'STAS阴性',
             isVpi ? 'VPI阳性' : 'VPI阴性',
@@ -227,8 +229,9 @@ export async function POST(request: Request) {
             keyFindings: {
               surgeryType: surgeryName,
               marginStatus: marginStatus === 'positive' ? '切缘阳性' : 'R0切缘阴性',
+              location: data.noduleLocation || '肺部病灶',
             },
-            tags: JSON.stringify(['胸外科微创手术', '解剖性切除', 'R0切除']),
+            tags: JSON.stringify([data.noduleLocation || '肺部病灶', '胸外科微创手术', '解剖性切除', 'R0切除']),
             riskStatus: 'normal',
           };
 
@@ -600,10 +603,44 @@ export async function GET(request: Request) {
       };
     });
 
+    // Query all relevant timeline events to find the most recent anatomical location and systemic staging
+    const allEvents = await prisma.timelineEvent.findMany({
+      where: {
+        OR: [
+          { profileId: profile.id },
+          ...(profile.userId ? [{ userId: profile.userId }] : [])
+        ]
+      },
+      orderBy: { eventDate: 'desc' }
+    });
+
+    let detectedLocation = "";
+    let brainMri = "not_performed";
+    let abdominalUltrasound = "not_performed";
+    let boneScan = "not_performed";
+    let neckLymphNodes = "not_performed";
+    let petCt = "not_performed";
+    let benignFindings: string[] = [];
+
+    for (const ev of allEvents) {
+      const findings: any = (ev.keyFindings as any) || {};
+      if (!detectedLocation && findings.location && typeof findings.location === 'string' && findings.location.trim()) {
+        detectedLocation = findings.location.trim();
+      }
+      if (findings.brainMri && brainMri === "not_performed") brainMri = findings.brainMri;
+      if (findings.abdominalUltrasound && abdominalUltrasound === "not_performed") abdominalUltrasound = findings.abdominalUltrasound;
+      if (findings.boneScan && boneScan === "not_performed") boneScan = findings.boneScan;
+      if (findings.neckLymphNodes && neckLymphNodes === "not_performed") neckLymphNodes = findings.neckLymphNodes;
+      if (findings.petCt && petCt === "not_performed") petCt = findings.petCt;
+      if (Array.isArray(findings.benignFindings) && findings.benignFindings.length > 0 && benignFindings.length === 0) {
+        benignFindings = findings.benignFindings;
+      }
+    }
+
     const enriched = {
       ...profile,
       reportType: profile.surgeryType === 'unknown' ? 'ct_imaging' : 'pathology',
-      noduleLocation: latestImagingFindings.location || '右肺上叶尖段',
+      noduleLocation: detectedLocation || latestImagingFindings.location || '肺部病灶',
       imagingFeatures: latestImagingFindings.imagingFeatures || [],
       lungRads: latestImagingFindings.lungRads || null,
       malignancyRisk: profile.riskLevel || 'low',
@@ -643,6 +680,22 @@ export async function GET(request: Request) {
       mStage: stagingResult.mStage,
       stageExplanation: stagingResult.explanation,
       iaslcGrade: profile.grade || '2',
+      ki67: (profile as any).ki67 || null,
+
+      // Systemic Staging & M0 Confirmation
+      brainMri: brainMri,
+      abdominalUltrasound: abdominalUltrasound,
+      boneScan: boneScan,
+      neckLymphNodes: neckLymphNodes,
+      petCt: petCt,
+      benignFindings: benignFindings,
+      systemicStagingConfirmed: Boolean(
+        brainMri === 'negative' || 
+        abdominalUltrasound === 'negative' || 
+        abdominalUltrasound === 'benign_findings' || 
+        boneScan === 'negative' || 
+        petCt === 'negative'
+      ),
     };
 
     return NextResponse.json({ profile: enriched });

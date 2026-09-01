@@ -413,6 +413,52 @@ describe('AJCC 8th/9th Edition & IASLC TNM Staging Engine', () => {
       expect(cohort.rfs5Year).toContain('99.7%');
       expect(cohort.source).toContain('JCOG0804');
     });
+
+    it('should match subsolid subcohort for Stage IA2 with CTR <= 0.5', () => {
+      const cohort = getClinicalCohortForProfile({
+        noduleType: 'mixed_ggo',
+        tumorSize: 1.8,
+        solidSize: 0.8,
+        ctr: 0.44,
+        stage: 'IA2',
+        nStage: 'N0',
+        mStage: 'M0'
+      });
+      expect(cohort.stage).toContain('IA2期');
+      expect(cohort.stage).toContain('混磨低实性');
+      expect(cohort.rfs5Year).toContain('96.5%');
+      expect(cohort.source).toContain('JCOG1211');
+    });
+
+    it('should match ADAURA targeted cohort for Stage IB with EGFR mutation', () => {
+      const cohort = getClinicalCohortForProfile({
+        noduleType: 'pure_solid',
+        tumorSize: 3.5,
+        stage: 'IB',
+        egfr: 'positive',
+        nStage: 'N0',
+        mStage: 'M0'
+      });
+      expect(cohort.stage).toContain('ADAURA靶向队列');
+      expect(cohort.rfs5Year).toContain('85.0%');
+      expect(cohort.description).toContain('奥希替尼');
+      expect(cohort.keyFactors).toContain('EGFR 敏感突变');
+    });
+
+    it('should match ALINA targeted cohort for Stage IB with ALK fusion', () => {
+      const cohort = getClinicalCohortForProfile({
+        noduleType: 'pure_solid',
+        tumorSize: 3.5,
+        stage: 'IB',
+        geneMutations: [{ gene: 'ALK', subtype: 'EML4-ALK 融合', status: 'positive' }],
+        nStage: 'N0',
+        mStage: 'M0'
+      });
+      expect(cohort.stage).toContain('ALINA靶向队列');
+      expect(cohort.rfs5Year).toContain('88.0%');
+      expect(cohort.description).toContain('阿来替尼');
+      expect(cohort.keyFactors).toContain('ALK 融合突变');
+    });
   });
 });
 

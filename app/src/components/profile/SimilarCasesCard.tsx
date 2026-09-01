@@ -95,6 +95,11 @@ export default function SimilarCasesCard({ profile }: SimilarCasesCardProps) {
           <Users className="w-3 h-3 text-indigo-600 shrink-0" />
           <span>已匹配 <strong>{cohort.cohortSize.toLocaleString()}</strong> 例相似特征</span>
         </span>
+        {cohort.matchedMorphology && (
+          <span className="text-[10px] font-bold text-sky-800 bg-sky-50 px-2 py-0.5 rounded-full border border-sky-200 shrink-0 whitespace-nowrap">
+            {cohort.matchedMorphology}
+          </span>
+        )}
         <span className="text-[10px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200 shrink-0 whitespace-nowrap">
           国际顶刊前瞻队列
         </span>

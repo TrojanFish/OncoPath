@@ -449,7 +449,7 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
         reportType: parsedData.reportType || base.reportType || "pathology",
         currentStage: (parsedData.reportType === 'ct_imaging' || parsedData.surgeryType === 'unknown') ? 'evaluation' : 'treatment',
         imagingFeatures: (Array.isArray(parsedData.imagingFeatures) && parsedData.imagingFeatures.length > 0) ? parsedData.imagingFeatures : (base.imagingFeatures || []),
-        noduleLocation: parsedData.noduleLocation || base.noduleLocation || "右肺上叶尖段",
+        noduleLocation: parsedData.noduleLocation !== undefined ? parsedData.noduleLocation : (base.noduleLocation || ""),
         lungRads: parsedData.lungRads || base.lungRads || null,
         malignancyRisk: parsedData.malignancyRisk || base.malignancyRisk || "moderate",
         clinicalRecommendation: parsedData.clinicalRecommendation || base.clinicalRecommendation || null,
@@ -480,7 +480,7 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
           (Array.isArray(parsedData.geneMutations) && parsedData.geneMutations.length > 0) ? "tested" : (base.molecularTestStatus || base.molecular?.testStatus || "not_tested")
         ),
         pdl1Tps: parsedData.pdl1Tps || base.pdl1Tps || base.molecular?.pdl1Tps || undefined,
-        egfr: (Array.isArray(parsedData.geneMutations) && parsedData.geneMutations.some((m: any) => m.gene === "EGFR" && m.status !== "negative"))
+        egfr: (Array.isArray(parsedData.geneMutations) && parsedData.geneMutations.some((m: any) => m.gene === "EGFR" && m.status !== "negative" && !String(m.subtype || "").includes("阴性") && !String(m.subtype || "").includes("野生")))
           ? "positive"
           : (parsedData.molecularTestStatus === "not_tested" ? "not_tested" : (parsedData.molecularTestStatus === "negative" ? "negative" : (parsedData.egfr || base.egfr || "unknown"))),
 
@@ -1605,7 +1605,12 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
 
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     {PRESET_DRIVER_GENES.map(item => {
-                      const currentMut = (parsedData.geneMutations || []).find((m: any) => m.gene === item.gene);
+                      const currentMut = (parsedData.geneMutations || []).find((m: any) => 
+                        m.gene === item.gene && 
+                        m.status !== "negative" && 
+                        !String(m.subtype || "").includes("阴性") && 
+                        !String(m.subtype || "").includes("野生")
+                      );
                       const isSelected = !!currentMut;
                       return (
                         <div key={item.gene} className={`p-2.5 rounded-xl border transition-all ${
@@ -1671,7 +1676,12 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     {PRESET_CO_MUTATIONS.map(item => {
-                      const currentMut = (parsedData.geneMutations || []).find((m: any) => m.gene === item.gene);
+                      const currentMut = (parsedData.geneMutations || []).find((m: any) => 
+                        m.gene === item.gene && 
+                        m.status !== "negative" && 
+                        !String(m.subtype || "").includes("阴性") && 
+                        !String(m.subtype || "").includes("野生")
+                      );
                       const isSelected = !!currentMut;
                       return (
                         <div key={item.gene} className={`p-2 rounded-xl border transition-all ${

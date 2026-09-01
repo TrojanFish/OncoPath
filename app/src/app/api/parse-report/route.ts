@@ -71,7 +71,11 @@ const SYSTEM_PROMPT = `
 - 识别高危伴随突变 (Co-mutations)：TP53、RB1、PIK3CA 等，设置 isComutation 为 true。
 - 提取突变丰度 (abundance / VAF 如 "24.5%")。
 - 提取 PD-L1 表达 (pdl1Tps)："<1%" | "1-49%" | ">=50%" | "unknown"。
-- 判断基因检测状态 (molecularTestStatus)：检出突变 ➔ "tested"；全野生型/阴性 ➔ "negative"；未做检测 ➔ "not_tested"；检测中 ➔ "in_progress"。
+- 【阴性/野生型绝对排除红线（极其重要）】：
+  * 遇到 ALK 阴性 (-)、ALK (D5F3) 阴性 (-)、EGFR 未检出突变/野生型、KRAS (-)、ROS1 (-) 等未检出突变或阴性的基因，绝对严禁放入 geneMutations 数组！
+  * geneMutations 数组中只允许包含【明确阳性 / 检出突变 (+)】的基因！
+  * 若报告中所有基因检测均为阴性（野生型），或显示“全基因野生型 / 未检出驱动基因突变”，必须设置 molecularTestStatus 为 "negative"，且 geneMutations 为 []（空数组）！
+  * 若未做基因检测，molecularTestStatus 设为 "not_tested"；检测中设为 "in_progress"；只有检出阳性突变才设为 "tested"。
 
 请严格遵守以下 JSON 结构输出，不要包含任何 Markdown 标记或多余的文字：
 {
@@ -369,19 +373,81 @@ export async function POST(request: Request) {
       // P2-2 Tumor Markers
       tumorMarkers,
 
-      // Molecular & Gene Mutations
-      geneMutations: Array.isArray(extracted.geneMutations) ? extracted.geneMutations : [],
-      molecularTestStatus: extracted.molecularTestStatus || (Array.isArray(extracted.geneMutations) && extracted.geneMutations.length > 0 ? "tested" : "not_tested"),
-      molecular: {
-        testStatus: extracted.molecularTestStatus || (Array.isArray(extracted.geneMutations) && extracted.geneMutations.length > 0 ? "tested" : "not_tested"),
-        testMethod: "NGS_panel",
-        mutations: Array.isArray(extracted.geneMutations) ? extracted.geneMutations : [],
-        pdl1Tps: extracted.pdl1Tps || "unknown"
-      },
+      // Molecular & Gene Mutations (Strict sanitization to eliminate false-positive negative flags)
+      geneMutations: (() => {
+        const rawList = Array.isArray(extracted.geneMutations) ? extracted.geneMutations : [];
+        return rawList.filter((m: any) => {
+          if (!m || !m.gene) return false;
+          const statusStr = String(m.status || "").trim().toLowerCase();
+          const subtypeStr = String(m.subtype || "").trim();
+          if (statusStr === "negative" || statusStr === "-" || statusStr === "no") return false;
+          if (subtypeStr.includes("阴性") || subtypeStr.includes("未见") || subtypeStr.includes("野生") || subtypeStr === "-" || subtypeStr === "(-)") return false;
+          return true;
+        }).map((m: any, idx: number) => ({
+          id: m.id || `mut_${idx + 1}`,
+          gene: String(m.gene).trim().toUpperCase(),
+          subtype: m.subtype ? String(m.subtype).trim() : null,
+          abundance: m.abundance ? String(m.abundance).trim() : null,
+          isComutation: Boolean(m.isComutation || ["TP53", "RB1", "PIK3CA"].includes(String(m.gene).trim().toUpperCase())),
+          status: "positive"
+        }));
+      })(),
+      molecularTestStatus: (() => {
+        const rawList = Array.isArray(extracted.geneMutations) ? extracted.geneMutations : [];
+        const positiveList = rawList.filter((m: any) => {
+          if (!m || !m.gene) return false;
+          const statusStr = String(m.status || "").trim().toLowerCase();
+          const subtypeStr = String(m.subtype || "").trim();
+          if (statusStr === "negative" || statusStr === "-" || statusStr === "no") return false;
+          if (subtypeStr.includes("阴性") || subtypeStr.includes("未见") || subtypeStr.includes("野生") || subtypeStr === "-" || subtypeStr === "(-)") return false;
+          return true;
+        });
+        if (positiveList.length > 0) return "tested";
+        if (extracted.molecularTestStatus === "negative" || rawList.length > 0) return "negative";
+        return extracted.molecularTestStatus || "not_tested";
+      })(),
+      molecular: (() => {
+        const rawList = Array.isArray(extracted.geneMutations) ? extracted.geneMutations : [];
+        const positiveList = rawList.filter((m: any) => {
+          if (!m || !m.gene) return false;
+          const statusStr = String(m.status || "").trim().toLowerCase();
+          const subtypeStr = String(m.subtype || "").trim();
+          if (statusStr === "negative" || statusStr === "-" || statusStr === "no") return false;
+          if (subtypeStr.includes("阴性") || subtypeStr.includes("未见") || subtypeStr.includes("野生") || subtypeStr === "-" || subtypeStr === "(-)") return false;
+          return true;
+        }).map((m: any, idx: number) => ({
+          id: m.id || `mut_${idx + 1}`,
+          gene: String(m.gene).trim().toUpperCase(),
+          subtype: m.subtype ? String(m.subtype).trim() : null,
+          abundance: m.abundance ? String(m.abundance).trim() : null,
+          isComutation: Boolean(m.isComutation || ["TP53", "RB1", "PIK3CA"].includes(String(m.gene).trim().toUpperCase())),
+          status: "positive"
+        }));
+        const status = positiveList.length > 0 
+          ? "tested" 
+          : (extracted.molecularTestStatus === "negative" || rawList.length > 0 ? "negative" : (extracted.molecularTestStatus || "not_tested"));
+        return {
+          testStatus: status,
+          testMethod: "NGS_panel",
+          mutations: positiveList,
+          pdl1Tps: extracted.pdl1Tps || "unknown"
+        };
+      })(),
       pdl1Tps: extracted.pdl1Tps || undefined,
-      egfr: (Array.isArray(extracted.geneMutations) && extracted.geneMutations.some((m: any) => m.gene === "EGFR" && m.status !== "negative"))
-        ? "positive"
-        : (extracted.egfr || (extracted.molecularTestStatus === "not_tested" ? "not_tested" : "unknown")),
+      egfr: (() => {
+        const rawList = Array.isArray(extracted.geneMutations) ? extracted.geneMutations : [];
+        const hasPositiveEgfr = rawList.some((m: any) => {
+          if (String(m.gene).toUpperCase() !== "EGFR") return false;
+          const statusStr = String(m.status || "").trim().toLowerCase();
+          const subtypeStr = String(m.subtype || "").trim();
+          if (statusStr === "negative" || statusStr === "-" || statusStr === "no") return false;
+          if (subtypeStr.includes("阴性") || subtypeStr.includes("未见") || subtypeStr.includes("野生") || subtypeStr === "-" || subtypeStr === "(-)") return false;
+          return true;
+        });
+        if (hasPositiveEgfr) return "positive";
+        if (extracted.molecularTestStatus === "negative" || (rawList.length > 0 && !hasPositiveEgfr)) return "negative";
+        return extracted.egfr || (extracted.molecularTestStatus === "not_tested" ? "not_tested" : "unknown");
+      })(),
 
       age: extracted.age || 55,
       sex: extracted.sex || "male",
