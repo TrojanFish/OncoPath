@@ -357,7 +357,7 @@ export default function ProfileExportModal({ profile, onClose }: ProfileExportMo
                   {(profile as any).name || "患者数字档案"}
                 </div>
                 <span className="text-[11px] text-slate-300 font-semibold px-2 py-0.5 bg-slate-700 rounded-md">
-                  {profile.age || 58} 岁 · {genderText}性
+                  {profile.age ? `${profile.age} 岁 · ` : ''}{genderText}性
                 </span>
 
               </div>
@@ -384,10 +384,10 @@ export default function ProfileExportModal({ profile, onClose }: ProfileExportMo
                 </span>
                 <div className="font-bold text-slate-200 text-[11px]">
                   {profile.noduleType === 'pure_solid' || (profile.ctr != null && profile.ctr >= 1.0)
-                    ? `病灶全径 ${profile.tumorSize || 1.5} cm · 纯实性 (CTR: 1.0)`
+                    ? `病灶全径 ${profile.tumorSize != null ? `${profile.tumorSize} cm` : "未录入"} · 纯实性 (CTR: 1.0)`
                     : profile.noduleType === 'pure_ggo' || (profile.ctr != null && profile.ctr === 0)
-                    ? `结节全径 ${profile.tumorSize || 1.5} cm · 纯磨玻璃 (CTR: 0)`
-                    : `全径 ${profile.tumorSize || 1.5} cm / 实性 ${profile.solidSize != null ? `${profile.solidSize} cm` : "微小"} (CTR: ${profile.ctr ?? 0.5})`
+                    ? `结节全径 ${profile.tumorSize != null ? `${profile.tumorSize} cm` : "未录入"} · 纯磨玻璃 (CTR: 0)`
+                    : `全径 ${profile.tumorSize != null ? `${profile.tumorSize} cm` : "未录入"} / 实性 ${profile.solidSize != null ? `${profile.solidSize} cm` : "微小"} (CTR: ${profile.ctr ?? 0.5})`
                   }
                 </div>
               </div>

@@ -297,7 +297,7 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
             <div className="p-1">
               <span className="text-[10px] text-slate-400 font-bold uppercase">术后病理分期</span>
               <div className="font-extrabold text-emerald-700 mt-0.5 break-words">
-                {latestPathology?.keyFindings?.stage || "IA1期 (pT1miN0M0)"}
+                {latestPathology?.keyFindings?.stage || "未行手术切除 (影像随访中)"}
               </div>
             </div>
             <div className="p-1">
@@ -305,7 +305,7 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
               <div className="font-extrabold text-slate-900 mt-0.5 break-words">
                 {latestSerology?.keyFindings?.cea !== undefined
                   ? `${latestSerology.keyFindings.cea} ng/mL`
-                  : "基线正常"}
+                  : "未查/基线参考"}
               </div>
             </div>
             <div className="p-1">

@@ -251,7 +251,7 @@ export function deriveTimelineEventsFromProfile(profile: any): TimelineEventItem
       eventDate: baseDate,
       category: "imaging",
       subType: "CT",
-      hospital: profile.hospital || "三甲医院放射影像中心",
+      hospital: profile.hospital || "放射影像中心",
       title: "基准诊断：胸部薄层高分辨 CT 平扫与重建",
       summary: `检出肺部病灶全径约 ${tumorSizeMm.toFixed(1)} mm，实性成分径约 ${solidSizeMm.toFixed(1)} mm (CTR: ${(ctrVal * 100).toFixed(0)}%)。${profile.nextAction || "已完成影像学结构化提取"}`,
       keyFindings: {
@@ -281,7 +281,7 @@ export function deriveTimelineEventsFromProfile(profile: any): TimelineEventItem
       eventDate: baseDate,
       category: "pathology",
       subType: "Pathology",
-      hospital: profile.hospital || "三甲医院病理诊断中心",
+      hospital: profile.hospital || "病理诊断中心",
       title: "手术切除标本常规石蜡切片与组织病理学诊断",
       summary: `【病理确诊】${stageStr} (${profile.histology || "浸润性肺腺癌"})，切缘${isMarginPositive ? "阳性" : "R0根治性阴性"}，STAS ${stasPositive ? "阳性(+)" : "阴性(-)"}，胸膜侵犯 ${vpiPositive ? "阳性(+)" : "阴性(-)"}。`,
       keyFindings: {
@@ -314,7 +314,7 @@ export function deriveTimelineEventsFromProfile(profile: any): TimelineEventItem
         eventDate: profile.surgeryDate || baseDate,
         category: "milestone",
         subType: "Surgery",
-        hospital: profile.hospital || "三甲医院胸外科",
+        hospital: profile.hospital || "胸外科",
         title: `重大治疗里程碑：${surgeryName}`,
         summary: "顺利完成微创解剖性切除，切缘充分安全，病灶完全切除。",
         keyFindings: {
@@ -354,7 +354,7 @@ export function deriveTimelineEventsFromProfile(profile: any): TimelineEventItem
         eventDate: markerDate,
         category: "serology",
         subType: "TumorMarkers",
-        hospital: tm.hospital || profile.hospital || "三甲医院检验科",
+        hospital: tm.hospital || profile.hospital || "临床检验中心",
         title: tm.testDate ? `血清肺癌肿瘤标志物检测 (${tm.testDate})` : "血清肺癌肿瘤标志物检测报告",
         summary: summaryParts.join("，") || "化验单指标已归档",
         keyFindings: {

@@ -66,22 +66,22 @@ export async function POST(request: Request) {
 
     const profileData = {
       userId: targetUserId,
-      age: data.age ? parseInt(data.age) : 55,
-      sex: data.sex || data.gender || 'male',
-      organ: data.organ || 'lung',
-      histology: data.histology || 'adenocarcinoma',
+      age: data.age ? parseInt(data.age) : (existingProfile?.age ?? null),
+      sex: data.sex || data.gender || existingProfile?.sex || null,
+      organ: data.organ || existingProfile?.organ || 'lung',
+      histology: data.histology || existingProfile?.histology || null,
       noduleType: stagingResult.noduleType,
       sizeMm: stagingResult.tumorSize * 10,
       ctr: stagingResult.ctr,
       tumorSize: stagingResult.tumorSize,
-      grade: data.grade || data.iaslcGrade || '2',
+      grade: data.grade || data.iaslcGrade || existingProfile?.grade || null,
       tStage: stagingResult.tStage,
       nStage: stagingResult.nStage,
       mStage: stagingResult.mStage,
       stas: isStas,
       vpi: isVpi,
       lvi: isLvi,
-      surgeryType: data.surgeryType || (data.reportType === 'ct_imaging' ? 'unknown' : 'segmentectomy'),
+      surgeryType: data.surgeryType || (data.reportType === 'ct_imaging' ? 'unknown' : (existingProfile?.surgeryType || 'unknown')),
       marginStatus: marginStatus,
       
       // State Engine
@@ -129,7 +129,7 @@ export async function POST(request: Request) {
           eventDate,
           category: 'imaging',
           subType: 'CT',
-          hospital: data.hospital || (existingCT?.hospital || '三甲医院放射影像中心'),
+          hospital: data.hospital || (existingCT?.hospital || '放射影像中心'),
           title: data.examName || (existingCT?.title || '胸部薄层高分辨 CT 平扫'),
           summary: nextAction || 'CT 影像已结构化归档',
           keyFindings: {
@@ -170,7 +170,7 @@ export async function POST(request: Request) {
           eventDate,
           category: 'pathology',
           subType: 'Pathology',
-          hospital: data.hospital || (existingPathology?.hospital || '三甲医院病理诊断中心'),
+          hospital: data.hospital || (existingPathology?.hospital || '病理诊断中心'),
           title: '手术标本常规组织病理学诊断',
           summary: `【病理诊断】${stagingResult.stage ? `${stagingResult.stage}期，` : ''}${data.histology || '浸润性腺癌'}，切缘${marginStatus === 'positive' ? '阳性' : 'R0安全阴性'}，STAS${isStas ? '阳性' : '阴性'}，VPI${isVpi ? '阳性' : '阴性'}。`,
           keyFindings: {
@@ -223,7 +223,7 @@ export async function POST(request: Request) {
             eventDate: data.surgeryDate ? new Date(data.surgeryDate) : eventDate,
             category: 'milestone',
             subType: 'Surgery',
-            hospital: data.hospital || (existingSurgery?.hospital || '三甲医院胸外科'),
+            hospital: data.hospital || (existingSurgery?.hospital || '胸外科'),
             title: `重大治疗里程碑：${surgeryName}`,
             summary: `顺利完成微创胸外科切除，切缘充分（R0），病灶完全切除。`,
             keyFindings: {
@@ -283,7 +283,7 @@ export async function POST(request: Request) {
                 eventDate: tmDate,
                 category: 'serology',
                 subType: 'TumorMarkers',
-                hospital: tm.hospital || data.hospital || '三甲医院检验科',
+                hospital: tm.hospital || data.hospital || '临床检验中心',
                 title: tm.testDate ? `血清肿瘤标志物生化检测 (${tm.testDate})` : '血清肿瘤标志物生化检测',
                 summary: summaryParts.join('，') || '常规肿瘤标志物检测已归档',
                 keyFindings: {

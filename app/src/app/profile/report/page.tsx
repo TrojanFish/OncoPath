@@ -645,7 +645,7 @@ export default function EvidenceReportPage() {
 
                 <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs text-slate-600">
                   <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-xs font-medium">
-                    {profile.age || 55} 岁 · {profile.sex === 'female' ? '女性' : '男性'}
+                    {profile.age ? `${profile.age} 岁 · ` : ''}{profile.sex === 'female' ? '女性' : profile.sex === 'male' ? '男性' : '性别未录入'}
                   </span>
                   <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-xs font-medium">
                     {profile.currentStage === 'evaluation' || profile.currentStage === 'discovery' || profile.reportType === 'ct_imaging'
@@ -1095,7 +1095,7 @@ export default function EvidenceReportPage() {
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-black text-white">
-                      {profile.age || 55}岁 · {genderText}
+                      {profile.age ? `${profile.age}岁 · ` : ''}{genderText}
                     </span>
                     <span className="px-2 py-0.5 rounded-md bg-blue-500/20 text-blue-300 border border-blue-400/30 text-[11px] font-black font-mono">
                       {profile.tStage || "T1a"}{profile.nStage || "N0"}{profile.mStage || "M0"}

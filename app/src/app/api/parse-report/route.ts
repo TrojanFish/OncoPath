@@ -449,11 +449,11 @@ export async function POST(request: Request) {
         return extracted.egfr || (extracted.molecularTestStatus === "not_tested" ? "not_tested" : "unknown");
       })(),
 
-      age: extracted.age || 55,
-      sex: extracted.sex || "male",
-      gender: extracted.sex || "male",
+      age: extracted.age != null && !isNaN(Number(extracted.age)) ? Number(extracted.age) : null,
+      sex: extracted.sex || null,
+      gender: extracted.sex || null,
       organ: "lung",
-      histology: extracted.histology || (isCtReport ? "adenocarcinoma" : "adenocarcinoma"),
+      histology: extracted.histology || (isCtReport ? null : "adenocarcinoma"),
       noduleType: stagingCalc.noduleType,
       morphology: stagingCalc.noduleType,
       tumorSize: stagingCalc.tumorSize,
@@ -469,9 +469,9 @@ export async function POST(request: Request) {
       lvi: lvi,
       marginStatus: marginStatus,
       margin: marginStatus,
-      surgeryType: extracted.surgeryType || (isCtReport ? "unknown" : "segmentectomy"),
-      grade: extracted.grade || "2",
-      iaslcGrade: extracted.grade || "2",
+      surgeryType: extracted.surgeryType || (isCtReport ? "unknown" : "unknown"),
+      grade: extracted.grade || null,
+      iaslcGrade: extracted.grade || null,
       ki67: extracted.ki67 || null,
       
       // Systemic Staging & M0 Confirmation
