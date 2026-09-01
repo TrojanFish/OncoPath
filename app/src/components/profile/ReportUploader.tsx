@@ -2397,21 +2397,10 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
           </div>
         )}
 
-        {/* Step Wizard Action Bar (Sticky & Always Accessible) */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mt-8 pt-4 border-t border-slate-200 bg-white/95 backdrop-blur-xs sticky bottom-0 z-20 py-3 px-2 rounded-b-2xl">
-          {/* Left: Real-time Staging Badge */}
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-xs font-bold text-slate-500">实时精准分期：</span>
-            <span className="px-3 py-1 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-300 font-extrabold text-xs flex items-center gap-1.5 shadow-2xs">
-              <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-              <span>
-                {stagingPreview?.stage ? `${stagingPreview.stage} 期` : "早期原发灶"} ({stagingPreview?.tStage || parsedData.tStage || "T1a"}{stagingPreview?.nStage || parsedData.nStage || "N0"}{stagingPreview?.mStage || parsedData.mStage || "M0"})
-              </span>
-            </span>
-          </div>
-
-          {/* Right: Step Switchers & Action Buttons */}
-          <div className="flex items-center gap-2 flex-wrap justify-end">
+        {/* Step Wizard Action Bar (100% Solid White, Sticky & Fixed Layout) */}
+        <div className="mt-8 pt-3.5 pb-3.5 px-3 sm:px-5 border-t border-slate-200 bg-white sticky bottom-0 z-30 rounded-b-3xl shadow-[0_-6px_20px_rgba(0,0,0,0.06)] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          {/* Left: Return / Cancel + Real-time Staging Badge */}
+          <div className="flex items-center gap-2.5 flex-wrap">
             <button 
               type="button"
               onClick={() => {
@@ -2421,38 +2410,55 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
                   setParsedData(null);
                 }
               }}
-              className="px-3.5 py-2 rounded-xl text-xs font-semibold border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors cursor-pointer"
+              className="px-3 py-1.5 rounded-xl text-xs font-bold border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors cursor-pointer shrink-0"
             >
-              {onCancel ? "取消并返回" : "返回重新识别"}
+              {onCancel ? "‹ 取消并返回" : "‹ 重新识别"}
             </button>
 
-            {currentStep > 1 && (
-              <button
-                type="button"
-                onClick={() => setCurrentStep((prev) => (prev - 1) as 1 | 2 | 3 | 4)}
-                className="px-4 py-2 rounded-xl text-xs font-bold border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 transition-all cursor-pointer shadow-2xs"
-              >
-                ‹ 上一步
-              </button>
-            )}
+            <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700 bg-emerald-50 px-2.5 py-1 rounded-xl border border-emerald-200/90 shrink-0">
+              <Sparkles className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+              <span className="text-emerald-900">
+                {stagingPreview?.stage ? `${stagingPreview.stage} 期` : "早期原发灶"} ({stagingPreview?.tStage || parsedData.tStage || "T1a"}{stagingPreview?.nStage || parsedData.nStage || "N0"}{stagingPreview?.mStage || parsedData.mStage || "M0"})
+              </span>
+            </div>
+          </div>
 
-            {currentStep < 4 && (
+          {/* Right: Step Switchers & Action Buttons */}
+          <div className="flex items-center gap-2 justify-end shrink-0 flex-wrap sm:flex-nowrap">
+            <button
+              type="button"
+              disabled={currentStep === 1}
+              onClick={() => setCurrentStep((prev) => (prev > 1 ? (prev - 1) as 1 | 2 | 3 | 4 : prev))}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold border transition-all ${
+                currentStep === 1
+                  ? "border-slate-200 bg-slate-50 text-slate-300 cursor-not-allowed"
+                  : "border-slate-300 bg-white hover:bg-slate-50 text-slate-700 cursor-pointer shadow-2xs"
+              }`}
+            >
+              ‹ 上一步
+            </button>
+
+            {currentStep < 4 ? (
               <button
                 type="button"
-                onClick={() => setCurrentStep((prev) => (prev + 1) as 1 | 2 | 3 | 4)}
-                className="px-4 py-2 rounded-xl text-xs font-bold bg-blue-50 border border-blue-200 hover:bg-blue-100 text-blue-700 transition-all cursor-pointer shadow-2xs"
+                onClick={() => setCurrentStep((prev) => (prev < 4 ? (prev + 1) as 1 | 2 | 3 | 4 : prev))}
+                className="px-4 py-2 rounded-xl text-xs font-bold bg-blue-50 border border-blue-200 hover:bg-blue-100 text-blue-700 transition-all cursor-pointer shadow-2xs whitespace-nowrap"
               >
                 下一步 ({currentStep + 1}/4) ›
               </button>
+            ) : (
+              <div className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1.5 rounded-xl border border-emerald-200 shrink-0">
+                ✓ 步骤已核对完毕
+              </div>
             )}
 
             <button 
               type="button"
               onClick={handleConfirm}
-              className="px-5 py-2 rounded-xl btn-primary text-white font-bold text-xs shadow-md shadow-blue-500/20 hover:shadow-lg transition-all cursor-pointer flex items-center gap-1.5"
+              className="px-4 sm:px-5 py-2 rounded-xl btn-primary text-white font-bold text-xs shadow-md shadow-blue-500/20 hover:shadow-lg transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap shrink-0"
             >
               <Check className="w-3.5 h-3.5 stroke-[2.5]" />
-              <span>{initialData ? "保存修改并同步档案" : "确认无误，保存医疗档案"}</span>
+              <span>{initialData ? "保存修改" : "确认保存医疗档案"}</span>
             </button>
           </div>
         </div>
