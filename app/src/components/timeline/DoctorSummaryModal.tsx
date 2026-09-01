@@ -45,6 +45,7 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
   const [copiedSuccess, setCopiedSuccess] = useState(false);
   
   const printableDocRef = useRef<HTMLDivElement>(null);
+  const offscreenA4DocRef = useRef<HTMLDivElement>(null);
 
   // Sort events chronologically descending
   const sortedEvents = useMemo(() => {
@@ -164,33 +165,49 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
   };
 
   const handleExportPdf = async () => {
-    if (!printableDocRef.current || isExportingPdf) return;
+    const targetElement = offscreenA4DocRef.current || printableDocRef.current;
+    if (!targetElement || isExportingPdf) return;
+
     try {
       setIsExportingPdf(true);
+      showToast("正在生成高清 A4 PDF，请稍候...", "info");
+
+      if (typeof document !== "undefined" && (document as any).fonts) {
+        try {
+          await (document as any).fonts.ready;
+        } catch {}
+      }
+      await new Promise((r) => setTimeout(r, 100));
+
       const dateStr = new Date().toISOString().split("T")[0];
-      const success = await exportElementToA4Pdf(printableDocRef.current, {
+      const success = await exportElementToA4Pdf(targetElement, {
         fileName: `OncoPath-门诊就医问诊便签卡-${dateStr}.pdf`,
         headerTitle: "OncoPath 肺结节与肺腺癌临床数字档案 · 门诊就医问诊便签卡",
         reportDate: dateStr,
       });
+
       if (success) {
         setPdfSuccess(true);
-        showToast("✓ 门诊就医问诊便签卡 PDF 已开始下载", "success");
+        showToast("✓ 门诊就医问诊便签卡 A4 PDF 已成功下载", "success");
         setTimeout(() => setPdfSuccess(false), 2500);
+      } else {
+        throw new Error("PDF 渲染返回失败");
       }
     } catch (err) {
       console.error("PDF export error:", err);
-      showToast("生成 PDF 遇到浏览器限制，建议使用打印选项", "warning");
+      showToast("生成 PDF 遇到浏览器限制，您可点击「打印」选择另存为 PDF", "warning");
     } finally {
       setIsExportingPdf(false);
     }
   };
 
   const handleExportImage = async () => {
-    if (!printableDocRef.current || isExportingImage) return;
+    const targetElement = offscreenA4DocRef.current || printableDocRef.current;
+    if (!targetElement || isExportingImage) return;
+
     try {
       setIsExportingImage(true);
-      const element = printableDocRef.current;
+      showToast("正在渲染高清长图海报，请稍候...", "info");
 
       if (typeof document !== "undefined" && (document as any).fonts) {
         try {
@@ -201,29 +218,31 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
 
       let imgData = "";
       try {
-        const { toPng } = await import("html-to-image");
-        imgData = await toPng(element, {
-          quality: 0.98,
-          pixelRatio: 2,
-          skipAutoScale: true,
-          fontEmbedCSS: "",
-          backgroundColor: "#ffffff",
-          cacheBust: true,
-        });
-      } catch (err1) {
-        console.warn("toPng failed, trying html2canvas:", err1);
-      }
-
-      if (!imgData || imgData.length < 500) {
         const html2canvas = (await import("html2canvas")).default;
-        const canvas = await html2canvas(element, {
+        const canvas = await html2canvas(targetElement, {
           scale: 2,
           useCORS: true,
           allowTaint: true,
           backgroundColor: "#ffffff",
           logging: false,
+          windowWidth: 794,
         });
         imgData = canvas.toDataURL("image/png");
+      } catch (err1) {
+        console.warn("html2canvas failed, trying html-to-image:", err1);
+        try {
+          const { toPng } = await import("html-to-image");
+          imgData = await toPng(targetElement, {
+            quality: 0.98,
+            pixelRatio: 2,
+            skipAutoScale: true,
+            fontEmbedCSS: "",
+            backgroundColor: "#ffffff",
+            cacheBust: true,
+          });
+        } catch (err2) {
+          console.warn("toPng also failed:", err2);
+        }
       }
 
       if (imgData && imgData.length >= 500) {
@@ -235,14 +254,14 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
         a.click();
         document.body.removeChild(a);
         setDownloadSuccess(true);
-        showToast("✓ 门诊就医问诊便签卡已保存到本地", "success");
+        showToast("✓ 门诊就医问诊便签卡图片已成功保存到本地", "success");
         setTimeout(() => setDownloadSuccess(false), 2500);
       } else {
         throw new Error("未能生成问诊便签卡图片数据");
       }
     } catch (err: any) {
       console.error("Export image error:", err);
-      showToast("生成图片遇到浏览器限制，建议点击'下载 A4 PDF'或'打印'", "warning");
+      showToast("生成图片遇到浏览器限制，建议点击「下载 A4 PDF」或「打印」", "warning");
     } finally {
       setIsExportingImage(false);
     }
@@ -645,56 +664,263 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
             </div>
           )}
 
-          {/* Tab 6: Full A4 Printable View (Hidden in other tabs or displayed for full view) */}
+          {/* Tab 6: Full A4 Printable View (On-screen Preview) */}
           {activeTab === "full_print" && (
-            <div className="animate-fade-in border border-slate-200 rounded-2xl p-4 bg-slate-50/50">
-              <div className="text-xs text-slate-500 mb-2 flex items-center justify-between">
-                <span>📄 以下为 A4 单页打印与 PDF 导出标准排版预览：</span>
-                <button
-                  type="button"
-                  onClick={handlePrint}
-                  className="px-2.5 py-1 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg font-bold text-xs cursor-pointer"
-                >
-                  打印此单
-                </button>
+            <div className="animate-fade-in space-y-4">
+              <div className="border border-slate-200 rounded-2xl p-4 bg-slate-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                <div>
+                  <h4 className="text-xs font-bold text-slate-900">📄 A4 单页门诊病历便签卡（标准打印与导出预览）</h4>
+                  <p className="text-[11px] text-slate-500 mt-0.5">
+                    已排版为标准 A4 白底高对比度格式，便于主治医生 3 秒快速了解全部既往病史与关键指标
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={handleExportPdf}
+                    disabled={isExportingPdf}
+                    className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-xs cursor-pointer flex items-center gap-1.5 shadow-2xs active:scale-95 transition-all"
+                  >
+                    <FileText className="w-3.5 h-3.5" />
+                    <span>{pdfSuccess ? "已下载 PDF" : isExportingPdf ? "生成中..." : "导出 A4 PDF"}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handlePrint}
+                    className="px-3 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-xl font-bold text-xs cursor-pointer flex items-center gap-1.5 shadow-2xs active:scale-95 transition-all"
+                  >
+                    <Printer className="w-3.5 h-3.5" />
+                    <span>打印此单</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* On-screen preview container */}
+              <div 
+                ref={printableDocRef} 
+                className="font-sans p-4 sm:p-6 bg-white rounded-2xl border border-slate-200 space-y-5 sm:space-y-6 shadow-xs"
+              >
+                {/* Clinic Header */}
+                <div className="border-b-2 border-slate-900 pb-3 sm:pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl overflow-hidden shrink-0 shadow-xs bg-slate-100">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={ONCOPATH_LOGO_DATA_URI} alt="OncoPath Logo" className="w-full h-full object-cover" />
+                    </div>
+                    <div>
+                      <h1 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
+                        肺部疾病长程随访与临床时序便签卡
+                      </h1>
+                      <p className="text-[11px] text-slate-600 mt-0.5">
+                        系统：OncoPath 循证医学导航平台 · 结构化门诊病历归集
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-left sm:text-right text-[11px] text-slate-500 flex sm:flex-col justify-between sm:justify-start gap-1 font-mono">
+                    <span>生成日期：{new Date().toISOString().split("T")[0]}</span>
+                    <span>随访记录：{events.length} 次</span>
+                  </div>
+                </div>
+
+                {/* Core Executive Summary Box */}
+                <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
+                  <div className="p-1">
+                    <span className="text-[10px] text-slate-400 font-bold uppercase">最新影像状态</span>
+                    <div className="font-extrabold text-slate-900 mt-0.5 break-words">
+                      {latestImaging?.keyFindings?.sizeMm !== undefined
+                        ? `${latestImaging.keyFindings.sizeMm} mm (${latestImaging.eventDate.substring(0, 7)})`
+                        : "已行手术切除"}
+                    </div>
+                  </div>
+                  <div className="p-1">
+                    <span className="text-[10px] text-slate-400 font-bold uppercase">术后病理分期</span>
+                    <div className="font-extrabold text-emerald-700 mt-0.5 break-words">
+                      {latestPathology?.keyFindings?.stage || "未行手术切除 (影像随访中)"}
+                    </div>
+                  </div>
+                  <div className="p-1">
+                    <span className="text-[10px] text-slate-400 font-bold uppercase">最新 CEA 标志物</span>
+                    <div className="font-extrabold text-slate-900 mt-0.5 break-words">
+                      {latestSerology?.keyFindings?.cea !== undefined
+                        ? `${latestSerology.keyFindings.cea} ng/mL`
+                        : "未查/基线参考"}
+                    </div>
+                  </div>
+                  <div className="p-1">
+                    <span className="text-[10px] text-slate-400 font-bold uppercase">驱动基因突变</span>
+                    <div className="font-extrabold text-blue-700 mt-0.5 break-words">
+                      {geneSummaryText}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section 1: Imaging Chronology */}
+                <div className="space-y-2">
+                  <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5 pb-1 border-b border-slate-200">
+                    <Scan className="w-3.5 h-3.5 text-blue-600" />
+                    <span>1. 历次影像学演变时序 (Imaging Timeline)</span>
+                  </h4>
+                  <div className="overflow-x-auto -mx-1 sm:mx-0 border border-slate-200 rounded-2xl">
+                    <table className="w-full text-xs text-left border-collapse min-w-[480px]">
+                      <thead>
+                        <tr className="bg-slate-100/80 text-slate-700 font-bold border-b border-slate-200">
+                          <th className="p-2 sm:p-2.5 whitespace-nowrap">检查日期</th>
+                          <th className="p-2 sm:p-2.5 whitespace-nowrap">检查项目 / 医院</th>
+                          <th className="p-2 sm:p-2.5 whitespace-nowrap">长径 (mm)</th>
+                          <th className="p-2 sm:p-2.5 whitespace-nowrap">实性比 (CTR)</th>
+                          <th className="p-2 sm:p-2.5">核心结论</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {imagingList.map((im, i) => (
+                          <tr key={i} className="hover:bg-slate-50">
+                            <td className="p-2 sm:p-2.5 font-mono font-bold text-slate-900 whitespace-nowrap">{im.eventDate}</td>
+                            <td className="p-2 sm:p-2.5 text-slate-700 whitespace-nowrap">
+                              <div className="font-semibold">{im.title}</div>
+                              <div className="text-[10px] text-slate-400">{im.hospital}</div>
+                            </td>
+                            <td className="p-2 sm:p-2.5 font-mono font-bold text-blue-700 whitespace-nowrap">
+                              {im.keyFindings?.sizeMm !== undefined ? `${im.keyFindings.sizeMm} mm` : "-"}
+                            </td>
+                            <td className="p-2 sm:p-2.5 font-mono whitespace-nowrap">
+                              {im.keyFindings?.ctr !== undefined ? `${(im.keyFindings.ctr * 100).toFixed(0)}%` : "-"}
+                            </td>
+                            <td className="p-2 sm:p-2.5 text-slate-600 min-w-[140px]">{im.summary}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* Section 2: Surgery, Pathology & Molecular Biomarkers */}
+                <div className="space-y-2">
+                  <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5 pb-1 border-b border-slate-200">
+                    <Microscope className="w-3.5 h-3.5 text-purple-600" />
+                    <span>2. 手术干预、病理与分子靶向 (Surgery, Pathology & NGS)</span>
+                  </h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 text-xs">
+                    {surgeryMilestone && (
+                      <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200">
+                        <div className="font-bold text-slate-900 flex items-center gap-1.5">
+                          <Zap className="w-3.5 h-3.5 text-amber-500" />
+                          <span>{surgeryMilestone.eventDate} 手术记录</span>
+                        </div>
+                        <div className="text-slate-600 mt-1 leading-relaxed">{surgeryMilestone.summary}</div>
+                      </div>
+                    )}
+                    {latestPathology && (
+                      <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200">
+                        <div className="font-bold text-purple-900 flex items-center gap-1.5">
+                          <Microscope className="w-3.5 h-3.5 text-purple-600" />
+                          <span>{latestPathology.eventDate} 病理组织学</span>
+                        </div>
+                        <div className="text-slate-600 mt-1 leading-relaxed">{latestPathology.summary}</div>
+                      </div>
+                    )}
+                    {latestMolecular ? (
+                      <div className="p-3 rounded-2xl bg-indigo-50/60 border border-indigo-200">
+                        <div className="font-bold text-indigo-900 flex items-center gap-1.5">
+                          <Dna className="w-3.5 h-3.5 text-indigo-600" />
+                          <span>{latestMolecular.eventDate} 分子检测</span>
+                        </div>
+                        <div className="text-indigo-950 mt-1 leading-relaxed font-medium">
+                          {latestMolecular.summary}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200">
+                        <div className="font-bold text-slate-700 flex items-center gap-1.5">
+                          <Dna className="w-3.5 h-3.5 text-slate-500" />
+                          <span>驱动基因检测</span>
+                        </div>
+                        <div className="text-slate-500 mt-1 leading-relaxed">
+                          {geneSummaryText}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Section 3: Tumor Markers */}
+                <div className="space-y-2">
+                  <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5 pb-1 border-b border-slate-200">
+                    <TestTube2 className="w-3.5 h-3.5 text-rose-600" />
+                    <span>3. 血清肿瘤标志物随访轨迹 (Biomarkers)</span>
+                  </h4>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                    {serologyList.map((s, i) => (
+                      <div key={i} className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-mono">
+                        <div className="font-bold text-slate-900">{s.eventDate}</div>
+                        <div className="text-slate-600 mt-0.5 truncate">
+                          CEA: <span className="font-bold text-rose-700">{s.keyFindings?.cea ?? "-"}</span> ng/mL
+                        </div>
+                        {s.keyFindings?.cyfra211 && (
+                          <div className="text-slate-500 text-[11px] truncate">
+                            CYFRA: {s.keyFindings.cyfra211}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Print Footer Disclaimer */}
+                <div className="pt-4 border-t border-slate-200 text-[10px] text-slate-400 text-center leading-relaxed">
+                  注：本清单由患者临床检查报告结构化提取生成，仅供临床门诊交流参考，不替代医师现场全面诊疗。
+                </div>
               </div>
             </div>
           )}
 
-          {/* Dedicated Ref Element for A4 PDF / Image Export & Print */}
+        </div>
+
+        {/* ========================================================================= */}
+        {/* Dedicated Offscreen A4 Container for 100% Reliable PDF & Image Exports */}
+        {/* ========================================================================= */}
+        <div
+          style={{
+            position: "fixed",
+            left: "-9999px",
+            top: "0",
+            width: "794px",
+            overflow: "visible",
+            zIndex: -100,
+            pointerEvents: "none",
+          }}
+        >
           <div 
-            ref={printableDocRef} 
-            className={`font-sans p-1 bg-white space-y-5 sm:space-y-6 ${
-              activeTab === "full_print" ? "block" : "hidden print:block"
-            }`}
+            ref={offscreenA4DocRef}
+            className="w-[794px] p-8 bg-white text-slate-900 font-sans space-y-6"
+            style={{ backgroundColor: "#ffffff" }}
           >
             {/* Clinic Header */}
-            <div className="border-b-2 border-slate-900 pb-3 sm:pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div className="border-b-2 border-slate-900 pb-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl overflow-hidden shrink-0 shadow-xs bg-slate-100">
+                <div className="w-12 h-12 rounded-xl overflow-hidden shrink-0 shadow-xs bg-slate-100 border border-slate-200">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={ONCOPATH_LOGO_DATA_URI} alt="OncoPath Logo" className="w-full h-full object-cover" />
                 </div>
                 <div>
-                  <h1 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
-                    肺部疾病长程随访与临床时序摘要
+                  <h1 className="text-xl font-black text-slate-900 tracking-tight">
+                    肺部疾病长程随访与临床时序便签卡
                   </h1>
-                  <p className="text-[11px] sm:text-xs text-slate-600 mt-0.5">
-                    系统：OncoPath 循证医学导航平台 · 结构化病历归集
+                  <p className="text-xs text-slate-600 mt-0.5">
+                    OncoPath 肺结节与肺腺癌循证医学决策系统 · 结构化门诊病历速览
                   </p>
                 </div>
               </div>
-              <div className="text-left sm:text-right text-[11px] sm:text-xs text-slate-500 flex sm:flex-col justify-between sm:justify-start gap-1">
-                <span>生成日期：{new Date().toISOString().split("T")[0]}</span>
-                <span>随访记录：{events.length} 次</span>
+              <div className="text-right text-xs text-slate-500 font-mono space-y-0.5">
+                <div>生成日期：{new Date().toISOString().split("T")[0]}</div>
+                <div>随访记录：{events.length} 次检查</div>
               </div>
             </div>
 
             {/* Core Executive Summary Box */}
-            <div className="bg-slate-50 p-3.5 sm:p-4 rounded-2xl border border-slate-200 grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 text-xs">
+            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 grid grid-cols-4 gap-3 text-xs">
               <div className="p-1">
                 <span className="text-[10px] text-slate-400 font-bold uppercase">最新影像状态</span>
-                <div className="font-extrabold text-slate-900 mt-0.5 break-words">
+                <div className="font-extrabold text-slate-900 mt-0.5 break-words text-sm">
                   {latestImaging?.keyFindings?.sizeMm !== undefined
                     ? `${latestImaging.keyFindings.sizeMm} mm (${latestImaging.eventDate.substring(0, 7)})`
                     : "已行手术切除"}
@@ -702,13 +928,13 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
               </div>
               <div className="p-1">
                 <span className="text-[10px] text-slate-400 font-bold uppercase">术后病理分期</span>
-                <div className="font-extrabold text-emerald-700 mt-0.5 break-words">
+                <div className="font-extrabold text-emerald-700 mt-0.5 break-words text-sm">
                   {latestPathology?.keyFindings?.stage || "未行手术切除 (影像随访中)"}
                 </div>
               </div>
               <div className="p-1">
                 <span className="text-[10px] text-slate-400 font-bold uppercase">最新 CEA 标志物</span>
-                <div className="font-extrabold text-slate-900 mt-0.5 break-words">
+                <div className="font-extrabold text-slate-900 mt-0.5 break-words text-sm">
                   {latestSerology?.keyFindings?.cea !== undefined
                     ? `${latestSerology.keyFindings.cea} ng/mL`
                     : "未查/基线参考"}
@@ -716,44 +942,44 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
               </div>
               <div className="p-1">
                 <span className="text-[10px] text-slate-400 font-bold uppercase">驱动基因突变</span>
-                <div className="font-extrabold text-blue-700 mt-0.5 break-words">
+                <div className="font-extrabold text-blue-700 mt-0.5 break-words text-sm">
                   {geneSummaryText}
                 </div>
               </div>
             </div>
 
             {/* Section 1: Imaging Chronology */}
-            <div className="space-y-2">
+            <div className="space-y-2.5">
               <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5 pb-1 border-b border-slate-200">
-                <Scan className="w-3.5 h-3.5 text-blue-600" />
+                <Scan className="w-4 h-4 text-blue-600" />
                 <span>1. 历次影像学演变时序 (Imaging Timeline)</span>
               </h4>
-              <div className="overflow-x-auto -mx-1 sm:mx-0 border border-slate-200 rounded-2xl">
-                <table className="w-full text-xs text-left border-collapse min-w-[480px]">
+              <div className="border border-slate-200 rounded-2xl overflow-hidden">
+                <table className="w-full text-xs text-left border-collapse">
                   <thead>
-                    <tr className="bg-slate-100/80 text-slate-700 font-bold border-b border-slate-200">
-                      <th className="p-2 sm:p-2.5 whitespace-nowrap">检查日期</th>
-                      <th className="p-2 sm:p-2.5 whitespace-nowrap">检查项目 / 医院</th>
-                      <th className="p-2 sm:p-2.5 whitespace-nowrap">长径 (mm)</th>
-                      <th className="p-2 sm:p-2.5 whitespace-nowrap">实性比 (CTR)</th>
-                      <th className="p-2 sm:p-2.5">核心结论</th>
+                    <tr className="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
+                      <th className="p-2.5 whitespace-nowrap">检查日期</th>
+                      <th className="p-2.5 whitespace-nowrap">检查项目 / 医院</th>
+                      <th className="p-2.5 whitespace-nowrap">长径 (mm)</th>
+                      <th className="p-2.5 whitespace-nowrap">实性比 (CTR)</th>
+                      <th className="p-2.5">核心结论</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {imagingList.map((im, i) => (
-                      <tr key={i} className="hover:bg-slate-50">
-                        <td className="p-2 sm:p-2.5 font-mono font-bold text-slate-900 whitespace-nowrap">{im.eventDate}</td>
-                        <td className="p-2 sm:p-2.5 text-slate-700 whitespace-nowrap">
+                      <tr key={i} className="bg-white">
+                        <td className="p-2.5 font-mono font-bold text-slate-900 whitespace-nowrap">{im.eventDate}</td>
+                        <td className="p-2.5 text-slate-700 whitespace-nowrap">
                           <div className="font-semibold">{im.title}</div>
                           <div className="text-[10px] text-slate-400">{im.hospital}</div>
                         </td>
-                        <td className="p-2 sm:p-2.5 font-mono font-bold text-blue-700 whitespace-nowrap">
+                        <td className="p-2.5 font-mono font-bold text-blue-700 whitespace-nowrap">
                           {im.keyFindings?.sizeMm !== undefined ? `${im.keyFindings.sizeMm} mm` : "-"}
                         </td>
-                        <td className="p-2 sm:p-2.5 font-mono whitespace-nowrap">
+                        <td className="p-2.5 font-mono whitespace-nowrap">
                           {im.keyFindings?.ctr !== undefined ? `${(im.keyFindings.ctr * 100).toFixed(0)}%` : "-"}
                         </td>
-                        <td className="p-2 sm:p-2.5 text-slate-600 min-w-[140px]">{im.summary}</td>
+                        <td className="p-2.5 text-slate-600">{im.summary}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -762,14 +988,14 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
             </div>
 
             {/* Section 2: Surgery, Pathology & Molecular Biomarkers */}
-            <div className="space-y-2">
+            <div className="space-y-2.5">
               <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5 pb-1 border-b border-slate-200">
-                <Microscope className="w-3.5 h-3.5 text-purple-600" />
+                <Microscope className="w-4 h-4 text-purple-600" />
                 <span>2. 手术干预、病理与分子靶向 (Surgery, Pathology & NGS)</span>
               </h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 text-xs">
+              <div className="grid grid-cols-3 gap-3 text-xs">
                 {surgeryMilestone && (
-                  <div className="p-3 sm:p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
+                  <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
                     <div className="font-bold text-slate-900 flex items-center gap-1.5">
                       <Zap className="w-3.5 h-3.5 text-amber-500" />
                       <span>{surgeryMilestone.eventDate} 手术记录</span>
@@ -778,7 +1004,7 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
                   </div>
                 )}
                 {latestPathology && (
-                  <div className="p-3 sm:p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
+                  <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
                     <div className="font-bold text-purple-900 flex items-center gap-1.5">
                       <Microscope className="w-3.5 h-3.5 text-purple-600" />
                       <span>{latestPathology.eventDate} 病理组织学</span>
@@ -787,7 +1013,7 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
                   </div>
                 )}
                 {latestMolecular ? (
-                  <div className="p-3 sm:p-3.5 rounded-2xl bg-indigo-50/60 border border-indigo-200">
+                  <div className="p-3.5 rounded-2xl bg-indigo-50/60 border border-indigo-200">
                     <div className="font-bold text-indigo-900 flex items-center gap-1.5">
                       <Dna className="w-3.5 h-3.5 text-indigo-600" />
                       <span>{latestMolecular.eventDate} 分子检测</span>
@@ -797,7 +1023,7 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
                     </div>
                   </div>
                 ) : (
-                  <div className="p-3 sm:p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
+                  <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
                     <div className="font-bold text-slate-700 flex items-center gap-1.5">
                       <Dna className="w-3.5 h-3.5 text-slate-500" />
                       <span>驱动基因检测</span>
@@ -811,12 +1037,12 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
             </div>
 
             {/* Section 3: Tumor Markers */}
-            <div className="space-y-2">
+            <div className="space-y-2.5">
               <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5 pb-1 border-b border-slate-200">
-                <TestTube2 className="w-3.5 h-3.5 text-rose-600" />
+                <TestTube2 className="w-4 h-4 text-rose-600" />
                 <span>3. 血清肿瘤标志物随访轨迹 (Biomarkers)</span>
               </h4>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+              <div className="grid grid-cols-4 gap-2.5">
                 {serologyList.map((s, i) => (
                   <div key={i} className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-mono">
                     <div className="font-bold text-slate-900">{s.eventDate}</div>
@@ -833,12 +1059,32 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
               </div>
             </div>
 
+            {/* Section 4: Key Consultation Questions */}
+            <div className="space-y-2.5">
+              <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5 pb-1 border-b border-slate-200">
+                <HelpCircle className="w-4 h-4 text-teal-600" />
+                <span>4. 门诊主治医师精选问诊清单 (Consultation Checklist)</span>
+              </h4>
+              <div className="space-y-2 text-xs">
+                {consultationQuestions.map((q, idx) => (
+                  <div key={q.id} className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 flex items-start gap-2">
+                    <span className="font-bold text-blue-600 shrink-0 font-mono">Q{idx + 1}.</span>
+                    <div>
+                      <span className="font-bold text-slate-900">[{q.category}] {q.text}</span>
+                      <span className="text-[11px] text-slate-500 ml-1.5">（目的: {q.rationale}）</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             {/* Print Footer Disclaimer */}
             <div className="pt-4 border-t border-slate-200 text-[10px] text-slate-400 text-center leading-relaxed">
-              注：本清单由患者临床检查报告结构化提取生成，仅供临床门诊交流参考，不替代医师现场全面诊疗。
+              注：本便签由 OncoPath 循证引擎基于患者临床报告结构化生成，仅供就医沟通参考，请以临床医师综合现场诊疗为准。
             </div>
           </div>
         </div>
+
       </div>
     </div>
   );
