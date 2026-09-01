@@ -220,6 +220,9 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
   const [customGeneAbundance, setCustomGeneAbundance] = useState("");
   const [customIsComutation, setCustomIsComutation] = useState(false);
 
+  // Segmented Step Wizard state (1: Imaging/Nodules, 2: Pathology/High-Risk, 3: Molecular/Genes, 4: Serology/Systemic)
+  const [currentStep, setCurrentStep] = useState<1 | 2 | 3 | 4>(1);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Dynamic staging calculation result for human-in-the-loop preview
@@ -770,21 +773,72 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
           </div>
         )}
 
-        <div className="space-y-6">
-          
-          {/* Section 1: Patient Demographics & Surgery Status (Clinical Anchor & Primary Switch) */}
-          <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200">
-            <div className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3 flex items-center justify-between">
-              <span className="flex items-center gap-1.5">
-                <User className="w-3.5 h-3.5 text-slate-600" />
-                <span>患者基本画像与诊疗状态</span>
-              </span>
-              <span className="text-[11px] font-normal text-slate-400">决定分期计算基准与临床路径分流</span>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-              <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1">生物学性别</label>
-                <select 
+        {/* Segmented Step Wizard Navigation Tabs */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 mb-6">
+          {[
+            { step: 1, label: "1. 结节影像与随访", sub: "解剖部位 · 全径 · CTR · 随访时序", icon: Scan },
+            { step: 2, label: "2. 组织病理与高危", sub: "微创术式 · STAS · VPI · 脉管切缘", icon: Microscope },
+            { step: 3, label: "3. 分子基因与靶向", sub: "EGFR · ALK · 伴随突变 · PD-L1", icon: Dna },
+            { step: 4, label: "4. 标志物与全身排查", sub: "CEA/CYFRA · 脑MRI · 腹超 · 骨显", icon: TestTube2 },
+          ].map((item) => {
+            const Icon = item.icon;
+            const isActive = currentStep === item.step;
+            const isCompleted = currentStep > item.step;
+            return (
+              <button
+                key={item.step}
+                type="button"
+                onClick={() => setCurrentStep(item.step as 1 | 2 | 3 | 4)}
+                className={`p-3 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between relative overflow-hidden ${
+                  isActive
+                    ? "bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-500/20 ring-2 ring-blue-400/30"
+                    : isCompleted
+                    ? "bg-emerald-50/70 text-slate-800 border-emerald-300/80 hover:bg-emerald-100/60"
+                    : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50 hover:border-slate-300 shadow-2xs"
+                }`}
+              >
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black ${
+                    isActive
+                      ? "bg-white text-blue-600"
+                      : isCompleted
+                      ? "bg-emerald-600 text-white"
+                      : "bg-slate-100 text-slate-600 border border-slate-200"
+                  }`}>
+                    {isCompleted ? <Check className="w-3 h-3 stroke-[3]" /> : item.step}
+                  </span>
+                  <Icon className={`w-4 h-4 ${isActive ? "text-white" : isCompleted ? "text-emerald-700" : "text-slate-400"}`} />
+                </div>
+                <div>
+                  <div className={`text-xs font-extrabold leading-tight ${isActive ? "text-white" : "text-slate-900"}`}>
+                    {item.label}
+                  </div>
+                  <div className={`text-[10px] mt-0.5 truncate ${isActive ? "text-blue-100" : "text-slate-500"}`}>
+                    {item.sub}
+                  </div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Step 1: Imaging & Nodule History */}
+        {currentStep === 1 && (
+          <div className="space-y-6">
+            
+            {/* Section 1: Patient Demographics & Surgery Status (Clinical Anchor & Primary Switch) */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200">
+              <div className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3 flex items-center justify-between">
+                <span className="flex items-center gap-1.5">
+                  <User className="w-3.5 h-3.5 text-slate-600" />
+                  <span>患者基本画像与诊疗状态</span>
+                </span>
+                <span className="text-[11px] font-normal text-slate-400">决定分期计算基准与临床路径分流</span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-600 mb-1">生物学性别</label>
+                  <select 
                   value={parsedData.sex || "female"} 
                   onChange={e => setParsedData({...parsedData, sex: e.target.value})}
                   className="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-blue-500"
@@ -1270,9 +1324,41 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
               </div>
             </div>
           </div>
+        </div>
+      )}
 
-          {/* Section 3: Pathology High-Risk Red/Green Factors & Ki-67 (Placed right after CT for clinical coherence) */}
-          {(parsedData.reportType === 'pathology' || parsedData.reportType === 'comprehensive' || parsedData.surgeryType !== 'unknown') && (
+      {/* Step 2: Pathology & High-Risk Factors */}
+        {currentStep === 2 && (
+          <div className="space-y-6">
+            {parsedData.reportType === 'ct_imaging' && parsedData.surgeryType === 'unknown' ? (
+              <div className="p-5 bg-sky-50/80 border-2 border-sky-200 rounded-2xl text-xs text-sky-900 space-y-3">
+                <div className="flex items-center gap-2 font-bold text-sm text-sky-950">
+                  <Info className="w-4 h-4 text-sky-600 shrink-0" />
+                  <span>当前处于【术前随访 / 待手术评估】阶段</span>
+                </div>
+                <p className="text-xs leading-relaxed text-sky-800">
+                  组织病理高危特征（如 STAS 气道播散、胸膜浸润 VPI、脉管癌栓 LVI、切缘状态等）需在<strong>胸外科手术切除后由病理科石蜡切片确诊</strong>。若您尚未手术，可直接进行【步骤3：基因突变】或【步骤4：标志物与全身排查】。
+                </p>
+                <div className="pt-1 flex items-center gap-2.5 flex-wrap">
+                  <button
+                    type="button"
+                    onClick={() => setParsedData({ ...parsedData, surgeryType: "segmentectomy" })}
+                    className="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-xs cursor-pointer transition-colors"
+                  >
+                    已完成微创手术，录入病理切片报告
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCurrentStep(3)}
+                    className="px-3.5 py-2 bg-white border border-sky-300 hover:bg-sky-100 text-sky-800 font-bold text-xs rounded-xl cursor-pointer transition-colors"
+                  >
+                    尚未手术，跳过病理进入【步骤3：基因突变】 ›
+                  </button>
+                </div>
+              </div>
+            ) : null}
+
+            {/* Section 3: Pathology High-Risk Red/Green Factors & Ki-67 (Placed right after CT for clinical coherence) */}
             <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3.5">
               <div className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center justify-between">
                 <span className="flex items-center gap-1.5">
@@ -1522,10 +1608,14 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
               </div>
 
             </div>
-          )}
+          </div>
+        )}
 
-          {/* Section: Molecular Pathology & Driver Gene Mutation Panel (NGS / PCR / PD-L1) */}
-          <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-blue-50/60 via-slate-50 to-indigo-50/60 border-2 border-blue-200/80 space-y-4 shadow-xs">
+        {/* Step 3: Molecular Pathology & Driver Genes */}
+        {currentStep === 3 && (
+          <div className="space-y-6">
+            {/* Section: Molecular Pathology & Driver Gene Mutation Panel (NGS / PCR / PD-L1) */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-blue-50/60 via-slate-50 to-indigo-50/60 border-2 border-blue-200/80 space-y-4 shadow-xs">
             <div className="flex items-center justify-between flex-wrap gap-2">
               <div className="flex items-center gap-2">
                 <Dna className="w-5 h-5 text-blue-600" />
@@ -1845,9 +1935,14 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
               </div>
             )}
           </div>
+        </div>
+      )}
 
-          {/* Section 4: Systemic Staging & M0 Confirmation Matrix (Strict 3-Column Symmetrical Grid: 5 Organs + 1 Benign Findings) */}
-          <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-indigo-50/70 via-slate-50 to-teal-50/70 border-2 border-indigo-200/80 space-y-3.5 shadow-xs">
+      {/* Step 4: Serology Biomarkers & Systemic Staging */}
+        {currentStep === 4 && (
+          <div className="space-y-6">
+            {/* Section 4: Systemic Staging & M0 Confirmation Matrix (Strict 3-Column Symmetrical Grid: 5 Organs + 1 Benign Findings) */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-indigo-50/70 via-slate-50 to-teal-50/70 border-2 border-indigo-200/80 space-y-3.5 shadow-xs">
             <div className="flex items-center justify-between flex-wrap gap-2">
               <div className="flex items-center gap-2">
                 <Layers className="w-5 h-5 text-indigo-700" />
@@ -2298,30 +2393,68 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
               </div>
             </div>
 
+            </div>
           </div>
-        </div>
+        )}
 
-        <div className="flex gap-3 justify-end mt-8 pt-4 border-t border-slate-100">
-          <button 
-            type="button"
-            onClick={() => {
-              if (onCancel) {
-                onCancel();
-              } else {
-                setParsedData(null);
-              }
-            }}
-            className="px-5 py-2.5 rounded-xl text-sm font-semibold border border-slate-300 text-slate-700 hover:bg-slate-50 transition-colors cursor-pointer"
-          >
-            {onCancel ? "取消并返回看板" : "返回重新识别"}
-          </button>
-          <button 
-            type="button"
-            onClick={handleConfirm}
-            className="px-6 py-2.5 rounded-xl btn-primary text-white font-bold text-sm shadow-md transition-all cursor-pointer"
-          >
-            {initialData ? "保存修改并同步档案" : "确认无误，保存医疗档案"}
-          </button>
+        {/* Step Wizard Action Bar (Sticky & Always Accessible) */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mt-8 pt-4 border-t border-slate-200 bg-white/95 backdrop-blur-xs sticky bottom-0 z-20 py-3 px-2 rounded-b-2xl">
+          {/* Left: Real-time Staging Badge */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-xs font-bold text-slate-500">实时精准分期：</span>
+            <span className="px-3 py-1 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-300 font-extrabold text-xs flex items-center gap-1.5 shadow-2xs">
+              <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+              <span>
+                {stagingPreview?.stage ? `${stagingPreview.stage} 期` : "早期原发灶"} ({stagingPreview?.tStage || parsedData.tStage || "T1a"}{stagingPreview?.nStage || parsedData.nStage || "N0"}{stagingPreview?.mStage || parsedData.mStage || "M0"})
+              </span>
+            </span>
+          </div>
+
+          {/* Right: Step Switchers & Action Buttons */}
+          <div className="flex items-center gap-2 flex-wrap justify-end">
+            <button 
+              type="button"
+              onClick={() => {
+                if (onCancel) {
+                  onCancel();
+                } else {
+                  setParsedData(null);
+                }
+              }}
+              className="px-3.5 py-2 rounded-xl text-xs font-semibold border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors cursor-pointer"
+            >
+              {onCancel ? "取消并返回" : "返回重新识别"}
+            </button>
+
+            {currentStep > 1 && (
+              <button
+                type="button"
+                onClick={() => setCurrentStep((prev) => (prev - 1) as 1 | 2 | 3 | 4)}
+                className="px-4 py-2 rounded-xl text-xs font-bold border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 transition-all cursor-pointer shadow-2xs"
+              >
+                ‹ 上一步
+              </button>
+            )}
+
+            {currentStep < 4 && (
+              <button
+                type="button"
+                onClick={() => setCurrentStep((prev) => (prev + 1) as 1 | 2 | 3 | 4)}
+                className="px-4 py-2 rounded-xl text-xs font-bold bg-blue-50 border border-blue-200 hover:bg-blue-100 text-blue-700 transition-all cursor-pointer shadow-2xs"
+              >
+                下一步 ({currentStep + 1}/4) ›
+              </button>
+            )}
+
+            <button 
+              type="button"
+              onClick={handleConfirm}
+              className="px-5 py-2 rounded-xl btn-primary text-white font-bold text-xs shadow-md shadow-blue-500/20 hover:shadow-lg transition-all cursor-pointer flex items-center gap-1.5"
+            >
+              <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+              <span>{initialData ? "保存修改并同步档案" : "确认无误，保存医疗档案"}</span>
+            </button>
+          </div>
         </div>
       </div>
     );
