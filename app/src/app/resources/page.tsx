@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { 
   BookOpen, 
   Building2, 
@@ -13,11 +13,14 @@ import {
   Search, 
   ExternalLink,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Sparkles,
+  ShieldCheck,
+  Check,
+  Globe2
 } from "lucide-react";
 import SubpageNavbar from "@/components/SubpageNavbar";
 import Footer from "@/components/Footer";
-
 
 interface ResourceLink {
   name: string;
@@ -46,7 +49,7 @@ const CATEGORIES: ResourceCategory[] = [
     icon: Building2,
     level: "beginner",
     levelLabel: "最推荐 · 患者友好",
-    levelColor: "text-teal-600 border-teal-200 bg-teal-50",
+    levelColor: "text-teal-700 border-teal-300 bg-teal-50",
     title: "权威临床指南",
     subtitle: "由国际顶尖学术机构出版，结论最为权威，部分提供中文版本，适合患者直接参考。",
     links: [
@@ -78,6 +81,7 @@ const CATEGORIES: ResourceCategory[] = [
         name: "中国临床肿瘤学会（CSCO）指南",
         url: "https://www.csco.org.cn/",
         description: "中国本土权威临床肿瘤指南，制定的《非小细胞肺癌诊疗指南》是国内医院的标准参考文件，内容完全基于中国患者数据，更贴合国内实际。",
+        tip: "CSCO 每年更新中国肺癌诊疗规范，靶向及免疫用药准入紧贴国内医保目录。",
         lang: "zh",
         free: true,
       },
@@ -87,8 +91,8 @@ const CATEGORIES: ResourceCategory[] = [
     id: "journals",
     icon: Newspaper,
     level: "intermediate",
-    levelLabel: "进阶 · 高质量文献",
-    levelColor: "text-blue-600 border-blue-200 bg-blue-50",
+    levelLabel: "进阶 · 高质量顶刊",
+    levelColor: "text-blue-700 border-blue-300 bg-blue-50",
     title: "顶级学术期刊",
     subtitle: "发表全球最顶尖的肺癌临床研究成果。OncoPath 的核心证据库中的研究均来自这些期刊。",
     warning: "注意：期刊论文面向医生撰写，数据专业且需要医学背景才能正确解读。请勿将单篇研究的结论直接套用于自身情况。",
@@ -102,9 +106,9 @@ const CATEGORIES: ResourceCategory[] = [
         free: false,
       },
       {
-        name: "The Lancet Oncology",
+        name: "The Lancet Oncology (柳叶刀·肿瘤学)",
         url: "https://www.thelancet.com/journals/lanonc/home",
-        description: "《柳叶刀·肿瘤学》，全球综合影响力最高的肿瘤学期刊之一，发表改变临床实践的大型随机对照试验（RCT）。",
+        description: "全球综合影响力最高的肿瘤学期刊之一，发表改变全球临床实践的大型 III 期随机对照试验（RCT）。",
         lang: "en",
         free: false,
       },
@@ -116,7 +120,7 @@ const CATEGORIES: ResourceCategory[] = [
         free: false,
       },
       {
-        name: "Chest (胸科学)",
+        name: "Chest (美国胸科学会期刊)",
         url: "https://journal.chestnet.org/",
         description: "美国胸科医师学会（ACCP）官方期刊，在早期肺癌手术方式、CT 筛查和影像学研究方面具有重要地位。",
         lang: "en",
@@ -129,10 +133,10 @@ const CATEGORIES: ResourceCategory[] = [
     icon: Database,
     level: "advanced",
     levelLabel: "硬核 · 原始数据库",
-    levelColor: "text-amber-600 border-amber-200 bg-amber-50",
+    levelColor: "text-amber-700 border-amber-300 bg-amber-50",
     title: "学术文献原始数据库",
     subtitle: "全球最大的医学文献检索平台，包含数千万篇论文。适合医学专业背景人士或在家属陪同下深入查阅。",
-    warning: "重要提示：数据库中包含大量不同质量的研究，其中部分研究样本量小、结论存在争议，甚至已被更新研究推翻。在没有医学背景的情况下，请务必在专业医生的指导下解读检索结果。",
+    warning: "重要提示：数据库中包含大量不同质量的研究。在没有医学背景的情况下，请务必在专业医生的指导下解读检索结果。",
     links: [
       {
         name: "PubMed / MEDLINE",
@@ -171,9 +175,9 @@ const CATEGORIES: ResourceCategory[] = [
     id: "tools",
     icon: Wrench,
     level: "beginner",
-    levelLabel: "实用工具",
-    levelColor: "text-green-600 border-green-200 bg-green-50",
-    title: "患者实用辅助工具",
+    levelLabel: "实用工具与官方平台",
+    levelColor: "text-emerald-700 border-emerald-300 bg-emerald-50",
+    title: "患者实用辅助平台",
     subtitle: "帮助患者理解医学概念、管理病情记录、或与医疗团队更有效沟通的实用在线工具。",
     links: [
       {
@@ -193,7 +197,7 @@ const CATEGORIES: ResourceCategory[] = [
       {
         name: "丁香园（肿瘤频道）",
         url: "https://oncol.dxy.cn/",
-        description: "国内最大的医疗专业人员学习社区，肿瘤频道收录大量前沿指南解读、最新研究汉化资讯。对于想从医生视角了解肺癌最新研究进展的患者家属有重要参考价值。",
+        description: "国内知名的医疗专业人员学习社区，肿瘤频道收录大量前沿指南解读、最新研究汉化资讯。对于想从医生视角了解肺癌最新研究进展的患者家属有重要参考价值。",
         lang: "zh",
         free: true,
       },
@@ -202,12 +206,10 @@ const CATEGORIES: ResourceCategory[] = [
 ];
 
 export default function ResourcesPage() {
-  const [activeFilter, setActiveFilter] = useState<string>("all");
+  const [activeCategory, setActiveCategory] = useState<string>("all");
+  const [langFilter, setLangFilter] = useState<"all" | "zh" | "en" | "free">("all");
+  const [searchQuery, setSearchQuery] = useState<string>("");
   const [expandedTips, setExpandedTips] = useState<Set<string>>(new Set());
-
-  const filtered = activeFilter === "all"
-    ? CATEGORIES
-    : CATEGORIES.filter((c) => c.level === activeFilter || c.id === activeFilter);
 
   const toggleTip = (key: string) => {
     setExpandedTips((prev) => {
@@ -218,6 +220,46 @@ export default function ResourcesPage() {
     });
   };
 
+  // Filter logic across categories, language, and search query
+  const filteredCategories = useMemo(() => {
+    return CATEGORIES.map((cat) => {
+      // If a specific category tab is selected and doesn't match
+      if (activeCategory !== "all" && activeCategory !== cat.id) {
+        return null;
+      }
+
+      // Filter category links
+      const matchedLinks = cat.links.filter((link) => {
+        // Language / Free filter
+        if (langFilter === "zh" && link.lang !== "zh" && link.lang !== "both") return false;
+        if (langFilter === "en" && link.lang !== "en" && link.lang !== "both") return false;
+        if (langFilter === "free" && !link.free) return false;
+
+        // Search text filter
+        if (searchQuery.trim()) {
+          const q = searchQuery.toLowerCase();
+          const matchName = link.name.toLowerCase().includes(q);
+          const matchDesc = link.description.toLowerCase().includes(q);
+          const matchTip = link.tip ? link.tip.toLowerCase().includes(q) : false;
+          return matchName || matchDesc || matchTip;
+        }
+
+        return true;
+      });
+
+      if (matchedLinks.length === 0) return null;
+
+      return {
+        ...cat,
+        links: matchedLinks,
+      };
+    }).filter(Boolean) as ResourceCategory[];
+  }, [activeCategory, langFilter, searchQuery]);
+
+  const totalLinksCount = useMemo(() => {
+    return filteredCategories.reduce((acc, c) => acc + c.links.length, 0);
+  }, [filteredCategories]);
+
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 selection:bg-blue-500 selection:text-white">
       <SubpageNavbar />
@@ -227,7 +269,7 @@ export default function ResourcesPage() {
         {/* Unified Top Pill Badge */}
         <div className="inline-flex items-center gap-2 bg-white px-4 py-1.5 rounded-full text-xs font-bold text-sky-700 border border-sky-200/80 shadow-xs">
           <BookOpen className="w-3.5 h-3.5 text-sky-600" />
-          <span>全球权威临床指南库</span>
+          <span>全球权威临床指南与顶刊库</span>
           <span className="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse" />
           <span>专业医学循证导航</span>
         </div>
@@ -244,7 +286,6 @@ export default function ResourcesPage() {
 
         {/* Big Disclaimer */}
         <div className="mt-4 p-3.5 sm:p-4 rounded-2xl border border-amber-200 bg-amber-50 text-left shadow-xs">
-
           <p className="text-amber-900 font-bold text-xs mb-1 flex items-center gap-1.5">
             <AlertTriangle className="w-3.5 h-3.5 text-amber-700 shrink-0" />
             <span>在您开始查阅之前，请阅读这段话</span>
@@ -256,168 +297,239 @@ export default function ResourcesPage() {
         </div>
       </header>
 
-
-      {/* Filter Bar */}
-      <div className="max-w-7xl mx-auto w-full px-2.5 sm:px-6 mb-8 sm:mb-10">
-        <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
-          <span className="text-xs font-semibold text-slate-400 mr-1 hidden sm:inline">分类筛选：</span>
+      {/* Main Container */}
+      <main className="flex-1 max-w-7xl mx-auto w-full px-2.5 sm:px-6 pb-16 space-y-6">
+        
+        {/* 1. Sticky Segmented Category Navigation Bar */}
+        <div className="bg-white p-2 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-2 overflow-x-auto no-scrollbar sticky top-20 z-20 backdrop-blur-md bg-white/95">
           <button
-            onClick={() => setActiveFilter("all")}
-            className={`px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
-              activeFilter === "all"
-                ? "bg-slate-900 text-white shadow-xs"
-                : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-100"
+            onClick={() => setActiveCategory("all")}
+            className={`px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-1.5 cursor-pointer ${
+              activeCategory === "all"
+                ? "bg-blue-600 text-white shadow-xs"
+                : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
             }`}
           >
-            全部资源 ({CATEGORIES.reduce((acc, c) => acc + c.links.length, 0)})
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>全部 15+ 权威资源</span>
           </button>
+
           {CATEGORIES.map((cat) => {
-            const IconComp = cat.icon;
+            const Icon = cat.icon;
+            const isActive = activeCategory === cat.id;
             return (
               <button
                 key={cat.id}
-                onClick={() => setActiveFilter(cat.id)}
-                className={`px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-                  activeFilter === cat.id
-                    ? "bg-slate-900 text-white shadow-xs"
-                    : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-100"
+                onClick={() => setActiveCategory(cat.id)}
+                className={`px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-1.5 cursor-pointer ${
+                  isActive
+                    ? "bg-blue-600 text-white shadow-xs"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
                 }`}
               >
-                <IconComp className="w-3.5 h-3.5" />
+                <Icon className="w-3.5 h-3.5" />
                 <span>{cat.title}</span>
-                <span className="text-[11px] opacity-70">({cat.links.length})</span>
+                <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
+                  isActive ? "bg-white/20 text-white" : "bg-slate-100 text-slate-500"
+                }`}>
+                  {cat.links.length}
+                </span>
               </button>
             );
           })}
         </div>
-      </div>
 
-      {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl mx-auto w-full px-2.5 sm:px-6 space-y-12 pb-16">
-        {filtered.map((category) => {
-          const CategoryIcon = category.icon;
-          return (
-            <section key={category.id} className="space-y-4">
-              {/* Category Header */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-200">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl bg-blue-50 border border-blue-200 shadow-2xs flex items-center justify-center shrink-0">
-                    <CategoryIcon className="w-5 h-5 text-blue-600" />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <h2 className="text-lg sm:text-xl font-bold text-slate-900">{category.title}</h2>
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${category.levelColor}`}>
-                        {category.levelLabel}
-                      </span>
-                    </div>
-                    <p className="text-slate-500 text-xs mt-0.5">{category.subtitle}</p>
-                  </div>
-                </div>
-                <span className="text-xs text-slate-400 font-mono self-start sm:self-auto">
-                  共 {category.links.length} 个推荐资源
-                </span>
-              </div>
+        {/* 2. Search & Language Filter Bar */}
+        <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-xs font-bold text-slate-700">当前可用：</span>
+            <span className="px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-800 border border-blue-200 font-extrabold text-xs font-mono">
+              {totalLinksCount} 个推荐站点
+            </span>
+            <span className="text-[11px] text-slate-400">
+              · 均附带避坑提示与阅读建议
+            </span>
+          </div>
 
-              {/* Warning if any */}
-              {category.warning && (
-                <div className="p-3.5 rounded-2xl bg-amber-50/80 border border-amber-200 text-amber-900 text-xs flex items-start gap-2">
-                  <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-                  <span>{category.warning}</span>
-                </div>
-              )}
+          <div className="flex flex-col sm:flex-row items-center gap-3">
+            {/* Search query */}
+            <div className="w-full sm:w-64">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="搜索资源名称、关键词 (如 NCCN, JTO)..."
+                className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:bg-white focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20"
+              />
+            </div>
 
-              {/* Links Grid */}
-              <div className="grid sm:grid-cols-2 gap-4">
-                {category.links.map((link) => {
-                  const tipKey = `${category.id}-${link.name}`;
-                  const isTipOpen = expandedTips.has(tipKey);
+            {/* Language filter */}
+            <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl w-full sm:w-auto">
+              <button
+                onClick={() => setLangFilter("all")}
+                className={`flex-1 sm:flex-none px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  langFilter === "all" ? "bg-white text-slate-900 shadow-2xs" : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                全部
+              </button>
+              <button
+                onClick={() => setLangFilter("zh")}
+                className={`flex-1 sm:flex-none px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  langFilter === "zh" ? "bg-white text-slate-900 shadow-2xs" : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                中文支持
+              </button>
+              <button
+                onClick={() => setLangFilter("free")}
+                className={`flex-1 sm:flex-none px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  langFilter === "free" ? "bg-white text-slate-900 shadow-2xs" : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                免费开放
+              </button>
+            </div>
+          </div>
+        </div>
 
-                  return (
-                    <div
-                      key={link.name}
-                      className="bg-white rounded-3xl border border-slate-200/90 shadow-sm hover:shadow-md hover:border-blue-300 transition-all p-3.5 sm:p-5 md:p-6 flex flex-col justify-between group"
-                    >
-                      <div className="space-y-3">
-                        {/* Top: Name & Badges */}
-                        <div className="flex items-start justify-between gap-2">
-                          <h3 className="font-bold text-slate-900 text-sm group-hover:text-blue-600 transition-colors leading-snug">
-                            {link.name}
-                          </h3>
-                          <div className="flex items-center gap-1.5 shrink-0">
-                            <span className={`text-[10px] px-2 py-0.5 rounded-md font-medium ${
-                              link.free
-                                ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                                : "bg-slate-100 text-slate-600"
-                            }`}>
-                              {link.free ? "免费开放" : "部分收费"}
-                            </span>
-                            <span className="text-[10px] px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 font-medium">
-                              {link.lang === "zh" ? "中文" : link.lang === "en" ? "英文" : "中/英"}
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Description */}
-                        <p className="text-slate-600 text-xs leading-relaxed">
-                          {link.description}
-                        </p>
+        {/* 3. Segmented Category Cards Area */}
+        {filteredCategories.length === 0 ? (
+          <div className="py-20 text-center text-slate-400 text-sm bg-white rounded-3xl border border-slate-200 p-8 shadow-xs">
+            <Search className="w-8 h-8 text-slate-400 mx-auto mb-2" />
+            <div className="font-semibold text-slate-700 mb-1">未找到符合条件的医学资源</div>
+            <p className="text-xs text-slate-400">请尝试更换检索关键词或重置语言分类筛选。</p>
+          </div>
+        ) : (
+          <div className="space-y-8">
+            {filteredCategories.map((category) => {
+              const CategoryIcon = category.icon;
+              return (
+                <section key={category.id} className="space-y-4 animate-fade-in">
+                  {/* Category Header */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-200">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-2xl bg-blue-50 border border-blue-200 shadow-2xs flex items-center justify-center shrink-0">
+                        <CategoryIcon className="w-5 h-5 text-blue-600" />
                       </div>
+                      <div>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h2 className="text-base sm:text-lg font-bold text-slate-900">{category.title}</h2>
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${category.levelColor}`}>
+                            {category.levelLabel}
+                          </span>
+                        </div>
+                        <p className="text-slate-500 text-xs mt-0.5">{category.subtitle}</p>
+                      </div>
+                    </div>
+                    <span className="text-xs text-slate-400 font-mono self-start sm:self-auto">
+                      包含 {category.links.length} 个推荐资源
+                    </span>
+                  </div>
 
-                      {/* Bottom area: Tip dropdown & visit link */}
-                      <div className="mt-4 pt-3 border-t border-slate-100">
-                        {link.tip && (
-                          <div className="mb-2">
-                            <button
-                              onClick={() => toggleTip(tipKey)}
-                              className="text-[11px] text-teal-700 hover:text-teal-900 font-medium flex items-center gap-1 cursor-pointer transition-colors"
-                            >
-                              <Lightbulb className="w-3.5 h-3.5 text-teal-600" />
-                              <span>{isTipOpen ? "收起查阅提示" : "查看查阅建议"}</span>
-                              {isTipOpen ? (
-                                <ChevronUp className="w-3 h-3 text-teal-600" />
-                              ) : (
-                                <ChevronDown className="w-3 h-3 text-teal-600" />
-                              )}
-                            </button>
-                            {isTipOpen && (
-                              <div className="mt-2 p-2.5 rounded-xl bg-teal-50 border border-teal-200 text-slate-700 text-xs leading-relaxed animate-fade-in">
-                                {link.tip}
+                  {/* Warning if any */}
+                  {category.warning && (
+                    <div className="p-3.5 rounded-2xl bg-amber-50/80 border border-amber-200 text-amber-900 text-xs flex items-start gap-2">
+                      <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                      <span>{category.warning}</span>
+                    </div>
+                  )}
+
+                  {/* Links Grid */}
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    {category.links.map((link) => {
+                      const tipKey = `${category.id}-${link.name}`;
+                      const isTipOpen = expandedTips.has(tipKey);
+
+                      return (
+                        <div
+                          key={link.name}
+                          className="bg-white rounded-3xl border border-slate-200/90 shadow-sm hover:shadow-md hover:border-blue-300 transition-all p-4 sm:p-5 flex flex-col justify-between group"
+                        >
+                          <div className="space-y-3">
+                            {/* Top: Name & Badges */}
+                            <div className="flex items-start justify-between gap-2">
+                              <h3 className="font-bold text-slate-900 text-sm group-hover:text-blue-600 transition-colors leading-snug">
+                                {link.name}
+                              </h3>
+                              <div className="flex items-center gap-1.5 shrink-0">
+                                <span className={`text-[10px] px-2 py-0.5 rounded-md font-medium ${
+                                  link.free
+                                    ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                                    : "bg-slate-100 text-slate-600"
+                                }`}>
+                                  {link.free ? "免费开放" : "部分收费"}
+                                </span>
+                                <span className="text-[10px] px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 font-medium">
+                                  {link.lang === "zh" ? "中文" : link.lang === "en" ? "英文" : "中/英"}
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Description */}
+                            <p className="text-slate-600 text-xs leading-relaxed">
+                              {link.description}
+                            </p>
+                          </div>
+
+                          {/* Bottom area: Tip dropdown & visit link */}
+                          <div className="mt-4 pt-3 border-t border-slate-100">
+                            {link.tip && (
+                              <div className="mb-2">
+                                <button
+                                  type="button"
+                                  onClick={() => toggleTip(tipKey)}
+                                  className="text-[11px] text-teal-700 hover:text-teal-900 font-bold flex items-center gap-1 cursor-pointer transition-colors"
+                                >
+                                  <Lightbulb className="w-3.5 h-3.5 text-teal-600" />
+                                  <span>{isTipOpen ? "收起查阅提示" : "查看查阅建议"}</span>
+                                  {isTipOpen ? (
+                                    <ChevronUp className="w-3 h-3 text-teal-600" />
+                                  ) : (
+                                    <ChevronDown className="w-3 h-3 text-teal-600" />
+                                  )}
+                                </button>
+                                {isTipOpen && (
+                                  <div className="mt-2 p-2.5 rounded-xl bg-teal-50 border border-teal-200 text-slate-700 text-xs leading-relaxed animate-fade-in">
+                                    {link.tip}
+                                  </div>
+                                )}
                               </div>
                             )}
+
+                            {/* Visit link CTA */}
+                            <a
+                              href={link.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="mt-2 inline-flex items-center gap-1.5 text-xs text-slate-700 hover:text-blue-600 border border-slate-200 hover:border-blue-300 px-3.5 py-1.5 rounded-xl transition-all bg-white font-bold shadow-2xs group-hover:border-blue-200"
+                            >
+                              <span>前往访问官方主页</span>
+                              <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
+                            </a>
                           </div>
-                        )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </section>
+              );
+            })}
+          </div>
+        )}
 
-                        {/* Visit link CTA */}
-                        <a
-                          href={link.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="mt-2 inline-flex items-center gap-1.5 text-xs text-slate-600 hover:text-blue-600 border border-slate-200 hover:border-blue-300 px-3 py-1.5 rounded-xl transition-all bg-white font-medium shadow-2xs group-hover:border-blue-200"
-                        >
-                          <span>前往访问官方主页</span>
-                          <ExternalLink className="w-3 h-3 text-slate-400" />
-                        </a>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </section>
-          );
-        })}
-
-        {/* How to search tutorial */}
-        <section>
-          <div className="flex items-start gap-4 mb-6">
+        {/* 4. How to search tutorial section */}
+        <section className="bg-white rounded-3xl p-5 sm:p-7 border border-slate-200 shadow-sm space-y-6">
+          <div className="flex items-start gap-4">
             <div className="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-200 shadow-xs flex items-center justify-center shrink-0">
               <Search className="w-6 h-6 text-blue-600" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-slate-900 mb-1">如何在 PubMed 高效查找肺癌研究？</h2>
-              <p className="text-slate-600 text-sm">三步学会像医生一样检索权威文献，避开低质量信息的陷阱。</p>
+              <h2 className="text-lg sm:text-xl font-black text-slate-900 mb-1">如何在 PubMed / Europe PMC 高效查找肺癌研究？</h2>
+              <p className="text-slate-600 text-xs sm:text-sm">三步学会像肿瘤科专家一样检索权威文献，避开低质量信息的陷阱。</p>
             </div>
           </div>
+          
           <div className="grid md:grid-cols-3 gap-4">
             {[
               {
@@ -435,15 +547,15 @@ export default function ResourcesPage() {
               {
                 step: "03",
                 title: "不要孤立解读数字",
-                content: "把你找到的文献截图或链接带给你的医生，一起讨论，而不是自己对比数据。",
+                content: "把你找到的文献截图或链接带给你的医生，一起讨论，而不是自己盲目对照。",
                 example: ["「我看到这篇研究说复发率是X%」", "「这与我的情况类似吗？」", "「我需要额外注意什么？」"],
               },
             ].map((item) => (
-              <div key={item.step} className="rounded-2xl border border-gray-200 bg-white shadow-sm p-3.5 sm:p-5">
-                <div className="text-blue-600 font-bold text-3xl opacity-30 mb-3">{item.step}</div>
-                <h3 className="font-semibold text-slate-900 mb-2 text-sm">{item.title}</h3>
-                <p className="text-slate-500 text-xs mb-3 leading-relaxed">{item.content}</p>
-                <ul className="space-y-1">
+              <div key={item.step} className="rounded-2xl border border-slate-200 bg-slate-50/50 p-4 space-y-2">
+                <div className="text-blue-600 font-black text-2xl opacity-40">{item.step}</div>
+                <h3 className="font-bold text-slate-900 text-sm">{item.title}</h3>
+                <p className="text-slate-600 text-xs leading-relaxed">{item.content}</p>
+                <ul className="space-y-1 pt-1">
                   {item.example.map((e, i) => (
                     <li key={i} className="text-xs text-slate-600 flex items-start gap-1.5">
                       <span className="text-teal-600 mt-0.5">›</span>

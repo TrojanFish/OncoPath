@@ -1,18 +1,32 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { BookOpen, Search } from "lucide-react";
+import React, { useState, useEffect, useMemo } from "react";
+import { 
+  BookOpen, 
+  Search, 
+  Sparkles, 
+  Layers, 
+  ShieldCheck, 
+  ExternalLink,
+  Filter,
+  Microscope,
+  Flame,
+  Activity,
+  Award
+} from "lucide-react";
 import StudyCard, { StudyItem } from "@/components/StudyCard";
 import SubpageNavbar from "@/components/SubpageNavbar";
 import Footer from "@/components/Footer";
 
+export type StudyTopic = "all" | "surgery" | "targeted" | "immunotherapy" | "pathology" | "imaging";
 
 export default function StudiesPage() {
   const [studies, setStudies] = useState<StudyItem[]>([]);
   const [totalCount, setTotalCount] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedLevel, setSelectedLevel] = useState("all");
+  const [selectedTopic, setSelectedTopic] = useState<StudyTopic>("all");
+  const [selectedLevel, setSelectedLevel] = useState<string>("all");
 
   const loadStudies = async () => {
     setLoading(true);
@@ -33,6 +47,78 @@ export default function StudiesPage() {
   useEffect(() => {
     loadStudies();
   }, [searchQuery, selectedLevel]);
+
+  // Client-side topic segment filter
+  const filteredStudies = useMemo(() => {
+    if (selectedTopic === "all") return studies;
+
+    return studies.filter((study) => {
+      const factors = Array.isArray(study.relevantFactors) ? study.relevantFactors : [];
+      const titleUpper = (study.title || "").toUpperCase();
+      const concUpper = (study.keyConclusions || []).join(" ").toUpperCase();
+      const fullText = `${titleUpper} ${concUpper}`;
+
+      switch (selectedTopic) {
+        case "surgery":
+          return (
+            factors.includes("SURGERY_TYPE") ||
+            factors.includes("TUMOR_SIZE") ||
+            fullText.includes("SEGMENTECTOMY") ||
+            fullText.includes("LOBECTOMY") ||
+            fullText.includes("SUBLOBAR") ||
+            fullText.includes("JCOG0802") ||
+            fullText.includes("CALGB") ||
+            fullText.includes("JCOG1211") ||
+            fullText.includes("JCOG0804")
+          );
+        case "targeted":
+          return (
+            factors.includes("EGFR") ||
+            factors.includes("ALK") ||
+            fullText.includes("ADAURA") ||
+            fullText.includes("ALINA") ||
+            fullText.includes("OSIMERTINIB") ||
+            fullText.includes("ALECTINIB") ||
+            fullText.includes("TARGETED") ||
+            fullText.includes("TKI")
+          );
+        case "immunotherapy":
+          return (
+            factors.includes("PD-L1") ||
+            factors.includes("IMMUNOTHERAPY") ||
+            fullText.includes("IMPOWER010") ||
+            fullText.includes("KEYNOTE") ||
+            fullText.includes("ATEZOLIZUMAB") ||
+            fullText.includes("PEMBROLIZUMAB") ||
+            fullText.includes("IMMUNOTHERAPY")
+          );
+        case "pathology":
+          return (
+            factors.includes("STAS") ||
+            factors.includes("VPI") ||
+            factors.includes("IASLC_GRADE") ||
+            factors.includes("LVI") ||
+            factors.includes("MARGIN") ||
+            fullText.includes("STAS") ||
+            fullText.includes("PLEURAL INVASION") ||
+            fullText.includes("MICROPAPILLARY") ||
+            fullText.includes("SOLID SUBTYPE")
+          );
+        case "imaging":
+          return (
+            factors.includes("CTR") ||
+            factors.includes("VDT") ||
+            factors.includes("GGO") ||
+            fullText.includes("GGO") ||
+            fullText.includes("CTR") ||
+            fullText.includes("CONSOLIDATION") ||
+            fullText.includes("GROUND-GLASS")
+          );
+        default:
+          return true;
+      }
+    });
+  }, [studies, selectedTopic]);
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 selection:bg-blue-500 selection:text-white">
@@ -55,21 +141,55 @@ export default function StudiesPage() {
 
         {/* Unified Subtitle */}
         <p className="max-w-3xl mx-auto text-sm sm:text-base text-slate-600 leading-relaxed font-normal">
-          严格收录 <strong>Lancet、JCO、JTO</strong> 等顶级期刊发表的多中心 RCT 与 Meta 分析。为每一项临床分期、术后辅助治疗与随访决策提供<strong>可验证、可溯源的坚实数据支撑</strong>。
+          严格收录 <strong>Lancet、NEJM、JCO、JTO</strong> 等顶级期刊发表的多中心 RCT 与 Meta 分析。为每一项临床分期、术后辅助治疗与随访决策提供<strong>可验证、可溯源的坚实数据支撑</strong>。
         </p>
       </header>
 
       {/* Studies Main Area */}
-      <main className="flex-1 max-w-7xl mx-auto w-full px-2.5 sm:px-6 pb-16">
-
+      <main className="flex-1 max-w-7xl mx-auto w-full px-2.5 sm:px-6 pb-16 space-y-6">
         
-        {/* Search and Filters Bar */}
-        <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200 shadow-sm mb-6 sm:mb-8 flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
-          <div className="flex items-center gap-3">
-            <div className="text-xs font-medium text-slate-500">
-              当前展示 <span className="text-accent-blue font-bold text-sm">{studies.length}</span> 篇文献
-              {totalCount > 0 && <span className="text-slate-400"> (共收录 {totalCount} 篇)</span>}
-            </div>
+        {/* 1. Sticky Segmented Topic Navigation Bar (Capsule Stepper) */}
+        <div className="bg-white p-2 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-2 overflow-x-auto no-scrollbar sticky top-20 z-20 backdrop-blur-md bg-white/95">
+          {[
+            { id: "all", label: "全部核心文献", icon: BookOpen },
+            { id: "surgery", label: "手术与保肺切除 (JCOG/CALGB)", icon: Layers },
+            { id: "targeted", label: "靶向辅助阻断 (ADAURA/ALINA)", icon: Sparkles },
+            { id: "immunotherapy", label: "免疫长效巡逻 (IMpower/KEYNOTE)", icon: ShieldCheck },
+            { id: "pathology", label: "高危病理与预后 (STAS/VPI)", icon: Microscope },
+            { id: "imaging", label: "影像实性比与CTR (GGO)", icon: Activity },
+          ].map((tab) => {
+            const Icon = tab.icon;
+            const isActive = selectedTopic === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setSelectedTopic(tab.id as StudyTopic)}
+                className={`px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-1.5 cursor-pointer ${
+                  isActive
+                    ? "bg-blue-600 text-white shadow-xs"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                }`}
+              >
+                <Icon className="w-3.5 h-3.5" />
+                <span>{tab.label}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* 2. Search & Evidence Grade Filter Bar */}
+        <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-xs font-bold text-slate-700">当前呈现：</span>
+            <span className="px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-800 border border-blue-200 font-extrabold text-xs font-mono">
+              {filteredStudies.length} 篇文献
+            </span>
+            {totalCount > 0 && (
+              <span className="text-[11px] text-slate-400">
+                (文献库总收录 {totalCount} 篇 · 100% 原始 DOI 支持)
+              </span>
+            )}
           </div>
 
           <div className="flex flex-col sm:flex-row items-center gap-3">
@@ -92,15 +212,15 @@ export default function StudiesPage() {
                 className="w-full sm:w-auto px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-700 cursor-pointer focus:bg-white focus:border-blue-600 focus:outline-none"
               >
                 <option value="all">全部证据等级</option>
-                <option value="5">5星 · 最高证据 (RCT / Meta分析)</option>
-                <option value="4">4星 · 高级别 (前瞻性多中心)</option>
-                <option value="3">3星 · 中级别 (单中心临床研究)</option>
+                <option value="5">⭐⭐⭐⭐⭐ 5星 · 最高证据 (RCT / Meta分析)</option>
+                <option value="4">⭐⭐⭐⭐ 4星 · 高级别 (前瞻性多中心)</option>
+                <option value="3">⭐⭐⭐ 3星 · 中级别 (单中心临床研究)</option>
               </select>
             </div>
           </div>
         </div>
 
-        {/* Studies Grid */}
+        {/* 3. Studies Grid */}
         {loading ? (
           <div className="py-20 text-center text-slate-400 text-sm flex items-center justify-center gap-2">
             <svg className="animate-spin h-5 w-5 text-accent-blue" viewBox="0 0 24 24">
@@ -109,15 +229,15 @@ export default function StudiesPage() {
             </svg>
             <span>正在加载已收录文献...</span>
           </div>
-        ) : studies.length === 0 ? (
+        ) : filteredStudies.length === 0 ? (
           <div className="py-20 text-center text-slate-400 text-sm bg-white rounded-3xl border border-slate-200 p-8 shadow-xs">
             <Search className="w-8 h-8 text-slate-400 mx-auto mb-2" />
             <div className="font-semibold text-slate-700 mb-1">未找到符合条件的已收录研究</div>
-            <p className="text-xs text-slate-400">请尝试更换检索关键词或重置筛选条件。</p>
+            <p className="text-xs text-slate-400">请尝试更换检索关键词或重置主题筛选条件。</p>
           </div>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {studies.map((study) => (
+            {filteredStudies.map((study) => (
               <StudyCard key={study.id} study={study} />
             ))}
           </div>
