@@ -51,10 +51,13 @@ OncoPath 旨在打破医学前沿与患者理解之间的信息壁垒，坚持 *
 - 📝 **一键加入门诊提问小抄 (`Clinic Cheat-sheet Sync`)**：Wiki 词条疑问一键收藏，无缝汇入名医门诊便签卡与 A4 打印单。
 - 🖼️ **2x 视网膜无损微信科普长图生成器 (`WikiSharePosterModal`)**：一键生成全量不截断的高清微信海报长图。
 
-### 4. 🔒 安全防护与合规保障
-- 🛡️ **PIPL 个人隐私脱敏与被遗忘权**：内置 PII 脱敏引擎自动屏蔽身份证/手机号/住院号；提供一键彻底销毁与注销档案闭环。
-- 🔐 **PBKDF2 安全哈希与防篡改 Session Cookie**：客户端鉴权安全加固，防止凭证泄露。
-- ⚡ **生产级 Nginx 流式代理调优**：专为 Server-Sent Events 流式打字机关闭内部缓冲，配置 1 年静态资源强缓存与 IP 防刷限流。
+### 4. 🌐 国际化与简繁自适应 (Internationalization & Localization)
+- 🔀 **全站简繁中文自适应转换 (`LangSwitch`)**：针对海外及港澳台华人就医群体，内置轻量级纯前端简繁转换引擎，电脑端与移动端导航栏右侧常驻一键切换按钮；全局 DOM、AI 深度报告流、医学知识图谱自适应平滑转换，偏好持久化本地存储。
+
+### 5. 🔒 安全防护与合规保障
+- 🛡️ **Singapore PDPA / PIPL 隐私脱敏与被遗忘权**：内置 PII 脱敏引擎自动屏蔽身份证/手机号/住院号；提供一键彻底销毁与注销档案闭环。
+- 🔐 **PBKDF2 210,000 轮安全哈希与防篡改 Session Cookie**：客户端鉴权安全加固，防止凭证泄露。
+- ⚡ **生产级 Nginx 流式代理调优与 Cloudflare 适配**：支持 `CF-Connecting-IP` 真实访客还原，专为 Server-Sent Events 流式打字机关闭内部缓冲，配置 1 年静态资源强缓存与 IP 防刷限流。
 
 ---
 
@@ -158,6 +161,21 @@ curl http://localhost:38000/api/health
 ```
 
 现在在电脑或手机浏览器打开 **`http://<您的VPS公网IP>:38000`**，即可直接体验 OncoPath 全套生产系统！
+
+#### 7. 域名绑定与 Cloudflare 域名规则配置（38000 端口优雅回源）
+
+若您的域名托管在 Cloudflare 并开启了小黄云（Proxy 代理），通过配置**源站规则 (Origin Rules)**，外部访客即可直接访问标准 `https://你的域名.com`（无需在网址后暴露 `:38000` 端口号）：
+
+1. 登录 [Cloudflare 控制台](https://dash.cloudflare.com/)，点击进入您的域名；
+2. 在左侧菜单点击 **Rules（规则）** ➡️ **Origin Rules（源站规则）** ➡️ 点击 **Create Rule**；
+3. 按如下规则填写：
+   * **Rule name**：`OncoPath Port 38000`
+   * **Field**：选择 `Hostname`
+   * **Operator**：选择 `equals`
+   * **Value**：填您的域名（例如 `yourdomain.com` 或 `oncopath.yourdomain.com`）
+   * **Destination Port（目标端口）**：选择 **Rewrite to...** ➡️ 填入 **`38000`**
+4. 点击 **Deploy（部署）**。
+5. 等待 1~2 分钟规则生效后，直接在浏览器打开：👉 **`https://你的域名.com`** 即可直接体验 OncoPath 全套生产系统！
 
 ---
 

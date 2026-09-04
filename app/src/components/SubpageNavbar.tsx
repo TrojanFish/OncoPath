@@ -16,6 +16,7 @@ import {
   CreditCard
 } from "lucide-react";
 import UserAvatar from "@/components/UserAvatar";
+import LangSwitch from "@/components/LangSwitch";
 
 export function LogoMark() {
   return (
@@ -71,8 +72,11 @@ export default function SubpageNavbar() {
             ))}
           </div>
 
-          {/* Right Action Area: Avatar (Personal Center for Desktop & Mobile) + Mobile Hamburger */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          {/* Right Action Area: LangSwitch (Desktop & Mobile) + Avatar + Mobile Hamburger */}
+          <div className="flex items-center gap-1.5 sm:gap-2.5">
+            {/* LangSwitch: 简繁转换按钮 (电脑端与移动端导航栏右侧常驻) */}
+            <LangSwitch />
+
             {/* UserAvatar: Single Home for Login, Profile, Timeline, Report, and Logout */}
             <UserAvatar />
 
@@ -178,6 +182,14 @@ export default function SubpageNavbar() {
                     <ArrowRight className="w-3 h-3" />
                   </div>
                 </Link>
+              </div>
+
+              {/* Mobile Drawer Language Switch */}
+              <div className="pt-2">
+                <div className="flex items-center justify-between p-2.5 rounded-xl border border-slate-200/80 bg-slate-50/80">
+                  <span className="text-xs font-semibold text-slate-700">语言显示 / 語言切換</span>
+                  <LangSwitch showFullLabel={true} />
+                </div>
               </div>
             </div>
 

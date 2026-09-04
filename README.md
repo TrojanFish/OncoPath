@@ -51,10 +51,13 @@ OncoPath bridges the communication gap between complex oncology literature and p
 - 📝 **Clinic Questions Cheat-sheet Sync**: One-click bookmarking of Wiki questions that seamlessly populate the Doctor Consultation Card and printable checklists.
 - 🖼️ **2x Retina WeChat Poster Generator (`WikiSharePosterModal`)**: Standalone unconstrained offscreen rasterization engine producing full-length, unclipped shareable infographics.
 
-### 4. 🔒 Production Security & Compliance
-- 🛡️ **PIPL Privacy & Right-to-be-Forgotten**: Built-in PII sanitizer automatically masking ID numbers, phone numbers, and hospital IDs; one-click permanent profile destruction.
-- 🔐 **PBKDF2 Password Hashing & Anti-Tampering HMAC Session Cookies**: Secure authentication guarding against credential forgery.
-- ⚡ **Production-Tuned Nginx SSE Streaming**: Zero-buffering reverse proxy for smooth typewriter report streaming, 1-year immutable caching for static assets, and IP rate limiting.
+### 4. 🌐 Internationalization & Chinese Script Conversion
+- 🔀 **Global Simplified/Traditional Chinese Auto-Conversion (`LangSwitch`)**: Designed for international and overseas Chinese communities, powered by a lightweight client-side OpenCC engine with a permanent toggle button on the right side of the navigation bar for both desktop and mobile; full DOM, AI streaming reports, and knowledge graphs adapt seamlessly.
+
+### 5. 🔒 Production Security & Compliance
+- 🛡️ **Singapore PDPA / PIPL Privacy & Right-to-be-Forgotten**: Built-in PII sanitizer automatically masking ID numbers, phone numbers, and hospital IDs; one-click permanent profile destruction.
+- 🔐 **PBKDF2 210,000 Rounds Hashing & Anti-Tampering HMAC Session Cookies**: Secure authentication guarding against credential forgery.
+- ⚡ **Production-Tuned Nginx SSE Streaming & Cloudflare Proxy**: Restores client IP with `CF-Connecting-IP`, zero-buffering reverse proxy for smooth typewriter report streaming, 1-year immutable caching for static assets, and IP rate limiting.
 
 ---
 
@@ -149,6 +152,21 @@ curl http://localhost:38000/api/health
 ```
 
 Access **`http://<YOUR_VPS_PUBLIC_IP>:38000`** in your browser to experience OncoPath!
+ 
+#### 7. Domain Binding & Cloudflare Origin Rules Setup (Port 38000 Proxying)
+
+If your domain is hosted on Cloudflare with the Orange Cloud (Proxy) enabled, you can route standard `https://yourdomain.com` directly to internal port 38000 without exposing `:38000` in the browser URL:
+
+1. Log in to the [Cloudflare Dashboard](https://dash.cloudflare.com/) and select your domain;
+2. Navigate to **Rules** ➡️ **Origin Rules** ➡️ Click **Create Rule**;
+3. Configure the rule parameters:
+   * **Rule name**: `OncoPath Port 38000`
+   * **Field**: Select `Hostname`
+   * **Operator**: Select `equals`
+   * **Value**: Enter your domain (e.g., `yourdomain.com` or `oncopath.yourdomain.com`)
+   * **Destination Port**: Select **Rewrite to...** ➡️ Enter **`38000`**
+4. Click **Deploy**;
+5. Wait 1~2 minutes for the rule to propagate, then open 👉 **`https://yourdomain.com`** in any browser!
 
 ---
 

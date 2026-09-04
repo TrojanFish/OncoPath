@@ -24,6 +24,7 @@ import ReasoningTicker from "@/components/profile/ReasoningTicker";
 import { ONCOPATH_LOGO_DATA_URI } from "@/lib/brandLogo";
 import { exportElementToA4Pdf } from "@/lib/pdfExporter";
 import { showToast } from "@/components/common/Toast";
+import LangSwitch from "@/components/LangSwitch";
 
 
 export default function EvidenceReportPage() {
@@ -522,6 +523,7 @@ export default function EvidenceReportPage() {
           </div>
 
           <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+            <LangSwitch />
             <Link
               href="/knowledge"
               className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-teal-700 bg-teal-50/80 hover:bg-teal-100/90 border border-teal-200 transition-all shadow-2xs group whitespace-nowrap"
