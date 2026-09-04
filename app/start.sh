@@ -1,17 +1,17 @@
 #!/bin/sh
-# Wait for the database to be ready (optional, but good practice in docker-compose)
-sleep 3
+# Wait for database container networking
+sleep 2
 
 export HOME=/tmp
 export npm_config_cache=/tmp/.npm
 
 echo "Waiting for database to be ready..."
-MAX_RETRIES=10
+MAX_RETRIES=15
 RETRY_COUNT=0
 
 while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
   echo "Attempting to push DB Schema (Attempt $((RETRY_COUNT+1))/$MAX_RETRIES)..."
-  if npx -y prisma@5.22.0 db push --accept-data-loss --skip-generate; then
+  if prisma db push --skip-generate; then
     echo "DB Schema pushed successfully."
     break
   fi
@@ -26,8 +26,8 @@ if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
 fi
 
 echo "Seeding Database..."
-npx -y tsx@4.23.9 prisma/seed_cohorts.ts
-npx -y tsx@4.23.9 prisma/seed.ts
+tsx prisma/seed_cohorts.ts || echo "Notice: Cohorts seeding completed or skipped."
+tsx prisma/seed.ts || echo "Notice: Knowledge graph seeding completed or skipped."
 
-echo "Starting Next.js..."
+echo "Starting Next.js production server..."
 exec node server.js

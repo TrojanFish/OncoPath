@@ -11,7 +11,7 @@
 
   <p>
     <img src="https://img.shields.io/badge/Next.js-16.2.12-blue?style=flat-square&logo=next.js" alt="Next.js" />
-    <img src="https://img.shields.io/badge/Vitest-34_Unit_Tests_Passed-success?style=flat-square&logo=vitest" alt="Vitest" />
+    <img src="https://img.shields.io/badge/Vitest-62_Unit_Tests_Passed-success?style=flat-square&logo=vitest" alt="Vitest" />
     <img src="https://img.shields.io/badge/PostgreSQL-16-336791?style=flat-square&logo=postgresql" alt="PostgreSQL" />
     <img src="https://img.shields.io/badge/Nginx-SSE_Streaming-009639?style=flat-square&logo=nginx" alt="Nginx" />
     <img src="https://img.shields.io/badge/TailwindCSS-v4-38bdf8?style=flat-square&logo=tailwindcss" alt="TailwindCSS" />
@@ -67,10 +67,12 @@ cd app && npm test
 ```
 
 ```text
- ✓ src/__tests__/staging.test.ts        (18 tests) - AJCC/IASLC 第九版 TNM 与 mGGO 实性成分折算
- ✓ src/__tests__/vdtCalculator.test.ts  (6 tests)  - Schwartz 肿瘤体积倍增时间与生长演化
- ✓ src/__tests__/userAuth.test.ts       (5 tests)  - PBKDF2 密码哈希与 HMAC 会话防伪
- ✓ src/__tests__/tumorMarkers.test.ts   (5 tests)  - CEA/CYFRA21-1 生理代谢安全带判定
+ ✓ src/__tests__/staging.test.ts               (32 tests) - AJCC/IASLC 第九版 TNM 与 mGGO 实性成分折算
+ ✓ src/__tests__/vdtCalculator.test.ts         (8 tests)  - Schwartz 肿瘤体积倍增时间与生长演化
+ ✓ src/__tests__/securityAccessControl.test.ts (6 tests)  - 生产级数据防泄漏、IDOR 越权阻断与 Cookie 安全
+ ✓ src/__tests__/tumorMarkers.test.ts          (6 tests)  - CEA/CYFRA21-1 生理代谢安全带判定
+ ✓ src/__tests__/userAuth.test.ts              (5 tests)  - PBKDF2 210,000 轮哈希与 HMAC 防伪
+ ✓ src/__tests__/ddi.test.ts                   (5 tests)  - 靶向抗肿瘤药与日常药物相互作用排查
 
 === OncoPath Production Readiness & Guardrails Test ===
 ✅ [PASS] [PII Privacy Sanitization] - 身份脱敏
@@ -80,7 +82,7 @@ cd app && npm test
 ✅ [PASS] [Auth & Session Security (P1)] - 会话安全
 ✅ [PASS] [Deterministic Staging Engine (P0)] - 确定性分期引擎
 
-🎉 ALL 40 UNIT & GUARDRAIL TESTS PASSED! System is ready for production.
+🎉 ALL 68 UNIT & GUARDRAIL TESTS PASSED! System is production hardened.
 ```
 
 ---
@@ -190,7 +192,7 @@ docker image prune -f
 | **查看生产全量日志** | `docker compose -f docker-compose.prod.yml logs -f` | 实时追踪 Nginx、Next.js 与数据库状态 |
 | **仅查看 Web 应用日志**| `docker compose -f docker-compose.prod.yml logs -f app` | 查看遥测 JSON、API 耗时与报错 |
 | **执行数据库自动备份** | `bash scripts/backup-db.sh` | 自动导出 gzip 压缩快照，保留 30 天轮转 |
-| **运行自动化与红线测试**| `cd app && npm test` | 执行 34 项单元测试与 6 项安全红线验证 |
+| **运行自动化与红线测试**| `cd app && npm test` | 执行 62 项单元测试与 6 项安全红线验证 |
 | **重启生产集群** | `docker compose -f docker-compose.prod.yml restart` | 快速重启所有生产服务 |
 | **停止生产集群** | `docker compose -f docker-compose.prod.yml down` | 停止服务（数据卷 `pgdata_prod` 依然安全保留） |
 

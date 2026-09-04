@@ -1,9 +1,20 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { verifyPassword, generateUserToken, setAuthCookie } from '@/lib/userAuth';
+import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
 
 export async function POST(request: Request) {
   try {
+    // 1. Rate Limiting Protection (Max 10 login attempts per 15 minutes per IP)
+    const clientIp = getClientIp(request);
+    const rateLimit = checkRateLimit(`user_login_${clientIp}`, { intervalMs: 15 * 60 * 1000, maxRequests: 10 });
+    if (!rateLimit.success) {
+      return NextResponse.json(
+        { success: false, detail: "登录尝试次数过多，请稍候 15 分钟后再试。" },
+        { status: 429, headers: { 'Retry-After': '900' } }
+      );
+    }
+
     const body = await request.json();
     const { email, password, guestId } = body;
 
@@ -27,8 +38,11 @@ export async function POST(request: Request) {
     }
 
     // Cloud Migration: If user previously had local guest data before logging in, sync to this account
-    if (guestId && guestId !== user.id) {
+    // Validate guestId format strictly to prevent arbitrary account cross-binding
+    const isValidGuestId = typeof guestId === 'string' && /^guest-[a-z0-9_-]+$/i.test(guestId.trim());
+    if (isValidGuestId && guestId !== user.id) {
       try {
+        const cleanGuestId = guestId.trim();
         // Check if user already has an active profile
         const userHasProfile = await prisma.patientProfile.findFirst({
           where: { userId: user.id }
@@ -36,7 +50,7 @@ export async function POST(request: Request) {
 
         if (!userHasProfile) {
           await prisma.patientProfile.updateMany({
-            where: { userId: guestId },
+            where: { userId: cleanGuestId },
             data: { userId: user.id }
           });
         }
@@ -44,8 +58,8 @@ export async function POST(request: Request) {
         await prisma.timelineEvent.updateMany({
           where: {
             OR: [
-              { userId: guestId },
-              { profileId: guestId }
+              { userId: cleanGuestId },
+              { profileId: cleanGuestId }
             ]
           },
           data: {
@@ -70,7 +84,7 @@ export async function POST(request: Request) {
       }
     });
 
-    setAuthCookie(response, token);
+    setAuthCookie(response, token, request);
     return response;
   } catch (error: any) {
     console.error("Error during user login:", error);

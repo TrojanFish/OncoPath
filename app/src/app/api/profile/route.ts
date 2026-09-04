@@ -15,7 +15,8 @@ export async function POST(request: Request) {
   try {
     const data = await request.json();
     const authenticatedUserId = getAuthenticatedUserId(request);
-    const targetUserId = authenticatedUserId || data.userId || 'anonymous';
+    // If authenticated, always bind to authenticated user. If guest, require guest-* format or generate isolated guest id
+    const targetUserId = authenticatedUserId || (data.userId && typeof data.userId === 'string' && data.userId.startsWith('guest-') ? data.userId : 'guest-temp-' + Date.now());
     
     // Normalize boolean / string factors
     const isStas = data.stas === 'positive' || data.stas === true;
@@ -53,14 +54,9 @@ export async function POST(request: Request) {
     );
     let psychState = data.psychologicalState || (isStas || isVpi ? 'decision' : 'understanding');
 
-    // 1. Save or Update Patient Profile to Database (Idempotent Upsert)
+    // 1. Save or Update Patient Profile to Database (Strictly Isolated by targetUserId)
     const existingProfile = await prisma.patientProfile.findFirst({
-      where: {
-        OR: [
-          { userId: targetUserId },
-          ...(data.userId ? [{ userId: data.userId }] : [])
-        ]
-      },
+      where: { userId: targetUserId },
       orderBy: { createdAt: 'desc' }
     });
 
@@ -508,13 +504,26 @@ export async function PUT(request: Request) {
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const searchParamsUserId = searchParams.get('userId') || 'anonymous';
+  const searchParamsUserId = searchParams.get('userId');
   const authenticatedUserId = getAuthenticatedUserId(request);
   
+  // Security access control:
+  // If user is authenticated: query their authenticatedUserId (or their own guestId if provided)
+  // If unauthenticated: only allow query if searchParamsUserId is a valid guest format ('guest-...')
+  // Never fall back to global 'anonymous' to avoid leaking or colliding patient profiles across visitors
+  if (!authenticatedUserId && (!searchParamsUserId || !searchParamsUserId.startsWith('guest-'))) {
+    return NextResponse.json({ profile: null });
+  }
+
   try {
     const whereCondition = authenticatedUserId
-      ? { OR: [{ userId: authenticatedUserId }, { userId: searchParamsUserId }] }
-      : { userId: searchParamsUserId };
+      ? {
+          OR: [
+            { userId: authenticatedUserId },
+            ...(searchParamsUserId && searchParamsUserId.startsWith('guest-') ? [{ userId: searchParamsUserId }] : [])
+          ]
+        }
+      : { userId: searchParamsUserId! };
 
     const profile = await prisma.patientProfile.findFirst({
       where: whereCondition,
@@ -708,31 +717,27 @@ export async function DELETE(request: Request) {
   const { searchParams } = new URL(request.url);
   const searchParamsUserId = searchParams.get('userId') || searchParams.get('id');
   const authenticatedUserId = getAuthenticatedUserId(request);
-  const targetUserId = authenticatedUserId || searchParamsUserId;
 
-  if (!targetUserId) {
-    return NextResponse.json({ success: false, error: '缺少用户标识符' }, { status: 400 });
+  // Security access control against IDOR:
+  // If user is authenticated: only permit deleting records belonging to authenticatedUserId
+  // If user is not authenticated: only permit deleting if searchParamsUserId is a valid guest token ('guest-...')
+  if (!authenticatedUserId) {
+    if (!searchParamsUserId || typeof searchParamsUserId !== 'string' || !searchParamsUserId.startsWith('guest-')) {
+      return NextResponse.json({ success: false, error: '未授权：请先登录或提供合法的访客标识符' }, { status: 401 });
+    }
   }
 
+  const targetUserId = authenticatedUserId || searchParamsUserId!;
+
   try {
-    // Delete all records associated with this userId
+    // Delete only records strictly owned by targetUserId
     await prisma.patientProfile.deleteMany({
-      where: {
-        OR: [
-          { userId: targetUserId },
-          ...(searchParamsUserId ? [{ userId: searchParamsUserId }] : [])
-        ]
-      }
+      where: { userId: targetUserId }
     });
 
-    // Also delete associated timeline events
+    // Also delete associated timeline events strictly owned by targetUserId
     await prisma.timelineEvent.deleteMany({
-      where: {
-        OR: [
-          { userId: targetUserId },
-          ...(searchParamsUserId ? [{ userId: searchParamsUserId }] : [])
-        ]
-      }
+      where: { userId: targetUserId }
     });
 
     return NextResponse.json({

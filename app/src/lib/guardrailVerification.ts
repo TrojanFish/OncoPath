@@ -158,7 +158,7 @@ export function runAllGuardrailTests(): GuardrailTestResult[] {
   // Test Suite 5: P1 User Authentication & Session Security
   // ==========================================
   try {
-    const { generateUserToken, verifyUserToken, extractTokenFromRequest, AUTH_COOKIE_NAME } = require('./userAuth');
+    const { generateUserToken, verifyUserToken, extractTokenFromRequest, hashPassword, verifyPassword, AUTH_COOKIE_NAME } = require('./userAuth');
     const testUserId = 'test-patient-uuid-12345';
     const testEmail = 'patient@example.com';
     const validToken = generateUserToken(testUserId, testEmail);
@@ -184,16 +184,30 @@ export function runAllGuardrailTests(): GuardrailTestResult[] {
     const extractedFromCookie = extractTokenFromRequest(mockRequestWithCookie as any);
     const cookieExtractionPassed = extractedFromCookie === validToken;
 
-    const authSuitePassed = validTokenPassed && tamperedRejected && cookieExtractionPassed;
+    // Test PBKDF2 210,000 Iterations & Legacy 1,000 Fallback Compatibility
+    const modernHashObj = hashPassword('SecurePass2026!');
+    const isModernPrefixed = modernHashObj.hash.startsWith('pbkdf2$210000$');
+    const modernVerifyPassed = verifyPassword('SecurePass2026!', modernHashObj.hash, modernHashObj.salt);
+    const modernWrongRejected = !verifyPassword('WrongPass!', modernHashObj.hash, modernHashObj.salt);
+
+    // Legacy 1000 iterations simulation
+    const crypto = require('crypto');
+    const legacySalt = crypto.randomBytes(16).toString('hex');
+    const legacyRawHex = crypto.pbkdf2Sync('LegacyPass2026!', legacySalt, 1000, 64, 'sha512').toString('hex');
+    const legacyVerifyPassed = verifyPassword('LegacyPass2026!', legacyRawHex, legacySalt);
+
+    const pbkdf2Passed = isModernPrefixed && modernVerifyPassed && modernWrongRejected && legacyVerifyPassed;
+
+    const authSuitePassed = validTokenPassed && tamperedRejected && cookieExtractionPassed && pbkdf2Passed;
 
     results.push({
       suite: 'Auth & Session Security (P1)',
-      name: 'HMAC Signature, Cookie Extraction & Anti-Tampering',
+      name: 'HMAC Signature, Cookie Extraction, PBKDF2 210k & Anti-Tampering',
       passed: authSuitePassed,
       message: authSuitePassed
-        ? '会话 Token 生成、HttpOnly Cookie 提取及伪造/篡改拦截均 100% 验证通过'
-        : '认证安全校验失败，请核查签名算法与 Cookie 解析',
-      details: { validTokenPassed, tamperedRejected, cookieExtractionPassed }
+        ? '会话 Token 生成、HttpOnly Cookie 提取、PBKDF2 210,000 轮安全加密及伪造/篡改拦截均 100% 验证通过'
+        : '认证安全校验失败，请核查签名算法、PBKDF2 迭代轮数与 Cookie 解析',
+      details: { validTokenPassed, tamperedRejected, cookieExtractionPassed, pbkdf2Passed }
     });
   } catch (err: any) {
     results.push({

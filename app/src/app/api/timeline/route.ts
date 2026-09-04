@@ -14,6 +14,12 @@ export async function GET(request: Request) {
     const auth = getAuthenticatedUser(request);
     const authenticatedUserId = auth ? auth.userId : null;
 
+    // Security Guard: Prevent indiscriminate leaking of all patient timelines
+    // If not authenticated and no specific profileId is provided, MUST return empty array
+    if (!authenticatedUserId && !profileId) {
+      return NextResponse.json({ success: true, events: [], isDemo: false });
+    }
+
     // Build filter
     const where: any = {};
     if (category && category !== 'all') {
@@ -68,7 +74,6 @@ export async function POST(request: Request) {
     const auth = getAuthenticatedUser(request);
     const authenticatedUserId = auth ? auth.userId : null;
 
-
     const newEvent = await prisma.timelineEvent.create({
       data: {
         userId: authenticatedUserId,
@@ -102,7 +107,7 @@ export async function POST(request: Request) {
 export async function PUT(request: Request) {
   try {
     const body = await request.json();
-    const { id, eventDate, category, subType, hospital, title, summary, keyFindings, tags, riskStatus } = body;
+    const { id, eventDate, category, subType, hospital, title, summary, keyFindings, tags, riskStatus, profileId } = body;
 
     if (!id) {
       return NextResponse.json({ success: false, error: '缺少事件 ID' }, { status: 400 });
@@ -110,6 +115,29 @@ export async function PUT(request: Request) {
 
     if (!eventDate || !category || !title) {
       return NextResponse.json({ success: false, error: '请提供事件日期、类别和标题' }, { status: 400 });
+    }
+
+    const auth = getAuthenticatedUser(request);
+    const authenticatedUserId = auth ? auth.userId : null;
+
+    if (!authenticatedUserId && !profileId) {
+      return NextResponse.json({ success: false, error: '请先登录或提供档案标识后再修改事件' }, { status: 401 });
+    }
+
+    const existing = await prisma.timelineEvent.findUnique({ where: { id } });
+    if (!existing) {
+      return NextResponse.json({ success: false, error: '未找到指定事件' }, { status: 404 });
+    }
+
+    // Ownership check: If authenticated, must match userId. If unauthenticated, cannot modify authenticated records
+    if (authenticatedUserId && existing.userId && existing.userId !== authenticatedUserId) {
+      return NextResponse.json({ success: false, error: '无权修改其他用户的临床事件' }, { status: 403 });
+    }
+    if (!authenticatedUserId && existing.userId) {
+      return NextResponse.json({ success: false, error: '请先登录后再修改该事件' }, { status: 401 });
+    }
+    if (!authenticatedUserId && existing.profileId && profileId && existing.profileId !== profileId) {
+      return NextResponse.json({ success: false, error: '无权修改其他档案的临床事件' }, { status: 403 });
     }
 
     const updatedEvent = await prisma.timelineEvent.update({
@@ -147,9 +175,33 @@ export async function DELETE(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
+    const profileId = searchParams.get('profileId');
 
     if (!id) {
       return NextResponse.json({ success: false, error: '缺少事件 ID' }, { status: 400 });
+    }
+
+    const auth = getAuthenticatedUser(request);
+    const authenticatedUserId = auth ? auth.userId : null;
+
+    if (!authenticatedUserId && !profileId) {
+      return NextResponse.json({ success: false, error: '请先登录或提供档案标识后再删除事件' }, { status: 401 });
+    }
+
+    const existing = await prisma.timelineEvent.findUnique({ where: { id } });
+    if (!existing) {
+      return NextResponse.json({ success: false, error: '未找到指定事件' }, { status: 404 });
+    }
+
+    // Ownership check: If authenticated, must match userId. If unauthenticated, cannot delete authenticated records
+    if (authenticatedUserId && existing.userId && existing.userId !== authenticatedUserId) {
+      return NextResponse.json({ success: false, error: '无权删除其他用户的临床事件' }, { status: 403 });
+    }
+    if (!authenticatedUserId && existing.userId) {
+      return NextResponse.json({ success: false, error: '请先登录后再删除该事件' }, { status: 401 });
+    }
+    if (!authenticatedUserId && existing.profileId && profileId && existing.profileId !== profileId) {
+      return NextResponse.json({ success: false, error: '无权删除其他档案的临床事件' }, { status: 403 });
     }
 
     await prisma.timelineEvent.delete({

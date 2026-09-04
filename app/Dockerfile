@@ -23,7 +23,7 @@ ENV NEXT_TELEMETRY_DISABLED 1
 ENV HOME /tmp
 ENV npm_config_cache /tmp/.npm
 
-RUN apt-get update -y && apt-get install -y openssl
+RUN apt-get update -y && apt-get install -y openssl && npm install -g prisma@5.22.0 tsx@4.23.9 && npm cache clean --force
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 --home /home/nextjs nextjs
 RUN mkdir -p /tmp/.npm && chown -R nextjs:nodejs /tmp

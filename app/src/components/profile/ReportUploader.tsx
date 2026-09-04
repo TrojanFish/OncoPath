@@ -2525,6 +2525,17 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
       </div>
 
       <div className="space-y-4">
+        {/* PIPL Privacy Protection & Masking Hint Banner */}
+        <div className="p-3.5 bg-emerald-50/90 border border-emerald-200/90 rounded-2xl flex items-start gap-2.5 text-xs text-emerald-950 leading-relaxed shadow-xs">
+          <ShieldCheck className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
+          <div>
+            <strong className="font-bold text-emerald-950 block text-xs">个人数据安全与隐私保护指引 (PIPL Standard)：</strong>
+            <p className="text-[11px] text-emerald-800 mt-0.5 leading-relaxed">
+              系统已启用全自动 PII 身份脱敏过滤。建议您在拍照或上传检查单前，使用手机自带编辑涂抹功能遮挡报告单上方的<strong>真实姓名、住院号与身份证号码</strong>，仅保留影像与病理诊断结论。
+            </p>
+          </div>
+        </div>
+
         {/* Multi-Image Upload & Preview Area */}
         <div className="space-y-3">
           {images.length > 0 ? (

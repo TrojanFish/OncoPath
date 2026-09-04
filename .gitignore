@@ -15,3 +15,7 @@ env/
 .agents/
 *.jpeg
 *.jpg
+*.pem
+*.key
+*.crt
+!nginx/certs/README.md

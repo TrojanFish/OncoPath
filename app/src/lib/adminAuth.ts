@@ -1,14 +1,39 @@
 import crypto from 'crypto';
 import { NextResponse } from 'next/server';
+import { isCookieSecure } from './userAuth';
 
-const ADMIN_SECRET = process.env.ADMIN_SECRET || 'oncopath_evidence_admin_secret_key_2026';
+const DEFAULT_ADMIN_SECRET = 'oncopath_evidence_admin_secret_key_2026';
+const DEFAULT_ADMIN_PASSWORD = 'OncoPath2026!';
+
+const ADMIN_SECRET = process.env.ADMIN_SECRET || DEFAULT_ADMIN_SECRET;
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'OncoPath2026!';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || DEFAULT_ADMIN_PASSWORD;
 export const ADMIN_COOKIE_NAME = 'oncopath_admin_token';
 export const ADMIN_COOKIE_MAX_AGE = 7 * 24 * 60 * 60; // 7 days
 
+if (process.env.NODE_ENV === 'production' && ADMIN_SECRET === DEFAULT_ADMIN_SECRET) {
+  console.warn('⚠️ [SECURITY WARNING] OncoPath is running in production with default ADMIN_SECRET! Please configure ADMIN_SECRET in your production .env file.');
+}
+
 export function validateAdminCredentials(username: string, password: string): boolean {
-  return username.trim() === ADMIN_USERNAME && password.trim() === ADMIN_PASSWORD;
+  const cleanUser = username.trim();
+  const cleanPass = password.trim();
+
+  // In production, block login if still using default password to avoid hijacking
+  if (process.env.NODE_ENV === 'production' && ADMIN_PASSWORD === DEFAULT_ADMIN_PASSWORD) {
+    console.error('⛔ [SECURITY ERROR] Default ADMIN_PASSWORD is not allowed in production! Please set ADMIN_PASSWORD in your production .env file.');
+    return false;
+  }
+
+  const userBuf = Buffer.from(cleanUser);
+  const targetUserBuf = Buffer.from(ADMIN_USERNAME);
+  const passBuf = Buffer.from(cleanPass);
+  const targetPassBuf = Buffer.from(ADMIN_PASSWORD);
+
+  const userMatches = userBuf.length === targetUserBuf.length && crypto.timingSafeEqual(userBuf, targetUserBuf);
+  const passMatches = passBuf.length === targetPassBuf.length && crypto.timingSafeEqual(passBuf, targetPassBuf);
+
+  return userMatches && passMatches;
 }
 
 export function generateAdminToken(username: string): string {
@@ -75,13 +100,12 @@ export function verifyAdminRequest(request: Request): boolean {
   return verifyAdminToken(token);
 }
 
-export function setAdminCookie(response: NextResponse, token: string): NextResponse {
-  const isProd = process.env.NODE_ENV === 'production';
+export function setAdminCookie(response: NextResponse, token: string, request?: Request): NextResponse {
   response.cookies.set({
     name: ADMIN_COOKIE_NAME,
     value: token,
     httpOnly: true,
-    secure: isProd,
+    secure: isCookieSecure(request),
     sameSite: 'lax',
     path: '/',
     maxAge: ADMIN_COOKIE_MAX_AGE,
@@ -89,13 +113,12 @@ export function setAdminCookie(response: NextResponse, token: string): NextRespo
   return response;
 }
 
-export function clearAdminCookie(response: NextResponse): NextResponse {
-  const isProd = process.env.NODE_ENV === 'production';
+export function clearAdminCookie(response: NextResponse, request?: Request): NextResponse {
   response.cookies.set({
     name: ADMIN_COOKIE_NAME,
     value: '',
     httpOnly: true,
-    secure: isProd,
+    secure: isCookieSecure(request),
     sameSite: 'lax',
     path: '/',
     maxAge: 0,

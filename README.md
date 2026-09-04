@@ -11,7 +11,7 @@
 
   <p>
     <img src="https://img.shields.io/badge/Next.js-16.2.12-blue?style=flat-square&logo=next.js" alt="Next.js" />
-    <img src="https://img.shields.io/badge/Vitest-34_Unit_Tests_Passed-success?style=flat-square&logo=vitest" alt="Vitest" />
+    <img src="https://img.shields.io/badge/Vitest-62_Unit_Tests_Passed-success?style=flat-square&logo=vitest" alt="Vitest" />
     <img src="https://img.shields.io/badge/PostgreSQL-16-336791?style=flat-square&logo=postgresql" alt="PostgreSQL" />
     <img src="https://img.shields.io/badge/Nginx-SSE_Streaming-009639?style=flat-square&logo=nginx" alt="Nginx" />
     <img src="https://img.shields.io/badge/TailwindCSS-v4-38bdf8?style=flat-square&logo=tailwindcss" alt="TailwindCSS" />
@@ -179,7 +179,7 @@ docker image prune -f
 | **View full production logs** | `docker compose -f docker-compose.prod.yml logs -f` | Real-time monitoring across Nginx, App, and DB |
 | **View app telemetry logs** | `docker compose -f docker-compose.prod.yml logs -f app` | Inspect JSON telemetry, latencies, and errors |
 | **Run automated DB backup** | `bash scripts/backup-db.sh` | Exports compressed gzip snapshot, 30-day rotation |
-| **Run test & guardrail suite**| `cd app && npm test` | Executes 34 unit tests & 6 clinical guardrails |
+| **Run test & guardrail suite**| `cd app && npm test` | Executes 62 unit tests & 6 clinical guardrails |
 | **Restart cluster** | `docker compose -f docker-compose.prod.yml restart` | Quick container restart without rebuilding |
 | **Stop cluster** | `docker compose -f docker-compose.prod.yml down` | Stops services (preserves `pgdata_prod` volume) |
 
