@@ -30,13 +30,13 @@ export default function PrivacyPage() {
           <div className="space-y-4 border-b border-slate-100 pb-8">
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-teal-50 border border-teal-200 text-teal-800 text-xs font-bold">
               <ShieldCheck className="w-3.5 h-3.5 text-teal-700" />
-              <span>个人信息保护法 (PIPL) 合规认证</span>
+              <span>数据安全保护 (Singapore PDPA / PIPL) 合规认证</span>
             </div>
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 tracking-tight leading-tight">
               OncoPath 隐私政策与医疗数据安全说明
             </h1>
             <p className="text-sm sm:text-base text-slate-500 font-medium leading-relaxed">
-              OncoPath（以下简称“本平台”）深知个人健康医疗数据对您的极端重要性。我们严格遵守《中华人民共和国个人信息保护法》(PIPL)、《中华人民共和国数据安全法》以及国际医疗数据去标识化标准，承诺对您的病理、影像及就诊档案提供金融与医疗级的隐私安全保护。
+              OncoPath（以下简称“本平台”）深知个人健康医疗数据对您的极端重要性。我们严格遵守新加坡《个人数据保护法》(PDPA 2012)、《中华人民共和国个人信息保护法》(PIPL) 以及国际医疗数据去标识化标准（HIPAA Safe Harbor），服务器及数据节点设立于新加坡共和国，承诺对您的病理、影像及就诊档案提供金融与医疗级的隐私安全保护。
             </p>
           </div>
 
@@ -121,6 +121,17 @@ export default function PrivacyPage() {
                   您对自己的健康数据拥有完全的自主控制权。您可以随时前往【个人档案】页面点击<strong>“清空/注销档案”</strong>，一键彻底物理销毁本地与云端暂存的所有数据记录。
                 </p>
               </div>
+            </section>
+
+            {/* Section 6: Singapore Data Residency */}
+            <section className="space-y-3">
+              <h2 className="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2.5">
+                <span className="w-7 h-7 rounded-xl bg-blue-50 border border-blue-200 text-blue-700 flex items-center justify-center text-xs font-black shrink-0">6</span>
+                <span>数据驻留与跨国合规 (Singapore Data Residency)</span>
+              </h2>
+              <p>
+                本平台服务器与数据库部署于<strong>新加坡共和国（Singapore）</strong>。当您使用本平台时，数据在新加坡境内受保护的安全网络环境中存储与流转。我们遵循新加坡个人数据保护委员会（PDPC）指导规范，对敏感健康数据实施传输层与静止层端到端强加密（TLS 1.3 / PBKDF2 210,000 轮哈希加密）。
+              </p>
             </section>
 
           </div>

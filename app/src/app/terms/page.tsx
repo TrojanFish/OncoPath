@@ -96,6 +96,25 @@ export default function TermsPage() {
               </p>
             </section>
 
+            {/* Section 5: Governing Law & Limitation of Liability */}
+            <section className="space-y-3">
+              <h2 className="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2.5">
+                <span className="w-7 h-7 rounded-xl bg-blue-50 border border-blue-200 text-blue-700 flex items-center justify-center text-xs font-black shrink-0">5</span>
+                <span>适用法律、国际管辖权与责任限制（Governing Law & Liability）</span>
+              </h2>
+              <div className="bg-slate-50/80 p-4 sm:p-5 rounded-2xl border border-slate-200/80 space-y-2.5 text-xs sm:text-sm text-slate-700">
+                <p>
+                  <strong>1. 管辖法律（Governing Law）</strong>：本协议的订立、生效、履行、解释及争议解决均适用<strong>新加坡共和国法律（Laws of the Republic of Singapore）</strong>。如双方就本协议内容或其执行发生任何争议，双方应首先通过友好协商解决；协商不成的，任何一方均有权将争议提交新加坡具有管辖权的法院审理。
+                </p>
+                <p>
+                  <strong>2. 责任限制（Limitation of Liability）</strong>：在适用法律允许的最大限度内，OncoPath 开发团队及其运营方对任何因使用或无法使用本平台信息检索功能而导致的任何直接、间接、附带、特殊、惩罚性或衍生性损害（包括但不限于健康延误、医疗决策后果、预期收益损失等）不承担任何责任。
+                </p>
+                <p>
+                  <strong>3. 独立审查原则</strong>：本平台所有推荐均提供公开学术引文出处（PubMed PMID / DOI / 指南名称），用户及医疗专业人员应独立审查引文有效性，并依据线下临床实际情况作出独立医疗研判。
+                </p>
+              </div>
+            </section>
+
           </div>
 
           {/* Quick Sub-Links */}

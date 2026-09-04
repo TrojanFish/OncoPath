@@ -101,7 +101,7 @@ export default function ConsentModal({ onConsentAccepted }: ConsentModalProps) {
               </span>
               <div>
                 <strong className="text-slate-900 block mb-0.5 text-xs sm:text-sm">
-                  PIPL 隐私合规 · 100% 本地脱敏与被遗忘权保护
+                  数据安全合规 (PDPA/PIPL) · 100% 本地脱敏与被遗忘权保护
                 </strong>
                 <p className="text-[11px] sm:text-xs text-slate-500 leading-relaxed">
                   系统采用去标识化处理（匿名访客标识），提取数据仅用于当前图谱演算与报告呈现，支持随时一键彻底注销与销毁，绝不用作商业大模型微调或第三方共享。

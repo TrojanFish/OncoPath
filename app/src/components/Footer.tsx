@@ -26,7 +26,7 @@ export default function Footer({ maxWidth = "max-w-5xl", className = "" }: Foote
             </Link>
             <span>·</span>
             <Link href="/privacy" className="hover:text-blue-600 font-medium transition-colors">
-              隐私政策 (PIPL)
+              隐私政策 (PDPA/PIPL)
             </Link>
           </div>
         </div>
