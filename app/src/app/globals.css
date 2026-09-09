@@ -51,8 +51,13 @@
   }
 
   html {
-    scroll-behavior: smooth;
+    /* scrollbar-gutter: stable prevents the 15px viewport width jump on Windows
+       when switching between pages with/without a vertical scrollbar (the #1 cause
+       of the horizontal navbar jitter on page navigation) */
+    scrollbar-gutter: stable;
     overflow-x: hidden;
+    /* Remove global smooth scroll — it conflicts with Next.js App Router's
+       instant scroll-to-top on route change, causing vertical bounce flicker */
   }
 
   body {

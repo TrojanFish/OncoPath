@@ -62,9 +62,9 @@ export default function SubpageNavbar() {
                 key={link.href}
                 href={link.href}
                 prefetch={true}
-                className={`text-xs sm:text-sm font-semibold transition-colors ${
+                className={`text-xs sm:text-sm font-bold transition-colors ${
                   pathname === link.href
-                    ? "text-accent-blue font-bold"
+                    ? "text-accent-blue"
                     : "text-slate-600 hover:text-slate-900"
                 }`}
               >

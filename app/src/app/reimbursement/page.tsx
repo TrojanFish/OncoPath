@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState } from "react";
 import Link from "next/link";
@@ -30,7 +30,6 @@ import {
   Smartphone,
   Lightbulb
 } from "lucide-react";
-import SubpageNavbar from "@/components/SubpageNavbar";
 import Footer from "@/components/Footer";
 
 interface DrugPolicy {
@@ -460,7 +459,6 @@ export default function ReimbursementPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 selection:bg-blue-500 selection:text-white">
-      <SubpageNavbar />
 
       {/* Unified Hero Header (Aligned with /wiki, /studies, /resources, /knowledge) */}
       <header className="pt-28 md:pt-32 pb-8 px-2.5 sm:px-6 max-w-4xl mx-auto text-center space-y-4">

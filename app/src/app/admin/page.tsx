@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
@@ -22,7 +22,6 @@ import {
   CheckCircle2,
   Lock,
 } from "lucide-react";
-import SubpageNavbar from "@/components/SubpageNavbar";
 import { EvidenceRating } from "@/components/common/EvidenceRating";
 
 interface IngestedStudy {
@@ -411,7 +410,6 @@ export default function AdminPage() {
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col justify-between text-text-primary">
-        <SubpageNavbar />
 
         <div className="flex-1 flex items-center justify-center px-4 pt-28 pb-12">
           <div className="max-w-md w-full bg-white border border-gray-200 rounded-3xl p-8 sm:p-10 shadow-lg relative animate-fade-in">
@@ -493,7 +491,6 @@ export default function AdminPage() {
   // Authenticated Admin Dashboard View (Unified Light Medical Theme)
   return (
     <div className="min-h-screen bg-gray-50 text-text-primary pb-24">
-      <SubpageNavbar />
 
       {/* Toast Notification */}
       {toastMessage && (

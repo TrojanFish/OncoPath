@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
@@ -17,7 +17,6 @@ import {
   X, 
   ZoomIn 
 } from "lucide-react";
-import SubpageNavbar from "@/components/SubpageNavbar";
 import Footer from "@/components/Footer";
 
 export default function AboutPage() {

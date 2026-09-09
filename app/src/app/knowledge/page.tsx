@@ -1,8 +1,7 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import KnowledgeMapPreview from "@/components/KnowledgeMapPreview";
-import SubpageNavbar from "@/components/SubpageNavbar";
 import Footer from "@/components/Footer";
 import type { PatientProfile } from "@/lib/types";
 
@@ -47,7 +46,6 @@ export default function KnowledgePage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 selection:bg-blue-500 selection:text-white">
-      <SubpageNavbar />
 
       {/* Hero Header */}
       <header className="pt-28 md:pt-32 pb-8 px-2.5 sm:px-6 max-w-4xl mx-auto text-center space-y-4">

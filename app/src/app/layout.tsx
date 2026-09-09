@@ -53,6 +53,7 @@ import ToastContainer from "@/components/common/Toast";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import CommandPalette from "@/components/CommandPalette";
 import NavigationProgress from "@/components/common/NavigationProgress";
+import SubpageNavbar from "@/components/SubpageNavbar";
 
 export default function RootLayout({
   children,
@@ -73,6 +74,8 @@ export default function RootLayout({
       </head>
       <body className="antialiased">
         <NavigationProgress />
+        {/* SubpageNavbar 常驻根布局：确保路由切换时导航栏永不 Unmount/Remount，彻底消除白闪抖动 */}
+        <SubpageNavbar />
         <div className="min-h-screen flex flex-col pb-[calc(5rem+env(safe-area-inset-bottom,0px))] md:pb-0">
           {children}
         </div>

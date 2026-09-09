@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
@@ -16,7 +16,6 @@ import {
   Compass, 
   FileText 
 } from "lucide-react";
-import SubpageNavbar from "@/components/SubpageNavbar";
 import Footer from "@/components/Footer";
 import ConsentModal from "@/components/ConsentModal";
 import StatsBanner from "@/components/StatsBanner";
@@ -63,7 +62,6 @@ export default function HomePage() {
       <ConsentModal />
       
       {/* Unified Global Floating Island Navigation Bar */}
-      <SubpageNavbar />
 
       <main className="flex-1">
         {/* Act 1: Hero Section (2-Column Split Layout matching Telemedicine Demo) */}

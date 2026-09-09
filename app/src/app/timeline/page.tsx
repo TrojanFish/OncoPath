@@ -1,5 +1,4 @@
-import type { Metadata } from "next";
-import SubpageNavbar from "@/components/SubpageNavbar";
+﻿import type { Metadata } from "next";
 import ClinicalTimelineView from "@/components/timeline/ClinicalTimelineView";
 import Footer from "@/components/Footer";
 
@@ -12,7 +11,6 @@ export const metadata: Metadata = {
 export default function TimelinePage() {
   return (
     <div className="min-h-screen bg-slate-50/50 flex flex-col font-sans text-slate-900">
-      <SubpageNavbar />
 
       <main className="flex-1 max-w-7xl mx-auto w-full px-2.5 sm:px-6 pt-24 sm:pt-28 pb-16">
         {/* Master Timeline View Container */}

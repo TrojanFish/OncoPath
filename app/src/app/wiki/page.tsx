@@ -1,10 +1,9 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { BookOpen, User, Search } from "lucide-react";
-import SubpageNavbar from "@/components/SubpageNavbar";
 import Footer from "@/components/Footer";
 import EmptyState from "@/components/common/EmptyState";
 import { WIKI_TOPICS, WIKI_CATEGORIES, type WikiCategory, type RiskLevel } from "@/lib/wikiData";
@@ -191,7 +190,6 @@ export default function WikiPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col selection:bg-blue-500 selection:text-white relative">
-      <SubpageNavbar />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-2.5 sm:px-6 pt-28 md:pt-32 pb-16 space-y-6 sm:space-y-8">
 
