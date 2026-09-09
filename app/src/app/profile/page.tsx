@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function ProfilePage() {
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-slate-50 flex flex-col">
       <SubpageNavbar />
       <div className="flex-1 pt-24 sm:pt-28 md:pt-32 pb-8 sm:pb-12">
         <PatientDashboard />

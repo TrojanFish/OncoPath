@@ -403,7 +403,7 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
 
       // Prepare follow-up timeline node
       const prevHistory = Array.isArray(base.followUpHistory) ? [...base.followUpHistory] : [];
-      let finalHistory = Array.isArray(parsedData.followUpHistory) && parsedData.followUpHistory.length > 0
+      const finalHistory = Array.isArray(parsedData.followUpHistory) && parsedData.followUpHistory.length > 0
         ? [...parsedData.followUpHistory]
         : [...prevHistory];
 

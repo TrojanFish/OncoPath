@@ -9,7 +9,8 @@
     "lint": "eslint",
     "test:unit": "vitest run",
     "test:guardrails": "tsx scripts/test-guardrails.ts",
-    "test": "vitest run && tsx scripts/test-guardrails.ts"
+    "test:simulation": "tsx scripts/comprehensive-simulation.ts",
+    "test": "vitest run && tsx scripts/test-guardrails.ts && tsx scripts/comprehensive-simulation.ts"
   },
   "dependencies": {
     "@google/genai": "^2.16.0",

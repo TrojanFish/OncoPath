@@ -41,7 +41,7 @@ export function calculateVdtAndGrowth(history?: FollowUpRecord[] | null, current
   };
 
   // 1. Synthesize full longitudinal records array with current profile parameters if provided
-  let records: FollowUpRecord[] = history ? [...history] : [];
+  const records: FollowUpRecord[] = history ? [...history] : [];
   
   if (currentTumorSizeCm != null && !isNaN(Number(currentTumorSizeCm)) && Number(currentTumorSizeCm) > 0) {
     const currTumor = Number(currentTumorSizeCm);

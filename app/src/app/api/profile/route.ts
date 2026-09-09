@@ -42,8 +42,8 @@ export async function POST(request: Request) {
     if (!currentStage || currentStage === 'decision' || currentStage === 'pathology') {
       currentStage = (data.reportType === 'ct_imaging' && data.surgeryType === 'unknown') ? 'evaluation' : 'post_op';
     }
-    let riskLevel = data.riskLevel || ((isStas || isVpi || isLvi || stagingResult.nStage !== 'N0') ? 'moderate' : 'low');
-    let nextAction = data.nextAction || (
+    const riskLevel = data.riskLevel || ((isStas || isVpi || isLvi || stagingResult.nStage !== 'N0') ? 'moderate' : 'low');
+    const nextAction = data.nextAction || (
       data.reportType === 'ct_imaging'
         ? (riskLevel === 'high' 
             ? 'CT 显示结节具有浸润恶性征象，建议尽早至胸外科门诊进行多学科会诊评估手术。' 
@@ -52,7 +52,7 @@ export async function POST(request: Request) {
             ? '属于早期低复发风险组。遵医嘱术后 6 个月规律复查胸部 CT 即可，无需过度化疗。'
             : '存在局部病理高危因素，建议咨询肿瘤内科进一步评估辅助治疗方案。')
     );
-    let psychState = data.psychologicalState || (isStas || isVpi ? 'decision' : 'understanding');
+    const psychState = data.psychologicalState || (isStas || isVpi ? 'decision' : 'understanding');
 
     // 1. Save or Update Patient Profile to Database (Strictly Isolated by targetUserId)
     const existingProfile = await prisma.patientProfile.findFirst({
