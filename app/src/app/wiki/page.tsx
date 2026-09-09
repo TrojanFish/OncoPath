@@ -3,13 +3,13 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { BookOpen, User, Search, Layers, Sparkles } from "lucide-react";
+import { BookOpen, User, Search } from "lucide-react";
 import SubpageNavbar from "@/components/SubpageNavbar";
 import Footer from "@/components/Footer";
 import EmptyState from "@/components/common/EmptyState";
 import { WIKI_TOPICS, WIKI_CATEGORIES, type WikiCategory, type RiskLevel } from "@/lib/wikiData";
 
-import { WikiScenarioEntry } from "@/components/wiki/WikiScenarioEntry";
+import { WikiScenarioTabs } from "@/components/wiki/WikiScenarioTabs";
 import { WikiSearchBar } from "@/components/wiki/WikiSearchBar";
 import { WikiCompactCard } from "@/components/wiki/WikiCompactCard";
 import { WikiDetailDrawer } from "@/components/wiki/WikiDetailDrawer";
@@ -180,15 +180,14 @@ export default function WikiPage() {
     return false;
   }, [userProfile]);
 
-  // ── 场景入口点击 ──────────────────────────────────────────────────────────
-  const handleSelectScenario = (cat: WikiCategory) => {
+  // ── 情景/分类 Tab 切换（五位一体） ───────────────────────────────────────
+  const handleSelectCategory = useCallback((cat: WikiCategory | "all") => {
     setActiveCategory(cat);
     if (typeof window !== "undefined") {
-      window.history.replaceState(null, "", `#category-${cat}`);
+      if (cat === "all") window.history.replaceState(null, "", window.location.pathname);
+      else window.history.replaceState(null, "", `#category-${cat}`);
     }
-    const el = document.getElementById("wiki-topics-section");
-    if (el) el.scrollIntoView({ behavior: "smooth" });
-  };
+  }, []);
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col selection:bg-blue-500 selection:text-white relative">
@@ -228,53 +227,16 @@ export default function WikiPage() {
           )}
         </section>
 
-        {/* Act 1: 场景入口 */}
-        <section className="pt-1">
-          <WikiScenarioEntry activeCategory={activeCategory} onSelectCategory={handleSelectScenario} />
+        {/* ── 五位一体情景 Tab 导航（场景选择 + 分类过滤一体化） ─────────────── */}
+        <section className="pt-2">
+          <WikiScenarioTabs
+            activeCategory={activeCategory}
+            onSelectCategory={handleSelectCategory}
+          />
         </section>
 
-        {/* Act 2: 词条大盘 */}
-        <section id="wiki-topics-section" className="space-y-5 pt-6">
-
-          {/* 分类标签栏 */}
-          <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 pb-4">
-            <button
-              onClick={() => {
-                setActiveCategory("all");
-                if (typeof window !== "undefined") window.history.replaceState(null, "", window.location.pathname);
-              }}
-              className={`px-4 py-2 rounded-2xl text-xs sm:text-sm font-black transition-all cursor-pointer flex items-center gap-1.5 ${
-                activeCategory === "all"
-                  ? "bg-blue-600 text-white shadow-sm"
-                  : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-100"
-              }`}
-            >
-              <Layers className="w-3.5 h-3.5" />
-              <span>全部专区 ({WIKI_TOPICS.length})</span>
-            </button>
-
-            {(Object.keys(WIKI_CATEGORIES) as WikiCategory[]).map((catKey) => {
-              const cat   = WIKI_CATEGORIES[catKey];
-              const count = WIKI_TOPICS.filter((t) => t.category === catKey).length;
-              return (
-                <button
-                  key={catKey}
-                  onClick={() => {
-                    setActiveCategory(catKey);
-                    if (typeof window !== "undefined") window.history.replaceState(null, "", `#category-${catKey}`);
-                  }}
-                  className={`px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center gap-1.5 border ${
-                    activeCategory === catKey
-                      ? "bg-slate-900 text-white border-slate-900 shadow-sm"
-                      : "bg-white border-slate-200 text-slate-700 hover:bg-slate-100"
-                  }`}
-                >
-                  <span>{cat.label}</span>
-                  <span className="text-[11px] opacity-70 font-mono">({count})</span>
-                </button>
-              );
-            })}
-          </div>
+        {/* ── 词条指标大盘 ───────────────────────────────────────────────────── */}
+        <section id="wiki-topics-section" className="space-y-4">
 
           {/* 搜索 & 风险过滤栏 */}
           <WikiSearchBar
@@ -293,7 +255,7 @@ export default function WikiPage() {
             </div>
           )}
 
-          {/* ── 磁贴大盘（3 列 / 2 列 / 1 列 响应式网格）─────────────────────── */}
+          {/* 磁贴大盘（3 列 / 2 列 / 1 列 响应式网格） */}
           {filteredTopics.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
               {filteredTopics.map((topic) => (
@@ -330,13 +292,7 @@ export default function WikiPage() {
       {/* 悬浮侧边导航 */}
       <WikiFloatingNav
         activeCategory={activeCategory}
-        onSelectCategory={(cat) => {
-          setActiveCategory(cat);
-          if (typeof window !== "undefined") {
-            if (cat === "all") window.history.replaceState(null, "", window.location.pathname);
-            else window.history.replaceState(null, "", `#category-${cat}`);
-          }
-        }}
+        onSelectCategory={handleSelectCategory}
         totalTopics={WIKI_TOPICS.length}
         categoryCounts={categoryCounts}
         onOpenSearch={() => setIsSpotlightOpen(true)}
