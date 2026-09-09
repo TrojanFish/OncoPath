@@ -52,6 +52,7 @@ export const metadata: Metadata = {
 import ToastContainer from "@/components/common/Toast";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import CommandPalette from "@/components/CommandPalette";
+import NavigationProgress from "@/components/common/NavigationProgress";
 
 export default function RootLayout({
   children,
@@ -71,6 +72,7 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
       </head>
       <body className="antialiased">
+        <NavigationProgress />
         <div className="min-h-screen flex flex-col pb-[calc(5rem+env(safe-area-inset-bottom,0px))] md:pb-0">
           {children}
         </div>

@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { Languages } from "lucide-react";
-import * as OpenCC from "opencc-js";
 
 export type LangScript = "cn" | "tw";
 
@@ -12,8 +11,9 @@ const STORAGE_KEY = "oncopath_lang_script";
 let s2tConverter: ((text: string) => string) | null = null;
 let t2sConverter: ((text: string) => string) | null = null;
 
-function getConverters(): { s2t: (text: string) => string; t2s: (text: string) => string } {
+async function getConverters(): Promise<{ s2t: (text: string) => string; t2s: (text: string) => string }> {
   if (!s2tConverter || !t2sConverter) {
+    const OpenCC = await import("opencc-js");
     s2tConverter = OpenCC.Converter({ from: "cn", to: "hk" });
     t2sConverter = OpenCC.Converter({ from: "hk", to: "cn" });
   }
@@ -49,9 +49,9 @@ function convertTextNode(node: Node, converter: (text: string) => string) {
   }
 }
 
-export function convertDocument(targetScript: LangScript) {
+export async function convertDocument(targetScript: LangScript) {
   if (typeof window === "undefined" || typeof document === "undefined") return;
-  const { s2t, t2s } = getConverters();
+  const { s2t, t2s } = await getConverters();
   const converter = targetScript === "tw" ? s2t : t2s;
 
   // Convert page title
@@ -105,7 +105,7 @@ export default function LangSwitch({ className = "", showFullLabel = false }: La
     if (saved === "tw") {
       setLang("tw");
       const timer = setTimeout(() => {
-        convertDocument("tw");
+        void convertDocument("tw");
       }, 50);
       return () => clearTimeout(timer);
     }
@@ -117,56 +117,58 @@ export default function LangSwitch({ className = "", showFullLabel = false }: La
 
     // Convert upon route change
     const navTimer = setTimeout(() => {
-      convertDocument("tw");
+      void convertDocument("tw");
     }, 120);
 
-    const { s2t } = getConverters();
+    let observer: MutationObserver | null = null;
 
-    const observer = new MutationObserver((mutations) => {
-      if (isConvertingRef.current) return;
-      isConvertingRef.current = true;
+    void getConverters().then(({ s2t }) => {
+      observer = new MutationObserver((mutations) => {
+        if (isConvertingRef.current) return;
+        isConvertingRef.current = true;
 
-      try {
-        mutations.forEach((mutation) => {
-          mutation.addedNodes.forEach((node) => {
-            if (node.nodeType === Node.TEXT_NODE) {
-              convertTextNode(node, s2t);
-            } else if (node.nodeType === Node.ELEMENT_NODE) {
-              const el = node as Element;
-              if (!shouldIgnoreElement(el)) {
-                const walker = document.createTreeWalker(
-                  el,
-                  NodeFilter.SHOW_TEXT,
-                  {
-                    acceptNode(textNode) {
-                      let p = textNode.parentElement;
-                      while (p && p !== el) {
-                        if (shouldIgnoreElement(p)) return NodeFilter.FILTER_REJECT;
-                        p = p.parentElement;
+        try {
+          mutations.forEach((mutation) => {
+            mutation.addedNodes.forEach((node) => {
+              if (node.nodeType === Node.TEXT_NODE) {
+                convertTextNode(node, s2t);
+              } else if (node.nodeType === Node.ELEMENT_NODE) {
+                const el = node as Element;
+                if (!shouldIgnoreElement(el)) {
+                  const walker = document.createTreeWalker(
+                    el,
+                    NodeFilter.SHOW_TEXT,
+                    {
+                      acceptNode(textNode) {
+                        let p = textNode.parentElement;
+                        while (p && p !== el) {
+                          if (shouldIgnoreElement(p)) return NodeFilter.FILTER_REJECT;
+                          p = p.parentElement;
+                        }
+                        return NodeFilter.FILTER_ACCEPT;
                       }
-                      return NodeFilter.FILTER_ACCEPT;
                     }
+                  );
+                  let current = walker.nextNode();
+                  while (current) {
+                    convertTextNode(current, s2t);
+                    current = walker.nextNode();
                   }
-                );
-                let current = walker.nextNode();
-                while (current) {
-                  convertTextNode(current, s2t);
-                  current = walker.nextNode();
                 }
               }
-            }
+            });
           });
-        });
-      } finally {
-        isConvertingRef.current = false;
-      }
-    });
+        } finally {
+          isConvertingRef.current = false;
+        }
+      });
 
-    observer.observe(document.body, { childList: true, subtree: true });
+      observer.observe(document.body, { childList: true, subtree: true });
+    });
 
     return () => {
       clearTimeout(navTimer);
-      observer.disconnect();
+      if (observer) observer.disconnect();
     };
   }, [pathname, lang, mounted]);
 
@@ -174,7 +176,7 @@ export default function LangSwitch({ className = "", showFullLabel = false }: La
     const nextLang: LangScript = lang === "cn" ? "tw" : "cn";
     setLang(nextLang);
     localStorage.setItem(STORAGE_KEY, nextLang);
-    convertDocument(nextLang);
+    void convertDocument(nextLang);
 
     // Notify other components if needed
     window.dispatchEvent(

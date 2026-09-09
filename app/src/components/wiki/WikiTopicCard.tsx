@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import {
   Share2,
@@ -78,8 +78,43 @@ export function WikiTopicCard({ topic, isMatchedProfile, isHighlighted }: WikiTo
   const [showPosterModal, setShowPosterModal] = useState<boolean>(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [savedQuestions, setSavedQuestions] = useState<Record<string, boolean>>({});
+  const cardRef = useRef<HTMLDivElement>(null);
   const visualContainerRef = useRef<HTMLDivElement>(null);
   const [capturedVisualHtml, setCapturedVisualHtml] = useState<string | null>(null);
+  const [hasBeenInView, setHasBeenInView] = useState<boolean>(Boolean(isHighlighted));
+
+  // Viewport lazy loading: only mount heavy visual components when scrolled within 300px
+  useEffect(() => {
+    if (hasBeenInView || isHighlighted) {
+      if (!hasBeenInView) setHasBeenInView(true);
+      return;
+    }
+
+    if (typeof window === "undefined" || !("IntersectionObserver" in window)) {
+      setHasBeenInView(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setHasBeenInView(true);
+          observer.disconnect();
+        }
+      },
+      {
+        rootMargin: "300px 0px", // Pre-load 300px ahead of scroll
+      }
+    );
+
+    if (cardRef.current) {
+      observer.observe(cardRef.current);
+    }
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [hasBeenInView, isHighlighted]);
 
   const handleOpenPosterModal = () => {
     if (visualContainerRef.current) {
@@ -143,6 +178,7 @@ export function WikiTopicCard({ topic, isMatchedProfile, isHighlighted }: WikiTo
     <>
       <div
         id={`topic-${topic.id}`}
+        ref={cardRef}
         className={`bg-white rounded-3xl p-3.5 sm:p-6 border transition-all duration-500 flex flex-col justify-between relative ${
           isHighlighted
             ? "border-blue-500 ring-4 ring-blue-500/40 shadow-xl bg-gradient-to-b from-blue-50/40 via-white to-white scale-[1.01]"
@@ -243,7 +279,14 @@ export function WikiTopicCard({ topic, isMatchedProfile, isHighlighted }: WikiTo
               </div>
               {showVisual && (
                 <div className="animate-fade-in" ref={visualContainerRef}>
-                  <WikiVisualRenderer visualComponent={topic.visualComponent} />
+                  {hasBeenInView ? (
+                    <WikiVisualRenderer visualComponent={topic.visualComponent} />
+                  ) : (
+                    <div className="h-44 rounded-2xl bg-slate-900/90 border border-slate-800 animate-pulse flex items-center justify-center text-slate-500 text-xs gap-2 select-none">
+                      <div className="w-1.5 h-1.5 rounded-full bg-sky-500/80 animate-ping" />
+                      <span>医学微观图解准备中...</span>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
