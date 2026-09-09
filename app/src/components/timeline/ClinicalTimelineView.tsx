@@ -482,7 +482,7 @@ export default function ClinicalTimelineView() {
           <div className="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200/90 shadow-sm space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               {/* View Mode Toggle */}
-              <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-2xl w-fit">
+              <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-2xl w-full sm:w-fit overflow-x-auto no-scrollbar">
                 <button
                   onClick={() => setViewMode("timeline")}
                   className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${

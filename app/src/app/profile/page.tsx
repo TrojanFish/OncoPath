@@ -15,7 +15,7 @@ export default function ProfilePage() {
       <div className="flex-1 pt-24 sm:pt-28 md:pt-32 pb-8 sm:pb-12">
         <PatientDashboard />
       </div>
-      <Footer maxWidth="max-w-5xl" />
+      <Footer maxWidth="max-w-5xl xl:max-w-7xl" />
     </div>
   );
 }

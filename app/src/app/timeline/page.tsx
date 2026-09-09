@@ -14,12 +14,12 @@ export default function TimelinePage() {
     <div className="min-h-screen bg-slate-50/50 flex flex-col font-sans text-slate-900">
       <SubpageNavbar />
 
-      <main className="flex-1 max-w-5xl mx-auto w-full px-2.5 sm:px-6 pt-24 sm:pt-28 pb-16">
+      <main className="flex-1 max-w-7xl mx-auto w-full px-2.5 sm:px-6 pt-24 sm:pt-28 pb-16">
         {/* Master Timeline View Container */}
         <ClinicalTimelineView />
       </main>
 
-      <Footer maxWidth="max-w-5xl" />
+      <Footer maxWidth="max-w-7xl" />
     </div>
   );
 }
