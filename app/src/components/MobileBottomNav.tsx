@@ -10,6 +10,7 @@ import {
   CreditCard, 
   Activity 
 } from "lucide-react";
+import { triggerHaptic } from "@/lib/haptics";
 
 interface TabItem {
   label: string;
@@ -74,6 +75,7 @@ export default function MobileBottomNav() {
                 key={tab.href}
                 href={tab.href}
                 prefetch={true}
+                onClick={() => triggerHaptic("light")}
                 className={`relative flex flex-col items-center justify-center py-1 rounded-xl transition-all duration-200 active:scale-92 cursor-pointer select-none ${
                   isActive 
                     ? "text-blue-600 font-bold" 

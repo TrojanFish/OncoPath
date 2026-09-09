@@ -12,7 +12,8 @@ import {
   Search, 
   X, 
   Bookmark,
-  ClipboardList
+  ClipboardList,
+  Activity
 } from "lucide-react";
 import { TimelineCategory, TimelineEventItem, TIMELINE_CATEGORIES } from "@/lib/timelineTypes";
 import { DEFAULT_TIMELINE_EVENTS, deriveTimelineEventsFromProfile } from "@/lib/timelineData";
@@ -22,6 +23,8 @@ import TumorMarkerTrendChart from "./TumorMarkerTrendChart";
 import AddEventModal from "./AddEventModal";
 import DoctorSummaryModal from "./DoctorSummaryModal";
 import TimelineCategoryIcon from "./TimelineCategoryIcon";
+import ClinicalSynopsisTimeline from "./ClinicalSynopsisTimeline";
+import { triggerHaptic } from "@/lib/haptics";
 import EmptyState from "@/components/common/EmptyState";
 
 export default function ClinicalTimelineView() {
@@ -30,7 +33,7 @@ export default function ClinicalTimelineView() {
   const [activeCategory, setActiveCategory] = useState<TimelineCategory | "all">("all");
   const [selectedYear, setSelectedYear] = useState<string | "all">("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [viewMode, setViewMode] = useState<"timeline" | "charts">("timeline");
+  const [viewMode, setViewMode] = useState<"timeline" | "charts" | "synopsis">("timeline");
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingEvent, setEditingEvent] = useState<TimelineEventItem | null>(null);
   const [showSummaryModal, setShowSummaryModal] = useState(false);
@@ -492,15 +495,32 @@ export default function ClinicalTimelineView() {
                   <span>垂直时序生命线</span>
                 </button>
                 <button
-                  onClick={() => setViewMode("charts")}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                  onClick={() => {
+                    triggerHaptic("light");
+                    setViewMode("charts");
+                  }}
+                  className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
                     viewMode === "charts"
                       ? "bg-white text-slate-900 shadow-sm font-extrabold"
                       : "text-slate-600 hover:text-slate-900"
                   }`}
                 >
                   <TrendingUp className="w-3.5 h-3.5 text-slate-700" />
-                  <span>多维指标演变图谱</span>
+                  <span>散点走势图</span>
+                </button>
+                <button
+                  onClick={() => {
+                    triggerHaptic("medium");
+                    setViewMode("synopsis");
+                  }}
+                  className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                    viewMode === "synopsis"
+                      ? "bg-white text-blue-700 shadow-sm font-extrabold ring-1 ring-blue-200"
+                      : "text-slate-600 hover:text-slate-900"
+                  }`}
+                >
+                  <Activity className="w-3.5 h-3.5 text-blue-600" />
+                  <span>三轨全景看板 (Synopsis)</span>
                 </button>
               </div>
 
@@ -604,7 +624,12 @@ export default function ClinicalTimelineView() {
 
 
           {/* 4. Main Body Content Based on View Mode */}
-          {viewMode === "charts" ? (
+          {viewMode === "synopsis" ? (
+            /* Three-Track Synchronized Clinical Synopsis View */
+            <div className="space-y-6">
+              <ClinicalSynopsisTimeline events={events} />
+            </div>
+          ) : viewMode === "charts" ? (
             /* Trend Charts View */
             <div className="space-y-6">
               {/* Synchronized Crosshair Banner */}

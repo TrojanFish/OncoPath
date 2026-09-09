@@ -210,6 +210,9 @@ export function getWikiIconComponent(icon?: string, topicId?: string) {
     case "seed":
     case "🌱": 
       return { component: HeartPulse, color: "text-emerald-600" };
+    case "scan":
+    case "ct":
+      return { component: Scan, color: "text-indigo-600" };
     default: 
       return { component: Info, color: "text-slate-500" };
   }

@@ -51,6 +51,7 @@ export const metadata: Metadata = {
 
 import ToastContainer from "@/components/common/Toast";
 import MobileBottomNav from "@/components/MobileBottomNav";
+import CommandPalette from "@/components/CommandPalette";
 
 export default function RootLayout({
   children,
@@ -60,17 +61,21 @@ export default function RootLayout({
   return (
     <html lang="zh-CN">
       <head>
-
         <link rel="icon" href="/logo.png" type="image/png" sizes="any" />
         <link rel="apple-touch-icon" href="/logo.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-title" content="OncoPath" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="theme-color" content="#0284c7" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
       </head>
       <body className="antialiased">
         <div className="min-h-screen flex flex-col pb-16 md:pb-0">
           {children}
         </div>
         <MobileBottomNav />
+        <CommandPalette />
         <ToastContainer />
       </body>
     </html>

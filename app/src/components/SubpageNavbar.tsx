@@ -13,7 +13,8 @@ import {
   ArrowRight,
   Menu,
   X,
-  CreditCard
+  CreditCard,
+  Search
 } from "lucide-react";
 import UserAvatar from "@/components/UserAvatar";
 import LangSwitch from "@/components/LangSwitch";
@@ -74,6 +75,24 @@ export default function SubpageNavbar() {
 
           {/* Right Action Area: LangSwitch (Desktop & Mobile) + Avatar + Mobile Hamburger */}
           <div className="flex items-center gap-1.5 sm:gap-2.5">
+            {/* Spotlight Command Palette Trigger */}
+            <button
+              type="button"
+              onClick={() => {
+                if (typeof window !== "undefined") {
+                  window.dispatchEvent(new CustomEvent("open-command-palette"));
+                }
+              }}
+              className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 text-xs text-slate-500 hover:text-slate-900 bg-slate-100/90 hover:bg-slate-200/90 rounded-lg border border-slate-200 transition-all cursor-pointer select-none"
+              title="快速搜索靶向药、顶刊研究或随访工具 (⌘K)"
+            >
+              <Search className="w-3.5 h-3.5 text-slate-400" />
+              <span className="text-[11px] font-medium">搜索</span>
+              <kbd className="px-1 py-0.2 text-[10px] font-mono bg-white text-slate-500 rounded border border-slate-300 shadow-2xs">
+                ⌘K
+              </kbd>
+            </button>
+
             {/* LangSwitch: 简繁转换按钮 (电脑端与移动端导航栏右侧常驻) */}
             <LangSwitch />
 

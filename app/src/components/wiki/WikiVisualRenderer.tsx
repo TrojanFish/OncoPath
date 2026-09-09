@@ -36,6 +36,7 @@ import { BiopsySafetyVisual } from "./visuals/BiopsySafetyVisual";
 import { EbusTbnaVisual } from "./visuals/EbusTbnaVisual";
 import { TcmBoundaryVisual } from "./visuals/TcmBoundaryVisual";
 import { DdiCheckerVisual } from "./visuals/DdiCheckerVisual";
+import { CtWindowingVisual } from "./visuals/CtWindowingVisual";
 
 interface WikiVisualRendererProps {
   visualComponent?: string;
@@ -115,6 +116,8 @@ export function WikiVisualRenderer({ visualComponent }: WikiVisualRendererProps)
       return <TcmBoundaryVisual />;
     case "DdiCheckerVisual":
       return <DdiCheckerVisual />;
+    case "CtWindowingVisual":
+      return <CtWindowingVisual />;
     default:
       return null;
   }

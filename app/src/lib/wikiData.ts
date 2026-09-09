@@ -67,7 +67,8 @@ export interface WikiTopic {
     | "BiopsySafetyVisual"
     | "EbusTbnaVisual"
     | "TcmBoundaryVisual"
-    | "DdiCheckerVisual";
+    | "DdiCheckerVisual"
+    | "CtWindowingVisual";
 
 
   
@@ -451,6 +452,37 @@ export const WIKI_TOPICS: WikiTopic[] = [
     visualComponent: "GgoEvolutionSimulator",
     graphNodeId: "CTR",
     searchKeywords: ["GGO", "磨玻璃结节", "mobolijiejie", "pGGN", "mGGO", "实性成分比", "CTR", "荷包蛋征", "肺结节", "JCOG0804"],
+  },
+  {
+    id: "ct-windowing-caliper",
+    category: "nodule",
+    subcategory: "结节类型与演变",
+    title: "薄层 CT 窗位与实性浸润测量 (肺窗 vs 纵隔窗 / 电子卡尺)",
+    subtitle: "HRCT Lung & Mediastinal Windowing, Caliper Measurement & CTR",
+    icon: "scan",
+    riskLevel: "low",
+    priorityOrder: 45,
+    metaphor: "像调节显微镜的焦距与偏振滤镜：肺窗能够清晰看清所有像薄雾一样的磨玻璃光晕；切换到纵隔窗，薄雾瞬间消失，只有真正具有侵袭性的实性硬核显露无遗。",
+    clinicalTruth: "胸部 CT 具有窗宽 (WW) 与窗位 (WL) 的物理学区分：肺窗 (WL: -600, WW: 1500) 专门用于观察含气充分的细微肺组织与磨玻璃晕征；纵隔窗 (WL: 40, WW: 400) 则专门过滤低密度含气成分，仅显示真正浸润的实性软组织成分。在 AJCC 8th/9th 分期中，浸润大小严格以纵隔窗实性成分或病理浸润径为准，而非肺窗总径。",
+    tactics: [
+      "请放射科与主刀医生同步对照肺窗与纵隔窗测量实性成分最大径",
+      "若纵隔窗下病灶完全消失（实性成分为 0），属于极早期纯磨玻璃病变，切除后根治率近 100%",
+      "通过交互式电子卡尺实时推算实性浸润比 (CTR)，为 JCOG0802 亚肺叶切除决策提供严谨参考",
+    ],
+    reassurance: "纵隔窗下结节变小或看不见是正常的放射物理现象，说明大部分结节是由含气肺泡构成的惰性贴壁细胞，侵袭能力极弱，千万不要被肺窗的大尺寸吓倒！",
+    keyMetric: {
+      label: "纵隔窗消失成分病理对应",
+      value: "100% 对应伏壁贴壁生长 (原位惰性成分)",
+      source: "IASLC / WHO Classification of Thoracic Tumours 2021",
+    },
+    faq: [
+      {
+        question: "为什么我片子在肺窗看有 18mm，医生却说只有 5mm？",
+        answer: "因为医生看的是纵隔窗里的'实性浸润核心'（5mm）！外围的 13mm 是原位贴壁生长的纯磨玻璃，按照国际分期标准，您的精准 T 分期是 T1mi (微浸润)，而不是按 18mm 粗暴计算的 T1b。"
+      }
+    ],
+    visualComponent: "CtWindowingVisual",
+    searchKeywords: ["窗位", "窗宽", "肺窗", "纵隔窗", "卡尺", "测量", "HRCT", "HU", "CT值", "实性径", "浸润径"],
   },
   {
     id: "fleischner-guide",
