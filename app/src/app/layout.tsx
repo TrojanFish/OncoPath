@@ -71,7 +71,7 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
       </head>
       <body className="antialiased">
-        <div className="min-h-screen flex flex-col pb-16 md:pb-0">
+        <div className="min-h-screen flex flex-col pb-[calc(5rem+env(safe-area-inset-bottom,0px))] md:pb-0">
           {children}
         </div>
         <MobileBottomNav />

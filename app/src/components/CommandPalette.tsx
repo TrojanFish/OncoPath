@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { 
   Search, 
   Pill, 
@@ -11,7 +11,7 @@ import {
   ArrowRight, 
   X, 
   Command, 
-  Sparkles,
+  Sparkles, 
   ExternalLink
 } from "lucide-react";
 import { triggerHaptic } from "@/lib/haptics";
@@ -34,10 +34,13 @@ export default function CommandPalette() {
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const pathname = usePathname();
 
-  // Listen for ⌘K or Ctrl+K and custom event
+  // Listen for ⌘K or Ctrl+K and custom event (yields to WikiSpotlightSearchModal on /wiki)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (pathname.startsWith("/wiki")) return;
+
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
         setIsOpen((prev) => {
@@ -51,6 +54,7 @@ export default function CommandPalette() {
     };
 
     const handleCustomOpen = () => {
+      if (pathname.startsWith("/wiki")) return;
       triggerHaptic("medium");
       setIsOpen(true);
     };
@@ -61,7 +65,7 @@ export default function CommandPalette() {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("open-command-palette", handleCustomOpen);
     };
-  }, [isOpen]);
+  }, [isOpen, pathname]);
 
   // Focus input when opened
   useEffect(() => {

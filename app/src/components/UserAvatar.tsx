@@ -38,15 +38,15 @@ export default function UserAvatar() {
     return () => window.removeEventListener("auth-change", checkAuth);
   }, []);
 
-  // Click outside to close dropdown
+  // Click outside to close dropdown (pointerdown for zero mobile tap latency)
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = (event: PointerEvent | MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setShowDropdown(false);
       }
     };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("pointerdown", handleClickOutside);
+    return () => document.removeEventListener("pointerdown", handleClickOutside);
   }, []);
 
   const handleLogout = async () => {

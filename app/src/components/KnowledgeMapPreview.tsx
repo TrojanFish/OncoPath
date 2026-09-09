@@ -212,15 +212,17 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
 
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Left: Graph Canvas + Horizontal Legend Strip */}
-        <TransformWrapper
-          initialScale={1}
-          minScale={0.5}
-          maxScale={4}
-          centerOnInit={true}
-          wheel={{ step: 0.1 }}
-          doubleClick={{ disabled: true }}
-        >
-          <div className="lg:col-span-2 flex flex-col gap-3">
+        <div className="lg:col-span-2 flex flex-col gap-3">
+          <TransformWrapper
+            initialScale={1}
+            minScale={0.5}
+            maxScale={4}
+            centerOnInit={true}
+            wheel={{ step: 0.1 }}
+            doubleClick={{ disabled: true }}
+            panning={{ velocityDisabled: true }}
+          >
+            <div className="flex flex-col gap-3 w-full">
             {/* Graph Canvas Container */}
             <div
               className={`bg-white rounded-2xl shadow-sm border overflow-hidden relative flex flex-col max-h-[65vh] lg:max-h-[700px] transition-all duration-500 ${
@@ -316,6 +318,7 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
             </div>
           </div>
         </TransformWrapper>
+      </div>
 
         {/* Info Panel Container */}
         <div className="lg:static relative">

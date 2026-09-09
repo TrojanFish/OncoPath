@@ -25,7 +25,7 @@ export default function WikiPage() {
   const [highlightedTopicId, setHighlightedTopicId] = useState<string | null>(null);
   const [isSpotlightOpen, setIsSpotlightOpen] = useState(false);
 
-  // Ctrl+K / ⌘K 全局快捷键呼出 Spotlight 搜索
+  // Ctrl+K / ⌘K 全局快捷键与导航栏搜索按钮呼出 Spotlight 搜索
   useEffect(() => {
     const handleGlobalKey = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
@@ -33,8 +33,17 @@ export default function WikiPage() {
         setIsSpotlightOpen((prev) => !prev);
       }
     };
+
+    const handleCustomOpen = () => {
+      setIsSpotlightOpen(true);
+    };
+
     window.addEventListener("keydown", handleGlobalKey);
-    return () => window.removeEventListener("keydown", handleGlobalKey);
+    window.addEventListener("open-command-palette", handleCustomOpen);
+    return () => {
+      window.removeEventListener("keydown", handleGlobalKey);
+      window.removeEventListener("open-command-palette", handleCustomOpen);
+    };
   }, []);
 
   // Spotlight 词条穿梭跳转回调

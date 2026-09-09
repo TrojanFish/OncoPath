@@ -23,16 +23,36 @@ export type StudyTopic = "all" | "surgery" | "targeted" | "immunotherapy" | "pat
 export default function StudiesPage() {
   const [studies, setStudies] = useState<StudyItem[]>([]);
   const [totalCount, setTotalCount] = useState<number>(0);
-  const [loading, setLoading] = useState(true);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [isSearching, setIsSearching] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
   const [selectedTopic, setSelectedTopic] = useState<StudyTopic>("all");
   const [selectedLevel, setSelectedLevel] = useState<string>("all");
+  const activeRequestIdRef = React.useRef(0);
 
-  const loadStudies = async () => {
-    setLoading(true);
+  // 300ms debounce on search input to eliminate request storm and typing stutter
+  useEffect(() => {
+    if (searchQuery !== debouncedQuery) {
+      setIsSearching(true);
+    }
+    const timer = setTimeout(() => {
+      setDebouncedQuery(searchQuery);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery, debouncedQuery]);
+
+  const loadStudies = async (query: string, level: string, isFirst = false) => {
+    const requestId = ++activeRequestIdRef.current;
+    if (isFirst) setInitialLoading(true);
+    setIsSearching(true);
+
     try {
-      const res = await fetch(`/api/studies?q=${encodeURIComponent(searchQuery)}&level=${selectedLevel}`);
+      const res = await fetch(`/api/studies?q=${encodeURIComponent(query)}&level=${level}`);
       const data = await res.json();
+      // Drop response if a newer request was dispatched in the meantime (Race-condition protection)
+      if (requestId !== activeRequestIdRef.current) return;
+
       if (data.success) {
         setStudies(data.studies);
         setTotalCount(data.totalCount);
@@ -40,13 +60,16 @@ export default function StudiesPage() {
     } catch (e) {
       console.error("Failed to load studies", e);
     } finally {
-      setLoading(false);
+      if (requestId === activeRequestIdRef.current) {
+        setInitialLoading(false);
+        setIsSearching(false);
+      }
     }
   };
 
   useEffect(() => {
-    loadStudies();
-  }, [searchQuery, selectedLevel]);
+    loadStudies(debouncedQuery, selectedLevel, initialLoading);
+  }, [debouncedQuery, selectedLevel]);
 
   // Client-side topic segment filter
   const filteredStudies = useMemo(() => {
@@ -193,15 +216,20 @@ export default function StudiesPage() {
           </div>
 
           <div className="flex flex-col sm:flex-row items-center gap-3">
-            {/* Search query */}
-            <div className="w-full sm:w-72">
+            {/* Search query with debounced indicator */}
+            <div className="relative w-full sm:w-72">
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="搜索标题、期刊、因子 (如 STAS, ADAURA)..."
-                className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:bg-white focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20"
+                className="w-full pl-3.5 pr-8 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:bg-white focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20 transition-all"
               />
+              {isSearching && (
+                <div className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none">
+                  <div className="w-3.5 h-3.5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                </div>
+              )}
             </div>
 
             {/* Level filter */}
@@ -220,8 +248,8 @@ export default function StudiesPage() {
           </div>
         </div>
 
-        {/* 3. Studies Grid */}
-        {loading ? (
+        {/* 3. Studies Grid with Non-flickering Smooth Transition */}
+        {initialLoading ? (
           <div className="py-20 text-center text-slate-400 text-sm flex items-center justify-center gap-2">
             <svg className="animate-spin h-5 w-5 text-accent-blue" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
@@ -236,7 +264,7 @@ export default function StudiesPage() {
             <p className="text-xs text-slate-400">请尝试更换检索关键词或重置主题筛选条件。</p>
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className={`grid md:grid-cols-2 lg:grid-cols-3 gap-6 transition-opacity duration-200 ${isSearching ? "opacity-75" : "opacity-100"}`}>
             {filteredStudies.map((study) => (
               <StudyCard key={study.id} study={study} />
             ))}

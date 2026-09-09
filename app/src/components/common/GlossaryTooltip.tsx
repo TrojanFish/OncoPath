@@ -21,18 +21,18 @@ export function GlossaryTooltip({ term, children, className = "", showBadge = fa
     setTermData(data);
   }, [term]);
 
-  // Click outside to close
+  // Click outside to close (pointerdown handles both desktop clicks and mobile touches with zero tap delay)
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
+    function handleClickOutside(event: PointerEvent | MouseEvent) {
       if (popoverRef.current && !popoverRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
     }
     if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("pointerdown", handleClickOutside);
     }
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("pointerdown", handleClickOutside);
     };
   }, [isOpen]);
 

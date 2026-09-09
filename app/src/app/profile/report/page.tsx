@@ -39,8 +39,10 @@ export default function EvidenceReportPage() {
   const [isExportingDirectPdf, setIsExportingDirectPdf] = useState(false);
   const [exportedImageUrl, setExportedImageUrl] = useState<string | null>(null);
   const [cardDownloadSuccess, setCardDownloadSuccess] = useState(false);
+  const [userScrolledUp, setUserScrolledUp] = useState(false);
+  const lastScrollTimeRef = useRef(0);
+  const prevGeneratingRef = useRef(false);
 
-  
   const hasLoadedRef = useRef(false);
 
   const contentEndRef = useRef<HTMLDivElement>(null);
@@ -120,11 +122,51 @@ export default function EvidenceReportPage() {
   const checklistItems = extractChecklistItems(reportMarkdown);
 
 
+  // Detect whether the user has scrolled up to read earlier content during streaming
   useEffect(() => {
-    if (isGenerating && contentEndRef.current) {
-      contentEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    if (!isGenerating) {
+      setUserScrolledUp(false);
+      return;
     }
-  }, [reportMarkdown, isGenerating]);
+
+    const handleScroll = () => {
+      const scrollBottom = window.innerHeight + window.scrollY;
+      const docHeight = document.documentElement.scrollHeight;
+      // If user is more than 260px above bottom, pause forced auto-scroll
+      if (docHeight - scrollBottom > 260) {
+        setUserScrolledUp(true);
+      } else {
+        setUserScrolledUp(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [isGenerating]);
+
+  // High-performance throttled auto-scroll using requestAnimationFrame and instant auto behavior
+  useEffect(() => {
+    if (!isGenerating || userScrolledUp || !contentEndRef.current) return;
+
+    const now = performance.now();
+    // Throttle scroll updates to at most once per 120ms to prevent main thread animation queue lock
+    if (now - lastScrollTimeRef.current > 120) {
+      lastScrollTimeRef.current = now;
+      requestAnimationFrame(() => {
+        if (!userScrolledUp && contentEndRef.current) {
+          contentEndRef.current.scrollIntoView({ behavior: "auto", block: "end" });
+        }
+      });
+    }
+  }, [reportMarkdown, isGenerating, userScrolledUp]);
+
+  // When generation completes, perform a single smooth final adjustment if user is near bottom
+  useEffect(() => {
+    if (prevGeneratingRef.current && !isGenerating && !userScrolledUp && contentEndRef.current) {
+      contentEndRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
+    }
+    prevGeneratingRef.current = isGenerating;
+  }, [isGenerating, userScrolledUp]);
 
   // Core Function: Execute Stream Generation & Save to Both LocalStorage and Cloud Database
   const startGeneratingReport = async (currentProfile: PatientProfile) => {
@@ -1326,6 +1368,21 @@ export default function EvidenceReportPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Floating Re-snap to Bottom Button if user scrolled up during streaming */}
+      {isGenerating && userScrolledUp && (
+        <button
+          type="button"
+          onClick={() => {
+            setUserScrolledUp(false);
+            contentEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+          }}
+          className="fixed bottom-6 right-6 z-40 bg-blue-600/95 hover:bg-blue-700 text-white px-4 py-2.5 rounded-full shadow-2xl text-xs font-bold flex items-center gap-2 backdrop-blur-md animate-bounce cursor-pointer print:hidden transition-all border border-white/20"
+        >
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping shrink-0" />
+          <span>正在生成中 · 点击回到底部 ↓</span>
+        </button>
       )}
 
     </div>
