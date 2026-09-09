@@ -80,11 +80,34 @@
   background: #94a3b8;
 }
 
-/* WCAG 2.1 AA Accessible Focus Rings */
+/* WCAG Accessible Focus Rings: Never strip or override element border-radius */
 :focus-visible {
   outline: none;
+}
+
+/* Fallback accessible focus ring specifically for non-input interactive elements navigated by keyboard */
+button:focus-visible,
+a:focus-visible,
+[role="button"]:focus-visible,
+[tabindex]:focus-visible:not(input):not(textarea):not(select) {
+  outline: none;
   box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.38);
-  border-radius: inherit;
+}
+
+/* Ensure inputs, textareas, and selects maintain their own rounded border radius during focus */
+input,
+textarea,
+select {
+  outline: none;
+}
+
+input:focus,
+input:focus-visible,
+textarea:focus,
+textarea:focus-visible,
+select:focus,
+select:focus-visible {
+  outline: none;
 }
 
 /* Uplifting, Luminous Medical Buttons (消除暗沉压抑) */
