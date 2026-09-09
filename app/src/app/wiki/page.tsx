@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
-import { BookOpen, User, Search, Layers, Compass, Sparkles } from "lucide-react";
+import dynamic from "next/dynamic";
+import { BookOpen, User, Search, Layers, Sparkles } from "lucide-react";
 import SubpageNavbar from "@/components/SubpageNavbar";
 import Footer from "@/components/Footer";
 import EmptyState from "@/components/common/EmptyState";
@@ -10,79 +11,60 @@ import { WIKI_TOPICS, WIKI_CATEGORIES, type WikiCategory, type RiskLevel } from 
 
 import { WikiScenarioEntry } from "@/components/wiki/WikiScenarioEntry";
 import { WikiSearchBar } from "@/components/wiki/WikiSearchBar";
-import { WikiTopicCard } from "@/components/wiki/WikiTopicCard";
+import { WikiCompactCard } from "@/components/wiki/WikiCompactCard";
+import { WikiDetailDrawer } from "@/components/wiki/WikiDetailDrawer";
 import { WikiFloatingNav } from "@/components/wiki/WikiFloatingNav";
-import { WikiSpotlightSearchModal } from "@/components/wiki/WikiSpotlightSearchModal";
-import PostOpSymptomTriage from "@/components/profile/PostOpSymptomTriage";
+
 import type { PatientProfile } from "@/lib/types";
 
+// ── 次要重量级模块全部按需延迟加载 ──────────────────────────────────────────
+// WikiSpotlightSearchModal: 具名导出，需 .then 映射
+const WikiSpotlightSearchModal = dynamic(
+  () => import("@/components/wiki/WikiSpotlightSearchModal").then((m) => ({ default: m.WikiSpotlightSearchModal })),
+  { ssr: false, loading: () => null }
+);
+// PostOpSymptomTriage: 默认导出，直接加载
+const PostOpSymptomTriage = dynamic(
+  () => import("@/components/profile/PostOpSymptomTriage"),
+  { ssr: false, loading: () => null }
+);
 
 export default function WikiPage() {
-  const [activeCategory, setActiveCategory] = useState<WikiCategory | "all">("all");
-  const [searchQuery, setSearchQuery] = useState<string>("");
-  const [selectedRisk, setSelectedRisk] = useState<RiskLevel | "all">("all");
-  const [userProfile, setUserProfile] = useState<PatientProfile | null>(null);
-  const [highlightedTopicId, setHighlightedTopicId] = useState<string | null>(null);
-  const [isSpotlightOpen, setIsSpotlightOpen] = useState(false);
+  const [activeCategory,     setActiveCategory]     = useState<WikiCategory | "all">("all");
+  const [searchQuery,        setSearchQuery]         = useState<string>("");
+  const [selectedRisk,       setSelectedRisk]        = useState<RiskLevel | "all">("all");
+  const [userProfile,        setUserProfile]         = useState<PatientProfile | null>(null);
+  const [activeDrawerTopicId, setActiveDrawerTopicId] = useState<string | null>(null);
+  const [isSpotlightOpen,    setIsSpotlightOpen]     = useState(false);
 
-  // Ctrl+K / ⌘K 全局快捷键与导航栏搜索按钮呼出 Spotlight 搜索
-  useEffect(() => {
-    const handleGlobalKey = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
-        e.preventDefault();
-        setIsSpotlightOpen((prev) => !prev);
-      }
-    };
-
-    const handleCustomOpen = () => {
-      setIsSpotlightOpen(true);
-    };
-
-    window.addEventListener("keydown", handleGlobalKey);
-    window.addEventListener("open-command-palette", handleCustomOpen);
-    return () => {
-      window.removeEventListener("keydown", handleGlobalKey);
-      window.removeEventListener("open-command-palette", handleCustomOpen);
-    };
-  }, []);
-
-  // Spotlight 词条穿梭跳转回调
-  const handleSelectTopicFromSpotlight = (topicId: string, category: WikiCategory) => {
-    // 切换分类，确保目标卡片在 DOM 中渲染
-    setActiveCategory(category);
-    setSearchQuery("");
-    setSelectedRisk("all");
-    setHighlightedTopicId(topicId);
-
-    // URL hash 同步（Deep Link）
-    if (typeof window !== "undefined") {
-      window.history.replaceState(null, "", `#topic-${topicId}`);
-    }
-
-    // 短延迟后平滑滚动，等待 DOM 渲染
-    setTimeout(() => {
-      const el = document.getElementById(`topic-${topicId}`);
-      if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
-    }, 120);
-
-    // 4.5 秒后自动消除高光
-    setTimeout(() => setHighlightedTopicId(null), 4500);
-  };
-
-  // Load patient profile from localStorage if present
+  // ── 加载用户档案 ─────────────────────────────────────────────────────────
   useEffect(() => {
     try {
-      const savedProfile = localStorage.getItem("oncopath_profile") || localStorage.getItem("patient_profile");
-      if (savedProfile) {
-        setUserProfile(JSON.parse(savedProfile));
-      }
+      const saved = localStorage.getItem("oncopath_profile") || localStorage.getItem("patient_profile");
+      if (saved) setUserProfile(JSON.parse(saved));
     } catch (e) {
       console.error("Failed to load local profile:", e);
     }
   }, []);
 
+  // ── Ctrl+K 全局快捷键 ─────────────────────────────────────────────────────
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setIsSpotlightOpen((prev) => !prev);
+      }
+    };
+    const handleCustomOpen = () => setIsSpotlightOpen(true);
+    window.addEventListener("keydown", handleKey);
+    window.addEventListener("open-command-palette", handleCustomOpen);
+    return () => {
+      window.removeEventListener("keydown", handleKey);
+      window.removeEventListener("open-command-palette", handleCustomOpen);
+    };
+  }, []);
 
-  // Deep Linking Handler: Listen to URL Search Params & Hash for direct navigation (#topic-stas or ?category=pathology)
+  // ── Deep Linking：URL hash / search params 直达抽屉 ──────────────────────
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -90,18 +72,16 @@ export default function WikiPage() {
       const hash = window.location.hash;
       const urlParams = new URLSearchParams(window.location.search);
 
-      // 1. Check category param or hash (e.g. ?category=nodule or #category-nodule)
+      // 1. 分类过滤
       const catParam = urlParams.get("category");
       if (catParam && (catParam in WIKI_CATEGORIES || catParam === "all")) {
         setActiveCategory(catParam as WikiCategory | "all");
       } else if (hash.startsWith("#category-")) {
         const cat = hash.replace("#category-", "") as WikiCategory;
-        if (cat in WIKI_CATEGORIES) {
-          setActiveCategory(cat);
-        }
+        if (cat in WIKI_CATEGORIES) setActiveCategory(cat);
       }
 
-      // 2. Check topic param or hash (e.g. ?topic=stas, #topic-stas, or #stas)
+      // 2. 词条深链接 → 直接打开抽屉
       const topicParam = urlParams.get("topic");
       let targetTopicId = "";
       if (topicParam) {
@@ -116,26 +96,13 @@ export default function WikiPage() {
       }
 
       if (targetTopicId) {
-        const targetTopic = WIKI_TOPICS.find((t) => t.id.toLowerCase() === targetTopicId);
-        if (targetTopic) {
-          // Ensure topic is not hidden by current filters
-          setActiveCategory(targetTopic.category);
+        const target = WIKI_TOPICS.find((t) => t.id.toLowerCase() === targetTopicId);
+        if (target) {
+          setActiveCategory(target.category);
           setSelectedRisk("all");
           setSearchQuery("");
-          setHighlightedTopicId(targetTopic.id);
-
-          // Smooth scroll to target card with slight delay for DOM mount
-          setTimeout(() => {
-            const el = document.getElementById(`topic-${targetTopic.id}`);
-            if (el) {
-              el.scrollIntoView({ behavior: "smooth", block: "center" });
-            }
-          }, 200);
-
-          // Dismiss breathing highlight after 4.5 seconds
-          setTimeout(() => {
-            setHighlightedTopicId(null);
-          }, 4500);
+          // 短延迟确保分类过滤生效后再打开抽屉
+          setTimeout(() => setActiveDrawerTopicId(target.id), 80);
         }
       }
     };
@@ -145,7 +112,30 @@ export default function WikiPage() {
     return () => window.removeEventListener("hashchange", handleHashAndParams);
   }, []);
 
-  // Category item counts for tabs and floating nav
+  // ── 打开/关闭抽屉，并同步 URL hash ────────────────────────────────────────
+  const openDrawer = useCallback((topicId: string) => {
+    setActiveDrawerTopicId(topicId);
+    if (typeof window !== "undefined") {
+      window.history.replaceState(null, "", `#topic-${topicId}`);
+    }
+  }, []);
+
+  const closeDrawer = useCallback(() => {
+    setActiveDrawerTopicId(null);
+    if (typeof window !== "undefined") {
+      window.history.replaceState(null, "", window.location.pathname + window.location.search);
+    }
+  }, []);
+
+  // ── Spotlight 搜索选中词条 → 滑出抽屉 ────────────────────────────────────
+  const handleSelectTopicFromSpotlight = useCallback((topicId: string, category: WikiCategory) => {
+    setActiveCategory(category);
+    setSearchQuery("");
+    setSelectedRisk("all");
+    openDrawer(topicId);
+  }, [openDrawer]);
+
+  // ── 分类计数 ──────────────────────────────────────────────────────────────
   const categoryCounts = useMemo(() => {
     return (Object.keys(WIKI_CATEGORIES) as WikiCategory[]).reduce((acc, key) => {
       acc[key] = WIKI_TOPICS.filter((t) => t.category === key).length;
@@ -153,21 +143,11 @@ export default function WikiPage() {
     }, {} as Record<WikiCategory, number>);
   }, []);
 
-  // Filter & Sort topics by Risk Priority (High > Moderate > Low > Safe)
+  // ── 过滤排序 ──────────────────────────────────────────────────────────────
   const filteredTopics = useMemo(() => {
     let list = [...WIKI_TOPICS];
-
-    // 1. Filter by category
-    if (activeCategory !== "all") {
-      list = list.filter((t) => t.category === activeCategory);
-    }
-
-    // 2. Filter by risk level
-    if (selectedRisk !== "all") {
-      list = list.filter((t) => t.riskLevel === selectedRisk);
-    }
-
-    // 3. Filter by search query (keywords + title + metaphor + clinicalTruth)
+    if (activeCategory !== "all") list = list.filter((t) => t.category === activeCategory);
+    if (selectedRisk !== "all") list = list.filter((t) => t.riskLevel === selectedRisk);
     if (searchQuery.trim()) {
       const q = searchQuery.trim().toLowerCase();
       list = list.filter(
@@ -179,43 +159,43 @@ export default function WikiPage() {
           t.searchKeywords.some((kw) => kw.toLowerCase().includes(q))
       );
     }
-
-    // 4. Sort strictly by priorityOrder descending (High-risk 100+ first)
     return list.sort((a, b) => b.priorityOrder - a.priorityOrder);
   }, [activeCategory, selectedRisk, searchQuery]);
 
-  // Handler for scenario entrance click
+  // ── 当前打开的词条对象 ────────────────────────────────────────────────────
+  const activeDrawerTopic = useMemo(
+    () => (activeDrawerTopicId ? WIKI_TOPICS.find((t) => t.id === activeDrawerTopicId) ?? null : null),
+    [activeDrawerTopicId]
+  );
+
+  // ── 个人档案匹配 ──────────────────────────────────────────────────────────
+  const isTopicMatchedToProfile = useCallback((topicId: string) => {
+    if (!userProfile) return false;
+    if (topicId === "stas"          && userProfile.stas === "positive") return true;
+    if (topicId === "vpi"           && userProfile.vpi === "positive") return true;
+    if (topicId === "lvi"           && userProfile.lvi === "positive") return true;
+    if (topicId === "ggo-evolution" && (userProfile.ctr > 0 || userProfile.morphology === "mixed_ggo")) return true;
+    if (topicId === "egfr-targeted" && userProfile.egfr === "positive") return true;
+    if (topicId === "iaslc-grade3"  && userProfile.iaslcGrade === "3") return true;
+    return false;
+  }, [userProfile]);
+
+  // ── 场景入口点击 ──────────────────────────────────────────────────────────
   const handleSelectScenario = (cat: WikiCategory) => {
     setActiveCategory(cat);
     if (typeof window !== "undefined") {
       window.history.replaceState(null, "", `#category-${cat}`);
     }
-    // Smooth scroll down to topic list
     const el = document.getElementById("wiki-topics-section");
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth" });
-    }
-  };
-
-  // Profile matching helper
-  const isTopicMatchedToProfile = (topicId: string) => {
-    if (!userProfile) return false;
-    if (topicId === "stas" && userProfile.stas === "positive") return true;
-    if (topicId === "vpi" && userProfile.vpi === "positive") return true;
-    if (topicId === "lvi" && userProfile.lvi === "positive") return true;
-    if (topicId === "ggo-evolution" && (userProfile.ctr > 0 || userProfile.morphology === "mixed_ggo")) return true;
-    if (topicId === "egfr-targeted" && userProfile.egfr === "positive") return true;
-    if (topicId === "iaslc-grade3" && userProfile.iaslcGrade === "3") return true;
-    return false;
+    if (el) el.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col selection:bg-blue-500 selection:text-white relative">
-      {/* Top Floating Island Navigation Bar */}
       <SubpageNavbar />
 
-      {/* Main Page Container (Standard max-w-7xl aligned with /knowledge, /studies, /reimbursement, /resources) */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-2.5 sm:px-6 pt-28 md:pt-32 pb-16 space-y-6 sm:space-y-8">
+
         {/* Hero Section */}
         <section className="text-center space-y-4 pb-4">
           <div className="inline-flex items-center gap-2 bg-white px-4 py-1.5 rounded-full text-xs font-bold text-sky-700 border border-sky-200 shadow-xs">
@@ -233,7 +213,6 @@ export default function WikiPage() {
             拒绝冰冷晦涩的医学术语与网络恐慌谣言。我们用<strong>生活化大白话比喻</strong>、<strong>高精 SVG 微观解剖图解</strong>与<strong>全球顶级循证试验数据</strong>，为您逐一破译病理指标，构筑坚不可摧的抗癌信心。
           </p>
 
-          {/* Profile Matched Notification Bar if profile exists */}
           {userProfile && (
             <div className="max-w-2xl mx-auto bg-teal-50/90 border border-teal-300 p-3.5 rounded-2xl text-xs text-teal-950 flex items-center justify-between gap-3 shadow-xs">
               <div className="flex items-center gap-2 text-left">
@@ -249,22 +228,20 @@ export default function WikiPage() {
           )}
         </section>
 
-        {/* Act 1: Emotion-First Scenario Entrance Cards */}
+        {/* Act 1: 场景入口 */}
         <section className="pt-1">
           <WikiScenarioEntry activeCategory={activeCategory} onSelectCategory={handleSelectScenario} />
         </section>
 
-        {/* Act 2: Wiki Encyclopedia Topic Matrix */}
-        <section id="wiki-topics-section" className="space-y-6 pt-6">
+        {/* Act 2: 词条大盘 */}
+        <section id="wiki-topics-section" className="space-y-5 pt-6">
 
-          {/* Category Tabs */}
+          {/* 分类标签栏 */}
           <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 pb-4">
             <button
               onClick={() => {
                 setActiveCategory("all");
-                if (typeof window !== "undefined") {
-                  window.history.replaceState(null, "", window.location.pathname);
-                }
+                if (typeof window !== "undefined") window.history.replaceState(null, "", window.location.pathname);
               }}
               className={`px-4 py-2 rounded-2xl text-xs sm:text-sm font-black transition-all cursor-pointer flex items-center gap-1.5 ${
                 activeCategory === "all"
@@ -277,16 +254,14 @@ export default function WikiPage() {
             </button>
 
             {(Object.keys(WIKI_CATEGORIES) as WikiCategory[]).map((catKey) => {
-              const cat = WIKI_CATEGORIES[catKey];
+              const cat   = WIKI_CATEGORIES[catKey];
               const count = WIKI_TOPICS.filter((t) => t.category === catKey).length;
               return (
                 <button
                   key={catKey}
                   onClick={() => {
                     setActiveCategory(catKey);
-                    if (typeof window !== "undefined") {
-                      window.history.replaceState(null, "", `#category-${catKey}`);
-                    }
+                    if (typeof window !== "undefined") window.history.replaceState(null, "", `#category-${catKey}`);
                   }}
                   className={`px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center gap-1.5 border ${
                     activeCategory === catKey
@@ -301,7 +276,7 @@ export default function WikiPage() {
             })}
           </div>
 
-          {/* Search & Risk Filter Bar */}
+          {/* 搜索 & 风险过滤栏 */}
           <WikiSearchBar
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
@@ -311,23 +286,23 @@ export default function WikiPage() {
             filteredCount={filteredTopics.length}
           />
 
-          {/* Post-Op Symptom Tri-Color Triage Section (Dedicated to Recovery Category) */}
+          {/* 术后康复症状分诊（recovery 专区或全部默认状态时展示） */}
           {(activeCategory === "recovery" || (activeCategory === "all" && !searchQuery && selectedRisk === "all")) && (
             <div className="animate-fade-in">
               <PostOpSymptomTriage />
             </div>
           )}
 
-          {/* Topics Grid (2 columns on desktop, 1 on mobile) */}
+          {/* ── 磁贴大盘（3 列 / 2 列 / 1 列 响应式网格）─────────────────────── */}
           {filteredTopics.length > 0 ? (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
               {filteredTopics.map((topic) => (
-                <WikiTopicCard
+                <WikiCompactCard
                   key={topic.id}
                   topic={topic}
                   isMatchedProfile={isTopicMatchedToProfile(topic.id)}
-                  isHighlighted={highlightedTopicId === topic.id}
+                  isHighlighted={activeDrawerTopicId === topic.id}
+                  onClick={() => openDrawer(topic.id)}
                 />
               ))}
             </div>
@@ -339,11 +314,7 @@ export default function WikiPage() {
               action={
                 <button
                   type="button"
-                  onClick={() => {
-                    setSearchQuery("");
-                    setActiveCategory("all");
-                    setSelectedRisk("all");
-                  }}
+                  onClick={() => { setSearchQuery(""); setActiveCategory("all"); setSelectedRisk("all"); }}
                   className="btn-primary px-4 py-2 rounded-xl text-xs font-bold cursor-pointer"
                 >
                   重置全部筛选
@@ -354,21 +325,16 @@ export default function WikiPage() {
         </section>
       </main>
 
-      {/* Standard Elegant Footer */}
       <Footer maxWidth="max-w-7xl" />
 
-
-      {/* Right Side Desktop Floating Elevator Navigation Dock */}
+      {/* 悬浮侧边导航 */}
       <WikiFloatingNav
         activeCategory={activeCategory}
         onSelectCategory={(cat) => {
           setActiveCategory(cat);
           if (typeof window !== "undefined") {
-            if (cat === "all") {
-              window.history.replaceState(null, "", window.location.pathname);
-            } else {
-              window.history.replaceState(null, "", `#category-${cat}`);
-            }
+            if (cat === "all") window.history.replaceState(null, "", window.location.pathname);
+            else window.history.replaceState(null, "", `#category-${cat}`);
           }
         }}
         totalTopics={WIKI_TOPICS.length}
@@ -376,7 +342,7 @@ export default function WikiPage() {
         onOpenSearch={() => setIsSpotlightOpen(true)}
       />
 
-      {/* Mobile FAB — 右下角悬浮搜索气泡（仅 md 以下可见） */}
+      {/* 移动端 FAB 搜索气泡 */}
       <button
         type="button"
         onClick={() => setIsSpotlightOpen(true)}
@@ -386,12 +352,21 @@ export default function WikiPage() {
         <Search className="w-6 h-6" />
       </button>
 
-      {/* Spotlight 搜索面板 */}
+      {/* Spotlight 搜索面板（按需加载） */}
       <WikiSpotlightSearchModal
         isOpen={isSpotlightOpen}
         onClose={() => setIsSpotlightOpen(false)}
         userProfile={userProfile}
         onSelectTopic={handleSelectTopicFromSpotlight}
+      />
+
+      {/* ── 侧滑深度阅读抽屉 ──────────────────────────────────────────────── */}
+      <WikiDetailDrawer
+        topic={activeDrawerTopic}
+        allTopics={filteredTopics}
+        isMatchedProfile={activeDrawerTopic ? isTopicMatchedToProfile(activeDrawerTopic.id) : false}
+        onClose={closeDrawer}
+        onNavigate={openDrawer}
       />
     </div>
   );
