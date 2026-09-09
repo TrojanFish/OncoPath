@@ -291,7 +291,7 @@ export default function PatientDashboard() {
     : '混合磨玻璃结节 (mGGO)';
 
   return (
-    <div className="max-w-5xl mx-auto px-2.5 sm:px-6 lg:px-8 pb-4 sm:pb-6">
+    <div className="max-w-5xl xl:max-w-7xl mx-auto px-2.5 sm:px-6 lg:px-8 pb-4 sm:pb-6 transition-all">
       <ConsentModal />
       
       {/* Header */}

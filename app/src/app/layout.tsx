@@ -50,6 +50,7 @@ export const metadata: Metadata = {
 };
 
 import ToastContainer from "@/components/common/Toast";
+import MobileBottomNav from "@/components/MobileBottomNav";
 
 export default function RootLayout({
   children,
@@ -66,7 +67,10 @@ export default function RootLayout({
         <meta name="mobile-web-app-capable" content="yes" />
       </head>
       <body className="antialiased">
-        {children}
+        <div className="min-h-screen flex flex-col pb-16 md:pb-0">
+          {children}
+        </div>
+        <MobileBottomNav />
         <ToastContainer />
       </body>
     </html>

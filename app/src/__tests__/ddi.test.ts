@@ -62,4 +62,21 @@ describe('DDI (Drug-Drug Interactions) Pharmacovigilance Engine', () => {
     const evening = result.dailySchedulePlan.find(s => s.timeSlot.includes('晚间'));
     expect(evening?.drugs.some(d => d.includes('阿托伐他汀'))).toBe(true);
   });
+
+  it('should support rare target drugs (RET, MET, HER2) and verify PPI interaction', () => {
+    // Selpercatinib (RET) with Omeprazole
+    const retResult = checkDrugInteractions('selpercatinib', ['omeprazole']);
+    expect(retResult.cautionCount).toBe(1);
+    expect(retResult.interactions[0].rule.title).toContain('PPI');
+
+    // Glumetinib (MET) with Omeprazole
+    const metResult = checkDrugInteractions('glumetinib', ['omeprazole']);
+    expect(metResult.cautionCount).toBe(1);
+
+    // Trastuzumab Deruxtecan (HER2-ADC) with Rifampin (severe)
+    const her2Result = checkDrugInteractions('trastuzumab_deruxtecan', ['rifampin']);
+    expect(her2Result.severeCount).toBe(1);
+    expect(her2Result.overallStatus).toBe('danger');
+  });
 });
+

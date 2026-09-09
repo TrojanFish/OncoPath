@@ -242,7 +242,7 @@ export function DdiCheckerVisual({
 
         {/* Target Category Pills */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 custom-scrollbar text-[11px]">
-          {["all", "EGFR", "ALK", "KRAS", "MET", "RET"].map(targetKey => (
+          {["all", "EGFR", "ALK", "KRAS", "MET", "RET", "HER2"].map(targetKey => (
             <button
               key={targetKey}
               type="button"
@@ -253,7 +253,7 @@ export function DdiCheckerVisual({
                   : "bg-slate-100 text-slate-600 hover:bg-slate-200"
               }`}
             >
-              {targetKey === "all" ? `全部靶向药 (${TARGETED_DRUGS.length})` : `${targetKey} 抑制剂 (${TARGETED_DRUGS.filter(d => d.target === targetKey).length})`}
+              {targetKey === "all" ? `全部靶向药 (${TARGETED_DRUGS.length})` : targetKey === "HER2" ? `HER2-ADC (${TARGETED_DRUGS.filter(d => d.target === targetKey).length})` : `${targetKey} 抑制剂 (${TARGETED_DRUGS.filter(d => d.target === targetKey).length})`}
             </button>
           ))}
         </div>

@@ -10,6 +10,7 @@
     "test:unit": "vitest run",
     "test:guardrails": "tsx scripts/test-guardrails.ts",
     "test:simulation": "tsx scripts/comprehensive-simulation.ts",
+    "check:security": "tsx scripts/check-production-security.ts",
     "test": "vitest run && tsx scripts/test-guardrails.ts && tsx scripts/comprehensive-simulation.ts"
   },
   "dependencies": {

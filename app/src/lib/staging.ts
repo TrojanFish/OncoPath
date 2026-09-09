@@ -15,6 +15,7 @@ export interface StagingInput {
   stas?: boolean | string | null;
   lvi?: boolean | string | null;
   marginStatus?: string | null;
+  marginDistanceMm?: number | null; // Surgical resection margin distance to tumor edge in mm (JCOG0804/0802 guidelines)
 }
 
 export interface StagingResult {
@@ -28,6 +29,8 @@ export interface StagingResult {
   ctr: number;
   explanation: string;
   isSubsolidAdjusted: boolean;
+  marginSafety?: "safe" | "close_margin" | "positive";
+  marginNotice?: string;
 }
 
 export function computeClinicalTnmStage(input: StagingInput): StagingResult {
@@ -157,6 +160,23 @@ export function computeClinicalTnmStage(input: StagingInput): StagingResult {
     else if (effectiveT === "T4") stage = "IIIA";
   }
 
+  // 4. Surgical Resection Margin Safety Calculation (JCOG0804 & JCOG0802 Guidelines)
+  let marginSafety: "safe" | "close_margin" | "positive" = "safe";
+  let marginNotice: string | undefined;
+
+  if (input.marginStatus === "positive") {
+    marginSafety = "positive";
+    marginNotice = "标本切缘镜下阳性 (R1)，局部存在残留风险，建议胸外科与多学科 (MDT) 评估扩大切除或术后局部辅助放疗。";
+  } else if (input.marginDistanceMm != null && !isNaN(Number(input.marginDistanceMm))) {
+    const dist = Number(input.marginDistanceMm);
+    const tumorMm = tumorSize * 10;
+    // JCOG guideline recommends margin >= tumor size or >= 20mm
+    if (dist > 0 && dist < 20 && dist < tumorMm) {
+      marginSafety = "close_margin";
+      marginNotice = `切缘虽为 R0 阴性，但切缘净距仅 ${dist}mm（低于 JCOG0804/0802 推荐的 20mm 或肿瘤全径），建议加强局部高分辨 CT 随访监测。`;
+    }
+  }
+
   return {
     stage,
     tStage: effectiveT,
@@ -167,7 +187,9 @@ export function computeClinicalTnmStage(input: StagingInput): StagingResult {
     solidSize,
     ctr,
     explanation,
-    isSubsolidAdjusted
+    isSubsolidAdjusted,
+    marginSafety,
+    marginNotice
   };
 }
 
@@ -250,6 +272,15 @@ export function getClinicalCohortForProfile(rawProfile: any): ClinicalCohortResu
   const hasAlk = geneMutations.some(
     (m: any) => m.gene === "ALK" && m.status !== "negative" && !String(m.subtype || "").includes("阴性") && !String(m.subtype || "").includes("野生")
   );
+  const hasRet = geneMutations.some(
+    (m: any) => m.gene === "RET" && m.status !== "negative" && !String(m.subtype || "").includes("阴性") && !String(m.subtype || "").includes("野生")
+  );
+  const hasMet = geneMutations.some(
+    (m: any) => (m.gene === "MET" || m.gene === "MET14") && m.status !== "negative" && !String(m.subtype || "").includes("阴性") && !String(m.subtype || "").includes("野生")
+  );
+  const hasHer2 = geneMutations.some(
+    (m: any) => (m.gene === "HER2" || m.gene === "ERBB2") && m.status !== "negative" && !String(m.subtype || "").includes("阴性") && !String(m.subtype || "").includes("野生")
+  );
 
   const keyFactors: string[] = [];
   if (isStas) keyFactors.push("气道播散 STAS+");
@@ -257,9 +288,19 @@ export function getClinicalCohortForProfile(rawProfile: any): ClinicalCohortResu
   if (isLvi) keyFactors.push("微血管侵犯 LVI+");
   if (isGrade3) keyFactors.push("高危病理分级 IASLC 3级");
   if (isMarginPos) keyFactors.push("切缘阳性 (R1)");
+  if (rawProfile.marginDistanceMm != null && !isNaN(Number(rawProfile.marginDistanceMm))) {
+    const dist = Number(rawProfile.marginDistanceMm);
+    const tumorMm = staging.tumorSize * 10;
+    if (dist > 0 && dist < 20 && dist < tumorMm) {
+      keyFactors.push(`切缘净距较近 (${dist}mm < JCOG推荐安全边距)`);
+    }
+  }
   if (isHighKi67) keyFactors.push(`Ki-67增殖指数偏高 (${ki67Val}%)`);
   if (hasEgfr) keyFactors.push("EGFR 敏感突变");
   if (hasAlk) keyFactors.push("ALK 融合突变");
+  if (hasRet) keyFactors.push("RET 融合突变 (塞普替尼)");
+  if (hasMet) keyFactors.push("MET 14号外显子跳跃 (赛沃替尼/谷美替尼)");
+  if (hasHer2) keyFactors.push("HER2 (ERBB2) 突变 (T-DXd ADC)");
 
   const isPureGgo = staging.noduleType === "pure_ggo" || ctr === 0;
   const isSubsolidLow = staging.noduleType === "mixed_ggo" && ctr > 0 && ctr <= 0.50;

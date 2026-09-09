@@ -8,7 +8,7 @@ export interface TargetedDrug {
   genericName: string;
   brandName: string;
   generation: string;
-  target: "EGFR" | "ALK" | "KRAS" | "ROS1" | "MET" | "RET";
+  target: "EGFR" | "ALK" | "KRAS" | "ROS1" | "MET" | "RET" | "HER2";
   standardDosage: string;
   metabolismPathway: string;
   phDependent: boolean; // Is absorption reduced by elevated gastric pH (PPI/H2RA)
@@ -226,6 +226,36 @@ export const TARGETED_DRUGS: TargetedDrug[] = [
     standardDosage: "400mg 口服 每日一次 (QD, 空腹)",
     metabolismPathway: "主要经 CYP3A4 及部分非酶水解代谢",
     phDependent: false,
+  },
+  {
+    id: "selpercatinib",
+    genericName: "塞普替尼胶囊",
+    brandName: "睿妥 / Retevmo",
+    generation: "高选择性 RET 激酶抑制剂",
+    target: "RET",
+    standardDosage: "120mg 或 160mg 口服 每日两次 (BID, 依体重)",
+    metabolismPathway: "主要经 CYP3A4 代谢",
+    phDependent: true,
+  },
+  {
+    id: "glumetinib",
+    genericName: "谷美替尼片",
+    brandName: "伯瑞替尼 / 艾瑞替尼",
+    generation: "强效高选择性 MET 抑制剂 (14跳突)",
+    target: "MET",
+    standardDosage: "300mg 口服 每日一次 (QD, 空腹或随餐)",
+    metabolismPathway: "主要经 CYP3A4 代谢",
+    phDependent: true,
+  },
+  {
+    id: "trastuzumab_deruxtecan",
+    genericName: "注射用德曲妥珠单抗",
+    brandName: "优赫得 / Enhertu (T-DXd)",
+    generation: "新一代 HER2-ADC 靶向抗体偶联药物",
+    target: "HER2",
+    standardDosage: "5.4mg/kg 静脉滴注 每3周一次 (Q3W)",
+    metabolismPathway: "抗体片段全身分解；载荷 DXd 经 CYP3A4 与转运体转运",
+    phDependent: false,
   }
 ];
 
@@ -393,18 +423,18 @@ export const DDI_RULES: DdiRule[] = [
 
   // ================= 需错峰服药 / 调整方案 (YELLOW) =================
   {
-    targetDrugIds: ["gefitinib", "erlotinib", "sotorasib", "savolitinib"],
+    targetDrugIds: ["gefitinib", "erlotinib", "sotorasib", "savolitinib", "selpercatinib", "glumetinib"],
     chronicDrugId: "omeprazole",
     riskLevel: "timing_caution",
     riskLabel: "需调整用药 (pH吸收障碍)",
-    title: "质子泵抑制剂 (PPI) 显著降低一代 EGFR/KRAS 靶向药吸收",
-    mechanism: "一代吉非替尼、厄洛替尼及索托拉西布的溶解度高度依赖胃内酸性环境。奥美拉唑等 PPI 强效持久升高胃内 pH，导致靶向药吸收减少 40%~50%，AUC 严重下降。",
-    clinicalGuidance: "推荐策略：1) 优先在消化科医师指导下停用 PPI，改用局部黏膜保护剂；2) 若必须抑酸，可换用法莫替丁，并必须在服用法莫替丁前 2 小时或后 10 小时服用靶向药；3) 若为第三代奥希替尼，受 PPI 影响较轻微，但仍建议错峰 2 小时服药。",
+    title: "质子泵抑制剂 (PPI) 显著降低一代 EGFR/KRAS/MET/RET 靶向药吸收",
+    mechanism: "一代吉非替尼、厄洛替尼、索托拉西布、塞普替尼与谷美替尼的溶解度高度依赖胃内酸性环境。奥美拉唑等 PPI 强效持久升高胃内 pH，导致靶向药吸收减少 40%~60%，AUC 严重下降。",
+    clinicalGuidance: "推荐策略：1) 优先在消化科医师指导下停用 PPI，改用局部黏膜保护剂；2) 若必须抑酸，可换用法莫替丁，并必须在服用法莫替丁前 2 小时或后 10 小时服用靶向药；3) 若为第三代奥希替尼，受 PPI 影响较轻微，但仍建议错峰 2 小时服药；塞普替尼若无法避免 PPI，应随餐同服。",
     evidenceLevel: "药代动力学PK证据",
     timingRecommendation: "靶向药空腹/餐后固定时段服用，胃药错开 2~4 小时后服用"
   },
   {
-    targetDrugIds: ["gefitinib", "erlotinib", "sotorasib", "savolitinib"],
+    targetDrugIds: ["gefitinib", "erlotinib", "sotorasib", "savolitinib", "selpercatinib", "glumetinib"],
     chronicDrugId: "rabeprazole",
     riskLevel: "timing_caution",
     riskLabel: "需调整用药 (pH吸收障碍)",
@@ -415,7 +445,7 @@ export const DDI_RULES: DdiRule[] = [
     timingRecommendation: "早晨服靶向药，午后或睡前按需用法莫替丁替代"
   },
   {
-    targetDrugIds: ["gefitinib", "erlotinib", "sotorasib", "savolitinib"],
+    targetDrugIds: ["gefitinib", "erlotinib", "sotorasib", "savolitinib", "selpercatinib", "glumetinib"],
     chronicDrugId: "esomeprazole",
     riskLevel: "timing_caution",
     riskLabel: "需调整用药 (pH吸收障碍)",

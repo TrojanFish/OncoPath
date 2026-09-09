@@ -365,12 +365,15 @@ export default function EvidenceReportPage() {
     }
   };
 
-  // Support Esc key to dismiss image modal
+  // Support Esc key to dismiss image modal & ⌘P / Ctrl+P to trigger print view
   useEffect(() => {
-    if (!exportedImageUrl) return;
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
+      if (e.key === "Escape" && exportedImageUrl) {
         setExportedImageUrl(null);
+      }
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "p") {
+        e.preventDefault();
+        window.print();
       }
     };
     window.addEventListener("keydown", handleKeyDown);
