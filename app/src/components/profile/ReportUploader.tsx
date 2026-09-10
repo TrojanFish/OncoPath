@@ -688,104 +688,91 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
       parsedData.petCt === 'negative';
 
     return (
-                : "AI 已自动计算实性成分比例 (CTR)、校准临床分期并同步全身排查状态"}
-            </p>
+      <div className="max-w-5xl mx-auto w-full animate-fade-in">
+
+        {/* ─── Header ─── */}
+        <div className="flex items-center justify-between gap-3 mb-5 pb-3 border-b border-slate-100">
+          <div className="flex items-center gap-2 flex-wrap">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold">
+              {initialData ? <FileText className="w-3 h-3 text-emerald-700" /> : <Check className="w-3 h-3 text-emerald-700" />}
+              <span>{initialData ? "档案核对与微调模式" : "全模态结构化提取就绪"}</span>
+            </div>
+            <h2 className="text-base font-extrabold text-slate-900">
+              {initialData ? "核对并校准您的关键临床指标" : "请核对并确认您的医疗特征指标"}
+            </h2>
           </div>
-          <div className="flex items-center gap-2 flex-wrap self-start sm:self-auto">
-            <button 
-              type="button"
-              onClick={() => setParsedData(null)}
-              className="text-xs text-slate-600 hover:text-purple-700 font-semibold px-3 py-1.5 rounded-xl border border-slate-200 hover:bg-purple-50 transition-colors cursor-pointer flex items-center gap-1.5"
-            >
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <button type="button" onClick={() => setParsedData(null)}
+              className="text-xs text-slate-500 hover:text-purple-700 font-semibold px-3 py-1.5 rounded-xl border border-slate-200 hover:bg-purple-50 transition-colors cursor-pointer flex items-center gap-1.5">
               <Camera className="w-3.5 h-3.5 text-slate-500" />
-              <span>改为拍照上传新报告</span>
+              <span className="hidden sm:inline">改为拍照上传新报告</span>
             </button>
             {onCancel && (
-              <button 
-                type="button"
-                onClick={onCancel}
-                className="text-xs text-slate-500 hover:text-slate-800 font-semibold px-3 py-1.5 rounded-xl border border-slate-200 hover:bg-slate-50 transition-colors cursor-pointer"
-              >
+              <button type="button" onClick={onCancel}
+                className="text-xs text-slate-500 hover:text-slate-800 font-semibold px-3 py-1.5 rounded-xl border border-slate-200 hover:bg-slate-50 transition-colors cursor-pointer">
                 ‹ 返回看板
               </button>
             )}
           </div>
         </div>
 
-        {/* AJCC 8th/9th Solid Component Intelligence Banner */}
-        {stagingPreview && (
-          <div className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-emerald-50 via-teal-50 to-sky-50 border-2 border-teal-300/80 shadow-xs">
-            <div className="flex items-center justify-between gap-3 mb-1.5">
-              <div className="flex items-center gap-2">
-                <Dna className="w-4 h-4 text-teal-700" />
-                <span className="text-xs font-bold text-teal-900 uppercase tracking-wide">
-                  AJCC 8th/9th 临床分期智能校准
-                </span>
-              </div>
-              <span className="px-3 py-1 rounded-full bg-emerald-600 text-white font-extrabold text-xs shadow-xs">
-                {parsedData.reportType === 'ct_imaging' ? '影像临床拟定' : '实际病理'}：{stagingPreview.stage} 期 ({stagingPreview.tStage}{stagingPreview.nStage}{stagingPreview.mStage})
-              </span>
-            </div>
-            <p className="text-xs text-slate-700 leading-relaxed font-medium">
-              {stagingPreview.explanation}
-            </p>
-          </div>
-        )}
+        {/* ─── Two-column layout ─── */}
+        <div className="flex gap-5 items-start">
 
-        {/* Modern Sleek Step Stepper (Zero Redundancy & Space-Saving) */}
-        <div className="mb-6 p-1.5 sm:p-2 bg-slate-100/80 rounded-2xl border border-slate-200/80">
-          <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
-            {[
-              { step: 1, shortTitle: "影像随访", fullTitle: "结节影像与部位", icon: Scan },
-              { step: 2, shortTitle: "病理高危", fullTitle: "组织病理与高危", icon: Microscope },
-              { step: 3, shortTitle: "基因靶向", fullTitle: "驱动基因突变", icon: Dna },
-              { step: 4, shortTitle: "标志排查", fullTitle: "全身排查与标志物", icon: TestTube2 },
-            ].map((item) => {
-              const Icon = item.icon;
-              const isActive = currentStep === item.step;
-              const isCompleted = currentStep > item.step;
-
-              return (
-                <button
-                  key={item.step}
-                  type="button"
-                  onClick={() => setCurrentStep(item.step as 1 | 2 | 3 | 4)}
-                  className={`
-                    px-2 sm:px-3 py-2 sm:py-2.5 rounded-xl text-center transition-all cursor-pointer flex items-center justify-center gap-1.5 sm:gap-2
-                    focus:outline-none
-                    ${isActive
-                      ? "bg-white text-blue-700 shadow-sm border border-blue-200/80 ring-2 ring-blue-500/10 font-bold"
-                      : isCompleted
-                      ? "bg-emerald-50/90 text-emerald-800 border border-emerald-200/80 hover:bg-emerald-100/60 font-semibold"
-                      : "text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium"
-                    }
-                  `}
-                >
-                  <span
-                    className={`
-                      w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black shrink-0
-                      ${isActive
-                        ? "bg-blue-600 text-white"
-                        : isCompleted
-                        ? "bg-emerald-600 text-white"
-                        : "bg-slate-200 text-slate-600"
-                      }
-                    `}
+          {/* LEFT sidebar — PC only, sticky */}
+          <aside className="w-52 shrink-0 hidden md:flex flex-col gap-4" style={{position:"sticky",top:"1rem"}}>
+            <nav className="flex flex-col gap-1">
+              {([
+                { step: 1 as const, label: "结节影像与部位" },
+                { step: 2 as const, label: "组织病理与高危" },
+                { step: 3 as const, label: "驱动基因突变" },
+                { step: 4 as const, label: "全身排查与标志物" },
+              ]).map(({ step, label }) => {
+                const isActive = currentStep === step;
+                const isDone = currentStep > step;
+                return (
+                  <button key={step} type="button" onClick={() => setCurrentStep(step)}
+                    className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-left transition-all cursor-pointer border ${isActive ? "bg-blue-50 border-blue-200 text-blue-800" : isDone ? "bg-emerald-50 border-emerald-200 text-emerald-800" : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"}`}
                   >
-                    {isCompleted ? <Check className="w-3 h-3 stroke-[3]" /> : item.step}
-                  </span>
+                    <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black shrink-0 ${isActive ? "bg-blue-600 text-white" : isDone ? "bg-emerald-600 text-white" : "bg-slate-200 text-slate-500"}`}>
+                      {isDone ? <Check className="w-3 h-3 stroke-[3]" /> : step}
+                    </span>
+                    <span className="text-xs font-semibold leading-tight">{label}</span>
+                    {isActive && <span className="ml-auto w-1 h-4 rounded-full bg-blue-500" />}
+                  </button>
+                );
+              })}
+            </nav>
+            {stagingPreview && (
+              <div className="p-3.5 rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200">
+                <div className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider mb-1.5">AJCC 分期校准</div>
+                <div className="text-lg font-extrabold text-emerald-900 mb-0.5">{stagingPreview.stage} 期</div>
+                <div className="text-xs font-bold text-emerald-800 mb-1">{stagingPreview.tStage}{stagingPreview.nStage}{stagingPreview.mStage}</div>
+                <p className="text-[11px] text-slate-600 leading-relaxed">{stagingPreview.explanation}</p>
+              </div>
+            )}
+          </aside>
 
-                  <span className="text-xs sm:text-sm truncate">
-                    <span className="inline sm:hidden">{item.shortTitle}</span>
-                    <span className="hidden sm:inline">{item.fullTitle}</span>
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
+          {/* RIGHT content area */}
+          <section className="flex-1 min-w-0">
+            {/* Mobile pill stepper */}
+            <div className="flex md:hidden mb-4 p-1 bg-slate-100/80 rounded-2xl border border-slate-200/80 gap-1">
+              {([
+                { step: 1 as const, label: "影像随访" },
+                { step: 2 as const, label: "病理高危" },
+                { step: 3 as const, label: "基因靶向" },
+                { step: 4 as const, label: "标志排查" },
+              ]).map(({ step, label }) => (
+                <button key={step} type="button" onClick={() => setCurrentStep(step)}
+                  className={`flex-1 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${currentStep === step ? "bg-white text-blue-700 shadow-sm" : "text-slate-500"}`}
+                >{label}</button>
+              ))}
+            </div>
 
-        {/* Step 1: Imaging & Nodule History */}
+            {/* Step content card — key forces re-mount → triggers animate-slide-in */}
+            <div key={`step-${currentStep}`} className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden animate-slide-in">
+              <div className="p-4 sm:p-5 space-y-5">
+
         {currentStep === 1 && (
           <div className="space-y-6">
             
@@ -2360,49 +2347,51 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
           </div>
         )}
 
-        {/* Step Wizard Action Bar: Pure, Minimalist Navigation Dock */}
-        <div className="mt-8 pt-3.5 pb-3.5 px-4 sm:px-6 border-t border-slate-200 bg-white/95 backdrop-blur-md sticky bottom-0 z-30 rounded-b-3xl shadow-[0_-4px_20px_rgba(0,0,0,0.06)] flex items-center justify-between gap-3">
-          {/* Left: Previous Step (Disabled / Hidden on Step 1) */}
-          <button
-            type="button"
-            disabled={currentStep === 1}
-            onClick={() => setCurrentStep((prev) => (prev > 1 ? (prev - 1) as 1 | 2 | 3 | 4 : prev))}
-            className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold border transition-all flex items-center gap-1 shrink-0 ${
-              currentStep === 1
-                ? "border-transparent text-transparent pointer-events-none opacity-0 select-none"
-                : "border-slate-300 bg-white hover:bg-slate-50 text-slate-700 cursor-pointer shadow-2xs active:scale-95"
-            }`}
-          >
-            ‹ 上一步
-          </button>
 
-          {/* Right: Forward Action (Steps 1~3: Next Step ONLY; Step 4: Final Confirm/Save) */}
-          <div className="flex items-center gap-2">
-            {currentStep < 4 ? (
-              <button
-                type="button"
-                onClick={() => setCurrentStep((prev) => (prev < 4 ? (prev + 1) as 1 | 2 | 3 | 4 : prev))}
-                className="px-6 sm:px-7 py-2.5 rounded-xl text-xs sm:text-sm font-bold btn-primary text-white shadow-md shadow-blue-500/20 hover:shadow-lg transition-all cursor-pointer flex items-center justify-center gap-1.5 active:scale-[0.98]"
-              >
-                <span>下一步 ({currentStep + 1}/4)</span>
-                <span className="text-blue-200 font-bold text-sm">›</span>
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={handleConfirm}
-                className="px-6 sm:px-8 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs sm:text-sm shadow-md shadow-emerald-500/25 hover:shadow-lg transition-all cursor-pointer flex items-center justify-center gap-2 active:scale-[0.98]"
-              >
-                <Check className="w-4 h-4 stroke-[3]" />
-                <span>{initialData ? "保存修改" : "确认保存医疗档案"}</span>
-              </button>
-            )}
-          </div>
+              </div>
+
+              {/* Bottom action bar */}
+              <div className="border-t border-slate-100 px-4 sm:px-5 py-3 flex items-center justify-between bg-slate-50/50">
+                <span className="text-xs text-slate-400 font-medium">步骤 {currentStep} / 4</span>
+                <div className="flex items-center gap-2">
+                  {currentStep > 1 && (
+                    <button type="button"
+                      onClick={() => setCurrentStep((prev) => (prev > 1 ? (prev - 1) as 1 | 2 | 3 | 4 : prev))}
+                      className="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 transition-all cursor-pointer">
+                      ‹ 上一步
+                    </button>
+                  )}
+                  {currentStep < 4 ? (
+                    <button type="button"
+                      onClick={() => setCurrentStep((prev) => (prev < 4 ? (prev + 1) as 1 | 2 | 3 | 4 : prev))}
+                      className="px-5 py-2 rounded-xl text-xs sm:text-sm font-bold btn-primary text-white shadow-md shadow-blue-500/20 hover:shadow-lg transition-all cursor-pointer flex items-center gap-1.5">
+                      <span>下一步 ({currentStep + 1}/4)</span>
+                      <span className="text-blue-200 font-bold text-sm">›</span>
+                    </button>
+                  ) : (
+                    <button type="button" onClick={handleConfirm}
+                      className="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs sm:text-sm shadow-md shadow-emerald-500/25 hover:shadow-lg transition-all cursor-pointer flex items-center gap-2">
+                      <Check className="w-4 h-4 stroke-[3]" />
+                      <span>{initialData ? "保存修改" : "确认保存医疗档案"}</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          </section>
         </div>
+      </div>
     );
   }
 
   return (
+    <div className="bg-white rounded-3xl p-3.5 sm:p-6 md:p-8 border border-slate-200 shadow-sm max-w-3xl mx-auto w-full">
+      {onCancel && (
+        <div className="mb-5 pb-3 border-b border-slate-100 flex items-center justify-between flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-slate-900 transition-colors cursor-pointer px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200"
           >
             <span>‹ 取消并返回我的档案看板</span>
           </button>
