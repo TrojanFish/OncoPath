@@ -256,6 +256,16 @@ select:focus-visible {
   to { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInFromRight {
+  from { opacity: 0; transform: translateX(16px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
 @keyframes slideUpDrawer {
   from { transform: translateY(100%); }
   to { transform: translateY(0); }
@@ -268,6 +278,15 @@ select:focus-visible {
 
 .animate-fade-in-up {
   animation: fadeInUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Step wizard slide-in animation — triggered by key={`step-${currentStep}`} re-mount */
+.animate-slide-in {
+  animation: slideInFromRight 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .animate-slide-up-drawer {
