@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
@@ -198,12 +198,12 @@ export default function WikiPage() {
           <div className="inline-flex items-center gap-2 bg-white px-4 py-1.5 rounded-full text-xs font-bold text-sky-700 border border-sky-200 shadow-xs">
             <BookOpen className="w-3.5 h-3.5 text-sky-600" />
             <span>肺结节与肺癌全景循证视觉百科</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse" />
+            <span className="w-1.5 h-1.5 rounded-full bg-sky-500" />
             <span>按风险优先级排序</span>
           </div>
 
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
-            从未知恐慌走向 · <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-sky-500 to-teal-500">从容笃定</span>
+            从未知恐慌走向 · <span className="text-blue-600">从容笃定</span>
           </h1>
 
           <p className="max-w-3xl mx-auto text-sm sm:text-base text-slate-600 leading-relaxed font-normal">

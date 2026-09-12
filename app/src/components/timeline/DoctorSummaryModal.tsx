@@ -270,33 +270,33 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-2.5 sm:p-6 animate-fade-in print:p-0 print:static">
       <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm print:hidden" onClick={onClose} />
-      <div className="bg-white w-full max-w-4xl rounded-3xl p-4 sm:p-7 md:p-8 border border-slate-200 shadow-2xl relative z-10 animate-fade-in-up text-slate-900 max-h-[94vh] flex flex-col print:max-h-none print:shadow-none print:border-none print:p-4">
+      <div className="bg-white w-full max-w-4xl rounded-2xl p-4 sm:p-7 md:p-8 border border-slate-200 shadow-2xl relative z-10 animate-fade-in-up text-slate-900 max-h-[94vh] flex flex-col print:max-h-none print:shadow-none print:border-none print:p-4">
         
         {/* Modal Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3.5 border-b border-slate-200 shrink-0 print:hidden">
           <div className="flex items-center justify-between sm:justify-start gap-2.5">
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 border border-blue-100">
+              <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 border border-blue-100">
                 <Stethoscope className="w-5 h-5" />
               </div>
               <div>
                 <h3 className="text-sm sm:text-base font-extrabold text-slate-900 leading-tight flex items-center gap-2">
                   <span>门诊就医问诊便签卡</span>
-                  <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+                  <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
                     面诊速览模式
                   </span>
                 </h3>
-                <p className="text-[11px] text-slate-500 mt-0.5">
+                <p className="text-xs text-slate-500 mt-0.5">
                   专为门诊 3 分钟高效面诊设计 · 结构化归集核心影像、病理与问诊要点
                 </p>
               </div>
             </div>
             <button
               onClick={onClose}
-              className="sm:hidden w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center cursor-pointer shrink-0"
+              className="sm:hidden w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center cursor-pointer shrink-0 transition-colors"
               aria-label="关闭"
             >
-              <X className="w-4 h-4" />
+              <X className="w-5 h-5" />
             </button>
           </div>
 
@@ -305,7 +305,7 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
               type="button"
               onClick={handleExportPdf}
               disabled={isExportingPdf}
-              className={`flex-1 sm:flex-initial px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold shadow-xs flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap active:scale-95 transition-all ${
+              className={`flex-1 sm:flex-initial px-3 sm:px-3.5 py-2 rounded-xl text-xs font-bold shadow-xs flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap active:scale-95 transition-all ${
                 pdfSuccess
                   ? "bg-emerald-600 text-white"
                   : "bg-blue-600 hover:bg-blue-700 text-white"
@@ -319,7 +319,7 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
               type="button"
               onClick={handleExportImage}
               disabled={isExportingImage}
-              className={`flex-1 sm:flex-initial px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold shadow-xs flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap active:scale-95 transition-all ${
+              className={`flex-1 sm:flex-initial px-3 sm:px-3.5 py-2 rounded-xl text-xs font-bold shadow-xs flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap active:scale-95 transition-all ${
                 downloadSuccess
                   ? "bg-emerald-600 text-white"
                   : "btn-primary text-white"
@@ -332,7 +332,7 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
             <button
               type="button"
               onClick={handlePrint}
-              className="hidden sm:flex bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-xl text-xs font-bold shadow-xs items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap transition-transform"
+              className="hidden sm:flex bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-xl text-xs font-bold shadow-xs items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap transition-transform"
             >
               <Printer className="w-3.5 h-3.5" />
               <span>打印</span>
@@ -341,11 +341,11 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
             <button
               type="button"
               onClick={onClose}
-              className="hidden sm:flex w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-900 items-center justify-center cursor-pointer shrink-0 transition-colors"
+              className="hidden sm:flex w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-900 items-center justify-center cursor-pointer shrink-0 transition-colors"
               aria-label="关闭窗口"
               title="关闭窗口"
             >
-              <X className="w-4 h-4" />
+              <X className="w-5 h-5" />
             </button>
           </div>
         </div>
@@ -353,28 +353,30 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
         {/* Segmented Tab Navigation Header (Scrollable) */}
         <div className="flex items-center gap-1.5 overflow-x-auto py-2.5 border-b border-slate-100 shrink-0 no-scrollbar print:hidden">
           {[
-            { id: "overview", label: "📋 3秒速览", icon: Sparkles },
-            { id: "imaging", label: "🩻 影像演变", count: imagingList.length, icon: Scan },
-            { id: "pathology", label: "🔬 病理与基因", icon: Microscope },
-            { id: "serology", label: "🧪 标志物轨迹", count: serologyList.length, icon: TestTube2 },
-            { id: "checklist", label: "💬 门诊问诊清单", count: consultationQuestions.length, icon: HelpCircle },
-            { id: "full_print", label: "📄 A4全景单", icon: FileText },
+            { id: "overview", label: "3秒速览", icon: Sparkles },
+            { id: "imaging", label: "影像演变", count: imagingList.length, icon: Scan },
+            { id: "pathology", label: "病理与基因", icon: Microscope },
+            { id: "serology", label: "标志物轨迹", count: serologyList.length, icon: TestTube2 },
+            { id: "checklist", label: "门诊问诊清单", count: consultationQuestions.length, icon: HelpCircle },
+            { id: "full_print", label: "A4全景单", icon: FileText },
           ].map((tab) => {
+            const IconComp = tab.icon;
             const isActive = activeTab === tab.id;
             return (
               <button
                 key={tab.id}
                 type="button"
                 onClick={() => setActiveTab(tab.id as SummaryTab)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 ${
                   isActive
                     ? "bg-slate-900 text-white shadow-xs"
                     : "bg-slate-50 text-slate-600 hover:bg-slate-100 hover:text-slate-900 border border-slate-200/80"
                 }`}
               >
+                <IconComp className="w-3.5 h-3.5" />
                 <span>{tab.label}</span>
                 {tab.count !== undefined && tab.count > 0 && (
-                  <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono ${
+                  <span className={`px-1.5 py-0.5 rounded-full text-xs font-mono ${
                     isActive ? "bg-slate-700 text-slate-200" : "bg-slate-200 text-slate-700"
                   }`}>
                     {tab.count}
@@ -394,7 +396,7 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
               {/* Executive Summary Four Boxes */}
               <div className="bg-gradient-to-br from-slate-50 to-blue-50/40 p-4 sm:p-5 rounded-2xl border border-slate-200 grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
                 <div className="p-2.5 bg-white rounded-xl border border-slate-200/80 shadow-2xs">
-                  <span className="text-[10px] text-slate-400 font-bold uppercase flex items-center gap-1">
+                  <span className="text-xs text-slate-500 font-bold uppercase flex items-center gap-1">
                     <Scan className="w-3 h-3 text-blue-600" />
                     <span>最新影像状态</span>
                   </span>
@@ -406,7 +408,7 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
                 </div>
 
                 <div className="p-2.5 bg-white rounded-xl border border-slate-200/80 shadow-2xs">
-                  <span className="text-[10px] text-slate-400 font-bold uppercase flex items-center gap-1">
+                  <span className="text-xs text-slate-500 font-bold uppercase flex items-center gap-1">
                     <Microscope className="w-3 h-3 text-emerald-600" />
                     <span>术后病理分期</span>
                   </span>
@@ -416,7 +418,7 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
                 </div>
 
                 <div className="p-2.5 bg-white rounded-xl border border-slate-200/80 shadow-2xs">
-                  <span className="text-[10px] text-slate-400 font-bold uppercase flex items-center gap-1">
+                  <span className="text-xs text-slate-500 font-bold uppercase flex items-center gap-1">
                     <TestTube2 className="w-3 h-3 text-rose-600" />
                     <span>最新 CEA 标志物</span>
                   </span>
@@ -428,7 +430,7 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
                 </div>
 
                 <div className="p-2.5 bg-white rounded-xl border border-slate-200/80 shadow-2xs">
-                  <span className="text-[10px] text-slate-400 font-bold uppercase flex items-center gap-1">
+                  <span className="text-xs text-slate-500 font-bold uppercase flex items-center gap-1">
                     <Dna className="w-3 h-3 text-purple-600" />
                     <span>驱动基因突变</span>
                   </span>
@@ -581,7 +583,7 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
                         CEA: <span className="font-bold text-rose-700">{s.keyFindings?.cea ?? "-"}</span> ng/mL
                       </div>
                       {s.keyFindings?.cyfra211 && (
-                        <div className="text-slate-500 text-[11px] mt-0.5 truncate">
+                        <div className="text-slate-500 text-xs mt-0.5 truncate">
                           CYFRA: {s.keyFindings.cyfra211}
                         </div>
                       )}
@@ -605,7 +607,7 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
                     <HelpCircle className="w-4 h-4 text-blue-600" />
                     <span>门诊当面请教医生清单 ({consultationQuestions.length} 条)</span>
                   </span>
-                  <p className="text-[11px] text-slate-500 mt-0.5">
+                  <p className="text-xs text-slate-500 mt-0.5">
                     点击勾选已解答项目，可一键复制到微信或随身记事本
                   </p>
                 </div>
@@ -641,11 +643,11 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
 
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-0.5">
-                          <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-blue-50 text-blue-800 border border-blue-200">
+                          <span className="text-xs font-bold px-1.5 py-0.5 rounded bg-blue-50 text-blue-800 border border-blue-200">
                             {q.category}
                           </span>
                           {q.priority === "high" && (
-                            <span className="text-[9px] font-bold text-rose-600 bg-rose-50 px-1.5 py-0.2 rounded">
+                            <span className="text-xs font-bold text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200">
                               高优关注
                             </span>
                           )}
@@ -653,8 +655,8 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
                         <div className="text-xs font-bold text-slate-900 leading-snug">
                           {idx + 1}. {q.text}
                         </div>
-                        <div className="text-[11px] text-slate-500 mt-1 leading-relaxed">
-                          💡 临床背景与提问目的: {q.rationale}
+                        <div className="text-xs text-slate-500 mt-1 leading-relaxed">
+                          临床背景与提问目的: {q.rationale}
                         </div>
                       </div>
                     </div>
@@ -669,8 +671,8 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
             <div className="animate-fade-in space-y-4">
               <div className="border border-slate-200 rounded-2xl p-4 bg-slate-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
                 <div>
-                  <h4 className="text-xs font-bold text-slate-900">📄 A4 单页门诊病历便签卡（标准打印与导出预览）</h4>
-                  <p className="text-[11px] text-slate-500 mt-0.5">
+                  <h4 className="text-xs font-bold text-slate-900">A4 单页门诊病历便签卡（标准打印与导出预览）</h4>
+                  <p className="text-xs text-slate-500 mt-0.5">
                     已排版为标准 A4 白底高对比度格式，便于主治医生 3 秒快速了解全部既往病史与关键指标
                   </p>
                 </div>
@@ -711,12 +713,12 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
                       <h1 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
                         肺部疾病长程随访与临床时序便签卡
                       </h1>
-                      <p className="text-[11px] text-slate-600 mt-0.5">
+                      <p className="text-xs text-slate-600 mt-0.5">
                         系统：OncoPath 循证医学导航平台 · 结构化门诊病历归集
                       </p>
                     </div>
                   </div>
-                  <div className="text-left sm:text-right text-[11px] text-slate-500 flex sm:flex-col justify-between sm:justify-start gap-1 font-mono">
+                  <div className="text-left sm:text-right text-xs text-slate-500 flex sm:flex-col justify-between sm:justify-start gap-1 font-mono">
                     <span>生成日期：{new Date().toISOString().split("T")[0]}</span>
                     <span>随访记录：{events.length} 次</span>
                   </div>
@@ -725,7 +727,7 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
                 {/* Core Executive Summary Box */}
                 <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
                   <div className="p-1">
-                    <span className="text-[10px] text-slate-400 font-bold uppercase">最新影像状态</span>
+                    <span className="text-xs text-slate-500 font-bold uppercase">最新影像状态</span>
                     <div className="font-extrabold text-slate-900 mt-0.5 break-words">
                       {latestImaging?.keyFindings?.sizeMm !== undefined
                         ? `${latestImaging.keyFindings.sizeMm} mm (${latestImaging.eventDate.substring(0, 7)})`
@@ -733,13 +735,13 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
                     </div>
                   </div>
                   <div className="p-1">
-                    <span className="text-[10px] text-slate-400 font-bold uppercase">术后病理分期</span>
+                    <span className="text-xs text-slate-500 font-bold uppercase">术后病理分期</span>
                     <div className="font-extrabold text-emerald-700 mt-0.5 break-words">
                       {latestPathology?.keyFindings?.stage || "未行手术切除 (影像随访中)"}
                     </div>
                   </div>
                   <div className="p-1">
-                    <span className="text-[10px] text-slate-400 font-bold uppercase">最新 CEA 标志物</span>
+                    <span className="text-xs text-slate-500 font-bold uppercase">最新 CEA 标志物</span>
                     <div className="font-extrabold text-slate-900 mt-0.5 break-words">
                       {latestSerology?.keyFindings?.cea !== undefined
                         ? `${latestSerology.keyFindings.cea} ng/mL`
@@ -747,7 +749,7 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
                     </div>
                   </div>
                   <div className="p-1">
-                    <span className="text-[10px] text-slate-400 font-bold uppercase">驱动基因突变</span>
+                    <span className="text-xs text-slate-500 font-bold uppercase">驱动基因突变</span>
                     <div className="font-extrabold text-blue-700 mt-0.5 break-words">
                       {geneSummaryText}
                     </div>
@@ -777,7 +779,7 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
                             <td className="p-2 sm:p-2.5 font-mono font-bold text-slate-900 whitespace-nowrap">{im.eventDate}</td>
                             <td className="p-2 sm:p-2.5 text-slate-700 whitespace-nowrap">
                               <div className="font-semibold">{im.title}</div>
-                              <div className="text-[10px] text-slate-400">{im.hospital}</div>
+                              <div className="text-xs text-slate-500">{im.hospital}</div>
                             </td>
                             <td className="p-2 sm:p-2.5 font-mono font-bold text-blue-700 whitespace-nowrap">
                               {im.keyFindings?.sizeMm !== undefined ? `${im.keyFindings.sizeMm} mm` : "-"}
@@ -856,7 +858,7 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
                           CEA: <span className="font-bold text-rose-700">{s.keyFindings?.cea ?? "-"}</span> ng/mL
                         </div>
                         {s.keyFindings?.cyfra211 && (
-                          <div className="text-slate-500 text-[11px] truncate">
+                          <div className="text-slate-500 text-xs truncate">
                             CYFRA: {s.keyFindings.cyfra211}
                           </div>
                         )}
@@ -866,7 +868,7 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
                 </div>
 
                 {/* Print Footer Disclaimer */}
-                <div className="pt-4 border-t border-slate-200 text-[10px] text-slate-400 text-center leading-relaxed">
+                <div className="pt-4 border-t border-slate-200 text-xs text-slate-400 text-center leading-relaxed">
                   注：本清单由患者临床检查报告结构化提取生成，仅供临床门诊交流参考，不替代医师现场全面诊疗。
                 </div>
               </div>
@@ -919,7 +921,7 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
             {/* Core Executive Summary Box */}
             <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 grid grid-cols-4 gap-3 text-xs">
               <div className="p-1">
-                <span className="text-[10px] text-slate-400 font-bold uppercase">最新影像状态</span>
+                <span className="text-xs text-slate-500 font-bold uppercase">最新影像状态</span>
                 <div className="font-extrabold text-slate-900 mt-0.5 break-words text-sm">
                   {latestImaging?.keyFindings?.sizeMm !== undefined
                     ? `${latestImaging.keyFindings.sizeMm} mm (${latestImaging.eventDate.substring(0, 7)})`
@@ -927,13 +929,13 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
                 </div>
               </div>
               <div className="p-1">
-                <span className="text-[10px] text-slate-400 font-bold uppercase">术后病理分期</span>
+                <span className="text-xs text-slate-500 font-bold uppercase">术后病理分期</span>
                 <div className="font-extrabold text-emerald-700 mt-0.5 break-words text-sm">
                   {latestPathology?.keyFindings?.stage || "未行手术切除 (影像随访中)"}
                 </div>
               </div>
               <div className="p-1">
-                <span className="text-[10px] text-slate-400 font-bold uppercase">最新 CEA 标志物</span>
+                <span className="text-xs text-slate-500 font-bold uppercase">最新 CEA 标志物</span>
                 <div className="font-extrabold text-slate-900 mt-0.5 break-words text-sm">
                   {latestSerology?.keyFindings?.cea !== undefined
                     ? `${latestSerology.keyFindings.cea} ng/mL`
@@ -941,7 +943,7 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
                 </div>
               </div>
               <div className="p-1">
-                <span className="text-[10px] text-slate-400 font-bold uppercase">驱动基因突变</span>
+                <span className="text-xs text-slate-500 font-bold uppercase">驱动基因突变</span>
                 <div className="font-extrabold text-blue-700 mt-0.5 break-words text-sm">
                   {geneSummaryText}
                 </div>
@@ -971,7 +973,7 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
                         <td className="p-2.5 font-mono font-bold text-slate-900 whitespace-nowrap">{im.eventDate}</td>
                         <td className="p-2.5 text-slate-700 whitespace-nowrap">
                           <div className="font-semibold">{im.title}</div>
-                          <div className="text-[10px] text-slate-400">{im.hospital}</div>
+                          <div className="text-xs text-slate-500">{im.hospital}</div>
                         </td>
                         <td className="p-2.5 font-mono font-bold text-blue-700 whitespace-nowrap">
                           {im.keyFindings?.sizeMm !== undefined ? `${im.keyFindings.sizeMm} mm` : "-"}
@@ -1050,7 +1052,7 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
                       CEA: <span className="font-bold text-rose-700">{s.keyFindings?.cea ?? "-"}</span> ng/mL
                     </div>
                     {s.keyFindings?.cyfra211 && (
-                      <div className="text-slate-500 text-[11px] truncate">
+                      <div className="text-slate-500 text-xs truncate">
                         CYFRA: {s.keyFindings.cyfra211}
                       </div>
                     )}
@@ -1071,7 +1073,7 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
                     <span className="font-bold text-blue-600 shrink-0 font-mono">Q{idx + 1}.</span>
                     <div>
                       <span className="font-bold text-slate-900">[{q.category}] {q.text}</span>
-                      <span className="text-[11px] text-slate-500 ml-1.5">（目的: {q.rationale}）</span>
+                      <span className="text-xs text-slate-500 ml-1.5">（目的: {q.rationale}）</span>
                     </div>
                   </div>
                 ))}
@@ -1079,7 +1081,7 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
             </div>
 
             {/* Print Footer Disclaimer */}
-            <div className="pt-4 border-t border-slate-200 text-[10px] text-slate-400 text-center leading-relaxed">
+            <div className="pt-4 border-t border-slate-200 text-xs text-slate-400 text-center leading-relaxed">
               注：本便签由 OncoPath 循证引擎基于患者临床报告结构化生成，仅供就医沟通参考，请以临床医师综合现场诊疗为准。
             </div>
           </div>

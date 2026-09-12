@@ -375,27 +375,27 @@ export default function ClinicalTimelineView() {
 
         {/* Dynamic Stats Strip */}
         <div className="relative z-10 grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 mt-6 pt-5 border-t border-slate-200/80">
-          <div className="bg-white/90 p-3 sm:p-3.5 rounded-2xl border border-slate-200/90 shadow-2xs hover:border-blue-200 transition-colors min-w-0">
-            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider flex items-center gap-1">
-              <Calendar className="w-3 h-3 text-slate-400 shrink-0" />
+          <div className="bg-white/90 p-3 sm:p-3.5 rounded-xl border border-slate-200/90 shadow-2xs hover:border-blue-200 transition-colors min-w-0">
+            <span className="text-xs text-slate-400 font-bold uppercase tracking-wider flex items-center gap-1">
+              <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
               <span className="truncate">随访跨度</span>
             </span>
             <div className="text-xs sm:text-sm font-extrabold text-slate-900 mt-1 font-mono truncate">
               {events.length > 0 ? `${timeSpan.spanText}` : "未开启随访"}
             </div>
           </div>
-          <div className="bg-white/90 p-3 sm:p-3.5 rounded-2xl border border-slate-200/90 shadow-2xs hover:border-blue-200 transition-colors min-w-0">
-            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider flex items-center gap-1">
-              <FileText className="w-3 h-3 text-blue-500 shrink-0" />
+          <div className="bg-white/90 p-3 sm:p-3.5 rounded-xl border border-slate-200/90 shadow-2xs hover:border-blue-200 transition-colors min-w-0">
+            <span className="text-xs text-slate-400 font-bold uppercase tracking-wider flex items-center gap-1">
+              <FileText className="w-3.5 h-3.5 text-blue-500 shrink-0" />
               <span className="truncate">归档检查总数</span>
             </span>
             <div className="text-xs sm:text-sm font-extrabold text-blue-700 mt-1 font-mono truncate">
               {events.length} 次检查
             </div>
           </div>
-          <div className="bg-white/90 p-3 sm:p-3.5 rounded-2xl border border-slate-200/90 shadow-2xs hover:border-blue-200 transition-colors min-w-0">
-            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider flex items-center gap-1">
-              <TrendingUp className="w-3 h-3 text-emerald-500 shrink-0" />
+          <div className="bg-white/90 p-3 sm:p-3.5 rounded-xl border border-slate-200/90 shadow-2xs hover:border-blue-200 transition-colors min-w-0">
+            <span className="text-xs text-slate-400 font-bold uppercase tracking-wider flex items-center gap-1">
+              <TrendingUp className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
               <span className="truncate">最新病灶状态</span>
             </span>
             <div className="text-xs sm:text-sm font-extrabold text-slate-900 mt-1 flex items-center gap-1.5 truncate">
@@ -415,17 +415,17 @@ export default function ClinicalTimelineView() {
               )}
             </div>
           </div>
-          <div className="bg-white/90 p-3 sm:p-3.5 rounded-2xl border border-slate-200/90 shadow-2xs hover:border-blue-200 transition-colors min-w-0">
-            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider flex items-center gap-1">
-              <Sparkles className="w-3 h-3 text-indigo-500 shrink-0" />
+          <div className="bg-white/90 p-3 sm:p-3.5 rounded-xl border border-slate-200/90 shadow-2xs hover:border-blue-200 transition-colors min-w-0">
+            <span className="text-xs text-slate-400 font-bold uppercase tracking-wider flex items-center gap-1">
+              <Sparkles className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
               <span className="truncate">标志物 (CEA)</span>
             </span>
-            <div className="text-xs sm:text-sm font-extrabold text-slate-900 mt-1 font-mono flex items-baseline gap-1 flex-wrap">
+            <div className="text-xs sm:text-sm font-extrabold text-slate-900 mt-1 font-mono flex items-baseline gap-1.5 flex-wrap">
               {latestSerologyEvent?.keyFindings?.cea !== undefined ? (
                 <>
                   <span>{latestSerologyEvent.keyFindings.cea}</span>
-                  <span className="text-[10px] font-normal text-slate-400">ng/mL</span>
-                  <span className={`text-[9px] font-bold px-1.5 py-0.2 rounded-md ${
+                  <span className="text-xs font-normal text-slate-400">ng/mL</span>
+                  <span className={`text-xs font-semibold px-2 py-0.5 rounded-md ${
                     latestSerologyEvent.keyFindings.cea < 5.0 
                       ? "bg-emerald-50 text-emerald-700 border border-emerald-200" 
                       : "bg-amber-50 text-amber-700 border border-amber-200"
@@ -635,9 +635,9 @@ export default function ClinicalTimelineView() {
               {/* Synchronized Crosshair Banner */}
               <div className="flex flex-col sm:flex-row items-center justify-between gap-2 p-3 bg-gradient-to-r from-blue-50 via-indigo-50 to-sky-50 border border-blue-200/80 rounded-2xl text-xs text-blue-950 shadow-2xs">
                 <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-blue-600 animate-ping" />
-                  <span className="font-bold text-blue-900">🔗 跨模态时空十字准线已激活</span>
-                  <span className="text-slate-500 text-2xs hidden md:inline">
+                  <span className="w-2 h-2 rounded-full bg-blue-600" />
+                  <span className="font-bold text-blue-900">跨模态时空十字准线已激活</span>
+                  <span className="text-slate-500 text-xs hidden md:inline">
                     （悬停或轻触任一节点，上方结节全径与下方肿瘤标志物将毫秒级对齐联动）
                   </span>
                 </div>
@@ -650,10 +650,8 @@ export default function ClinicalTimelineView() {
               </div>
 
               {/* Mobile chart swipe hint */}
-              <div className="sm:hidden text-center text-[11px] text-slate-400 bg-slate-100/80 p-2 rounded-xl border border-slate-200 flex items-center justify-center gap-1.5">
-                <span>👉</span>
+              <div className="sm:hidden text-center text-xs text-slate-500 bg-slate-100/80 p-2 rounded-xl border border-slate-200 flex items-center justify-center gap-1.5">
                 <span>在手机端可横向左右滑动图表查看完整时间跨度</span>
-                <span>👈</span>
               </div>
               
               <TimelineGrowthChart 
@@ -675,7 +673,7 @@ export default function ClinicalTimelineView() {
               <div className="absolute left-0 sm:left-0 top-6 bottom-6 w-0.5 bg-gradient-to-b from-blue-500 via-purple-500 to-slate-200" />
 
               {Object.keys(groupedByYear).length === 0 ? (
-                <div className="bg-white rounded-3xl p-12 text-center border border-slate-200 shadow-sm text-slate-500 space-y-3">
+                <div className="bg-white rounded-2xl p-12 text-center border border-slate-200 shadow-xs text-slate-500 space-y-3">
                   <Search className="w-8 h-8 text-slate-400 mx-auto" />
                   <p className="text-sm font-semibold">未找到符合当前筛选条件的检查记录</p>
                   <button
@@ -694,7 +692,7 @@ export default function ClinicalTimelineView() {
                   .map((year) => (
                     <div key={year} className="space-y-4">
                       {/* Year Anchor Header */}
-                      <div className="sticky top-16 z-20 flex items-center gap-3">
+                      <div className="sticky top-20 z-20 flex items-center gap-3">
                         <div className="px-3.5 py-1.5 rounded-full bg-slate-900 text-white font-extrabold text-xs shadow-md font-mono flex items-center gap-1.5 border border-slate-700">
                           <Bookmark className="w-3.5 h-3.5 text-slate-400" />
                           <span>{year} 年度</span>

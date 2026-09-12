@@ -549,8 +549,8 @@ export default function EvidenceReportPage() {
       )}
 
       {/* Floating Island Navigation Header */}
-      <div className="fixed top-2.5 sm:top-4 left-0 right-0 z-50 px-2 sm:px-6 pointer-events-none print:hidden">
-        <nav className="max-w-5xl mx-auto flex items-center justify-between px-2.5 sm:px-6 py-2 sm:py-2.5 rounded-2xl sm:rounded-full bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-lg shadow-slate-900/5 transition-all pointer-events-auto gap-2">
+      <div className="fixed top-2.5 sm:top-4 left-0 right-0 z-50 px-2.5 sm:px-6 pointer-events-none print:hidden">
+        <nav className="max-w-7xl mx-auto flex items-center justify-between px-3.5 sm:px-6 py-2 sm:py-2.5 rounded-2xl sm:rounded-full bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-lg shadow-slate-900/5 transition-all pointer-events-auto gap-2">
           <div className="flex items-center gap-1.5 sm:gap-3 flex-shrink-0 min-w-0">
             <Link 
               href="/profile" 
@@ -561,7 +561,7 @@ export default function EvidenceReportPage() {
             </Link>
             <div className="w-px h-3.5 sm:h-4 bg-slate-200 flex-shrink-0"></div>
             <div className="font-extrabold text-slate-900 text-xs sm:text-sm flex items-center gap-1 sm:gap-1.5 whitespace-nowrap flex-shrink-0">
-              <span className={`w-2 h-2 rounded-full flex-shrink-0 ${isGenerating ? 'bg-amber-500 animate-ping' : 'bg-accent-teal animate-pulse'}`} />
+              <span className={`w-2 h-2 rounded-full flex-shrink-0 ${isGenerating ? 'bg-amber-500 animate-pulse' : 'bg-accent-teal'}`} />
               <span className="sm:hidden">循证报告</span>
               <span className="hidden sm:inline">专属深度循证解读报告</span>
             </div>
@@ -583,7 +583,7 @@ export default function EvidenceReportPage() {
             </Link>
 
             {!isGenerating && (
-              <div className="flex items-center gap-1 sm:gap-2">
+              <div className="flex items-center gap-1.5 sm:gap-2">
                 {/* 1. Export / Print PDF Button */}
                 <button 
                   onClick={handleDirectPdfExport}
@@ -634,7 +634,7 @@ export default function EvidenceReportPage() {
       </div>
 
       {/* Main Page Layout Wrapper */}
-      <div className="max-w-5xl mx-auto px-2.5 sm:px-6 lg:px-8 pt-16 sm:pt-20 md:pt-22 pb-12 print:pt-0 print:px-0">
+      <div className="max-w-5xl xl:max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 pt-24 sm:pt-28 pb-12 print:pt-0 print:px-0">
 
         {/* Pure printable & long-image exportable container (No trailing blank space) */}
         <div id="report-printable-area" ref={reportContainerRef} className="space-y-4 sm:space-y-5 bg-slate-50/90 p-3.5 sm:p-6 md:p-7 rounded-3xl border border-slate-200/90 shadow-sm print:bg-white print:border-none print:shadow-none print:p-0">

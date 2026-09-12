@@ -70,7 +70,7 @@ export function NoduleTimelineChart({
   const solidPoints = sortedHistory.map((h, i) => `${getX(i)},${getY(h.solidSize || 0)}`).join(" ");
 
   return (
-    <div className="bg-white rounded-3xl p-3.5 sm:p-6 md:p-7 border border-slate-200 border-t-4 border-t-sky-500 shadow-sm space-y-5 hover:border-sky-300 transition-all">
+    <div className="bg-white rounded-2xl p-3.5 sm:p-6 md:p-7 border border-slate-200/90 shadow-sm space-y-5 hover:border-slate-300 transition-all">
 
 
       {/* Header */}
@@ -80,10 +80,10 @@ export function NoduleTimelineChart({
             <TrendingUp className="w-4 h-4 shrink-0" />
           </div>
           <div className="min-w-0">
-            <h3 className="text-xs sm:text-sm font-extrabold text-slate-900 leading-snug">
+            <h3 className="text-sm font-extrabold text-slate-900 leading-snug">
               结节随访生长时序轨迹
             </h3>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5 truncate">
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mt-0.5 truncate">
               LONGITUDINAL CT TIMELINE · VDT DYNAMICS
             </p>
           </div>
@@ -99,7 +99,7 @@ export function NoduleTimelineChart({
           }`}>
             {vdtAnalysis.categoryLabel}
           </span>
-          <span className="text-[11px] text-slate-400 font-medium px-2.5 py-0.5 bg-slate-50 border border-slate-200 rounded-full whitespace-nowrap shrink-0">
+          <span className="text-xs text-slate-500 font-medium px-2.5 py-0.5 bg-slate-50 border border-slate-200 rounded-full whitespace-nowrap shrink-0">
             已归档 {sortedHistory.length} 次检查
           </span>
         </div>
@@ -125,7 +125,7 @@ export function NoduleTimelineChart({
             <div className="font-extrabold text-slate-900 leading-snug">
               {vdtAnalysis.clinicalInterpretation}
             </div>
-            <div className="text-[11px] text-slate-600 font-medium flex items-center gap-1 flex-wrap">
+            <div className="text-xs text-slate-600 font-medium flex items-center gap-1.5 flex-wrap">
               <Lightbulb className="w-3.5 h-3.5 text-amber-500 shrink-0" />
               <span><strong>临床指引</strong>：{vdtAnalysis.actionGuidance}</span>
             </div>
@@ -190,9 +190,9 @@ export function NoduleTimelineChart({
 
       {/* Tab 3: Full SVG Growth Chart */}
       {activeTab === "chart" && (
-        <div className="relative bg-slate-950 rounded-2xl p-3 sm:p-4 overflow-hidden border border-slate-800 shadow-inner space-y-2">
+        <div className="relative bg-slate-900 rounded-xl p-3.5 sm:p-5 overflow-hidden border border-slate-800 shadow-sm space-y-2.5">
           {/* Legends */}
-          <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 px-2 pb-1">
+          <div className="flex items-center justify-between text-xs font-mono text-slate-400 px-2 pb-1">
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-1.5">
                 <span className="w-2.5 h-2.5 rounded-full bg-sky-400" />
@@ -203,7 +203,7 @@ export function NoduleTimelineChart({
                 <span>实性成分 (Solid Core)</span>
               </div>
             </div>
-            <div className="text-[10px] text-slate-500">单位: 厘米 (cm)</div>
+            <div className="text-xs text-slate-400">单位: 厘米 (cm)</div>
           </div>
 
           <div className="w-full overflow-x-auto">

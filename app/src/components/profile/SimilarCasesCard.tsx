@@ -54,10 +54,12 @@ export default function SimilarCasesCard({ profile }: SimilarCasesCardProps) {
   if (!cohort) return null;
 
   return (
-    <div className="bg-white rounded-3xl p-3.5 sm:p-6 md:p-7 border border-slate-200 border-t-4 border-t-emerald-500 shadow-sm relative overflow-hidden group">
+    <div className="bg-white rounded-2xl p-3.5 sm:p-6 md:p-7 border border-slate-200/90 shadow-sm relative group hover:border-slate-300 transition-all">
       
-      {/* Background Soft Ambient Light */}
-      <div className="absolute -right-12 -top-12 w-64 h-64 bg-gradient-to-br from-blue-500/5 via-teal-500/5 to-transparent rounded-full blur-3xl group-hover:scale-110 transition-transform duration-700 pointer-events-none" />
+      {/* Background Soft Ambient Light (Clipped independently to prevent Tooltip clipping) */}
+      <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none">
+        <div className="absolute -right-12 -top-12 w-64 h-64 bg-gradient-to-br from-blue-500/5 via-teal-500/5 to-transparent rounded-full blur-3xl group-hover:scale-110 transition-transform duration-700" />
+      </div>
       
       {/* Card Header */}
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 mb-4 relative z-10 pb-3.5 border-b border-slate-100">
@@ -66,10 +68,10 @@ export default function SimilarCasesCard({ profile }: SimilarCasesCardProps) {
             <Users className="w-4 h-4 shrink-0" />
           </div>
           <div className="min-w-0">
-            <h3 className="text-xs sm:text-sm font-extrabold text-slate-900 leading-snug">
+            <h3 className="text-sm font-extrabold text-slate-900 leading-snug">
               相似病例群体预后分析
             </h3>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5 truncate">
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mt-0.5 truncate">
               SIMILAR CLINICAL COHORTS · REAL-WORLD EVIDENCE
             </p>
           </div>
@@ -77,61 +79,62 @@ export default function SimilarCasesCard({ profile }: SimilarCasesCardProps) {
 
         {/* Compact Integrated Confidence Pill */}
         <div className="flex items-center gap-2 bg-slate-50/90 border border-slate-200/90 px-3 py-1.5 rounded-full self-start sm:self-auto shrink-0 shadow-2xs">
-          <div className="text-[10px] text-slate-400 font-bold whitespace-nowrap">循证置信度</div>
+          <div className="text-xs text-slate-500 font-bold whitespace-nowrap">循证置信度</div>
           <div className="text-slate-300">|</div>
-          <span className="text-amber-500 text-xs font-bold flex items-center gap-1 shrink-0">
+          <span className="text-amber-600 text-xs font-bold flex items-center gap-1 shrink-0">
             <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
             <span>{cohort.confidenceRating}</span>
           </span>
-          <span className="text-[10px] sm:text-[11px] font-extrabold text-teal-800 bg-teal-50/90 px-2 py-0.2 rounded-full border border-teal-200 shrink-0 whitespace-nowrap">
+          <span className="text-xs font-bold text-teal-800 bg-teal-50 px-2 py-0.5 rounded-full border border-teal-200 shrink-0 whitespace-nowrap">
             {cohort.confidenceLevel}
           </span>
         </div>
       </div>
 
       {/* Cohort Feature Badges Bar */}
-      <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap mb-5 relative z-10">
-        <span className="text-[10px] sm:text-[11px] font-extrabold text-indigo-700 bg-indigo-50 px-2.5 py-0.5 rounded-full border border-indigo-200 shrink-0 whitespace-nowrap inline-flex items-center gap-1 shadow-2xs">
-          <Users className="w-3 h-3 text-indigo-600 shrink-0" />
+      <div className="flex items-center gap-2 flex-wrap mb-5 relative z-10">
+        <span className="text-xs font-bold text-indigo-700 bg-indigo-50 px-3 py-1 rounded-full border border-indigo-200 shrink-0 whitespace-nowrap inline-flex items-center gap-1.5 shadow-2xs">
+          <Users className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
           <span>已匹配 <strong>{cohort.cohortSize.toLocaleString()}</strong> 例相似特征</span>
         </span>
         {cohort.matchedMorphology && (
-          <span className="text-[10px] font-bold text-sky-800 bg-sky-50 px-2 py-0.5 rounded-full border border-sky-200 shrink-0 whitespace-nowrap">
+          <span className="text-xs font-medium text-sky-800 bg-sky-50 px-3 py-1 rounded-full border border-sky-200 shrink-0 whitespace-nowrap">
             {cohort.matchedMorphology}
           </span>
         )}
-        <span className="text-[10px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200 shrink-0 whitespace-nowrap">
+        <span className="text-xs font-medium text-blue-700 bg-blue-50 px-3 py-1 rounded-full border border-blue-200 shrink-0 whitespace-nowrap">
           国际顶刊前瞻队列
         </span>
         {cohort.stage && (
-          <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 shrink-0 whitespace-nowrap">
+          <span className="text-xs font-medium text-emerald-800 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200 shrink-0 whitespace-nowrap">
             {cohort.stage}
           </span>
         )}
         {cohort.keyFactors && cohort.keyFactors.length > 0 && cohort.keyFactors.map((kf: string, idx: number) => (
-          <span key={idx} className="text-[10px] font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200 shrink-0 whitespace-nowrap">
+          <span key={idx} className="text-xs font-medium text-amber-800 bg-amber-50 px-3 py-1 rounded-full border border-amber-200 shrink-0 whitespace-nowrap">
             {kf}
           </span>
         ))}
       </div>
 
-      {/* Metric Cards with Interactive Hover Explanations */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 mb-5 relative z-10">
+      {/* Metric Cards with Interactive Hover/Touch Explanations */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 mb-5 relative z-20">
         
         {/* RFS Metric Card */}
         <div 
-          className="bg-gradient-to-br from-blue-50/70 via-sky-50/40 to-white rounded-2xl p-4 sm:p-5 border border-blue-100 relative transition-all hover:shadow-sm"
+          className="bg-gradient-to-br from-blue-50/70 via-sky-50/40 to-white rounded-xl p-4 sm:p-5 border border-blue-100 relative transition-all hover:shadow-sm cursor-pointer"
           onMouseEnter={() => setHoveredTerm("RFS")}
           onMouseLeave={() => setHoveredTerm(null)}
+          onClick={() => setHoveredTerm((prev) => (prev === "RFS" ? null : "RFS"))}
         >
           <div className="flex items-center justify-between gap-2 mb-2">
-            <div className="flex items-center gap-1.5 text-xs text-slate-600 font-bold">
+            <div className="flex items-center gap-1.5 text-xs text-slate-700 font-bold">
               <span>5年无复发生存率 (RFS)</span>
-              <span className="w-4 h-4 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-[10px] cursor-help font-bold shadow-2xs">
+              <span className="w-4 h-4 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xs cursor-help font-bold shadow-2xs">
                 ?
               </span>
             </div>
-            <span className="text-[10px] text-blue-600 font-semibold bg-white/90 px-2 py-0.5 rounded-md border border-blue-200/60 shadow-2xs">
+            <span className="text-xs text-blue-600 font-semibold bg-white/90 px-2 py-0.5 rounded-md border border-blue-200/60 shadow-2xs">
               {cohort.isPreOp ? "根治治愈潜力" : "无瘤生存指标"}
             </span>
           </div>
@@ -140,14 +143,14 @@ export default function SimilarCasesCard({ profile }: SimilarCasesCardProps) {
             {cohort.rfs5Year}
           </div>
 
-          {/* RFS Tooltip Hover Popup */}
+          {/* RFS Tooltip Popup */}
           {hoveredTerm === "RFS" && (
-            <div className="absolute -top-2 left-4 right-4 -translate-y-full z-30 p-3.5 bg-slate-900/95 text-white rounded-2xl shadow-xl text-xs leading-relaxed border border-slate-700 animate-fade-in-up">
-              <div className="font-bold text-sky-400 mb-1 flex items-center gap-1.5">
-                <Lightbulb className="w-3.5 h-3.5 text-sky-400" />
-                <span>什么是 5年无复发生存率 (RFS)？</span>
+            <div className="absolute -top-2 left-2 right-2 sm:left-4 sm:right-4 -translate-y-full z-40 p-4 bg-slate-900/95 text-white rounded-xl shadow-xl text-xs leading-relaxed border border-slate-700 animate-fade-in">
+              <div className="font-bold text-sky-400 mb-1.5 flex items-center gap-1.5">
+                <Lightbulb className="w-4 h-4 text-sky-400" />
+                <span>什么是 5 年无复发生存率 (RFS)？</span>
               </div>
-              <p className="text-slate-200 text-[11px] leading-relaxed">
+              <p className="text-slate-200 text-xs leading-relaxed">
                 <strong>RFS (Relapse-Free Survival)</strong> 指手术完全切除后，5 年内身体<strong>未出现任何局部复发或远处转移</strong>的患者比例。在肿瘤医学中，肺癌术后 5 年未复发通常在临床上视为达到“临床治愈”。
               </p>
             </div>
@@ -156,18 +159,19 @@ export default function SimilarCasesCard({ profile }: SimilarCasesCardProps) {
 
         {/* OS Metric Card */}
         <div 
-          className="bg-gradient-to-br from-teal-50/70 via-emerald-50/40 to-white rounded-2xl p-4 sm:p-5 border border-teal-100 relative transition-all hover:shadow-sm"
+          className="bg-gradient-to-br from-teal-50/70 via-emerald-50/40 to-white rounded-xl p-4 sm:p-5 border border-teal-100 relative transition-all hover:shadow-sm cursor-pointer"
           onMouseEnter={() => setHoveredTerm("OS")}
           onMouseLeave={() => setHoveredTerm(null)}
+          onClick={() => setHoveredTerm((prev) => (prev === "OS" ? null : "OS"))}
         >
           <div className="flex items-center justify-between gap-2 mb-2">
-            <div className="flex items-center gap-1.5 text-xs text-slate-600 font-bold">
+            <div className="flex items-center gap-1.5 text-xs text-slate-700 font-bold">
               <span>5年总生存率 (OS)</span>
-              <span className="w-4 h-4 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center text-[10px] cursor-help font-bold shadow-2xs">
+              <span className="w-4 h-4 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center text-xs cursor-help font-bold shadow-2xs">
                 ?
               </span>
             </div>
-            <span className="text-[10px] text-teal-700 font-semibold bg-white/90 px-2 py-0.5 rounded-md border border-teal-200/60 shadow-2xs">
+            <span className="text-xs text-teal-700 font-semibold bg-white/90 px-2 py-0.5 rounded-md border border-teal-200/60 shadow-2xs">
               终极金标准
             </span>
           </div>
@@ -176,14 +180,14 @@ export default function SimilarCasesCard({ profile }: SimilarCasesCardProps) {
             {cohort.os5Year}
           </div>
 
-          {/* OS Tooltip Hover Popup */}
+          {/* OS Tooltip Popup */}
           {hoveredTerm === "OS" && (
-            <div className="absolute -top-2 left-4 right-4 -translate-y-full z-30 p-3.5 bg-slate-900/95 text-white rounded-2xl shadow-xl text-xs leading-relaxed border border-slate-700 animate-fade-in-up">
-              <div className="font-bold text-emerald-400 mb-1 flex items-center gap-1.5">
-                <Lightbulb className="w-3.5 h-3.5 text-emerald-400" />
-                <span>什么是 5年总生存率 (OS)？</span>
+            <div className="absolute -top-2 left-2 right-2 sm:left-4 sm:right-4 -translate-y-full z-40 p-4 bg-slate-900/95 text-white rounded-xl shadow-xl text-xs leading-relaxed border border-slate-700 animate-fade-in">
+              <div className="font-bold text-emerald-400 mb-1.5 flex items-center gap-1.5">
+                <Lightbulb className="w-4 h-4 text-emerald-400" />
+                <span>什么是 5 年总生存率 (OS)？</span>
               </div>
-              <p className="text-slate-200 text-[11px] leading-relaxed">
+              <p className="text-slate-200 text-xs leading-relaxed">
                 <strong>OS (Overall Survival)</strong> 指从确诊或手术开始，<strong>5 年后依然健在的患者百分比</strong>。这是国际公认衡量肿瘤整体长期治疗效果最高权威的“硬终点”。
               </p>
             </div>
@@ -201,11 +205,11 @@ export default function SimilarCasesCard({ profile }: SimilarCasesCardProps) {
           <div className="space-y-1.5 flex-1 min-w-0">
             <div className="text-xs font-extrabold text-slate-900 flex items-center gap-2">
               <span>循证特征解读与随访指引</span>
-              <span className="text-[10px] font-semibold text-teal-700 bg-teal-50 px-2 py-0.2 rounded-md border border-teal-200/60">
+              <span className="text-xs font-semibold text-teal-700 bg-teal-50 px-2.5 py-0.5 rounded-md border border-teal-200/60">
                 个体化匹配
               </span>
             </div>
-            <p className="text-xs sm:text-[13px] text-slate-700 leading-relaxed font-medium">
+            <p className="text-xs sm:text-sm text-slate-700 leading-relaxed font-medium">
               {cohort.description}
             </p>
           </div>
@@ -219,13 +223,13 @@ export default function SimilarCasesCard({ profile }: SimilarCasesCardProps) {
               {cohort.source}
             </span>
           </div>
-          <span className="text-[10px] text-slate-400 font-mono">
+          <span className="text-xs text-slate-400 font-mono">
             Level-1 Evidence · Peer-Reviewed
           </span>
         </div>
       </div>
 
-      {/* Warm Compassionate & Empowerment Banner (暖心抗癌赋能与心理支持) */}
+      {/* Warm Compassionate & Empowerment Banner */}
       <div className="mt-6 p-4 sm:p-6 rounded-2xl bg-gradient-to-br from-amber-50/90 via-orange-50/40 to-teal-50/60 border border-amber-200/80 shadow-xs relative z-10">
         {/* Title Row with Compact Inline Sun Badge */}
         <div className="flex items-center gap-2.5 mb-2.5">
@@ -244,32 +248,32 @@ export default function SimilarCasesCard({ profile }: SimilarCasesCardProps) {
 
         {/* 3 Full-Width Pillars Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-          <div className="bg-white/90 p-3 rounded-xl border border-amber-200/70 shadow-2xs">
-            <div className="text-[12px] font-bold text-amber-900 mb-1 flex items-center gap-1.5">
+          <div className="bg-white/90 p-3.5 rounded-xl border border-amber-200/70 shadow-2xs">
+            <div className="text-xs font-bold text-amber-900 mb-1 flex items-center gap-1.5">
               <Apple className="w-3.5 h-3.5 text-amber-700" />
               <span>营养与强健体魄</span>
             </div>
-            <div className="text-[11px] text-slate-600 leading-relaxed">
+            <div className="text-xs text-slate-600 leading-relaxed">
               保证优质蛋白摄入，温和散步或太极八段锦，激活机体杀伤性 T 细胞活力。
             </div>
           </div>
 
-          <div className="bg-white/90 p-3 rounded-xl border border-teal-200/70 shadow-2xs">
-            <div className="text-[12px] font-bold text-teal-900 mb-1 flex items-center gap-1.5">
+          <div className="bg-white/90 p-3.5 rounded-xl border border-teal-200/70 shadow-2xs">
+            <div className="text-xs font-bold text-teal-900 mb-1 flex items-center gap-1.5">
               <HeartPulse className="w-3.5 h-3.5 text-teal-700" />
               <span>乐观心境与神经免疫</span>
             </div>
-            <div className="text-[11px] text-slate-600 leading-relaxed">
+            <div className="text-xs text-slate-600 leading-relaxed">
               研究证实良好情绪能显著降低皮质醇压力激素，为机体细胞修复创造最佳微环境。
             </div>
           </div>
 
-          <div className="bg-white/90 p-3 rounded-xl border border-blue-200/70 shadow-2xs">
-            <div className="text-[12px] font-bold text-blue-900 mb-1 flex items-center gap-1.5">
+          <div className="bg-white/90 p-3.5 rounded-xl border border-blue-200/70 shadow-2xs">
+            <div className="text-xs font-bold text-blue-900 mb-1 flex items-center gap-1.5">
               <ShieldCheck className="w-3.5 h-3.5 text-blue-700" />
               <span>规律随访，坦然从容</span>
             </div>
-            <div className="text-[11px] text-slate-600 leading-relaxed">
+            <div className="text-xs text-slate-600 leading-relaxed">
               按时完成胸部 CT 复查，把担忧托付给科学规律，每一天都充满生机与希望。
             </div>
           </div>

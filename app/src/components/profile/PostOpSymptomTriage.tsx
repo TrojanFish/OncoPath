@@ -168,7 +168,7 @@ export default function PostOpSymptomTriage() {
   };
 
   return (
-    <div className="bg-white rounded-3xl p-4 sm:p-6 md:p-7 border border-slate-200 shadow-sm space-y-6 hover:border-teal-300 transition-all">
+    <div className="bg-white rounded-2xl p-4 sm:p-6 md:p-7 border border-slate-200/90 shadow-sm space-y-6 hover:border-teal-300 transition-all">
 
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
@@ -180,11 +180,11 @@ export default function PostOpSymptomTriage() {
             <div className="min-w-0 flex-1">
               <h3 className="text-sm sm:text-base font-extrabold text-slate-900 leading-snug flex items-center gap-2">
                 <span>术后症状红绿灯智能分诊器</span>
-                <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-teal-50 text-teal-800 border border-teal-200">
+                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-teal-50 text-teal-800 border border-teal-200">
                   3步分诊自查
                 </span>
               </h3>
-              <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5 leading-snug">
+              <p className="text-xs sm:text-sm text-slate-500 mt-0.5 leading-snug">
                 科学化解出院居家康复焦虑 · 区分正常生理代偿反应与紧急返院红线
               </p>
             </div>
@@ -193,16 +193,16 @@ export default function PostOpSymptomTriage() {
 
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-50 border border-teal-200 text-teal-800 text-xs font-bold shrink-0 self-start sm:self-auto">
           <ShieldCheck className="w-3.5 h-3.5 text-teal-600 shrink-0" />
-          <span>24小时居家安心定心丸</span>
+          <span>24小时居家分诊指引</span>
         </div>
       </div>
 
       {/* 3-Step Wizard Navigation Bar (Segmented Stepper) */}
-      <div className="grid grid-cols-3 gap-2 p-1.5 bg-slate-50 rounded-2xl border border-slate-200/90 text-xs">
+      <div className="grid grid-cols-3 gap-2 p-1.5 bg-slate-50 rounded-xl border border-slate-200/90 text-xs">
         {[
           { step: 1, title: "1. 症状主诉定位", desc: currentSymptom.name.split(" / ")[0] },
-          { step: 2, title: "2. 危险红线排查", desc: hasAnyRedFlag ? "🚨 检出急诊红线" : "4项指标安全" },
-          { step: 3, title: "3. 循证对策处方", desc: hasAnyRedFlag ? "急诊返院指引" : "居家舒缓与门诊金句" },
+          { step: 2, title: "2. 危险红线排查", desc: hasAnyRedFlag ? "检出急诊红线" : "4项指标安全" },
+          { step: 3, title: "3. 循证对策处方", desc: hasAnyRedFlag ? "急诊返院指引" : "居家舒缓与门诊要点" },
         ].map((item) => {
           const isActive = currentStep === item.step;
           const isDone = currentStep > item.step;
@@ -211,7 +211,7 @@ export default function PostOpSymptomTriage() {
               key={item.step}
               type="button"
               onClick={() => setCurrentStep(item.step as 1 | 2 | 3)}
-              className={`p-2.5 sm:p-3 rounded-xl text-left transition-all cursor-pointer flex flex-col justify-between min-w-0 overflow-hidden ${
+              className={`p-2.5 sm:p-3 rounded-lg text-left transition-all cursor-pointer flex flex-col justify-between min-w-0 overflow-hidden ${
                 isActive
                   ? "bg-white text-teal-950 font-bold shadow-xs border border-teal-300 ring-2 ring-teal-400/20"
                   : isDone
@@ -220,12 +220,12 @@ export default function PostOpSymptomTriage() {
               }`}
             >
               <div className="flex items-center justify-between min-w-0 w-full">
-                <span className="font-bold text-[11px] sm:text-xs truncate">
+                <span className="font-bold text-xs truncate">
                   {item.title}
                 </span>
                 {isDone && <CheckCircle2 className="w-3.5 h-3.5 text-teal-600 shrink-0" />}
               </div>
-              <div className="text-[10px] text-slate-500 truncate mt-0.5 w-full">
+              <div className="text-xs text-slate-500 truncate mt-0.5 w-full">
                 {item.desc}
               </div>
             </button>
@@ -238,7 +238,7 @@ export default function PostOpSymptomTriage() {
         <div className="space-y-4 animate-fade-in">
           <div className="text-xs font-bold text-slate-700 flex items-center justify-between">
             <span>请点击选择您当前最困扰的术后不适：</span>
-            <span className="text-slate-400 text-[11px]">共收录 4 大高频生理不适</span>
+            <span className="text-slate-400 text-xs">共收录 4 大高频生理不适</span>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
@@ -251,7 +251,7 @@ export default function PostOpSymptomTriage() {
                   key={item.id}
                   type="button"
                   onClick={() => setSelectedCategory(item.id)}
-                  className={`p-3 sm:p-3.5 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between space-y-2 min-w-0 overflow-hidden ${
+                  className={`p-3 sm:p-3.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between space-y-2 min-w-0 overflow-hidden ${
                     isSelected
                       ? "bg-gradient-to-br from-teal-50/90 via-sky-50/60 to-blue-50/50 border-teal-400 shadow-sm ring-2 ring-teal-400/20"
                       : "bg-slate-50/70 border-slate-200 hover:bg-slate-100 hover:border-slate-300"
@@ -264,7 +264,7 @@ export default function PostOpSymptomTriage() {
                       <ItemIcon className="w-4 h-4" />
                     </div>
                     {isSelected && (
-                      <span className="w-2 h-2 rounded-full bg-teal-500 animate-pulse shrink-0" />
+                      <span className="w-2 h-2 rounded-full bg-teal-500 shrink-0" />
                     )}
                   </div>
 
@@ -274,7 +274,7 @@ export default function PostOpSymptomTriage() {
                     }`}>
                       {item.name.split(" / ")[0]}
                     </div>
-                    <div className="text-[10px] text-slate-500 line-clamp-1 mt-0.5 break-words">
+                    <div className="text-xs text-slate-500 line-clamp-1 mt-0.5 break-words">
                       {item.tag}
                     </div>
                   </div>
@@ -284,18 +284,18 @@ export default function PostOpSymptomTriage() {
           </div>
 
           {/* Active Symptom Highlight Preview Card */}
-          <div className="p-4 rounded-2xl bg-teal-50/50 border border-teal-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+          <div className="p-4 rounded-xl bg-teal-50/50 border border-teal-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-teal-100 text-teal-800 flex items-center justify-center font-bold shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-teal-100 text-teal-800 flex items-center justify-center font-bold shrink-0">
                 <Icon className="w-5 h-5 text-teal-700" />
               </div>
               <div>
                 <h4 className="text-xs sm:text-sm font-black text-slate-900">{currentSymptom.name}</h4>
-                <p className="text-[11px] text-slate-600 mt-0.5">{currentSymptom.shortDesc}</p>
+                <p className="text-xs text-slate-600 mt-0.5">{currentSymptom.shortDesc}</p>
               </div>
             </div>
             <div className="text-xs font-mono text-slate-600 bg-white px-3 py-1.5 rounded-xl border border-teal-200/80 shrink-0">
-              ⏱️ 预期自然缓解: <strong className="text-teal-700">{currentSymptom.expectedDuration}</strong>
+              预期自然缓解: <strong className="text-teal-700">{currentSymptom.expectedDuration}</strong>
             </div>
           </div>
 
@@ -388,12 +388,12 @@ export default function PostOpSymptomTriage() {
               )}
               <div>
                 <div className="font-extrabold text-xs">
-                  {hasAnyRedFlag ? "🚨 触发紧急警示信号 (需尽快就医)" : "🟢 4项危险指标排查正常 (属于良性代偿修复)"}
+                  {hasAnyRedFlag ? "触发紧急警示信号 (需尽快就医)" : "4项危险指标排查正常 (属于良性生理代偿)"}
                 </div>
-                <div className="text-[11px] text-slate-600 mt-0.5">
+                <div className="text-xs text-slate-600 mt-0.5">
                   {hasAnyRedFlag
                     ? "检出可能存在感染、咯血或肺通气障碍的高危征象，建议直接走急诊就医流程。"
-                    : "未触发急诊红线指标，请继续查看居家对症舒缓手法与门诊沟通金句。"}
+                    : "未触发急诊红线指标，请查看居家对症舒缓指导与门诊沟通要点。"}
                 </div>
               </div>
             </div>
@@ -429,13 +429,13 @@ export default function PostOpSymptomTriage() {
               <span className="font-extrabold text-slate-900">{currentSymptom.name} · 循证解决方案</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-[11px] text-slate-500 font-mono">
+              <span className="text-xs text-slate-500 font-mono">
                 缓解周期: {currentSymptom.expectedDuration}
               </span>
               <button
                 type="button"
                 onClick={handleReset}
-                className="text-[11px] text-teal-700 hover:underline font-bold"
+                className="text-xs text-teal-700 hover:underline font-bold"
               >
                 重新自查
               </button>
@@ -448,9 +448,9 @@ export default function PostOpSymptomTriage() {
             {/* Level 1: Green - Normal Physiology & Home Care */}
             <div className="bg-emerald-50/50 rounded-2xl p-4 sm:p-5 border border-emerald-200/90 space-y-3 flex flex-col justify-between">
               <div className="space-y-2.5">
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-bold">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold">
                   <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                  <span>🟢 正常生理反应 (安心定心丸)</span>
+                  <span>正常生理反应 (良性代偿修复)</span>
                 </div>
 
                 <div className="text-xs text-emerald-950 leading-relaxed font-medium">
@@ -460,10 +460,10 @@ export default function PostOpSymptomTriage() {
 
                 <div className="pt-2 border-t border-emerald-200/60 space-y-1.5 text-xs text-emerald-900">
                   <div className="font-bold flex items-center gap-1 text-emerald-800">
-                    <Sparkles className="w-3 h-3 text-emerald-600" />
+                    <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
                     <span>居家日常舒缓技巧：</span>
                   </div>
-                  <ul className="space-y-1 pl-1 text-[11px]">
+                  <ul className="space-y-1.5 pl-1 text-xs">
                     {currentSymptom.homeCareTips.map((tip, idx) => (
                       <li key={idx} className="flex items-start gap-1.5 leading-snug">
                         <span className="text-emerald-500 font-bold">•</span>
@@ -474,17 +474,17 @@ export default function PostOpSymptomTriage() {
                 </div>
               </div>
 
-              <div className="text-[10px] text-emerald-700 font-bold bg-white/80 p-2 rounded-xl border border-emerald-200 mt-2">
-                ✓ 属于组织代偿修复必经阶段，无需过度焦虑
+              <div className="text-xs text-emerald-800 font-bold bg-white/90 p-2.5 rounded-xl border border-emerald-200 mt-2">
+                ✓ 属于组织代偿修复必经阶段，遵循指引平稳度过
               </div>
             </div>
 
             {/* Level 2: Yellow - Outpatient Management */}
             <div className="bg-amber-50/50 rounded-2xl p-4 sm:p-5 border border-amber-200/90 space-y-3 flex flex-col justify-between">
               <div className="space-y-2.5">
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[11px] font-bold">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-bold">
                   <span className="w-2 h-2 rounded-full bg-amber-500" />
-                  <span>🟡 门诊对症调理 (若影响睡眠)</span>
+                  <span>门诊对症调理 (若影响日常生活)</span>
                 </div>
 
                 <div className="text-xs text-amber-950 leading-relaxed font-medium">
@@ -492,19 +492,19 @@ export default function PostOpSymptomTriage() {
                   {currentSymptom.outpatientAdvice}
                 </div>
 
-                <div className="p-2.5 rounded-xl bg-white/80 border border-amber-200/80 text-[11px] text-amber-900 space-y-1">
-                  <div className="font-bold flex items-center gap-1">
+                <div className="p-2.5 rounded-xl bg-white/90 border border-amber-200/80 text-xs text-amber-900 space-y-1">
+                  <div className="font-bold flex items-center gap-1 text-amber-800">
                     <Stethoscope className="w-3.5 h-3.5 text-amber-700" />
-                    <span>门诊沟通金句：</span>
+                    <span>门诊沟通要点参考：</span>
                   </div>
-                  <p className="italic text-amber-800 leading-tight">
-                    “医生，我术后有{currentSymptom.name.split(" / ")[0]}，偶尔影响睡眠，请问是否可以开具针对性的雾化或口服对症药物？”
+                  <p className="italic text-amber-800 leading-normal">
+                    “医生，我术后出现{currentSymptom.name.split(" / ")[0]}，已影响到日常生活休息，请问是否可以评估开具针对性的雾化或口服对症药物？”
                   </p>
                 </div>
               </div>
 
-              <div className="text-[10px] text-amber-800 font-bold bg-amber-100/60 p-2 rounded-xl border border-amber-200 mt-2">
-                ⚡ 常规门诊对症调理，遵医嘱用药
+              <div className="text-xs text-amber-800 font-bold bg-amber-100/70 p-2.5 rounded-xl border border-amber-200 mt-2">
+                常规门诊随访对症调理，严格遵医嘱用药
               </div>
             </div>
 
@@ -515,18 +515,18 @@ export default function PostOpSymptomTriage() {
                 : "bg-rose-50/50 border-rose-200/90"
             }`}>
               <div className="space-y-2.5">
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 text-[11px] font-bold">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-rose-100 text-rose-800 text-xs font-bold">
                   <AlertOctagon className="w-3.5 h-3.5 text-rose-600" />
-                  <span>🔴 紧急警示信号 (需立即就医)</span>
+                  <span>紧急警示信号 (需立即就医)</span>
                 </div>
 
                 <div className="text-xs text-rose-950 leading-relaxed font-medium">
-                  <strong>若出现以下极端体征，请立即前往医院急诊或胸外科门诊：</strong>
+                  <strong>若出现以下体征，请立即前往医院急诊或胸外科门诊：</strong>
                 </div>
 
-                <ul className="space-y-2 pl-1 text-[11px] text-rose-900 font-medium">
+                <ul className="space-y-2 pl-1 text-xs text-rose-900 font-medium">
                   {currentSymptom.redFlags.map((flag, idx) => (
-                    <li key={idx} className="flex items-start gap-1.5 bg-white/90 p-2 rounded-xl border border-rose-200 leading-snug">
+                    <li key={idx} className="flex items-start gap-1.5 bg-white/90 p-2.5 rounded-xl border border-rose-200 leading-snug">
                       <AlertTriangle className="w-3.5 h-3.5 text-rose-600 shrink-0 mt-0.5" />
                       <span>{flag}</span>
                     </li>
@@ -534,12 +534,12 @@ export default function PostOpSymptomTriage() {
                 </ul>
               </div>
 
-              <div className={`text-[10px] font-bold p-2 rounded-xl border text-center mt-2 ${
+              <div className={`text-xs font-bold p-2.5 rounded-xl border text-center mt-2 ${
                 hasAnyRedFlag
-                  ? "bg-rose-600 text-white border-rose-700 animate-pulse"
+                  ? "bg-rose-600 text-white border-rose-700 shadow-xs"
                   : "bg-rose-100 text-rose-800 border-rose-300"
               }`}>
-                {hasAnyRedFlag ? "🚨 当前已触发危险红线，请立即就近就医！" : "🚨 出现上述红线体征请勿拖延，立即就医"}
+                {hasAnyRedFlag ? "当前已触发危险红线指标，建议立即前往急诊或胸外科专科就医" : "如出现上述红线体征请勿拖延，立即就医排查"}
               </div>
             </div>
 

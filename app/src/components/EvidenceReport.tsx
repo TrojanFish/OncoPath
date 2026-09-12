@@ -17,6 +17,7 @@ import {
   Sparkles,
   ChevronDown,
   ChevronUp,
+  X,
 } from "lucide-react";
 import type { PatientProfile } from "@/lib/types";
 import { analyzePatientProfile, EVIDENCE_FACTORS, FEATURED_STUDIES, STUDY_TYPE_LABELS, type PatientMatchResult } from "@/lib/evidence-data";
@@ -140,15 +141,15 @@ export default function EvidenceReport({
             <button
               type="button"
               onClick={() => setShowGraphOverlay(false)}
-              className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-900 flex items-center justify-center cursor-pointer transition-colors"
+              className="w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 flex items-center justify-center cursor-pointer transition-colors"
               aria-label="关闭窗口"
               title="关闭窗口"
             >
-              <span className="text-lg leading-none">✕</span>
+              <X className="w-5 h-5" />
             </button>
           </div>
           {/* Overlay Content */}
-          <div className="flex-1 overflow-y-auto px-4 sm:px-6 pb-8 bg-slate-900/90 rounded-b-3xl max-w-6xl mx-auto w-full border-x border-b border-slate-800">
+          <div className="flex-1 overflow-y-auto px-4 sm:px-6 pb-8 bg-slate-900/90 rounded-b-2xl max-w-6xl mx-auto w-full border-x border-b border-slate-800">
             <div className="max-w-6xl mx-auto pt-4">
               <KnowledgeMapPreview profile={profile} />
             </div>
@@ -162,7 +163,7 @@ export default function EvidenceReport({
 
       {/* Sticky Header */}
       <div className="bg-white/95 backdrop-blur-md border-b border-slate-200 sticky top-0 z-40 px-4 sm:px-6 py-3 shadow-xs">
-        <div className="max-w-5xl mx-auto flex items-center justify-between gap-3">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
           <button
             onClick={handleBack}
             id="report-back-btn"
@@ -174,7 +175,7 @@ export default function EvidenceReport({
             <span>返回修改</span>
           </button>
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <div className="w-2 h-2 rounded-full bg-emerald-500" />
             <span className="text-slate-900 font-bold text-xs sm:text-sm">循证分析决策报告</span>
           </div>
           <div className="flex items-center gap-2">
@@ -206,9 +207,9 @@ export default function EvidenceReport({
         </div>
       </div>
 
-      <div className="w-full max-w-5xl mx-auto px-3.5 sm:px-6 py-6 space-y-6">
+      <div className="w-full max-w-7xl mx-auto px-3.5 sm:px-6 py-6 space-y-6">
         {/* Tier 1: 情绪安抚与正向定性结论卡 (Psychological De-escalation Box) */}
-        <div className="bg-white rounded-3xl p-5 sm:p-7 md:p-8 border border-slate-200 shadow-sm space-y-6 animate-fade-in-up">
+        <div className="bg-white rounded-2xl p-5 sm:p-7 md:p-8 border border-slate-200 shadow-sm space-y-6 animate-fade-in-up">
           <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
             <div className="flex-1 space-y-4">
               <div className="flex flex-wrap items-center justify-between gap-3">
@@ -291,7 +292,7 @@ export default function EvidenceReport({
               </div>
               <div className="space-y-1 flex-1">
                 <h4 className="text-xs sm:text-sm font-bold text-emerald-950">
-                  💡 伴随式就诊建议与行动指引
+                  伴随式就诊建议与行动指引
                 </h4>
                 <p className="text-xs text-emerald-900 leading-relaxed">
                   您的病理报告中包含微转移或侵犯倾向特征（如 STAS/VPI/微乳头成分）。国际多中心研究证实，通过规范化术后辅助治疗或紧密随访，可大幅降低复发风险。建议在复诊时与主治医生进一步确认个性化随访与辅助治疗方案。

@@ -21,7 +21,7 @@ export function TumorMarkersCard({
   const isAllNormal = hasData && evaluations.every((item) => item.status === "normal");
 
   return (
-    <div className="bg-white rounded-3xl p-3.5 sm:p-6 md:p-7 border border-slate-200 border-t-4 border-t-indigo-500 shadow-sm space-y-5 hover:border-indigo-300 transition-all">
+    <div className="bg-white rounded-2xl p-3.5 sm:p-6 md:p-7 border border-slate-200/90 shadow-sm space-y-5 hover:border-slate-300 transition-all">
 
 
       {/* Header */}
@@ -32,20 +32,20 @@ export function TumorMarkersCard({
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="text-xs sm:text-sm font-extrabold text-slate-900 leading-snug">
+              <h3 className="text-sm font-extrabold text-slate-900 leading-snug">
                 血清肿瘤标志物监测
               </h3>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200 shrink-0 whitespace-nowrap">
+              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200 shrink-0 whitespace-nowrap">
                 当前快照
               </span>
               {markers?.testDate && (
-                <span className="text-[11px] font-mono text-slate-500 flex items-center gap-1 shrink-0 whitespace-nowrap">
-                  <Calendar className="w-3 h-3 text-slate-400 shrink-0" />
+                <span className="text-xs font-mono text-slate-500 flex items-center gap-1 shrink-0 whitespace-nowrap">
+                  <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                   <span>{markers.testDate}</span>
                 </span>
               )}
             </div>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5 truncate">
+            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mt-0.5 truncate">
               SERUM TUMOR BIOMARKERS · PANEL SNAPSHOT
             </p>
           </div>
@@ -74,7 +74,7 @@ export function TumorMarkersCard({
 
       {/* Main Content */}
       {!hasData ? (
-        <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200 text-center space-y-2">
+        <div className="p-6 rounded-xl bg-slate-50 border border-slate-200 text-center space-y-2">
           <div className="flex justify-center mb-1">
             <TestTube2 className="w-8 h-8 text-slate-400" />
           </div>
@@ -86,37 +86,37 @@ export function TumorMarkersCard({
       ) : (
         <div className="space-y-4">
           {/* Key Medical Principle Banner */}
-          <div className="p-3.5 sm:p-4 rounded-2xl bg-emerald-50/80 border border-emerald-200 text-xs text-emerald-950 space-y-1.5 shadow-2xs">
+          <div className="p-4 sm:p-5 rounded-xl bg-emerald-50/80 border border-emerald-200 text-xs text-emerald-950 space-y-2 shadow-2xs">
             <div className="font-bold flex items-center justify-between">
               <div className="flex items-center gap-1.5">
                 <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span className="text-emerald-900 font-extrabold">临床定心丸黄金铁律：</span>
+                <span className="text-emerald-900 font-extrabold text-xs sm:text-sm">临床循证解读原则：</span>
               </div>
               <button 
                 onClick={() => setShowFactors(!showFactors)}
-                className="text-[11px] font-semibold text-emerald-700 hover:text-emerald-900 flex items-center gap-0.5 cursor-pointer bg-white/80 px-2 py-0.5 rounded-md border border-emerald-200"
+                className="text-xs font-semibold text-emerald-700 hover:text-emerald-900 flex items-center gap-1 cursor-pointer bg-white/90 px-2.5 py-1 rounded-md border border-emerald-200"
               >
                 <span>{showFactors ? "收起良性排查" : "查看良性波动原因"}</span>
-                {showFactors ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                {showFactors ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
               </button>
             </div>
-            <p className="text-[11px] sm:text-xs text-emerald-800 leading-relaxed font-medium">
+            <p className="text-xs sm:text-sm text-emerald-900 leading-relaxed font-medium">
               在正常参考区间（如 CEA &lt; 5.0 ng/mL，CYFRA21-1 &lt; 3.3 ng/mL）内的任何轻微数值起伏，<strong>均属于人体正常生理代谢波动</strong>（吸烟、轻微胃肠炎、感冒均可引起轻度起伏），绝不代表病情恶化或复发！临床决策始终以<strong>胸部薄层 CT 影像为金标准</strong>。
             </p>
 
             {showFactors && (
-              <div className="pt-2.5 mt-2 border-t border-emerald-200/80 grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px] text-emerald-900 animate-fade-in">
-                <div className="bg-white/80 p-2 rounded-xl border border-emerald-100">
-                  <span className="font-bold block text-emerald-800">🚬 吸烟与生活习惯</span>
-                  <span>长期吸烟者 CEA 生理基线通常为 3.0~5.0 ng/mL，属正常良性状态。</span>
+              <div className="pt-2.5 mt-2 border-t border-emerald-200/80 grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs text-emerald-900 animate-fade-in">
+                <div className="bg-white/90 p-2.5 rounded-xl border border-emerald-100 space-y-1">
+                  <span className="font-bold block text-emerald-800">吸烟与生活习惯</span>
+                  <span className="leading-relaxed">长期吸烟者 CEA 生理基线通常为 3.0~5.0 ng/mL，属正常良性状态。</span>
                 </div>
-                <div className="bg-white/80 p-2 rounded-xl border border-emerald-100">
-                  <span className="font-bold block text-emerald-800">🫁 呼吸道与消化道炎症</span>
-                  <span>支气管炎、胃炎、结肠息肉均可能引起 CYFRA21-1 或 CEA 轻微上浮。</span>
+                <div className="bg-white/90 p-2.5 rounded-xl border border-emerald-100 space-y-1">
+                  <span className="font-bold block text-emerald-800">呼吸道与消化道炎症</span>
+                  <span className="leading-relaxed">支气管炎、胃炎、结肠息肉均可能引起 CYFRA21-1 或 CEA 轻微上浮。</span>
                 </div>
-                <div className="bg-white/80 p-2 rounded-xl border border-emerald-100">
-                  <span className="font-bold block text-emerald-800">🧪 检验机台批次差</span>
-                  <span>不同医院化验设备及检测试剂存在 ±1.0 ng/mL 正常系统误差。</span>
+                <div className="bg-white/90 p-2.5 rounded-xl border border-emerald-100 space-y-1">
+                  <span className="font-bold block text-emerald-800">检验机台批次差</span>
+                  <span className="leading-relaxed">不同医院化验设备及检测试剂存在 ±1.0 ng/mL 正常系统误差。</span>
                 </div>
               </div>
             )}
@@ -145,7 +145,7 @@ export function TumorMarkersCard({
                           <span>{evalItem.nameZh}</span>
                         </GlossaryTooltip>
                       </div>
-                      <div className="text-[10px] font-mono text-slate-400">生理安全带范围: {evalItem.refRange}</div>
+                      <div className="text-xs font-mono text-slate-400">生理安全带范围: {evalItem.refRange}</div>
                     </div>
                     <div className="text-right">
                       <div className={`text-base font-black font-mono ${
@@ -153,7 +153,7 @@ export function TumorMarkersCard({
                       }`}>
                         {evalItem.value} <span className="text-xs font-normal text-slate-500">{evalItem.unit}</span>
                       </div>
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                      <span className={`text-xs font-bold px-2 py-0.5 rounded-full border ${
                         isNormal
                           ? "bg-emerald-100 text-emerald-800 border-emerald-200"
                           : "bg-amber-100 text-amber-900 border-amber-300"
@@ -174,7 +174,7 @@ export function TumorMarkersCard({
                         style={{ width: `${percent}%` }}
                       />
                     </div>
-                    <div className="flex justify-between text-[9px] font-mono text-slate-400">
+                    <div className="flex justify-between text-xs font-mono text-slate-400">
                       <span>0</span>
                       <span className="text-emerald-700 font-bold">生理安全上限: {evalItem.refMax}</span>
                       <span>{maxGauge.toFixed(1)}</span>
@@ -182,7 +182,7 @@ export function TumorMarkersCard({
                   </div>
 
                   {/* Plain Language Reassurance */}
-                  <div className="text-[11px] text-slate-600 bg-white p-2.5 rounded-xl border border-slate-200/80 leading-relaxed font-medium">
+                  <div className="text-xs text-slate-600 bg-white p-3 rounded-xl border border-slate-200/80 leading-relaxed font-medium">
                     {evalItem.reassuranceText}
                   </div>
                 </div>

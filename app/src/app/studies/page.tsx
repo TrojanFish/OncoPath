@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState, useEffect, useMemo } from "react";
 import { 
@@ -151,13 +151,13 @@ export default function StudiesPage() {
         <div className="inline-flex items-center gap-2 bg-white px-4 py-1.5 rounded-full text-xs font-bold text-sky-700 border border-sky-200/80 shadow-xs">
           <BookOpen className="w-3.5 h-3.5 text-sky-600" />
           <span>国际顶刊同行评审文献库</span>
-          <span className="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse" />
+          <span className="w-1.5 h-1.5 rounded-full bg-sky-500" />
           <span>100% DOI 原始出处可溯</span>
         </div>
 
         {/* Unified H1 */}
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
-          汇聚全球顶刊 · <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-sky-500 to-teal-500">严谨循证文献矩阵</span>
+          汇聚全球顶刊 · <span className="text-blue-600">严谨循证文献矩阵</span>
         </h1>
 
         {/* Unified Subtitle */}

@@ -41,6 +41,9 @@
   --gold: #f59e0b;
   --star-filled: #f59e0b;
   --star-empty: #e2e8f0;
+
+  /* Universal Layout Tokens */
+  --nav-offset: clamp(5.75rem, 8vw, 7rem);
 }
 
 @layer base {
@@ -324,6 +327,42 @@ select:focus-visible {
 
 .pb-safe {
   padding-bottom: max(1rem, env(safe-area-inset-bottom, 1rem));
+}
+
+/* 3-Tier Consistent Physical Elevation */
+.elevation-1 {
+  box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.05), 0 1px 2px -1px rgba(15, 23, 42, 0.03);
+}
+
+.elevation-2 {
+  box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.06), 0 2px 6px -2px rgba(15, 23, 42, 0.03);
+}
+
+.elevation-3 {
+  box-shadow: 0 16px 36px -4px rgba(15, 23, 42, 0.12), 0 6px 14px -4px rgba(15, 23, 42, 0.06);
+}
+
+/* Apple HIG & WCAG Accessible Touch Targets (min 40x40px hitbox) */
+.touch-target-min {
+  min-width: 40px;
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Standard Clinical Layout Top Offset */
+.nav-top-offset {
+  padding-top: var(--nav-offset);
+}
+
+/* Calm, Tranquil Medical Indicator Dot */
+.status-dot-steady {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  display: inline-block;
+  flex-shrink: 0;
 }
 
 /* Claude Artifact Style Print Styles */

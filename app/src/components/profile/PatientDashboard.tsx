@@ -291,7 +291,7 @@ export default function PatientDashboard() {
     : '混合磨玻璃结节 (mGGO)';
 
   return (
-    <div className="max-w-5xl xl:max-w-7xl mx-auto px-2.5 sm:px-6 lg:px-8 pb-4 sm:pb-6 transition-all">
+    <div className="max-w-7xl mx-auto px-2.5 sm:px-6 lg:px-8 pb-6 transition-all">
       <ConsentModal />
       
       {/* Header */}
@@ -300,7 +300,7 @@ export default function PatientDashboard() {
           <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
             患者临床数字档案
           </h1>
-          <p className="text-slate-400 font-bold text-[11px] sm:text-xs uppercase tracking-wider mt-1">
+          <p className="text-slate-400 font-bold text-xs uppercase tracking-wider mt-1">
             PATIENT CLINICAL PROFILE · 动态决策状态机 · 基于 AJCC 8th/9th 实性成分与前瞻性临床队列
           </p>
         </div>
@@ -308,23 +308,23 @@ export default function PatientDashboard() {
           {/* 1. Timeline */}
           <Link
             href="/timeline"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-indigo-800 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 transition-all cursor-pointer shadow-2xs group whitespace-nowrap"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-700 bg-white hover:bg-slate-50 hover:text-slate-900 border border-slate-200 hover:border-slate-300 transition-all cursor-pointer shadow-2xs group whitespace-nowrap"
             title="查看患者检查报告全景时间生命线"
           >
-            <Calendar className="w-3.5 h-3.5 text-indigo-600 transition-transform group-hover:scale-110 flex-shrink-0" />
+            <Calendar className="w-3.5 h-3.5 text-slate-500 transition-transform group-hover:scale-110 flex-shrink-0" />
             <span>时间生命线</span>
-            <ArrowRight className="w-3 h-3 text-indigo-400 transition-transform group-hover:translate-x-0.5 flex-shrink-0" />
+            <ArrowRight className="w-3 h-3 text-slate-400 transition-transform group-hover:translate-x-0.5 flex-shrink-0" />
           </Link>
 
           {/* 2. DDI Self-Check Button */}
           <button
             onClick={() => setShowDdiModal(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-purple-800 bg-purple-50 hover:bg-purple-100 border border-purple-200 transition-all cursor-pointer shadow-2xs group whitespace-nowrap"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-700 bg-white hover:bg-slate-50 hover:text-slate-900 border border-slate-200 hover:border-slate-300 transition-all cursor-pointer shadow-2xs group whitespace-nowrap"
             title="靶向药与慢病用药相互作用 (DDI) 自检排查"
           >
-            <Pill className="w-3.5 h-3.5 text-purple-600 transition-transform group-hover:scale-110 flex-shrink-0" />
+            <Pill className="w-3.5 h-3.5 text-slate-500 transition-transform group-hover:scale-110 flex-shrink-0" />
             <span>用药自检</span>
-            <span className="text-[10px] px-1 py-0.2 rounded bg-purple-200/70 text-purple-900 font-bold hidden sm:inline">
+            <span className="text-xs px-1.5 py-0.2 rounded bg-slate-100 text-slate-600 font-bold hidden sm:inline">
               DDI
             </span>
           </button>
@@ -332,17 +332,17 @@ export default function PatientDashboard() {
           {/* 3. Export Profile Poster Image */}
           <button
             onClick={() => setShowExportModal(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-teal-800 bg-teal-50 hover:bg-teal-100 border border-teal-200 transition-all cursor-pointer shadow-2xs group whitespace-nowrap"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-700 bg-white hover:bg-slate-50 hover:text-slate-900 border border-slate-200 hover:border-slate-300 transition-all cursor-pointer shadow-2xs group whitespace-nowrap"
             title="一键导出包含基础信息、病理指标与5年生存率的高清数字档案全景卡 (PNG)"
           >
-            <Share2 className="w-3.5 h-3.5 text-teal-600 transition-transform group-hover:scale-110 flex-shrink-0" />
+            <Share2 className="w-3.5 h-3.5 text-slate-500 transition-transform group-hover:scale-110 flex-shrink-0" />
             <span>导出图片</span>
           </button>
 
           {/* 4. Edit Profile */}
           <button 
             onClick={() => setShowUpdateModal(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-blue-800 bg-blue-50 hover:bg-blue-100 border border-blue-200 transition-all cursor-pointer shadow-2xs group whitespace-nowrap"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-blue-700 bg-blue-50/70 hover:bg-blue-100/80 border border-blue-200 transition-all cursor-pointer shadow-2xs group whitespace-nowrap"
             title="校对或更新患者病理、分期与临床指标"
           >
             <Edit3 className="w-3.5 h-3.5 text-blue-600 transition-transform group-hover:scale-110 flex-shrink-0" />
@@ -352,7 +352,7 @@ export default function PatientDashboard() {
           {/* 5. Clear/Delete Profile */}
           <button 
             onClick={() => setShowDeleteModal(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-rose-800 bg-rose-50 hover:bg-rose-100 border border-rose-200 transition-all cursor-pointer shadow-2xs group whitespace-nowrap"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-rose-700 bg-rose-50/70 hover:bg-rose-100/80 border border-rose-200 transition-all cursor-pointer shadow-2xs group whitespace-nowrap"
             title="彻底销毁并重置本地与云端档案"
           >
             <Trash2 className="w-3.5 h-3.5 text-rose-600 transition-transform group-hover:scale-110 flex-shrink-0" />
@@ -371,7 +371,7 @@ export default function PatientDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6 mb-6">
         
         {/* Bento Box 1: Primary CT Imaging & Solid Component (T-Staging) */}
-        <div className="bg-white rounded-3xl p-3.5 sm:p-6 md:p-7 border border-slate-200 border-t-4 border-t-sky-500 shadow-sm flex flex-col justify-between hover:border-sky-300 transition-all">
+        <div className="bg-white rounded-3xl p-4 sm:p-6 md:p-7 border border-slate-200/90 shadow-sm flex flex-col justify-between hover:border-slate-300 transition-all">
 
           <div>
             <div className="flex items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-100">
@@ -474,7 +474,7 @@ export default function PatientDashboard() {
         </div>
 
         {/* Bento Box 2: Pathology High-Risk Indicators & Ki-67 (N-Stage & Invasive Factors) */}
-        <div className="bg-white rounded-3xl p-3.5 sm:p-6 md:p-7 border border-slate-200 border-t-4 border-t-purple-500 shadow-sm flex flex-col justify-between hover:border-purple-300 transition-all">
+        <div className="bg-white rounded-3xl p-4 sm:p-6 md:p-7 border border-slate-200/90 shadow-sm flex flex-col justify-between hover:border-slate-300 transition-all">
           <div>
             <div className="flex items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2.5 min-w-0">
@@ -485,7 +485,7 @@ export default function PatientDashboard() {
                   <h3 className="text-xs sm:text-sm font-extrabold text-slate-900 leading-snug">
                     术后组织病理与浸润特征
                   </h3>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5 truncate">
+                  <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mt-0.5 truncate">
                     PATHOLOGY & IHC · INVASIVE FACTORS
                   </p>
                 </div>
@@ -580,7 +580,7 @@ export default function PatientDashboard() {
         </div>
 
         {/* Bento Box 3: Systemic Staging & Benign Findings (M-Staging) */}
-        <div className="bg-white rounded-3xl p-3.5 sm:p-6 md:p-7 border border-slate-200 border-t-4 border-t-teal-500 shadow-sm flex flex-col justify-between hover:border-teal-300 transition-all">
+        <div className="bg-white rounded-3xl p-4 sm:p-6 md:p-7 border border-slate-200/90 shadow-sm flex flex-col justify-between hover:border-slate-300 transition-all">
           <div>
             <div className="flex items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2.5 min-w-0">
@@ -591,7 +591,7 @@ export default function PatientDashboard() {
                   <h3 className="text-xs sm:text-sm font-extrabold text-slate-900 leading-snug">
                     全身远处转移排查与良性排雷
                   </h3>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5 truncate">
+                  <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mt-0.5 truncate">
                     SYSTEMIC STAGING · M-STAGE EXCLUSION
                   </p>
                 </div>
@@ -605,7 +605,7 @@ export default function PatientDashboard() {
               {/* 5-Organ Checklist Grid */}
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs flex flex-col justify-between">
-                  <span className="text-slate-500 text-[11px] flex items-center gap-1">
+                  <span className="text-slate-500 text-xs flex items-center gap-1">
                     <BrainCircuit className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                     <span>脑部增强 MRI</span>
                   </span>
@@ -614,7 +614,7 @@ export default function PatientDashboard() {
                   </span>
                 </div>
                 <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs flex flex-col justify-between">
-                  <span className="text-slate-500 text-[11px] flex items-center gap-1">
+                  <span className="text-slate-500 text-xs flex items-center gap-1">
                     <Stethoscope className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                     <span>腹部与肾上腺</span>
                   </span>
@@ -623,7 +623,7 @@ export default function PatientDashboard() {
                   </span>
                 </div>
                 <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs flex flex-col justify-between">
-                  <span className="text-slate-500 text-[11px] flex items-center gap-1">
+                  <span className="text-slate-500 text-xs flex items-center gap-1">
                     <Activity className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                     <span>全身骨显像 ECT</span>
                   </span>
@@ -632,7 +632,7 @@ export default function PatientDashboard() {
                   </span>
                 </div>
                 <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs flex flex-col justify-between">
-                  <span className="text-slate-500 text-[11px] flex items-center gap-1">
+                  <span className="text-slate-500 text-xs flex items-center gap-1">
                     <Stethoscope className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                     <span>锁骨上淋巴结</span>
                   </span>
@@ -641,7 +641,7 @@ export default function PatientDashboard() {
                   </span>
                 </div>
                 <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs flex flex-col justify-between">
-                  <span className="text-slate-500 text-[11px] flex items-center gap-1">
+                  <span className="text-slate-500 text-xs flex items-center gap-1">
                     <Scan className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                     <span>全身 PET-CT</span>
                   </span>
@@ -654,12 +654,12 @@ export default function PatientDashboard() {
               {/* Benign Findings Strip with GlossaryTooltip & Reassurance */}
               {profile.benignFindings && profile.benignFindings.length > 0 && (
                 <div className="p-3 bg-emerald-50/80 rounded-2xl border border-emerald-200 space-y-1.5 shadow-2xs">
-                  <div className="text-[11px] font-bold text-emerald-950 flex items-center justify-between">
+                  <div className="text-xs font-bold text-emerald-950 flex items-center justify-between">
                     <span className="flex items-center gap-1.5">
                       <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                       <span>伴发良性发现（非肿瘤转移，点击查看释义）：</span>
                     </span>
-                    <span className="text-[10px] text-emerald-700 font-semibold bg-white/80 px-2 py-0.5 rounded-md border border-emerald-200 shrink-0">
+                    <span className="text-xs text-emerald-700 font-semibold bg-white/80 px-2 py-0.5 rounded-md border border-emerald-200 shrink-0">
                       ✓ 临床排雷确认为良性
                     </span>
                   </div>
@@ -678,7 +678,7 @@ export default function PatientDashboard() {
         </div>
 
         {/* Bento Box 4: AI Decision Engine & Actionable Next Steps */}
-        <div className="bg-gradient-to-br from-blue-50/90 via-white to-sky-50/60 rounded-3xl p-3.5 sm:p-6 md:p-7 border border-blue-200 border-t-4 border-t-blue-600 shadow-sm flex flex-col justify-between hover:border-blue-400 transition-all">
+        <div className="bg-gradient-to-br from-blue-50/50 via-white to-sky-50/30 rounded-3xl p-4 sm:p-6 md:p-7 border border-blue-200/80 shadow-sm flex flex-col justify-between hover:border-blue-300 transition-all">
           <div className="space-y-4">
             <div className="flex items-center justify-between gap-3 pb-3 border-b border-blue-100/80">
               <div className="flex items-center gap-2.5 min-w-0">
@@ -689,13 +689,13 @@ export default function PatientDashboard() {
                   <h3 className="text-xs sm:text-sm font-extrabold text-slate-900 leading-snug">
                     智能临床决策引擎
                   </h3>
-                  <p className="text-[10px] font-bold text-blue-600/80 uppercase tracking-wider mt-0.5 truncate">
+                  <p className="text-xs font-bold text-blue-600/80 uppercase tracking-wider mt-0.5 truncate">
                     AI DECISION ENGINE · ACTIONABLE NEXT STEPS
                   </p>
                 </div>
               </div>
               <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 shrink-0 whitespace-nowrap">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+                <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
                 <span>实时推演</span>
               </span>
             </div>
@@ -725,7 +725,7 @@ export default function PatientDashboard() {
 
             <div className="bg-white rounded-2xl p-4 border border-blue-200 shadow-xs relative overflow-hidden">
               <div className="absolute top-0 left-0 w-1.5 h-full bg-accent-blue" />
-              <div className="text-[11px] text-accent-blue font-bold mb-1">
+              <div className="text-xs text-accent-blue font-bold mb-1">
                 {profile.currentStage === 'evaluation' || profile.currentStage === 'discovery' ? '术前行动建议' : '下一步建议'}
               </div>
               <div className="text-xs sm:text-sm text-slate-800 font-medium leading-relaxed">
@@ -750,7 +750,7 @@ export default function PatientDashboard() {
       </div>
 
       {/* Molecular Profiling & Precision Targeting Feature Card */}
-      <div className="mb-6 bg-white rounded-3xl p-5 sm:p-7 border border-slate-200 border-t-4 border-t-indigo-600 shadow-sm hover:border-indigo-300 transition-all">
+      <div className="mb-6 bg-white rounded-3xl p-5 sm:p-7 border border-slate-200/90 shadow-sm hover:border-slate-300 transition-all">
         <div className="flex items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-100 flex-wrap">
           <div className="flex items-center gap-2.5 min-w-0">
             <div className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 font-bold flex items-center justify-center shrink-0">
@@ -760,7 +760,7 @@ export default function PatientDashboard() {
               <h3 className="text-xs sm:text-sm font-extrabold text-slate-900 leading-snug">
                 分子病理与驱动基因分型
               </h3>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5 truncate">
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mt-0.5 truncate">
                 MOLECULAR BIOMARKERS & PRECISION TARGETING · NGS PANEL
               </p>
             </div>
@@ -1224,8 +1224,8 @@ function RiskBadge({ label, status, text }: { label: string; status: 'good' | 'w
   };
 
   return (
-    <div className={`rounded-2xl p-3 border ${styles[status]} shadow-xs`}>
-      <div className="text-[11px] font-semibold opacity-90 mb-1.5 flex items-center gap-1.5">
+    <div className={`rounded-xl p-3 border ${styles[status]} shadow-xs`}>
+      <div className="text-xs font-semibold opacity-90 mb-1.5 flex items-center gap-1.5">
         {status === 'good' && (
           <svg className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" viewBox="0 0 24 24" fill="none">
             <circle cx="12" cy="12" r="9" fill="currentColor" fillOpacity="0.2" stroke="currentColor" strokeWidth="1.75" />

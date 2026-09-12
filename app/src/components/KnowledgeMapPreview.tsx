@@ -6,6 +6,7 @@ import { fetchFactors } from "@/lib/api";
 import type { PatientProfile } from "@/lib/types";
 import type { KnowledgeNode, EdgeEvidence } from "@/lib/knowledgeGraphData";
 import { TransformWrapper, TransformComponent, useControls } from "react-zoom-pan-pinch";
+import { Plus, Minus, RotateCcw, User, Globe, Network } from "lucide-react";
 import { GraphRenderer } from "./knowledge-graph/GraphRenderer";
 import { EdgeEvidencePanel } from "./knowledge-graph/panels/EdgeEvidencePanel";
 import { NodeInfoPanel } from "./knowledge-graph/panels/NodeInfoPanel";
@@ -18,28 +19,30 @@ interface KnowledgeMapProps {
 const ZoomControls = () => {
   const { zoomIn, zoomOut, resetTransform } = useControls();
   return (
-    <div className="inline-flex items-center gap-1 bg-slate-100/90 p-1 rounded-xl border border-slate-200/90 shadow-2xs flex-shrink-0">
+    <div className="inline-flex items-center gap-1.5 bg-slate-100/90 p-1.5 rounded-xl border border-slate-200 shadow-2xs flex-shrink-0">
       <button 
         onClick={() => zoomIn()} 
-        className="w-6 h-6 sm:w-6.5 sm:h-6.5 flex items-center justify-center rounded-lg bg-white hover:bg-slate-50 text-slate-700 text-xs font-black shadow-2xs active:scale-95 transition-all cursor-pointer"
+        className="w-9 h-9 flex items-center justify-center rounded-lg bg-white hover:bg-slate-50 text-slate-700 font-bold shadow-2xs active:scale-95 transition-all cursor-pointer"
         title="放大视图"
+        aria-label="放大视图"
       >
-        ＋
+        <Plus className="w-4 h-4" />
       </button>
       <button 
         onClick={() => zoomOut()} 
-        className="w-6 h-6 sm:w-6.5 sm:h-6.5 flex items-center justify-center rounded-lg bg-white hover:bg-slate-50 text-slate-700 text-xs font-black shadow-2xs active:scale-95 transition-all cursor-pointer"
+        className="w-9 h-9 flex items-center justify-center rounded-lg bg-white hover:bg-slate-50 text-slate-700 font-bold shadow-2xs active:scale-95 transition-all cursor-pointer"
         title="缩小视图"
+        aria-label="缩小视图"
       >
-        －
+        <Minus className="w-4 h-4" />
       </button>
       <button 
         onClick={() => resetTransform()} 
-        className="px-2 h-6 sm:h-6.5 flex items-center gap-1 rounded-lg bg-white hover:bg-slate-50 text-slate-700 text-[11px] font-bold shadow-2xs active:scale-95 transition-all cursor-pointer"
+        className="px-3 h-9 flex items-center gap-1.5 rounded-lg bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold shadow-2xs active:scale-95 transition-all cursor-pointer"
         title="重置视图居中"
       >
-        <span>↺</span>
-        <span className="hidden md:inline text-[10.5px]">重置</span>
+        <RotateCcw className="w-3.5 h-3.5" />
+        <span className="hidden md:inline text-xs">重置</span>
       </button>
     </div>
   );
@@ -149,7 +152,7 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
   return (
     <div className="mt-6 sm:mt-10">
       {/* 4D Time Slider */}
-      <div className="mb-6 flex flex-col items-center max-w-lg mx-auto bg-white shadow-sm p-3 sm:p-4 rounded-xl border border-gray-200 relative h-20">
+      <div className="mb-6 flex flex-col items-center max-w-lg mx-auto bg-white shadow-xs p-3 sm:p-4 rounded-xl border border-slate-200 relative h-20">
         <TimeSlider value={timeYears} onChange={setTimeYears} />
       </div>
 
@@ -166,12 +169,13 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
               }}
               className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 personalMode
-                  ? "bg-white text-teal-900 shadow-sm"
+                  ? "bg-white text-teal-900 shadow-xs"
                   : "text-slate-600 hover:text-slate-900"
               }`}
             >
-              <span className="w-2 h-2 rounded-full bg-teal-500 animate-pulse" />
-              <span>👤 您的专属推演路径 ({profile.stage || "术后"}期)</span>
+              <span className="w-2 h-2 rounded-full bg-teal-500" />
+              <User className="w-3.5 h-3.5 text-teal-600" />
+              <span>您的专属推演路径 ({profile.stage || "术后"}期)</span>
             </button>
             <button
               onClick={() => {
@@ -181,24 +185,25 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
               }}
               className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 !personalMode
-                  ? "bg-white text-blue-900 shadow-sm"
+                  ? "bg-white text-blue-900 shadow-xs"
                   : "text-slate-600 hover:text-slate-900"
               }`}
             >
-              <span>🌐 全景临床指南图谱</span>
+              <Globe className="w-3.5 h-3.5 text-blue-600" />
+              <span>全景临床指南图谱</span>
             </button>
           </div>
         ) : (
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-50/80 border border-blue-200 text-blue-900 text-xs font-bold shadow-xs">
-            <span className="w-2 h-2 rounded-full bg-blue-600" />
-            <span>🌐 全景临床指南知识图谱 · 基于 AJCC / CSCO / NCCN 循证队列</span>
+            <Globe className="w-3.5 h-3.5 text-blue-600" />
+            <span>全景临床指南知识图谱 · 基于 AJCC / CSCO / NCCN 循证队列</span>
           </div>
         )}
 
         {/* Right: Personal Mode Status or Call to Action */}
         {profile && personalMode ? (
-          <div className="text-[11px] text-teal-800 font-medium bg-teal-50 px-3.5 py-1.5 rounded-xl border border-teal-200/80 shadow-2xs flex items-center gap-1.5">
-            <span>💡 已根据您的病理指标高亮关联因果结局</span>
+          <div className="text-xs text-teal-800 font-medium bg-teal-50 px-3.5 py-1.5 rounded-xl border border-teal-200/80 shadow-2xs flex items-center gap-1.5">
+            <span>已根据您的病理指标高亮关联因果结局</span>
           </div>
         ) : !profile ? (
           <Link
@@ -225,14 +230,14 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
             <div className="flex flex-col gap-3 w-full">
             {/* Graph Canvas Container */}
             <div
-              className={`bg-white rounded-2xl shadow-sm border overflow-hidden relative flex flex-col max-h-[65vh] lg:max-h-[700px] transition-all duration-500 ${
+              className={`bg-white rounded-2xl shadow-xs border overflow-hidden relative flex flex-col max-h-[65vh] lg:max-h-[700px] transition-all duration-500 ${
                 personalMode && profile
                   ? "border-teal-200 shadow-[0_0_30px_rgba(13,148,136,0.08)]"
-                  : "border-gray-200"
+                  : "border-slate-200"
               }`}
               style={{ minHeight: 450 }}
             >
-              <div className="absolute inset-0 bg-gray-50 opacity-50 pointer-events-none" />
+              <div className="absolute inset-0 bg-slate-50/50 opacity-50 pointer-events-none" />
               
               <TransformComponent wrapperStyle={{ width: "100%", height: "100%", flex: 1 }} contentStyle={{ width: "100%", height: "100%" }}>
                 <GraphRenderer 
@@ -259,10 +264,10 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
             </div>
 
             {/* Clean Horizontal Bottom Legend & Zoom Toolbar (Zero Canvas Overlap) */}
-            <div className="bg-white/95 backdrop-blur-md rounded-2xl p-3 sm:p-3.5 border border-slate-200 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-[11px] select-none">
+            <div className="bg-white/95 backdrop-blur-md rounded-2xl p-3 sm:p-3.5 border border-slate-200 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs select-none">
               {/* Left Group: Node Categories */}
               <div className="flex flex-wrap items-center gap-x-3.5 gap-y-1.5">
-                <span className="text-slate-400 font-bold text-[10px] tracking-wider uppercase">节点</span>
+                <span className="text-slate-400 font-bold text-xs tracking-wider uppercase">节点</span>
                 <div className="flex items-center gap-1.5">
                   <div className="w-2.5 h-2.5 rounded-full bg-blue-600 shadow-xs" />
                   <span className="text-slate-700 font-medium">病理特征</span>
@@ -286,7 +291,7 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
 
               {/* Middle Group: Causal Lines */}
               <div className="flex flex-wrap items-center gap-x-3.5 gap-y-1.5">
-                <span className="text-slate-400 font-bold text-[10px] tracking-wider uppercase">因果链路</span>
+                <span className="text-slate-400 font-bold text-xs tracking-wider uppercase">因果链路</span>
                 <div className="flex items-center gap-1.5">
                   <div className="w-3.5 h-1 rounded-full bg-emerald-600" />
                   <span className="text-slate-700 font-medium">保护(绿光)</span>
@@ -308,8 +313,8 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
               {/* Right Group: Zoom Controls & Personal Badge */}
               <div className="flex items-center gap-2.5 w-full sm:w-auto justify-between sm:justify-end border-t sm:border-t-0 border-slate-100 pt-2 sm:pt-0">
                 {personalMode && (
-                  <div className="flex items-center gap-1.5 text-teal-800 font-semibold text-[10.5px]">
-                    <span className="w-2 h-2 rounded-full bg-teal-500 animate-pulse flex-shrink-0" />
+                  <div className="flex items-center gap-1.5 text-teal-800 font-semibold text-xs">
+                    <span className="w-2 h-2 rounded-full bg-teal-500 flex-shrink-0" />
                     <span className="hidden xl:inline">专属流光已激活</span>
                   </div>
                 )}
@@ -333,12 +338,12 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
           <div className={`
             flex flex-col gap-4 
             lg:relative lg:translate-y-0 lg:h-auto lg:p-0 lg:bg-transparent lg:border-none lg:z-0 lg:shadow-none
-            fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 p-5 rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.1)]
+            fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-200 p-5 rounded-t-2xl shadow-[0_-10px_40px_rgba(0,0,0,0.1)]
             transition-transform duration-300 ease-in-out max-h-[85vh] overflow-y-auto
             ${isPanelActive ? 'translate-y-0' : 'translate-y-full lg:translate-y-0'}
           `}>
             {/* Mobile Drag Handle */}
-            <div className="lg:hidden w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-4" />
+            <div className="lg:hidden w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-4" />
 
             {selectedEdge && edgeEvidences[selectedEdge] ? (
               <EdgeEvidencePanel
@@ -355,16 +360,16 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
                 }}
               />
             ) : (
-              <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-200 flex-col items-center justify-center text-center flex-1 hidden lg:flex">
-                <div className="text-4xl mb-3 opacity-50">🕸️</div>
-                <p className="text-gray-500 text-sm">点击节点查看详细信息</p>
-                <p className="text-gray-500 text-xs mt-2">点击连线查看文献依据</p>
+              <div className="bg-white rounded-2xl p-6 shadow-xs border border-slate-200 flex-col items-center justify-center text-center flex-1 hidden lg:flex">
+                <Network className="w-10 h-10 text-slate-300 mb-3" />
+                <p className="text-slate-600 text-sm font-medium">点击节点查看详细信息</p>
+                <p className="text-slate-500 text-xs mt-1">点击连线查看文献依据</p>
                 {personalMode && activeHighlightNodes.length > 0 && (
-                  <div className="mt-4 pt-4 border-t border-gray-200 w-full text-left">
-                    <p className="text-accent-teal text-xs font-medium mb-2">您的高风险因素</p>
+                  <div className="mt-4 pt-4 border-t border-slate-200 w-full text-left">
+                    <p className="text-teal-700 text-xs font-bold mb-2">您的高风险因素</p>
                     <div className="flex flex-wrap gap-1">
                       {activeHighlightNodes.map((id) => (
-                        <span key={id} className="text-xs px-2 py-0.5 rounded-full bg-accent-teal/10 text-accent-teal border border-accent-teal/30">{id}</span>
+                        <span key={id} className="text-xs px-2 py-0.5 rounded-full bg-teal-50 text-teal-800 border border-teal-200 font-semibold">{id}</span>
                       ))}
                     </div>
                   </div>
@@ -373,7 +378,7 @@ export default function KnowledgeMapPreview({ profile = null }: KnowledgeMapProp
             )}
 
             {/* Quick facts - Only show on desktop when panel is not active on mobile to save space, or just always show on desktop */}
-            <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-200 hidden lg:block">
+            <div className="bg-white rounded-2xl p-5 shadow-xs border border-slate-200 hidden lg:block">
               <h4 className="text-text-secondary text-sm font-medium mb-3">知识图谱统计</h4>
               <div className="space-y-2 text-sm">
                 {[

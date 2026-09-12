@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState } from "react";
 import Link from "next/link";
@@ -466,13 +466,13 @@ export default function ReimbursementPage() {
         <div className="inline-flex items-center gap-2 bg-white px-4 py-1.5 rounded-full text-xs font-bold text-sky-700 border border-sky-200/80 shadow-xs">
           <ShieldCheck className="w-3.5 h-3.5 text-sky-600" />
           <span>国家医保谈判药品目录 · 门慢门特 · 官方 PAP 落地指南</span>
-          <span className="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse" />
+          <span className="w-1.5 h-1.5 rounded-full bg-sky-500" />
           <span>2024~2025 现行标准</span>
         </div>
 
         {/* Unified H1 */}
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
-          破除用药负担 · <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-sky-500 to-teal-500">特药医保与慈善赠药</span>
+          破除用药负担 · <span className="text-blue-600">特药医保与慈善赠药</span>
         </h1>
 
         {/* Unified Subtitle */}
@@ -539,7 +539,7 @@ export default function ReimbursementPage() {
             <FileCheck className="w-3.5 h-3.5" />
             <span>3. 门慢门特盖章材料包</span>
             {checkedMaterials.length > 0 && (
-              <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-white/20 text-white font-mono">
+              <span className="px-1.5 py-0.2 rounded-full text-xs bg-white/20 text-white font-mono">
                 {checkedMaterials.length}/6
               </span>
             )}
@@ -629,7 +629,7 @@ export default function ReimbursementPage() {
             </div>
 
             {/* Interactive Calculator Section */}
-            <div className="bg-white rounded-3xl p-3.5 sm:p-6 md:p-7 border border-slate-200 shadow-sm space-y-6">
+            <div className="bg-white rounded-2xl p-3.5 sm:p-6 md:p-7 border border-slate-200 shadow-sm space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-4">
                 <div>
                   <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 flex items-center gap-2">
@@ -802,28 +802,28 @@ export default function ReimbursementPage() {
                 </div>
 
                 {/* Indication Limits & PAP Notice */}
-                <div className="space-y-2 text-xs pt-1">
-                  <div className="p-3.5 bg-slate-800/90 rounded-xl border border-slate-700 text-slate-200 space-y-1">
-                    <div className="font-bold text-sky-300 flex items-center gap-1.5">
-                      <ShieldCheck className="w-4 h-4 text-sky-400 shrink-0" />
+                <div className="space-y-2.5 text-xs pt-1">
+                  <div className="p-4 bg-sky-50/80 rounded-xl border border-sky-200 text-sky-950 space-y-1.5 shadow-2xs">
+                    <div className="font-bold text-sky-900 flex items-center gap-1.5 text-xs sm:text-sm">
+                      <ShieldCheck className="w-4 h-4 text-sky-600 shrink-0" />
                       <span>国家医保限定支付范围（报销红线）：</span>
                     </div>
-                    <p className="text-[11px] text-slate-300 leading-relaxed">
+                    <p className="text-xs text-slate-700 leading-relaxed font-medium">
                       {currentDrug.reimbursementLimits}
                     </p>
                     {currentDrug.offLabelNotice && (
-                      <p className="text-[11px] text-rose-300 leading-relaxed font-semibold">
-                        ⚠️ 报销提示：{currentDrug.offLabelNotice}
+                      <p className="text-xs text-rose-800 bg-rose-50/90 p-2 rounded-lg border border-rose-200/80 leading-relaxed font-semibold">
+                        报销提示：{currentDrug.offLabelNotice}
                       </p>
                     )}
                   </div>
 
-                  <div className="p-3.5 bg-slate-800/90 rounded-xl border border-slate-700 text-slate-200 space-y-1">
-                    <div className="font-bold text-amber-300 flex items-center gap-1.5">
-                      <HeartHandshake className="w-4 h-4 text-amber-400 shrink-0" />
+                  <div className="p-4 bg-amber-50/80 rounded-xl border border-amber-200 text-amber-950 space-y-1.5 shadow-2xs">
+                    <div className="font-bold text-amber-900 flex items-center gap-1.5 text-xs sm:text-sm">
+                      <HeartHandshake className="w-4 h-4 text-amber-600 shrink-0" />
                       <span>官方慈善援助 (PAP) 政策：{currentDrug.papProgram} ({currentDrug.papFoundation})</span>
                     </div>
-                    <p className="text-[11px] text-slate-300 leading-relaxed">
+                    <p className="text-xs text-slate-700 leading-relaxed font-medium">
                       {currentDrug.papRule}
                     </p>
                   </div>
@@ -832,7 +832,7 @@ export default function ReimbursementPage() {
             </div>
 
             {/* 3-Step Chronic Disease Application Fast-Track */}
-            <div className="bg-white rounded-3xl p-3.5 sm:p-6 md:p-7 border border-slate-200 shadow-sm space-y-6">
+            <div className="bg-white rounded-2xl p-3.5 sm:p-6 md:p-7 border border-slate-200/90 shadow-sm space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
                 <div>
                   <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 flex items-center gap-2">
@@ -948,7 +948,7 @@ export default function ReimbursementPage() {
 
         {/* TAB 2: COMPREHENSIVE 16 DRUGS REIMBURSEMENT LIMITS TABLE */}
         {activeTab === "reimbursement_table" && (
-          <div className="bg-white rounded-3xl p-3.5 sm:p-6 md:p-7 border border-slate-200 shadow-sm space-y-6 animate-fade-in">
+          <div className="bg-white rounded-2xl p-3.5 sm:p-6 md:p-7 border border-slate-200 shadow-sm space-y-6 animate-fade-in">
             <div className="border-b border-slate-100 pb-4">
               <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 flex items-center gap-2">
                 <FileText className="w-5 h-5 text-blue-600" />
@@ -1004,7 +1004,7 @@ export default function ReimbursementPage() {
 
         {/* TAB 3: HOSPITAL SEALED MATERIALS & INTERACTIVE CHECKLIST */}
         {activeTab === "materials" && (
-          <div className="bg-white rounded-3xl p-4 sm:p-7 border border-slate-200 shadow-sm space-y-6 animate-fade-in">
+          <div className="bg-white rounded-2xl p-4 sm:p-7 border border-slate-200 shadow-sm space-y-6 animate-fade-in">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
               <div>
                 <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 flex items-center gap-2">
@@ -1141,7 +1141,7 @@ export default function ReimbursementPage() {
         {activeTab === "dual_channel" && (
           <div className="space-y-6 animate-fade-in">
             {/* Cross-Province Block */}
-            <div className="bg-white rounded-3xl p-4 sm:p-7 border border-slate-200 shadow-sm space-y-5">
+            <div className="bg-white rounded-2xl p-4 sm:p-7 border border-slate-200 shadow-sm space-y-5">
               <div className="border-b border-slate-100 pb-3">
                 <h2 className="text-base sm:text-lg font-extrabold text-slate-900 flex items-center gap-2">
                   <MapPin className="w-5 h-5 text-indigo-600" />
@@ -1196,7 +1196,7 @@ export default function ReimbursementPage() {
             </div>
 
             {/* Dual Channel Section */}
-            <div className="bg-white rounded-3xl p-4 sm:p-7 border border-slate-200 shadow-sm space-y-5">
+            <div className="bg-white rounded-2xl p-4 sm:p-7 border border-slate-200 shadow-sm space-y-5">
               <div className="border-b border-slate-100 pb-3">
                 <h2 className="text-base sm:text-lg font-extrabold text-slate-900 flex items-center gap-2">
                   <Building2 className="w-5 h-5 text-teal-600" />
@@ -1224,7 +1224,7 @@ export default function ReimbursementPage() {
 
         {/* TAB 3: CROSS-PROVINCE DIRECT SETTLEMENT */}
         {activeTab === "cross_province" && (
-          <div className="bg-white rounded-3xl p-3.5 sm:p-6 md:p-7 border border-slate-200 shadow-sm space-y-6 animate-fade-in">
+          <div className="bg-white rounded-2xl p-3.5 sm:p-6 md:p-7 border border-slate-200 shadow-sm space-y-6 animate-fade-in">
             <div className="border-b border-slate-100 pb-4">
               <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 flex items-center gap-2">
                 <MapPin className="w-5 h-5 text-indigo-600" />
@@ -1283,7 +1283,7 @@ export default function ReimbursementPage() {
 
         {/* TAB 4: DUAL-CHANNEL PHARMACY & BREAKTHROUGH */}
         {activeTab === "dual_channel" && (
-          <div className="bg-white rounded-3xl p-3.5 sm:p-6 md:p-7 border border-slate-200 shadow-sm space-y-6 animate-fade-in">
+          <div className="bg-white rounded-2xl p-3.5 sm:p-6 md:p-7 border border-slate-200 shadow-sm space-y-6 animate-fade-in">
             <div className="border-b border-slate-100 pb-4">
               <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 flex items-center gap-2">
                 <Building2 className="w-5 h-5 text-teal-600" />
@@ -1327,7 +1327,7 @@ export default function ReimbursementPage() {
 
         {/* TAB 5: OFFICIAL PAP CHARITY ASSISTANCE */}
         {activeTab === "pap_guide" && (
-          <div className="bg-white rounded-3xl p-3.5 sm:p-6 md:p-7 border border-slate-200 shadow-sm space-y-6 animate-fade-in">
+          <div className="bg-white rounded-2xl p-3.5 sm:p-6 md:p-7 border border-slate-200 shadow-sm space-y-6 animate-fade-in">
             <div className="border-b border-slate-100 pb-4">
               <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 flex items-center gap-2">
                 <HeartHandshake className="w-5 h-5 text-purple-600" />
@@ -1380,7 +1380,7 @@ export default function ReimbursementPage() {
 
         {/* TAB 6: FAQ */}
         {activeTab === "faq" && (
-          <div className="bg-white rounded-3xl p-3.5 sm:p-6 md:p-7 border border-slate-200 shadow-sm space-y-6 animate-fade-in">
+          <div className="bg-white rounded-2xl p-3.5 sm:p-6 md:p-7 border border-slate-200 shadow-sm space-y-6 animate-fade-in">
             <div className="border-b border-slate-100 pb-4">
               <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 flex items-center gap-2">
                 <HelpCircle className="w-5 h-5 text-blue-600" />

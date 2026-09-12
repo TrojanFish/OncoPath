@@ -50,16 +50,16 @@ export default function VdtGauge({
             <Activity className="w-4 h-4 text-sky-600" />
           </div>
           <div className="min-w-0">
-            <h4 className="text-xs font-bold text-slate-800 leading-snug truncate">
+            <h4 className="text-xs sm:text-sm font-bold text-slate-800 leading-snug truncate">
               VDT 肿瘤倍增时间仪表盘 (Schwartz 模型)
             </h4>
-            <span className="text-[10px] text-slate-400 font-mono block truncate">
+            <span className="text-xs text-slate-400 font-mono block truncate">
               基于历次薄层 CT 三维体积测算结节生长速度
             </span>
           </div>
         </div>
 
-        <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border self-start sm:self-auto shrink-0 whitespace-nowrap ${
+        <span className={`text-xs font-bold px-3 py-1 rounded-full border self-start sm:self-auto shrink-0 whitespace-nowrap ${
           isSafe
             ? "bg-emerald-50 text-emerald-800 border-emerald-200"
             : "bg-rose-50 text-rose-800 border-rose-200"
@@ -149,21 +149,21 @@ export default function VdtGauge({
         </div>
 
         {/* Gauge Scale Labels */}
-        <div className="w-full max-w-[270px] flex justify-between text-[9px] sm:text-[10px] text-slate-500 font-bold px-1 -mt-1">
-          <span className="text-rose-600 flex items-center gap-0.5 shrink-0">
-            <span>●</span> 活跃(&lt;365天)
+        <div className="w-full max-w-[270px] flex justify-between text-xs text-slate-500 font-semibold px-1 mt-0.5">
+          <span className="text-rose-600 flex items-center gap-1 shrink-0">
+            <span className="w-1.5 h-1.5 rounded-full bg-rose-500" /> 活跃(&lt;365天)
           </span>
           <span className="text-amber-600 px-1 shrink-0">中度观察</span>
-          <span className="text-emerald-700 flex items-center gap-0.5 shrink-0">
-            稳定(&gt;800天) <span>●</span>
+          <span className="text-emerald-700 flex items-center gap-1 shrink-0">
+            稳定(&gt;800天) <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
           </span>
         </div>
       </div>
 
       {/* Numerical Readout Grid */}
-      <div className="grid grid-cols-3 gap-1.5 sm:gap-2 text-center pt-1 border-t border-slate-200/70">
-        <div className="bg-white p-2 rounded-xl border border-slate-100 min-w-0">
-          <div className="text-[10px] text-slate-400 truncate">测算倍增时间</div>
+      <div className="grid grid-cols-3 gap-2 text-center pt-2 border-t border-slate-200/70">
+        <div className="bg-white p-2.5 rounded-xl border border-slate-100 min-w-0 shadow-2xs">
+          <div className="text-xs text-slate-500 truncate mb-0.5">测算倍增时间</div>
           <div className="text-xs sm:text-sm font-black font-mono text-slate-900 truncate">
             {growthCategory === "shrinking"
               ? "吸收缩小"
@@ -175,15 +175,15 @@ export default function VdtGauge({
           </div>
         </div>
 
-        <div className="bg-white p-2 rounded-xl border border-slate-100 min-w-0">
-          <div className="text-[10px] text-slate-400 truncate">实性/总径变化</div>
+        <div className="bg-white p-2.5 rounded-xl border border-slate-100 min-w-0 shadow-2xs">
+          <div className="text-xs text-slate-500 truncate mb-0.5">实性/总径变化</div>
           <div className={`text-xs sm:text-sm font-black font-mono truncate ${sizeChangeMm > 0 ? "text-amber-700" : sizeChangeMm < 0 ? "text-emerald-700" : "text-slate-900"}`}>
             {sizeChangeMm > 0 ? `+${sizeChangeMm} mm` : sizeChangeMm < 0 ? `${sizeChangeMm} mm` : "0.0 mm"}
           </div>
         </div>
 
-        <div className="bg-white p-2 rounded-xl border border-slate-100 min-w-0">
-          <div className="text-[10px] text-slate-400 truncate">随访跨度</div>
+        <div className="bg-white p-2.5 rounded-xl border border-slate-100 min-w-0 shadow-2xs">
+          <div className="text-xs text-slate-500 truncate mb-0.5">随访跨度</div>
           <div className="text-xs sm:text-sm font-black font-mono text-slate-900 truncate">
             {recordCount > 1 ? `${recordCount} 次检查` : "首次基线"}
           </div>

@@ -38,11 +38,11 @@ export default function ConsentModal({ onConsentAccepted }: ConsentModalProps) {
       {/* 3-Tier Window Card */}
       <div 
         onClick={(e) => e.stopPropagation()}
-        className="bg-white rounded-3xl max-w-xl w-full border border-slate-200 shadow-2xl overflow-hidden flex flex-col max-h-[92vh] text-slate-900 animate-fade-in-up my-auto"
+        className="bg-white rounded-2xl max-w-xl w-full border border-slate-200 shadow-2xl overflow-hidden flex flex-col max-h-[92vh] text-slate-900 animate-fade-in-up my-auto"
       >
         {/* Tier 1: Fixed Sticky Header */}
         <div className="px-5 sm:px-6 py-4 border-b border-slate-100 flex items-center gap-3 bg-white shrink-0">
-          <div className="w-10 h-10 rounded-2xl overflow-hidden shadow-xs flex items-center justify-center shrink-0 bg-slate-900 border border-slate-800">
+          <div className="w-10 h-10 rounded-xl overflow-hidden shadow-xs flex items-center justify-center shrink-0 bg-slate-900 border border-slate-800">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={ONCOPATH_LOGO_DATA_URI} alt="OncoPath Logo" className="w-full h-full object-cover" />
           </div>
@@ -50,7 +50,7 @@ export default function ConsentModal({ onConsentAccepted }: ConsentModalProps) {
             <h2 className="text-sm sm:text-base font-extrabold text-slate-900 leading-snug">
               使用知情同意与医学免责声明
             </h2>
-            <p className="text-[11px] text-slate-500 mt-0.5 flex items-center gap-1.5">
+            <p className="text-xs text-slate-500 mt-0.5 flex items-center gap-1.5">
               <ShieldCheck className="w-3.5 h-3.5 text-blue-600" />
               <span>OncoPath 肺癌循证决策辅助系统 · 临床研究导航</span>
             </p>
@@ -61,7 +61,7 @@ export default function ConsentModal({ onConsentAccepted }: ConsentModalProps) {
         <div className="p-5 sm:p-6 overflow-y-auto flex-1 custom-scrollbar space-y-4 text-xs sm:text-sm text-slate-700 leading-relaxed">
           <div className="p-3.5 sm:p-4 rounded-2xl bg-blue-50/70 border border-blue-200/80 text-xs text-blue-950 leading-normal font-medium space-y-1">
             <strong className="block text-blue-900 font-bold text-xs">欢迎使用 OncoPath。</strong>
-            <p className="text-[11px] text-blue-800 leading-relaxed">
+            <p className="text-xs text-blue-800 leading-relaxed">
               在您上传检查报告或建立临床数字档案前，请仔细阅读以下核心医学原则与数据隐私保护条款：
             </p>
           </div>
@@ -75,7 +75,7 @@ export default function ConsentModal({ onConsentAccepted }: ConsentModalProps) {
                 <strong className="text-slate-900 block mb-0.5 text-xs sm:text-sm">
                   循证辅助定位 · 非独立医疗诊断
                 </strong>
-                <p className="text-[11px] sm:text-xs text-slate-500 leading-relaxed">
+                <p className="text-xs text-slate-500 leading-relaxed">
                   本系统基于国际权威同行评审研究（如 JCOG0802、JCOG0804、ADAURA 等）及 AJCC/IASLC 分期指南提供群体统计学预后参考，<strong>不构成任何处方建议或独立临床诊断结论</strong>。
                 </p>
               </div>
@@ -89,7 +89,7 @@ export default function ConsentModal({ onConsentAccepted }: ConsentModalProps) {
                 <strong className="text-slate-900 block mb-0.5 text-xs sm:text-sm">
                   个体异质性 · 诊疗决策必须以主治医生为准
                 </strong>
-                <p className="text-[11px] sm:text-xs text-slate-500 leading-relaxed">
+                <p className="text-xs text-slate-500 leading-relaxed">
                   肺部结节与肿瘤病理具有高度生物学异质性，任何复查周期调整、手术切除范围或靶向/化疗方案决策，均应在专科医生指导下结合全身实际情况综合制定。
                 </p>
               </div>
@@ -103,7 +103,7 @@ export default function ConsentModal({ onConsentAccepted }: ConsentModalProps) {
                 <strong className="text-slate-900 block mb-0.5 text-xs sm:text-sm">
                   数据安全合规 (PDPA/PIPL) · 100% 本地脱敏与被遗忘权保护
                 </strong>
-                <p className="text-[11px] sm:text-xs text-slate-500 leading-relaxed">
+                <p className="text-xs text-slate-500 leading-relaxed">
                   系统采用去标识化处理（匿名访客标识），提取数据仅用于当前图谱演算与报告呈现，支持随时一键彻底注销与销毁，绝不用作商业大模型微调或第三方共享。
                 </p>
               </div>
@@ -112,13 +112,13 @@ export default function ConsentModal({ onConsentAccepted }: ConsentModalProps) {
         </div>
 
         {/* Tier 3: Fixed Sticky Footer Actions */}
-        <div className="px-5 sm:px-6 py-4 border-t border-slate-200 bg-white flex flex-col gap-3 shrink-0 rounded-b-3xl shadow-[0_-6px_20px_rgba(0,0,0,0.05)]">
-          <label className="flex items-start gap-2.5 cursor-pointer select-none">
+        <div className="px-5 sm:px-6 py-4 border-t border-slate-200 bg-white flex flex-col gap-3 shrink-0 rounded-b-2xl shadow-[0_-6px_20px_rgba(0,0,0,0.05)]">
+          <label className="flex items-start gap-2.5 p-2 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer select-none">
             <input
               type="checkbox"
               checked={agreed}
               onChange={(e) => setAgreed(e.target.checked)}
-              className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500 border-slate-300 transition-colors cursor-pointer mt-0.5 shrink-0"
+              className="w-5 h-5 rounded text-blue-600 focus:ring-blue-500 border-slate-300 transition-colors cursor-pointer mt-0.5 shrink-0"
             />
             <span className="text-xs text-slate-700 leading-snug">
               我已完整阅读并知晓

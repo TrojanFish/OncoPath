@@ -83,19 +83,19 @@ export default function AuthModal({ onClose, onSuccess }: AuthModalProps) {
       {/* 3-Tier Modal Card */}
       <div 
         onClick={(e) => e.stopPropagation()}
-        className="bg-white w-full max-w-md rounded-3xl border border-slate-200 shadow-2xl relative z-10 animate-fade-in-up text-slate-900 max-h-[92vh] flex flex-col my-auto overflow-hidden"
+        className="bg-white w-full max-w-md rounded-2xl border border-slate-200 shadow-2xl relative z-10 animate-fade-in-up text-slate-900 max-h-[92vh] flex flex-col my-auto overflow-hidden"
       >
         {/* Tier 1: Fixed Sticky Header */}
         <div className="px-5 sm:px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-white shrink-0">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-2xl bg-blue-50 border border-blue-100 text-blue-600 flex items-center justify-center font-bold shrink-0">
-              {isLogin ? <LogIn className="w-4 h-4" /> : <UserPlus className="w-4 h-4" />}
+            <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-100 text-blue-600 flex items-center justify-center font-bold shrink-0">
+              {isLogin ? <LogIn className="w-5 h-5" /> : <UserPlus className="w-5 h-5" />}
             </div>
             <div>
               <h2 className="text-sm sm:text-base font-extrabold text-slate-900 leading-snug">
                 {isLogin ? "登录 OncoPath 患者账号" : "免费创建个人循证档案库"}
               </h2>
-              <p className="text-[11px] text-slate-500 mt-0.5">
+              <p className="text-xs text-slate-500 mt-0.5">
                 {isLogin ? "安全同步您的临床数字档案与随访生命线" : "支持多设备云端安全同步与隐私加密"}
               </p>
             </div>
@@ -104,11 +104,11 @@ export default function AuthModal({ onClose, onSuccess }: AuthModalProps) {
           <button 
             type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-900 transition-colors flex items-center justify-center cursor-pointer shrink-0"
+            className="w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-900 transition-colors flex items-center justify-center cursor-pointer shrink-0"
             aria-label="关闭窗口 (Esc)"
             title="关闭窗口 (Esc)"
           >
-            <X className="w-4 h-4" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
@@ -154,7 +154,7 @@ export default function AuthModal({ onClose, onSuccess }: AuthModalProps) {
         </form>
 
         {/* Tier 3: Fixed Sticky Footer Actions */}
-        <div className="px-5 sm:px-6 py-4 border-t border-slate-200 bg-white shrink-0 rounded-b-3xl shadow-[0_-6px_20px_rgba(0,0,0,0.05)] space-y-2.5">
+        <div className="px-5 sm:px-6 py-4 border-t border-slate-200 bg-white shrink-0 rounded-b-2xl shadow-[0_-6px_20px_rgba(0,0,0,0.05)] space-y-2.5">
           <button
             type="submit"
             form="auth-modal-form"

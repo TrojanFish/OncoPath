@@ -86,22 +86,22 @@ export default function CtComparisonLens({ records, profile }: CtComparisonLensP
             <Layers className="w-4 h-4 text-blue-600" />
           </div>
           <div className="min-w-0">
-            <h4 className="text-xs font-bold text-slate-800 truncate">
+            <h4 className="text-sm font-extrabold text-slate-900 truncate">
               双期 CT 征象前后对比透视器
             </h4>
-            <span className="text-[10px] text-slate-400 font-mono block">
+            <span className="text-xs text-slate-400 font-mono block">
               对比间隔：{diffDays} 天 (约 {diffMonths} 个月)
             </span>
           </div>
         </div>
 
-        <div className="flex items-center gap-1.5 text-xs flex-wrap self-start sm:self-auto">
-          <div className="flex items-center gap-1">
-            <span className="text-[11px] text-slate-500 font-medium shrink-0">基线期:</span>
+        <div className="flex items-center gap-2 text-xs flex-wrap self-start sm:self-auto">
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs text-slate-500 font-medium shrink-0">基线期:</span>
             <select
               value={baseIndex}
               onChange={(e) => setBaseIndex(Number(e.target.value))}
-              className="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-xs font-semibold text-slate-800 cursor-pointer max-w-[140px] truncate"
+              className="bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1 text-xs font-semibold text-slate-800 cursor-pointer max-w-[150px] truncate"
             >
               {allRecords.map((r, i) => (
                 <option key={i} value={i} disabled={i >= targetIndex}>
@@ -113,12 +113,12 @@ export default function CtComparisonLens({ records, profile }: CtComparisonLensP
 
           <ArrowRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
 
-          <div className="flex items-center gap-1">
-            <span className="text-[11px] text-slate-500 font-medium shrink-0">随访期:</span>
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs text-slate-500 font-medium shrink-0">随访期:</span>
             <select
               value={targetIndex}
               onChange={(e) => setTargetIndex(Number(e.target.value))}
-              className="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 text-xs font-semibold text-slate-800 cursor-pointer max-w-[140px] truncate"
+              className="bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1 text-xs font-semibold text-slate-800 cursor-pointer max-w-[150px] truncate"
             >
               {allRecords.map((r, i) => (
                 <option key={i} value={i} disabled={i <= baseIndex}>
@@ -136,10 +136,10 @@ export default function CtComparisonLens({ records, profile }: CtComparisonLensP
         <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-2">
           <div className="flex items-center justify-between text-xs">
             <span className="text-slate-500 font-medium">病灶/结节最大全径</span>
-            <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+            <span className={`text-xs font-bold px-2 py-0.5 rounded ${
               tumorDiffMm > 0 ? "bg-amber-100 text-amber-800" : tumorDiffMm < 0 ? "bg-emerald-100 text-emerald-800" : "bg-slate-200 text-slate-700"
             }`}>
-              {tumorDiffMm > 0 ? `+${tumorDiffMm} mm` : tumorDiffMm < 0 ? `${tumorDiffMm} mm` : "稳定 0mm"}
+              {tumorDiffMm > 0 ? `+${tumorDiffMm} mm` : tumorDiffMm < 0 ? `${tumorDiffMm} mm` : "稳定 0 mm"}
             </span>
           </div>
           <div className="flex items-baseline justify-between text-slate-900 font-mono">
@@ -159,10 +159,10 @@ export default function CtComparisonLens({ records, profile }: CtComparisonLensP
         <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-2">
           <div className="flex items-center justify-between text-xs">
             <span className="text-slate-500 font-medium">CT 实性浸润成分</span>
-            <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+            <span className={`text-xs font-bold px-2 py-0.5 rounded ${
               solidDiffMm >= 2.0 ? "bg-rose-100 text-rose-800" : solidDiffMm > 0 ? "bg-amber-100 text-amber-800" : "bg-emerald-100 text-emerald-800"
             }`}>
-              {solidDiffMm > 0 ? `+${solidDiffMm} mm` : solidDiffMm < 0 ? `${solidDiffMm} mm` : "稳定 0mm"}
+              {solidDiffMm > 0 ? `+${solidDiffMm} mm` : solidDiffMm < 0 ? `${solidDiffMm} mm` : "稳定 0 mm"}
             </span>
           </div>
           <div className="flex items-baseline justify-between text-slate-900 font-mono">
@@ -182,7 +182,7 @@ export default function CtComparisonLens({ records, profile }: CtComparisonLensP
         <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-2">
           <div className="flex items-center justify-between text-xs">
             <span className="text-slate-500 font-medium">CTR 实性占比</span>
-            <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+            <span className={`text-xs font-bold px-2 py-0.5 rounded ${
               ctrDiff >= 0.2 ? "bg-rose-100 text-rose-800" : ctrDiff > 0 ? "bg-amber-100 text-amber-800" : "bg-emerald-100 text-emerald-800"
             }`}>
               {ctrDiff > 0 ? `+${Math.round(ctrDiff * 100)}%` : ctrDiff < 0 ? `${Math.round(ctrDiff * 100)}%` : "持平"}
@@ -203,7 +203,7 @@ export default function CtComparisonLens({ records, profile }: CtComparisonLensP
       </div>
 
       {/* Clinical Guidance Interpretation Alert */}
-      <div className={`p-3.5 rounded-xl border text-xs leading-relaxed flex items-start gap-2.5 ${
+      <div className={`p-4 rounded-xl border text-xs leading-relaxed flex items-start gap-3 shadow-2xs ${
         isShrinking
           ? "bg-emerald-50 text-emerald-950 border-emerald-200"
           : isStable
@@ -220,16 +220,16 @@ export default function CtComparisonLens({ records, profile }: CtComparisonLensP
           <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
         )}
         <div>
-          <span className="font-bold">
+          <span className="font-extrabold text-slate-900">
             {isShrinking
-              ? "🎯 提示良性炎性吸收缩小："
+              ? "提示良性炎性吸收缩小："
               : isStable
-              ? "🌿 提示病灶高度惰性稳定："
+              ? "提示病灶高度惰性稳定："
               : isActive
-              ? "⚡ 提示病灶进入活跃生长期："
-              : "⏳ 提示病灶存在缓慢演进："}
+              ? "提示病灶进入活跃生长期："
+              : "提示病灶存在缓慢演进："}
           </span>
-          <span className="ml-1">
+          <span className="ml-1 text-slate-700">
             {isShrinking
               ? `历经 ${diffMonths} 个月随访，结节总径缩小了 ${Math.abs(tumorDiffMm)} mm，强烈提示炎性吸收渗出，恶性概率极低。`
               : isStable

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
@@ -159,8 +159,8 @@ export default function HomePage() {
 
                 {/* Floating Top-Right Patient Badge */}
                 <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-md px-3.5 py-2 rounded-2xl border border-slate-200/80 shadow-lg flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-                  <div className="text-[11px] font-bold text-slate-800">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+                  <div className="text-xs font-bold text-slate-800">
                     IA1 期 · STAS 阴性 · 低风险
                   </div>
                 </div>
@@ -176,18 +176,18 @@ export default function HomePage() {
                     <div>
                       <div className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
                         <span>林美 教授</span>
-                        <span className="text-[10px] text-slate-500 font-normal">主任医师 / 肿瘤病理专家</span>
+                        <span className="text-xs text-slate-500 font-normal">主任医师 / 肿瘤病理专家</span>
                       </div>
-                      <div className="text-[11px] text-slate-500 mt-0.5">
+                      <div className="text-xs text-slate-500 mt-0.5">
                         正在基于 JCOG0804 队列进行循证推演
                       </div>
                     </div>
                   </div>
 
                   <div className="shrink-0">
-                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                      Live 推演中
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                      Live 队列已联通
                     </span>
                   </div>
                 </div>
@@ -200,7 +200,7 @@ export default function HomePage() {
                   <TrendingUp className="w-5 h-5 text-accent-blue" />
                 </div>
                 <div>
-                  <div className="text-[10px] font-bold text-slate-400 uppercase">JCOG0804 5年无复发率</div>
+                  <div className="text-xs font-bold text-slate-400 uppercase">JCOG0804 5年无复发率</div>
                   <div className="text-sm font-extrabold text-slate-900 tabular-nums">99.7% (RFS) · 亚肺叶切除获益</div>
                 </div>
               </div>
@@ -576,7 +576,7 @@ function SectionHeader({ badge, title, subtitle }: { badge: string; title: strin
   return (
     <div className="text-center max-w-3xl mx-auto">
       <div className="inline-flex items-center gap-2 bg-blue-50 px-3.5 py-1.5 rounded-full text-xs font-bold text-blue-700 mb-3 border border-blue-200">
-        <span className="w-1.5 h-1.5 rounded-full bg-accent-blue animate-pulse" />
+        <span className="w-1.5 h-1.5 rounded-full bg-accent-blue" />
         {badge}
       </div>
       <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-900 mb-3 tracking-tight">{title}</h2>
@@ -603,41 +603,6 @@ function FaqItem({ q, a }: { q: string; a: string }) {
           {a}
         </div>
       )}
-    </div>
-  );
-}
-
-const STATIC_PARTICLES = [
-  { id: 0, x: 12, y: 18, size: 3, delay: 0.5, duration: 12 },
-  { id: 1, x: 28, y: 72, size: 2, delay: 1.2, duration: 15 },
-  { id: 2, x: 45, y: 33, size: 4, delay: 2.1, duration: 10 },
-  { id: 3, x: 62, y: 85, size: 2.5, delay: 0.8, duration: 14 },
-  { id: 4, x: 78, y: 22, size: 3.5, delay: 3.0, duration: 16 },
-  { id: 5, x: 89, y: 64, size: 2, delay: 1.8, duration: 11 },
-  { id: 6, x: 15, y: 55, size: 3, delay: 2.5, duration: 13 },
-  { id: 7, x: 52, y: 14, size: 2.2, delay: 0.2, duration: 17 },
-  { id: 8, x: 35, y: 90, size: 3.8, delay: 3.4, duration: 9 },
-  { id: 9, x: 70, y: 48, size: 2, delay: 1.5, duration: 15 },
-  { id: 10, x: 82, y: 80, size: 3, delay: 2.8, duration: 12 },
-  { id: 11, x: 95, y: 30, size: 2.5, delay: 0.6, duration: 14 },
-];
-
-function FloatingParticles() {
-  return (
-    <div className="absolute inset-0 pointer-events-none">
-      {STATIC_PARTICLES.map((p) => (
-        <div
-          key={p.id}
-          className="absolute rounded-full bg-accent-blue/20"
-          style={{
-            left: `${p.x}%`,
-            top: `${p.y}%`,
-            width: p.size,
-            height: p.size,
-            animation: `float ${p.duration}s ease-in-out ${p.delay}s infinite`,
-          }}
-        />
-      ))}
     </div>
   );
 }

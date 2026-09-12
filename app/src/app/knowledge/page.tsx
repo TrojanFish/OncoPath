@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
 import KnowledgeMapPreview from "@/components/KnowledgeMapPreview";
@@ -52,13 +52,13 @@ export default function KnowledgePage() {
         {/* Unified Top Pill Badge */}
         <div className="inline-flex items-center gap-2 bg-white px-4 py-1.5 rounded-full text-xs font-bold text-sky-700 border border-sky-200/80 shadow-xs">
           <span>🗺️ 4D 动态因果推演引擎</span>
-          <span className="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse" />
+          <span className="w-1.5 h-1.5 rounded-full bg-sky-500" />
           <span>交互式多维网络分析</span>
         </div>
 
         {/* Unified H1 */}
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight">
-          推演病理因果 · <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-sky-500 to-teal-500">洞悉 4D 证据网络</span>
+          推演病理因果 · <span className="text-blue-600">洞悉 4D 证据网络</span>
         </h1>
 
         {/* Unified Subtitle */}
@@ -69,7 +69,7 @@ export default function KnowledgePage() {
         {/* Profile Matched Notification Bar if profile exists */}
         {profile && (
           <div className="mt-2 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-teal-50 border border-teal-300 text-teal-950 text-xs font-bold shadow-xs">
-            <span className="w-2 h-2 rounded-full bg-teal-500 animate-pulse" />
+            <span className="w-2 h-2 rounded-full bg-teal-500" />
             <span>已识别到您的个人数字档案（{profile.stage}期 · {profile.age}岁）· 专属因果推演路径已高亮激活</span>
           </div>
         )}
