@@ -10,6 +10,8 @@ export interface StagingInput {
   ctr?: number | null; // Consolidation-to-Tumor Ratio (0 to 1)
   pathologyTumorSize?: number | null; // Surgical Pathology Gross Tumor Size in cm
   pathologyInvasiveSize?: number | null; // Surgical Pathology Microscopic Invasive Size in cm
+  pathologyLepidicPercent?: number | null;
+  pathologyReportMode?: string | null;
   isPathology?: boolean;
   tStage?: string | null;
   nStage?: string | null; // N0, N1, N2, N3
@@ -32,6 +34,8 @@ export interface StagingResult {
   ctr: number;
   pathologyTumorSize?: number | null;
   pathologyInvasiveSize?: number | null;
+  pathologyLepidicPercent?: number | null;
+  pathologyReportMode?: string | null;
   explanation: string;
   isSubsolidAdjusted: boolean;
   marginSafety?: "safe" | "close_margin" | "positive";
@@ -42,7 +46,15 @@ export function computeClinicalTnmStage(input: StagingInput): StagingResult {
   const noduleType = input.noduleType || "mixed_ggo";
   const tumorSize = input.tumorSize != null && !isNaN(Number(input.tumorSize)) ? Number(input.tumorSize) : 1.5;
   const pathologyTumorSize = input.pathologyTumorSize != null && !isNaN(Number(input.pathologyTumorSize)) ? Number(input.pathologyTumorSize) : null;
-  const pathologyInvasiveSize = input.pathologyInvasiveSize != null && !isNaN(Number(input.pathologyInvasiveSize)) ? Number(input.pathologyInvasiveSize) : null;
+  const pathologyLepidicPercent = input.pathologyLepidicPercent != null && !isNaN(Number(input.pathologyLepidicPercent)) ? Number(input.pathologyLepidicPercent) : null;
+  
+  let pathologyInvasiveSize = input.pathologyInvasiveSize != null && !isNaN(Number(input.pathologyInvasiveSize)) ? Number(input.pathologyInvasiveSize) : null;
+  let isDerivedFromPercent = false;
+  if (pathologyInvasiveSize == null && pathologyLepidicPercent != null) {
+    const gross = pathologyTumorSize || tumorSize;
+    pathologyInvasiveSize = Math.max(0, Math.round(gross * (1 - pathologyLepidicPercent / 100) * 100) / 100);
+    isDerivedFromPercent = true;
+  }
   
   // Calculate solid size and CTR
   let solidSize: number;
@@ -74,33 +86,36 @@ export function computeClinicalTnmStage(input: StagingInput): StagingResult {
   if (pathologyInvasiveSize != null) {
     // Post-op Pathology pT Staging based on microscopic invasive size & gross tumor size
     const grossSize = pathologyTumorSize || tumorSize;
+    const percentPrefix = isDerivedFromPercent 
+      ? `标本全径 ${grossSize}cm · 贴壁型占比 ${pathologyLepidicPercent}% (折算镜下浸润径 ${pathologyInvasiveSize}cm) ➔ ` 
+      : "";
     if (pathologyInvasiveSize === 0) {
       effectiveT = "Tis";
-      explanation = `病理标本大体全径 ${grossSize}cm，镜下浸润径 0cm ➔ 依据 AJCC 8th/9th 病理金标准定级为 pTis (原位癌 0期)`;
+      explanation = `${percentPrefix}病理标本大体全径 ${grossSize}cm，镜下浸润径 0cm ➔ 依据 AJCC 8th/9th 病理金标准定级为 pTis (原位癌 0期)`;
     } else if (pathologyInvasiveSize <= 0.5 && grossSize <= 3.0) {
       effectiveT = "T1mi";
-      explanation = `病理标本大体全径 ${grossSize}cm ≤3.0cm，镜下浸润径 ${pathologyInvasiveSize}cm ≤0.5cm ➔ 依据 AJCC 8th/9th 病理金标准定级为 pT1mi (微浸润腺癌 IA1期)`;
+      explanation = `${percentPrefix}病理标本大体全径 ${grossSize}cm ≤3.0cm，镜下浸润径 ${pathologyInvasiveSize}cm ≤0.5cm ➔ 依据 AJCC 8th/9th 病理金标准定级为 pT1mi (微浸润腺癌 IA1期)`;
     } else if (pathologyInvasiveSize <= 1.0) {
       effectiveT = "T1a";
-      explanation = `病理镜下浸润径 ${pathologyInvasiveSize}cm ≤1.0cm (标本全径 ${grossSize}cm${grossSize > 3.0 ? '，总径>3cm不归入T1mi' : ''}) ➔ 依据 AJCC 8th/9th 病理金标准定级为 pT1a (IA1期)`;
+      explanation = `${percentPrefix}病理镜下浸润径 ${pathologyInvasiveSize}cm ≤1.0cm (标本全径 ${grossSize}cm${grossSize > 3.0 ? '，总径>3cm不归入T1mi' : ''}) ➔ 依据 AJCC 8th/9th 病理金标准定级为 pT1a (IA1期)`;
     } else if (pathologyInvasiveSize <= 2.0) {
       effectiveT = "T1b";
-      explanation = `病理镜下浸润径 ${pathologyInvasiveSize}cm ≤2.0cm ➔ 依据 AJCC 8th/9th 病理金标准定级为 pT1b (IA2期)`;
+      explanation = `${percentPrefix}病理镜下浸润径 ${pathologyInvasiveSize}cm ≤2.0cm ➔ 依据 AJCC 8th/9th 病理金标准定级为 pT1b (IA2期)`;
     } else if (pathologyInvasiveSize <= 3.0) {
       effectiveT = "T1c";
-      explanation = `病理镜下浸润径 ${pathologyInvasiveSize}cm ≤3.0cm ➔ 依据 AJCC 8th/9th 病理金标准定级为 pT1c (IA3期)`;
+      explanation = `${percentPrefix}病理镜下浸润径 ${pathologyInvasiveSize}cm ≤3.0cm ➔ 依据 AJCC 8th/9th 病理金标准定级为 pT1c (IA3期)`;
     } else if (pathologyInvasiveSize <= 4.0) {
       effectiveT = "T2a";
-      explanation = `病理镜下浸润径 ${pathologyInvasiveSize}cm ≤4.0cm ➔ 依据 AJCC 8th/9th 病理金标准定级为 pT2a (IB期)`;
+      explanation = `${percentPrefix}病理镜下浸润径 ${pathologyInvasiveSize}cm ≤4.0cm ➔ 依据 AJCC 8th/9th 病理金标准定级为 pT2a (IB期)`;
     } else if (pathologyInvasiveSize <= 5.0) {
       effectiveT = "T2b";
-      explanation = `病理镜下浸润径 ${pathologyInvasiveSize}cm ≤5.0cm ➔ 依据 AJCC 8th/9th 病理金标准定级为 pT2b (IIA期)`;
+      explanation = `${percentPrefix}病理镜下浸润径 ${pathologyInvasiveSize}cm ≤5.0cm ➔ 依据 AJCC 8th/9th 病理金标准定级为 pT2b (IIA期)`;
     } else if (pathologyInvasiveSize <= 7.0) {
       effectiveT = "T3";
-      explanation = `病理镜下浸润径 ${pathologyInvasiveSize}cm ≤7.0cm ➔ 依据 AJCC 8th/9th 病理金标准定级为 pT3 (IIB期)`;
+      explanation = `${percentPrefix}病理镜下浸润径 ${pathologyInvasiveSize}cm ≤7.0cm ➔ 依据 AJCC 8th/9th 病理金标准定级为 pT3 (IIB期)`;
     } else {
       effectiveT = "T4";
-      explanation = `病理镜下浸润径 ${pathologyInvasiveSize}cm >7.0cm ➔ 依据 AJCC 8th/9th 病理金标准定级为 pT4 (IIIA期)`;
+      explanation = `${percentPrefix}病理镜下浸润径 ${pathologyInvasiveSize}cm >7.0cm ➔ 依据 AJCC 8th/9th 病理金标准定级为 pT4 (IIIA期)`;
     }
   } else if (noduleType === "pure_ggo" || solidSize === 0) {
     effectiveT = "Tis";
@@ -237,6 +252,8 @@ export function computeClinicalTnmStage(input: StagingInput): StagingResult {
     ctr,
     pathologyTumorSize,
     pathologyInvasiveSize,
+    pathologyLepidicPercent,
+    pathologyReportMode: input.pathologyReportMode || null,
     explanation,
     isSubsolidAdjusted,
     marginSafety,
@@ -291,6 +308,8 @@ export function getClinicalCohortForProfile(rawProfile: any): ClinicalCohortResu
     ctr: rawProfile.ctr ? parseFloat(rawProfile.ctr) : null,
     pathologyTumorSize: rawProfile.pathologyTumorSize ? parseFloat(rawProfile.pathologyTumorSize) : null,
     pathologyInvasiveSize: rawProfile.pathologyInvasiveSize ? parseFloat(rawProfile.pathologyInvasiveSize) : null,
+    pathologyLepidicPercent: rawProfile.pathologyLepidicPercent ? parseFloat(rawProfile.pathologyLepidicPercent) : null,
+    pathologyReportMode: rawProfile.pathologyReportMode || null,
     tStage: rawProfile.tStage,
     nStage: rawProfile.nStage,
     mStage: rawProfile.mStage,

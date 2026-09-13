@@ -69,6 +69,8 @@ export interface PatientProfile {
   // Surgical Pathology Tumor Dimensions (AJCC 8th/9th Pathological pT Standard)
   pathologyTumorSize?: number | null;    // 标本大体肿瘤全径 (Gross tumor size in cm)
   pathologyInvasiveSize?: number | null; // 镜下浸润成分最大径 (Microscopic invasive size in cm, determines pT)
+  pathologyLepidicPercent?: number | null; // 贴壁/伏壁生长型亚型占比百分比 (0~100)
+  pathologyReportMode?: "explicit" | "percentage" | "unspecified" | string | null; // 病理报告模式
   
   stageExplanation?: string;
 

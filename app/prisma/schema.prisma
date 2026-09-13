@@ -125,6 +125,8 @@ model PatientProfile {
   tumorSize           Float?
   pathologyTumorSize  Float?
   pathologyInvasiveSize Float?
+  pathologyLepidicPercent Float?
+  pathologyReportMode String?
   grade               String?
   tStage              String?
   nStage              String?

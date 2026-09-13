@@ -524,9 +524,19 @@ export default function PatientDashboard() {
                 {/* Pathological Tumor Size Measurement Strip (AJCC 8th/9th pT Gold Standard) */}
                 <div className="bg-purple-50/90 p-3 sm:p-3.5 rounded-2xl border border-purple-200 space-y-1.5">
                   <div className="flex items-center justify-between flex-wrap gap-2 text-xs">
-                    <span className="text-purple-950 font-bold flex items-center gap-1.5">
+                    <span className="text-purple-950 font-bold flex items-center gap-1.5 flex-wrap">
                       <Ruler className="w-3.5 h-3.5 text-purple-700 shrink-0" />
                       <span>病理浸润大小: {profile.pathologyInvasiveSize != null ? `${profile.pathologyInvasiveSize} cm` : (profile.solidSize != null ? `${profile.solidSize} cm (参考CT实性)` : '未标明')}</span>
+                      {profile.pathologyLepidicPercent != null && (
+                        <span className="text-[10px] text-purple-800 bg-purple-100/90 px-1.5 py-0.5 rounded-md font-semibold">
+                          (贴壁 {profile.pathologyLepidicPercent}% 折算)
+                        </span>
+                      )}
+                      {profile.pathologyReportMode === 'unspecified' && (
+                        <span className="text-[10px] text-amber-800 bg-amber-100/90 px-1.5 py-0.5 rounded-md font-semibold">
+                          (参照CT实性估算)
+                        </span>
+                      )}
                       <span className="text-purple-300">/</span>
                       <span>标本全径: {profile.pathologyTumorSize != null ? `${profile.pathologyTumorSize} cm` : (profile.tumorSize ? `${profile.tumorSize} cm (参考原发灶)` : '未标明')}</span>
                     </span>

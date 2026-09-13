@@ -235,7 +235,7 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
         ? sourceData.geneMutations 
         : (Array.isArray(sourceData.molecular?.mutations) ? sourceData.molecular.mutations : []);
       const status = sourceData.molecularTestStatus || sourceData.molecular?.testStatus || (
-        muts.length > 0 ? "tested" : (sourceData.egfr === 'positive' ? "tested" : (sourceData.egfr === 'negative' ? 'negative' : "not_tested"))
+        muts.length > 0 ? "tested" : (sourceData.egfr === 'positive' ? "tested" : (sourceData.molecularTestStatus === 'negative' ? 'negative' : "not_tested"))
       );
       setParsedData({
         ...sourceData,
@@ -249,6 +249,8 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
         benignFindings: Array.isArray(sourceData.benignFindings) ? sourceData.benignFindings : [],
         pathologyTumorSize: sourceData.pathologyTumorSize !== undefined && sourceData.pathologyTumorSize !== null ? sourceData.pathologyTumorSize : "",
         pathologyInvasiveSize: sourceData.pathologyInvasiveSize !== undefined && sourceData.pathologyInvasiveSize !== null ? sourceData.pathologyInvasiveSize : "",
+        pathologyLepidicPercent: sourceData.pathologyLepidicPercent !== undefined && sourceData.pathologyLepidicPercent !== null ? sourceData.pathologyLepidicPercent : "",
+        pathologyReportMode: sourceData.pathologyReportMode || (sourceData.pathologyLepidicPercent != null ? "percentage" : (sourceData.pathologyInvasiveSize != null ? "explicit" : "explicit")),
       });
     }
   }, [initialData, existingProfile]);
@@ -259,6 +261,7 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
       const solidVal = parsedData.solidSize !== "" && parsedData.solidSize != null ? parseFloat(String(parsedData.solidSize)) : 0.8;
       const pathTumor = parsedData.pathologyTumorSize !== "" && parsedData.pathologyTumorSize != null ? parseFloat(String(parsedData.pathologyTumorSize)) : null;
       const pathInvasive = parsedData.pathologyInvasiveSize !== "" && parsedData.pathologyInvasiveSize != null ? parseFloat(String(parsedData.pathologyInvasiveSize)) : null;
+      const pathLepidic = parsedData.pathologyLepidicPercent !== "" && parsedData.pathologyLepidicPercent != null ? parseFloat(String(parsedData.pathologyLepidicPercent)) : null;
 
       const calc = computeClinicalTnmStage({
         noduleType: parsedData.noduleType || "mixed_ggo",
@@ -267,6 +270,8 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
         ctr: parsedData.ctr ? parseFloat(String(parsedData.ctr)) : (tumorVal > 0 ? Math.min(1, Math.round((solidVal / tumorVal) * 100) / 100) : null),
         pathologyTumorSize: pathTumor,
         pathologyInvasiveSize: pathInvasive,
+        pathologyLepidicPercent: pathLepidic,
+        pathologyReportMode: parsedData.pathologyReportMode,
         nStage: parsedData.nStage || "N0",
         vpi: parsedData.vpi,
         stas: parsedData.stas,
@@ -282,6 +287,8 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
     parsedData?.ctr,
     parsedData?.pathologyTumorSize,
     parsedData?.pathologyInvasiveSize,
+    parsedData?.pathologyLepidicPercent,
+    parsedData?.pathologyReportMode,
     parsedData?.nStage,
     parsedData?.vpi,
     parsedData?.stas,
@@ -450,6 +457,8 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
         ctr: stagingPreview?.ctr ?? calculatedCtr,
         pathologyTumorSize: parsedData.pathologyTumorSize !== "" && parsedData.pathologyTumorSize != null ? parseFloat(String(parsedData.pathologyTumorSize)) : (base.pathologyTumorSize ?? null),
         pathologyInvasiveSize: parsedData.pathologyInvasiveSize !== "" && parsedData.pathologyInvasiveSize != null ? parseFloat(String(parsedData.pathologyInvasiveSize)) : (base.pathologyInvasiveSize ?? null),
+        pathologyLepidicPercent: parsedData.pathologyLepidicPercent !== "" && parsedData.pathologyLepidicPercent != null ? parseFloat(String(parsedData.pathologyLepidicPercent)) : (base.pathologyLepidicPercent ?? null),
+        pathologyReportMode: parsedData.pathologyReportMode || base.pathologyReportMode || null,
         stage: stagingPreview?.stage || parsedData.stage || base.stage || "IA1",
         tStage: stagingPreview?.tStage || parsedData.tStage || base.tStage || "T1a",
         noduleType: parsedData.noduleType || base.noduleType || "mixed_ggo",
@@ -498,12 +507,12 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
           pdl1Tps: parsedData.pdl1Tps || base.pdl1Tps || base.molecular?.pdl1Tps || "unknown",
         },
         molecularTestStatus: parsedData.molecularTestStatus || (
-          (Array.isArray(parsedData.geneMutations) && parsedData.geneMutations.length > 0) ? "tested" : (base.molecularTestStatus || base.molecular?.testStatus || "not_tested")
+          (Array.isArray(parsedData.geneMutations) && parsedData.geneMutations.length > 0) ? "tested" : (base.molecularTestStatus || "not_tested")
         ),
         pdl1Tps: parsedData.pdl1Tps || base.pdl1Tps || base.molecular?.pdl1Tps || undefined,
         egfr: (Array.isArray(parsedData.geneMutations) && parsedData.geneMutations.some((m: any) => m.gene === "EGFR" && m.status !== "negative" && !String(m.subtype || "").includes("阴性") && !String(m.subtype || "").includes("野生")))
           ? "positive"
-          : (parsedData.molecularTestStatus === "not_tested" ? "not_tested" : (parsedData.molecularTestStatus === "negative" ? "negative" : (parsedData.egfr || base.egfr || "unknown"))),
+          : ((parsedData.molecularTestStatus || base.molecularTestStatus) === "negative" ? "negative" : "not_tested"),
 
         // Systemic Staging & M0 Confirmation
         brainMri: parsedData.brainMri || base.brainMri || "not_performed",
@@ -795,273 +804,287 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
           <div className="space-y-6">
             
             {/* Section 1: Patient Demographics & Surgery Status (Clinical Anchor & Primary Switch) */}
-            <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200">
-              <div className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3 flex items-center justify-between">
-                <span className="flex items-center gap-1.5">
-                  <User className="w-3.5 h-3.5 text-slate-600" />
-                  <span>患者基本画像与诊疗状态</span>
-                </span>
-                <span className="text-[11px] font-normal text-slate-400">决定分期计算基准与临床路径分流</span>
+            <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 shadow-soft space-y-3.5">
+              <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-sky-50 text-sky-700 border border-sky-100 flex items-center justify-center shrink-0">
+                    <User className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-xs sm:text-sm font-extrabold text-slate-900">患者基本画像与诊疗状态</h3>
+                    <p className="text-[11px] text-slate-500">决定分期计算基准与临床路径分流</p>
+                  </div>
+                </div>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
                 <div>
                   <label className="block text-xs font-semibold text-slate-600 mb-1">生物学性别</label>
                   <select 
-                  value={parsedData.sex || "female"} 
-                  onChange={e => setParsedData({...parsedData, sex: e.target.value})}
-                  className="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="female">女性 (Female)</option>
-                  <option value="male">男性 (Male)</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1">患者年龄</label>
-                <input 
-                  type="number" 
-                  value={parsedData.age || ""} 
-                  onChange={e => setParsedData({...parsedData, age: e.target.value})}
-                  className="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-blue-500"
-                  placeholder="55"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1">当前诊疗状态 / 手术术式</label>
-                {parsedData.reportType === 'ct_imaging' && parsedData.surgeryType === 'unknown' ? (
-                  <div className="p-2.5 bg-sky-50 border border-sky-200 rounded-xl text-xs font-bold text-sky-900 flex items-center h-[42px] gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-sky-500" />
-                    <span>尚未手术 (随访观察 / 术前评估)</span>
-                  </div>
-                ) : (
-                  <select 
-                    value={parsedData.surgeryType || "segmentectomy"} 
-                    onChange={e => setParsedData({...parsedData, surgeryType: e.target.value})}
-                    className="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-blue-500"
+                    value={parsedData.sex || "female"} 
+                    onChange={e => setParsedData({...parsedData, sex: e.target.value})}
+                    className="w-full h-10 px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-colors cursor-pointer"
                   >
-                    <option value="segmentectomy">解剖性肺段切除 (Segmentectomy)</option>
-                    <option value="lobectomy">标准肺叶切除 (Lobectomy)</option>
-                    <option value="wedge">肺楔形切除 (Wedge Resection)</option>
-                    <option value="unknown">尚未手术 / 随访期</option>
+                    <option value="female">女性 (Female)</option>
+                    <option value="male">男性 (Male)</option>
                   </select>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Section 2: Nodule Morphology & Solid Size & Accurate CTR */}
-          <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
-            <div className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3 flex items-center justify-between">
-              <span className="flex items-center gap-1.5">
-                <Scan className="w-3.5 h-3.5 text-teal-700" />
-                <span>结节形态与 CT 实性成分 (CTR 核心分期依据)</span>
-              </span>
-              <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-teal-100 text-teal-800 border border-teal-200">
-                当前 CTR: {isPureGgo ? "0.0 (纯磨玻璃)" : isPureSolid ? "1.0 (纯实性)" : currentCtr}
-              </span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 mb-3">
-              <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1">结节形态/类型</label>
-                <select 
-                  value={parsedData.noduleType || "mixed_ggo"} 
-                  onChange={e => {
-                    const newType = e.target.value;
-                    if (newType === "pure_ggo") {
-                      setParsedData({
-                        ...parsedData,
-                        noduleType: "pure_ggo",
-                        solidSize: "0",
-                        ctr: 0
-                      });
-                    } else if (newType === "pure_solid") {
-                      const curTumor = parsedData.tumorSize !== undefined && parsedData.tumorSize !== "" ? parsedData.tumorSize : "1.5";
-                      setParsedData({
-                        ...parsedData,
-                        noduleType: "pure_solid",
-                        solidSize: curTumor,
-                        ctr: 1.0
-                      });
-                    } else {
-                      setParsedData({
-                        ...parsedData,
-                        noduleType: "mixed_ggo",
-                        solidSize: parsedData.solidSize === "0" ? "" : parsedData.solidSize
-                      });
-                    }
-                  }}
-                  className="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-blue-500 cursor-pointer"
-                >
-                  <option value="mixed_ggo">混合磨玻璃结节 (mGGO 部分实性)</option>
-                  <option value="pure_ggo">纯磨玻璃结节 (pGGO 实性=0, CTR=0)</option>
-                  <option value="pure_solid">纯实性结节 (Pure Solid, CTR=1.0)</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1">
-                  {isPureSolid ? "实性病灶最大径 (cm)" : "磨玻璃/病灶最大径 (cm)"}
-                </label>
-                <input 
-                  type="text" 
-                  inputMode="decimal"
-                  value={parsedData.tumorSize !== undefined && parsedData.tumorSize !== null ? parsedData.tumorSize : ""} 
-                  onChange={e => {
-                    const val = e.target.value;
-                    if (isPureSolid) {
-                      setParsedData({
-                        ...parsedData,
-                        tumorSize: val,
-                        solidSize: val,
-                        ctr: 1.0
-                      });
-                    } else if (isPureGgo) {
-                      setParsedData({
-                        ...parsedData,
-                        tumorSize: val,
-                        solidSize: "0",
-                        ctr: 0
-                      });
-                    } else {
-                      setParsedData({
-                        ...parsedData,
-                        tumorSize: val
-                      });
-                    }
-                  }}
-                  className="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-blue-500 outline-none"
-                  placeholder="如 1.5"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1 flex items-center justify-between">
-                  <span>CT 实性成分最大径 (cm)</span>
-                  {isPureGgo && (
-                    <span className="text-[10px] text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">
-                      锁定为 0
-                    </span>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-600 mb-1">患者年龄</label>
+                  <input 
+                    type="number" 
+                    value={parsedData.age || ""} 
+                    onChange={e => setParsedData({...parsedData, age: e.target.value})}
+                    className="w-full h-10 px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-colors"
+                    placeholder="如: 55"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-600 mb-1">当前诊疗状态 / 手术术式</label>
+                  {parsedData.reportType === 'ct_imaging' && parsedData.surgeryType === 'unknown' ? (
+                    <div className="w-full h-10 px-3 py-2 bg-sky-50 border border-sky-200 rounded-xl text-xs font-bold text-sky-900 flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-sky-500" />
+                      <span>尚未手术 (随访观察 / 术前评估)</span>
+                    </div>
+                  ) : (
+                    <select 
+                      value={parsedData.surgeryType || "segmentectomy"} 
+                      onChange={e => setParsedData({...parsedData, surgeryType: e.target.value})}
+                      className="w-full h-10 px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-colors cursor-pointer"
+                    >
+                      <option value="segmentectomy">解剖性肺段切除 (Segmentectomy)</option>
+                      <option value="lobectomy">标准肺叶切除 (Lobectomy)</option>
+                      <option value="wedge">肺楔形切除 (Wedge Resection)</option>
+                      <option value="unknown">尚未手术 / 随访期</option>
+                    </select>
                   )}
-                  {isPureSolid && (
-                    <span className="text-[10px] text-blue-700 font-bold bg-blue-50 px-1.5 py-0.2 rounded border border-blue-200">
-                      锁定同总径
-                    </span>
-                  )}
-                </label>
-                <input 
-                  type="text" 
-                  inputMode="decimal"
-                  disabled={isPureGgo || isPureSolid}
-                  value={
-                    isPureGgo 
-                      ? "0" 
-                      : isPureSolid 
-                      ? (parsedData.tumorSize !== undefined && parsedData.tumorSize !== null ? parsedData.tumorSize : "") 
-                      : (parsedData.solidSize !== undefined && parsedData.solidSize !== null ? parsedData.solidSize : "")
-                  } 
-                  onChange={e => {
-                    if (!isPureGgo && !isPureSolid) {
-                      setParsedData({...parsedData, solidSize: e.target.value});
-                    }
-                  }}
-                  className={`w-full p-2.5 rounded-xl text-xs sm:text-sm font-semibold outline-none transition-colors ${
-                    isPureGgo || isPureSolid
-                      ? "bg-slate-100/90 border border-slate-200 text-slate-500 cursor-not-allowed select-none font-mono"
-                      : "bg-white border border-slate-300 text-slate-800 focus:ring-2 focus:ring-blue-500 font-mono"
-                  }`}
-                  placeholder={
-                    isPureGgo
-                      ? "纯磨玻璃无实性成分 (0 cm)"
-                      : isPureSolid
-                      ? "纯实性病灶 (同总径)"
-                      : "如 0.8"
-                  }
-                />
+                </div>
               </div>
             </div>
 
-            <div className="text-[11px] text-slate-600 bg-white p-2.5 rounded-xl border border-slate-200 flex items-center justify-between flex-wrap gap-2">
-              <span className="flex items-center gap-1.5">
-                <Lightbulb className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                {isPureGgo ? (
-                  <span>
-                    <strong>结节性质判定</strong>：纯磨玻璃结节 (pGGO)，实性浸润成分为 0，<strong>CTR = 0%</strong> (惰性极低危， Tis/T1mi 原位级别)
-                  </span>
-                ) : isPureSolid ? (
-                  <span>
-                    <strong>结节性质判定</strong>：纯实性结节 (Pure Solid)，100% 软组织实性浸润，<strong>CTR = 100% (1.0)</strong> (依据实性总径严格分期)
-                  </span>
-                ) : (
-                  <span>
-                    <strong>CTR 计算公式</strong>：<strong>CT 实性成分最大径 ({solidVal}cm) ÷ 结节总全径 ({tumorVal}cm) = {currentCtr}</strong>
-                  </span>
-                )}
-              </span>
-              <span className="text-teal-700 font-semibold flex items-center gap-1">
-                {isPureGgo ? (
-                  <>
-                    <Check className="w-3 h-3 text-teal-600" />
-                    <span>纯磨玻璃结节 (贴壁生长，5年生存率近 100%)</span>
-                  </>
-                ) : isPureSolid ? (
-                  <>
-                    <AlertTriangle className="w-3 h-3 text-blue-600" />
-                    <span>纯实性浸润 (依据实性总径确定 T 分期与评估切缘)</span>
-                  </>
-                ) : currentCtr <= 0.5 ? (
-                  <>
-                    <Check className="w-3 h-3 text-teal-600" />
-                    <span>CTR ≤ 0.5 (惰性浸润，5年无复发率高达99.7%)</span>
-                  </>
-                ) : (
-                  <>
-                    <AlertTriangle className="w-3 h-3 text-amber-600" />
-                    <span>CTR &gt; 0.5 (浸润成分较高，需重点评估切缘)</span>
-                  </>
-                )}
-              </span>
-            </div>
-          </div>
-
-          {/* Section 3: CT Malignant Imaging Signs with Plain-Language Definitions */}
-          <div className="p-4 rounded-2xl bg-sky-50/60 border border-sky-200 space-y-3">
-            <div className="flex items-center justify-between flex-wrap gap-2">
-              <div className="text-xs font-bold text-sky-900 uppercase tracking-wide flex items-center gap-1.5">
-                <Scan className="w-3.5 h-3.5 text-sky-700" />
-                <span>CT 影像恶性征象（点击切换 & 悬浮/点击查看通俗释义）</span>
-              </div>
-              {parsedData.lungRads && (
-                <span className="px-2 py-0.5 bg-sky-200/80 text-sky-900 rounded-md font-extrabold text-[11px]">
-                  Lung-RADS: {parsedData.lungRads}
+            {/* Section 2: Nodule Morphology & Solid Size & Accurate CTR */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 shadow-soft space-y-3.5">
+              <div className="flex items-center justify-between flex-wrap gap-2 pb-2 border-b border-slate-100">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-teal-50 text-teal-700 border border-teal-100 flex items-center justify-center shrink-0">
+                    <Scan className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-xs sm:text-sm font-extrabold text-slate-900">结节形态与 CT 实性成分 (CTR 核心分期依据)</h3>
+                    <p className="text-[11px] text-slate-500">薄层 CT 影像原发灶测量，CTR 为临床分期重要依据</p>
+                  </div>
+                </div>
+                <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-teal-50 text-teal-800 border border-teal-200">
+                  当前 CTR: {isPureGgo ? "0.0 (纯磨玻璃)" : isPureSolid ? "1.0 (纯实性)" : currentCtr}
                 </span>
-              )}
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 mb-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-600 mb-1">结节形态/类型</label>
+                  <select 
+                    value={parsedData.noduleType || "mixed_ggo"} 
+                    onChange={e => {
+                      const newType = e.target.value;
+                      if (newType === "pure_ggo") {
+                        setParsedData({
+                          ...parsedData,
+                          noduleType: "pure_ggo",
+                          solidSize: "0",
+                          ctr: 0
+                        });
+                      } else if (newType === "pure_solid") {
+                        const curTumor = parsedData.tumorSize !== undefined && parsedData.tumorSize !== "" ? parsedData.tumorSize : "1.5";
+                        setParsedData({
+                          ...parsedData,
+                          noduleType: "pure_solid",
+                          solidSize: curTumor,
+                          ctr: 1.0
+                        });
+                      } else {
+                        setParsedData({
+                          ...parsedData,
+                          noduleType: "mixed_ggo",
+                          solidSize: parsedData.solidSize === "0" ? "" : parsedData.solidSize
+                        });
+                      }
+                    }}
+                    className="w-full h-10 px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-colors cursor-pointer"
+                  >
+                    <option value="mixed_ggo">混合磨玻璃结节 (mGGO 部分实性)</option>
+                    <option value="pure_ggo">纯磨玻璃结节 (pGGO 实性=0, CTR=0)</option>
+                    <option value="pure_solid">纯实性结节 (Pure Solid, CTR=1.0)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-600 mb-1">
+                    {isPureSolid ? "实性病灶最大径 (cm)" : "磨玻璃/病灶最大径 (cm)"}
+                  </label>
+                  <input 
+                    type="text" 
+                    inputMode="decimal"
+                    value={parsedData.tumorSize !== undefined && parsedData.tumorSize !== null ? parsedData.tumorSize : ""} 
+                    onChange={e => {
+                      const val = e.target.value;
+                      if (isPureSolid) {
+                        setParsedData({
+                          ...parsedData,
+                          tumorSize: val,
+                          solidSize: val,
+                          ctr: 1.0
+                        });
+                      } else if (isPureGgo) {
+                        setParsedData({
+                          ...parsedData,
+                          tumorSize: val,
+                          solidSize: "0",
+                          ctr: 0
+                        });
+                      } else {
+                        setParsedData({
+                          ...parsedData,
+                          tumorSize: val
+                        });
+                      }
+                    }}
+                    className="w-full h-10 px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-colors font-mono"
+                    placeholder="如: 1.5"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-600 mb-1 flex items-center justify-between">
+                    <span>CT 实性成分最大径 (cm)</span>
+                    {isPureGgo && (
+                      <span className="text-[10px] text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">
+                        锁定为 0
+                      </span>
+                    )}
+                    {isPureSolid && (
+                      <span className="text-[10px] text-blue-700 font-bold bg-blue-50 px-1.5 py-0.2 rounded border border-blue-200">
+                        锁定同总径
+                      </span>
+                    )}
+                  </label>
+                  <input 
+                    type="text" 
+                    inputMode="decimal"
+                    disabled={isPureGgo || isPureSolid}
+                    value={
+                      isPureGgo 
+                        ? "0" 
+                        : isPureSolid 
+                        ? (parsedData.tumorSize !== undefined && parsedData.tumorSize !== null ? parsedData.tumorSize : "") 
+                        : (parsedData.solidSize !== undefined && parsedData.solidSize !== null ? parsedData.solidSize : "")
+                    } 
+                    onChange={e => {
+                      if (!isPureGgo && !isPureSolid) {
+                        setParsedData({...parsedData, solidSize: e.target.value});
+                      }
+                    }}
+                    className={`w-full h-10 px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-colors font-mono ${
+                      isPureGgo || isPureSolid
+                        ? "bg-slate-100/90 border border-slate-200 text-slate-500 cursor-not-allowed select-none"
+                        : "bg-white border border-slate-300 text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500"
+                    }`}
+                    placeholder={
+                      isPureGgo
+                        ? "纯磨玻璃无实性成分 (0 cm)"
+                        : isPureSolid
+                        ? "纯实性病灶 (同总径)"
+                        : "如: 0.8"
+                    }
+                  />
+                </div>
+              </div>
+
+              <div className="text-[11px] text-slate-600 bg-slate-50/70 p-2.5 rounded-xl border border-slate-200 flex items-center justify-between flex-wrap gap-2">
+                <span className="flex items-center gap-1.5">
+                  <Lightbulb className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                  {isPureGgo ? (
+                    <span>
+                      <strong>结节性质判定</strong>：纯磨玻璃结节 (pGGO)，实性浸润成分为 0，<strong>CTR = 0%</strong> (惰性极低危， Tis/T1mi 原位级别)
+                    </span>
+                  ) : isPureSolid ? (
+                    <span>
+                      <strong>结节性质判定</strong>：纯实性结节 (Pure Solid)，100% 软组织实性浸润，<strong>CTR = 100% (1.0)</strong> (依据实性总径严格分期)
+                    </span>
+                  ) : (
+                    <span>
+                      <strong>CTR 计算公式</strong>：<strong>CT 实性成分最大径 ({solidVal}cm) ÷ 结节总全径 ({tumorVal}cm) = {currentCtr}</strong>
+                    </span>
+                  )}
+                </span>
+                <span className="text-teal-700 font-semibold flex items-center gap-1">
+                  {isPureGgo ? (
+                    <>
+                      <Check className="w-3 h-3 text-teal-600" />
+                      <span>纯磨玻璃结节 (贴壁生长，5年生存率近 100%)</span>
+                    </>
+                  ) : isPureSolid ? (
+                    <>
+                      <AlertTriangle className="w-3 h-3 text-blue-600" />
+                      <span>纯实性浸润 (依据实性总径确定 T 分期与评估切缘)</span>
+                    </>
+                  ) : currentCtr <= 0.5 ? (
+                    <>
+                      <Check className="w-3 h-3 text-teal-600" />
+                      <span>CTR ≤ 0.5 (惰性浸润，5年无复发率高达99.7%)</span>
+                    </>
+                  ) : (
+                    <>
+                      <AlertTriangle className="w-3 h-3 text-amber-600" />
+                      <span>CTR &gt; 0.5 (浸润成分较高，需重点评估切缘)</span>
+                    </>
+                  )}
+                </span>
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1">结节解剖部位</label>
-                <input 
-                  type="text" 
-                  value={parsedData.noduleLocation || ""} 
-                  onChange={e => setParsedData({...parsedData, noduleLocation: e.target.value})}
-                  className="w-full p-2 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-blue-500 outline-none"
-                  placeholder="如：右肺上叶尖后段"
-                />
+            {/* Section 3: CT Malignant Imaging Signs with Plain-Language Definitions */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 shadow-soft space-y-3.5">
+              <div className="flex items-center justify-between flex-wrap gap-2 pb-2 border-b border-slate-100">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-sky-50 text-sky-700 border border-sky-100 flex items-center justify-center shrink-0">
+                    <Sparkles className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-xs sm:text-sm font-extrabold text-slate-900">CT 影像征象与解剖定位</h3>
+                    <p className="text-[11px] text-slate-500">恶性征象辅助识别与 Lung-RADS 影像分级</p>
+                  </div>
+                </div>
+                {parsedData.lungRads && (
+                  <span className="px-2.5 py-1 bg-sky-50 text-sky-800 rounded-full font-extrabold text-[11px] border border-sky-200">
+                    Lung-RADS: {parsedData.lungRads}
+                  </span>
+                )}
               </div>
-              <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1">Lung-RADS 影像分级</label>
-                <select 
-                  value={parsedData.lungRads || "4A"} 
-                  onChange={e => setParsedData({...parsedData, lungRads: e.target.value})}
-                  className="w-full p-2 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="3">3 类 (良性可能)</option>
-                  <option value="4A">4A 类 (低度可疑恶性)</option>
-                  <option value="4B">4B 类 (中度可疑恶性)</option>
-                  <option value="4X">4X 类 (高度可疑恶性)</option>
-                </select>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-600 mb-1">结节解剖部位</label>
+                  <input 
+                    type="text" 
+                    value={parsedData.noduleLocation || ""} 
+                    onChange={e => setParsedData({...parsedData, noduleLocation: e.target.value})}
+                    className="w-full h-10 px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-colors"
+                    placeholder="如：右肺上叶尖后段"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-600 mb-1">Lung-RADS 影像分级</label>
+                  <select 
+                    value={parsedData.lungRads || "4A"} 
+                    onChange={e => setParsedData({...parsedData, lungRads: e.target.value})}
+                    className="w-full h-10 px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 transition-colors cursor-pointer"
+                  >
+                    <option value="3">3 类 (良性可能)</option>
+                    <option value="4A">4A 类 (低度可疑恶性)</option>
+                    <option value="4B">4B 类 (中度可疑恶性)</option>
+                    <option value="4X">4X 类 (高度可疑恶性)</option>
+                  </select>
+                </div>
               </div>
-            </div>
 
             {/* Interactive Sign Pills */}
             <div className="space-y-2 pt-1">
@@ -1098,15 +1121,20 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
           </div>
 
           {/* Section: Multiple Pulmonary Nodules Management (P0-1) */}
-          <div className="p-4 rounded-2xl bg-teal-50/60 border border-teal-200 space-y-3">
-            <div className="flex items-center justify-between flex-wrap gap-2">
-              <div className="text-xs font-bold text-teal-900 uppercase tracking-wider flex items-center gap-1.5">
-                <CircleDot className="w-3.5 h-3.5 text-teal-700" />
-                <span>双肺多发病灶协同管理 (主病灶 vs 伴随微小病灶)</span>
+          <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 shadow-soft space-y-3.5">
+            <div className="flex items-center justify-between flex-wrap gap-2 pb-2 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-teal-50 text-teal-700 border border-teal-100 flex items-center justify-center shrink-0">
+                  <CircleDot className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-xs sm:text-sm font-extrabold text-slate-900">双肺多发病灶协同管理</h3>
+                  <p className="text-[11px] text-slate-500">主病灶手术评估 vs 伴随微小病灶良性随访</p>
+                </div>
               </div>
-              <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${
+              <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full border ${
                 parsedData.isMultipleNodules
-                  ? "bg-teal-100 text-teal-800 border-teal-300"
+                  ? "bg-teal-50 text-teal-800 border-teal-300"
                   : "bg-slate-100 text-slate-600 border-slate-200"
               }`}>
                 {parsedData.isMultipleNodules ? "双肺多发结节" : "单发主病灶"}
@@ -1114,7 +1142,7 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
             </div>
 
             {/* Reassurance text */}
-            <div className="p-3 bg-white rounded-xl border border-teal-200 text-xs text-teal-950 space-y-1">
+            <div className="p-3 bg-teal-50/70 rounded-xl border border-teal-200 text-xs text-teal-950 space-y-1">
               <div className="font-bold flex items-center gap-1.5">
                 <ShieldCheck className="w-3.5 h-3.5 text-teal-700" />
                 <span>多发结节良性定心丸：</span>
@@ -1129,11 +1157,11 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
               <div className="text-[11px] font-bold text-slate-700">次要伴随微小结节清单：</div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {(parsedData.secondaryNodules || []).map((sec: any) => (
-                  <div key={sec.id} className="p-2.5 bg-white rounded-xl border border-teal-200 flex items-center justify-between gap-2 text-xs">
+                  <div key={sec.id} className="p-2.5 bg-slate-50/70 rounded-xl border border-slate-200 flex items-center justify-between gap-2 text-xs">
                     <div>
                       <div className="font-bold text-slate-900 flex items-center gap-1.5">
                         <span>{sec.location}</span>
-                        <span className="text-[10px] px-1.5 py-0.2 bg-teal-50 text-teal-800 rounded font-semibold border border-teal-100">
+                        <span className="text-[10px] px-1.5 py-0.5 bg-teal-50 text-teal-800 rounded font-semibold border border-teal-100">
                           {sec.sizeMm}mm · {sec.type === "pure_ggo" ? "纯磨玻璃" : sec.type === "calcification" ? "钙化灶" : "微小结节"}
                         </span>
                       </div>
@@ -1142,7 +1170,7 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
                     <button
                       type="button"
                       onClick={() => handleRemoveSecondaryNodule(sec.id)}
-                      className="text-slate-400 hover:text-rose-600 p-1 text-xs cursor-pointer"
+                      className="text-slate-400 hover:text-rose-600 p-1 text-xs cursor-pointer transition-colors"
                     >
                       <X className="w-3.5 h-3.5" />
                     </button>
@@ -1157,19 +1185,19 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
                   placeholder="部位 (如: 右肺下叶)"
                   value={newSecLoc}
                   onChange={(e) => setNewSecLoc(e.target.value)}
-                  className="p-1.5 bg-white border border-slate-300 rounded-lg text-xs flex-1 min-w-[120px]"
+                  className="h-8 px-2.5 py-1 bg-white border border-slate-300 rounded-lg text-xs flex-1 min-w-[120px] focus:outline-none focus:ring-1 focus:ring-teal-500"
                 />
                 <input
                   type="number"
                   placeholder="大小(mm)"
                   value={newSecSize}
                   onChange={(e) => setNewSecSize(e.target.value)}
-                  className="p-1.5 bg-white border border-slate-300 rounded-lg text-xs w-20"
+                  className="h-8 px-2.5 py-1 bg-white border border-slate-300 rounded-lg text-xs w-20 focus:outline-none focus:ring-1 focus:ring-teal-500"
                 />
                 <select
                   value={newSecType}
                   onChange={(e) => setNewSecType(e.target.value)}
-                  className="p-1.5 bg-white border border-slate-300 rounded-lg text-xs"
+                  className="h-8 px-2 py-1 bg-white border border-slate-300 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-teal-500 cursor-pointer"
                 >
                   <option value="pure_ggo">纯磨玻璃</option>
                   <option value="solid">实性小结节</option>
@@ -1179,7 +1207,7 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
                 <button
                   type="button"
                   onClick={handleAddSecondaryNodule}
-                  className="px-2.5 py-1.5 bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs rounded-lg transition-colors cursor-pointer"
+                  className="h-8 px-3 bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs rounded-lg transition-colors cursor-pointer flex items-center"
                 >
                   + 添加伴随结节
                 </button>
@@ -1188,18 +1216,23 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
           </div>
 
           {/* Section: Longitudinal CT Follow-up History Management (P0-2) */}
-          <div className="p-4 rounded-2xl bg-sky-50/70 border border-sky-200 space-y-3">
-            <div className="flex items-center justify-between flex-wrap gap-2">
-              <div className="text-xs font-bold text-sky-950 uppercase tracking-wider flex items-center gap-1.5">
-                <TrendingUp className="w-3.5 h-3.5 text-sky-700" />
-                <span>历次 CT 随访时序记录管理 (时序生长折线图与 VDT 测算数据源)</span>
+          <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 shadow-soft space-y-3.5">
+            <div className="flex items-center justify-between flex-wrap gap-2 pb-2 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-sky-50 text-sky-700 border border-sky-100 flex items-center justify-center shrink-0">
+                  <TrendingUp className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-xs sm:text-sm font-extrabold text-slate-900">历次 CT 随访时序记录管理</h3>
+                  <p className="text-[11px] text-slate-500">时序生长折线图与 VDT 倍增时间测算数据源</p>
+                </div>
               </div>
-              <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-sky-100 text-sky-800 border border-sky-200">
+              <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-sky-50 text-sky-800 border border-sky-200">
                 已录入 {(parsedData.followUpHistory || []).length} 次检查记录
               </span>
             </div>
 
-            <p className="text-[11px] text-sky-800 leading-relaxed font-medium">
+            <p className="text-[11px] text-slate-600 leading-relaxed font-medium">
               系统将按检查日期自动串联各次 CT 的全径与实性成分，计算<strong>体积倍增时间 (VDT)</strong> 并判定生长动力学。您可在此补录往年老片数据：
             </p>
 
@@ -1209,12 +1242,12 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
                 {(parsedData.followUpHistory || []).map((item: any) => (
                   <div
                     key={item.id}
-                    className="p-2.5 bg-white rounded-xl border border-sky-200 flex items-center justify-between gap-2 text-xs"
+                    className="p-2.5 bg-slate-50/70 rounded-xl border border-slate-200 flex items-center justify-between gap-2 text-xs"
                   >
                     <div>
                       <div className="font-bold text-slate-900 flex items-center gap-1.5">
                         <span>{item.date}</span>
-                        <span className="text-[10px] px-1.5 py-0.2 bg-teal-50 text-teal-800 rounded font-semibold border border-teal-100">
+                        <span className="text-[10px] px-1.5 py-0.5 bg-teal-50 text-teal-800 rounded font-semibold border border-teal-100">
                           全径: {(item.tumorSize * 10).toFixed(0)}mm | 实性: {((item.solidSize || 0) * 10).toFixed(0)}mm
                         </span>
                       </div>
@@ -1225,7 +1258,7 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
                     <button
                       type="button"
                       onClick={() => handleRemoveHistoryRecord(item.id)}
-                      className="text-slate-400 hover:text-rose-600 p-1 text-xs cursor-pointer"
+                      className="text-slate-400 hover:text-rose-600 p-1 text-xs cursor-pointer transition-colors"
                       title="移除该条记录"
                     >
                       <X className="w-3.5 h-3.5" />
@@ -1235,8 +1268,8 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
               </div>
 
               {/* Add history record form */}
-              <div className="p-3 bg-white/90 rounded-xl border border-sky-200 space-y-2 pt-2">
-                <div className="text-[11px] font-bold text-sky-900">+ 补录既往体检/复查老片数据：</div>
+              <div className="p-3 bg-slate-50/80 rounded-xl border border-slate-200 space-y-2 pt-2">
+                <div className="text-[11px] font-bold text-slate-800">+ 补录既往体检/复查老片数据：</div>
                 <div className="grid grid-cols-1 sm:grid-cols-4 gap-2">
                   <div>
                     <label className="block text-[10px] font-semibold text-slate-500 mb-0.5">检查日期</label>
@@ -1244,7 +1277,7 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
                       type="date"
                       value={newHistDate}
                       onChange={(e) => setNewHistDate(e.target.value)}
-                      className="w-full p-1.5 bg-slate-50 border border-slate-300 rounded-lg text-xs"
+                      className="w-full h-8 px-2.5 py-1 bg-white border border-slate-300 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-sky-500"
                     />
                   </div>
                   <div>
@@ -1255,7 +1288,7 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
                       placeholder="如: 0.8"
                       value={newHistTumorSize}
                       onChange={(e) => setNewHistTumorSize(e.target.value)}
-                      className="w-full p-1.5 bg-slate-50 border border-slate-300 rounded-lg text-xs"
+                      className="w-full h-8 px-2.5 py-1 bg-white border border-slate-300 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-sky-500"
                     />
                   </div>
                   <div>
@@ -1266,7 +1299,7 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
                       placeholder="纯磨玻璃填0"
                       value={newHistSolidSize}
                       onChange={(e) => setNewHistSolidSize(e.target.value)}
-                      className="w-full p-1.5 bg-slate-50 border border-slate-300 rounded-lg text-xs"
+                      className="w-full h-8 px-2.5 py-1 bg-white border border-slate-300 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-sky-500"
                     />
                   </div>
                   <div>
@@ -1276,7 +1309,7 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
                       placeholder="如: 2024体检初查"
                       value={newHistNote}
                       onChange={(e) => setNewHistNote(e.target.value)}
-                      className="w-full p-1.5 bg-slate-50 border border-slate-300 rounded-lg text-xs"
+                      className="w-full h-8 px-2.5 py-1 bg-white border border-slate-300 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-sky-500"
                     />
                   </div>
                 </div>
@@ -1284,7 +1317,7 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
                   <button
                     type="button"
                     onClick={handleAddHistoryRecord}
-                    className="px-3 py-1.5 bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs rounded-lg transition-colors cursor-pointer"
+                    className="h-8 px-3 bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs rounded-lg transition-colors cursor-pointer flex items-center"
                   >
                     + 加入时序随访列表
                   </button>
@@ -1327,86 +1360,370 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
             ) : null}
 
             {/* Section 2.5: Surgical Pathology Tumor Dimensions & Microscopic Invasive Size (AJCC 8th/9th pT Standard) */}
-            <div className="p-4 sm:p-5 rounded-2xl bg-white border border-purple-200/90 shadow-2xs space-y-3.5">
-              <div className="flex items-center justify-between flex-wrap gap-2 pb-2 border-b border-purple-100">
+            <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 shadow-soft space-y-4">
+              <div className="flex items-center justify-between flex-wrap gap-2 pb-2 border-b border-slate-100">
                 <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-purple-100 text-purple-700 font-bold flex items-center justify-center shrink-0">
+                  <div className="w-8 h-8 rounded-xl bg-purple-50 text-purple-700 border border-purple-100 flex items-center justify-center shrink-0">
                     <Microscope className="w-4 h-4" />
                   </div>
                   <div>
-                    <h4 className="text-xs sm:text-sm font-extrabold text-slate-900">
+                    <h3 className="text-xs sm:text-sm font-extrabold text-slate-900">
                       术后病理标本肿瘤大小与镜下浸润测量 (pT 标准)
-                    </h4>
-                    <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mt-0.5">
-                      SURGICAL PATHOLOGY GROSS & INVASIVE COMPONENT SIZE
+                    </h3>
+                    <p className="text-[11px] text-slate-500">
+                      AJCC 8th/9th 金标准 · 依据显微镜下微观浸润成分最大径决定 pT 分期
                     </p>
                   </div>
                 </div>
-                <span className="text-[11px] font-bold text-purple-700 bg-purple-50 px-2.5 py-0.5 rounded-full border border-purple-200 shrink-0">
-                  病理金标准 · 解决 pT 定期
+                <span className="text-[11px] font-bold text-purple-700 bg-purple-50 px-2.5 py-1 rounded-full border border-purple-200 shrink-0">
+                  病理金标准 · 解决 pT 分期
                 </span>
               </div>
 
-              {/* Input Grid: Pathology Gross Size & Invasive Size */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1 flex items-center justify-between">
-                    <span>标本大体肿瘤全径 (cm)</span>
-                    <span className="text-[11px] text-slate-400">肉眼切面最大径</span>
-                  </label>
-                  <input
-                    type="text"
-                    inputMode="decimal"
-                    value={parsedData.pathologyTumorSize !== undefined && parsedData.pathologyTumorSize !== null ? parsedData.pathologyTumorSize : ""}
-                    onChange={e => setParsedData({ ...parsedData, pathologyTumorSize: e.target.value })}
-                    placeholder="如 1.4 (厘米)"
-                    className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm font-bold text-slate-800 focus:bg-white focus:ring-2 focus:ring-purple-500 outline-none transition-all font-mono"
-                  />
+              {/* 3 Pathology Clinical Scenarios Selector */}
+              <div className="space-y-2">
+                <div className="text-[11px] font-bold text-slate-700 uppercase tracking-wider flex items-center justify-between">
+                  <span>病理报告浸润成分描述类型 (请选择您的报告情形)：</span>
+                  <span className="text-slate-400 font-normal">覆盖国内三类主流病理报告</span>
                 </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1 flex items-center justify-between">
-                    <span className="text-purple-950 font-bold">镜下微观浸润成分大小 (cm)</span>
-                    <span className="text-[11px] text-purple-600 font-bold">决定 pT 分期</span>
-                  </label>
-                  <input
-                    type="text"
-                    inputMode="decimal"
-                    value={parsedData.pathologyInvasiveSize !== undefined && parsedData.pathologyInvasiveSize !== null ? parsedData.pathologyInvasiveSize : ""}
-                    onChange={e => setParsedData({ ...parsedData, pathologyInvasiveSize: e.target.value })}
-                    placeholder="纯原位填0，如 0.6"
-                    className="w-full p-2.5 bg-slate-50 border border-purple-300 rounded-xl text-xs sm:text-sm font-bold text-purple-900 focus:bg-white focus:ring-2 focus:ring-purple-500 outline-none transition-all font-mono"
-                  />
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                  {[
+                    {
+                      id: "explicit",
+                      title: "情形 1：明确写出浸润大小",
+                      desc: "报告直接注明浸润径，如浸润 0.6cm / 微浸润 ≤0.5cm / 原位",
+                    },
+                    {
+                      id: "percentage",
+                      title: "情形 2：写明各成分百分比",
+                      desc: "写明贴壁 lepidic、腺泡、乳头等比例，自动扣除贴壁折算",
+                    },
+                    {
+                      id: "unspecified",
+                      title: "情形 3：未详述浸润或比例",
+                      desc: "仅写腺癌未写比例，支持一键参照术前 CT 实性成分估算",
+                    },
+                  ].map((mode) => {
+                    const currentMode = parsedData.pathologyReportMode || (
+                      parsedData.pathologyLepidicPercent !== undefined && parsedData.pathologyLepidicPercent !== null && parsedData.pathologyLepidicPercent !== ""
+                        ? "percentage"
+                        : "explicit"
+                    );
+                    const isSelected = currentMode === mode.id;
+                    return (
+                      <button
+                        key={mode.id}
+                        type="button"
+                        onClick={() => {
+                          const gross = parseFloat(String(parsedData.pathologyTumorSize || "0")) || 0;
+                          let newLepidic = parsedData.pathologyLepidicPercent;
+                          let newInvasive = parsedData.pathologyInvasiveSize;
+                          if (mode.id === "percentage") {
+                            if (newLepidic === undefined || newLepidic === null || newLepidic === "") {
+                              newLepidic = 50;
+                            }
+                            if (gross > 0) {
+                              const lepNum = typeof newLepidic === "number" ? newLepidic : parseFloat(String(newLepidic)) || 50;
+                              newInvasive = Math.max(0, Math.round(gross * (Math.max(0, 100 - lepNum) / 100) * 100) / 100).toString();
+                            }
+                          } else if (mode.id === "unspecified" && (!newInvasive || newInvasive === "0")) {
+                            if (parsedData.solidSize) {
+                              newInvasive = String(parsedData.solidSize);
+                            }
+                          }
+                          setParsedData((prev: any) => ({
+                            ...prev,
+                            pathologyReportMode: mode.id,
+                            pathologyLepidicPercent: newLepidic,
+                            pathologyInvasiveSize: newInvasive
+                          }));
+                        }}
+                        className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
+                          isSelected
+                            ? "bg-purple-50/70 border-purple-500 shadow-xs ring-1 ring-purple-400/30"
+                            : "bg-slate-50/60 border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+                        }`}
+                      >
+                        <div className="flex items-center gap-1.5 font-bold text-xs">
+                          <div className={`w-3.5 h-3.5 rounded-full flex items-center justify-center border ${
+                            isSelected ? "border-purple-600 bg-purple-600 text-white" : "border-slate-300 bg-white"
+                          }`}>
+                            {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                          </div>
+                          <span className={isSelected ? "text-purple-950 font-extrabold" : "text-slate-800"}>
+                            {mode.title}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-slate-500 mt-1 leading-snug">
+                          {mode.desc}
+                        </p>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
-              {/* Quick Presets for Invasive Size */}
-              <div className="flex items-center gap-2 flex-wrap pt-0.5">
-                <span className="text-[11px] text-slate-500 font-medium">快速预设:</span>
-                <button
-                  type="button"
-                  onClick={() => setParsedData({ ...parsedData, pathologyInvasiveSize: "0" })}
-                  className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 cursor-pointer transition-colors"
-                >
-                  纯原位 (浸润=0cm)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setParsedData({ ...parsedData, pathologyInvasiveSize: "0.5" })}
-                  className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 cursor-pointer transition-colors"
-                >
-                  微浸润 (浸润≤0.5cm)
-                </button>
-                {parsedData.pathologyTumorSize && (
-                  <button
-                    type="button"
-                    onClick={() => setParsedData({ ...parsedData, pathologyInvasiveSize: parsedData.pathologyTumorSize })}
-                    className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 cursor-pointer transition-colors"
-                  >
-                    同标本全径 ({parsedData.pathologyTumorSize}cm · 纯实性)
-                  </button>
-                )}
-              </div>
+              {/* Mode Specific Inputs Grid */}
+              {(() => {
+                const currentMode = parsedData.pathologyReportMode || (
+                  parsedData.pathologyLepidicPercent !== undefined && parsedData.pathologyLepidicPercent !== null && parsedData.pathologyLepidicPercent !== ""
+                    ? "percentage"
+                    : "explicit"
+                );
+
+                if (currentMode === "percentage") {
+                  const gross = parseFloat(String(parsedData.pathologyTumorSize || "0")) || 0;
+                  const lepidic = parsedData.pathologyLepidicPercent !== undefined && parsedData.pathologyLepidicPercent !== null && parsedData.pathologyLepidicPercent !== ""
+                    ? (typeof parsedData.pathologyLepidicPercent === "number" ? parsedData.pathologyLepidicPercent : parseFloat(String(parsedData.pathologyLepidicPercent)))
+                    : 50;
+                  const safeLepidic = isNaN(lepidic) ? 50 : Math.min(100, Math.max(0, lepidic));
+                  const invasivePercent = Math.max(0, 100 - safeLepidic);
+                  const derivedInvasive = gross > 0 ? Math.max(0, Math.round(gross * (invasivePercent / 100) * 100) / 100) : 0;
+
+                  return (
+                    <div className="space-y-3.5 pt-1">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                        <div>
+                          <label className="block text-xs font-semibold text-slate-700 mb-1 flex items-center justify-between">
+                            <span>标本大体肿瘤全径 (cm)</span>
+                            <span className="text-[11px] text-slate-400">肉眼切面最大径</span>
+                          </label>
+                          <input
+                            type="text"
+                            inputMode="decimal"
+                            value={parsedData.pathologyTumorSize !== undefined && parsedData.pathologyTumorSize !== null ? parsedData.pathologyTumorSize : ""}
+                            onChange={e => {
+                              const val = e.target.value;
+                              const numGross = parseFloat(val);
+                              let newInvasive = parsedData.pathologyInvasiveSize;
+                              if (!isNaN(numGross)) {
+                                newInvasive = Math.max(0, Math.round(numGross * (invasivePercent / 100) * 100) / 100).toString();
+                              }
+                              setParsedData({ ...parsedData, pathologyTumorSize: val, pathologyInvasiveSize: newInvasive });
+                            }}
+                            placeholder="如 1.8 (厘米)"
+                            className="w-full h-10 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-800 focus:bg-white focus:ring-2 focus:ring-purple-500 outline-none transition-all font-mono"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-semibold text-purple-950 mb-1 flex items-center justify-between">
+                            <span className="font-bold">贴壁生长 (Lepidic) 成分比例 (%)</span>
+                            <span className="text-[11px] text-purple-600 font-bold">非浸润部分</span>
+                          </label>
+                          <div className="relative">
+                            <input
+                              type="text"
+                              inputMode="decimal"
+                              value={parsedData.pathologyLepidicPercent !== undefined && parsedData.pathologyLepidicPercent !== null ? parsedData.pathologyLepidicPercent : ""}
+                              onChange={e => {
+                                const val = e.target.value;
+                                const numVal = parseFloat(val);
+                                let newInvasive = parsedData.pathologyInvasiveSize;
+                                if (!isNaN(numVal) && gross > 0) {
+                                  const invPct = Math.max(0, 100 - Math.min(100, Math.max(0, numVal)));
+                                  newInvasive = Math.max(0, Math.round(gross * (invPct / 100) * 100) / 100).toString();
+                                }
+                                setParsedData({ ...parsedData, pathologyLepidicPercent: val, pathologyInvasiveSize: newInvasive });
+                              }}
+                              placeholder="如 70 (%)"
+                              className="w-full h-10 px-3 py-2 pr-8 bg-slate-50 border border-purple-300 rounded-xl text-xs sm:text-sm font-bold text-purple-900 focus:bg-white focus:ring-2 focus:ring-purple-500 outline-none transition-all font-mono"
+                            />
+                            <span className="absolute right-3 top-2.5 text-xs text-purple-400 font-bold pointer-events-none">%</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Lepidic Presets */}
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-[11px] text-slate-500 font-medium">常见贴壁比例快捷键:</span>
+                        {[
+                          { lep: 90, label: "贴壁 90% (极微浸润 10%)" },
+                          { lep: 70, label: "贴壁 70% (腺泡/乳头 30%)" },
+                          { lep: 50, label: "贴壁 50% (对半混合)" },
+                          { lep: 20, label: "贴壁 20% (浸润为主 80%)" },
+                          { lep: 0, label: "贴壁 0% (纯浸润腺癌)" },
+                        ].map(preset => (
+                          <button
+                            key={preset.lep}
+                            type="button"
+                            onClick={() => {
+                              const invPct = Math.max(0, 100 - preset.lep);
+                              const newInvasive = gross > 0 ? Math.max(0, Math.round(gross * (invPct / 100) * 100) / 100).toString() : parsedData.pathologyInvasiveSize;
+                              setParsedData({ ...parsedData, pathologyLepidicPercent: preset.lep, pathologyInvasiveSize: newInvasive });
+                            }}
+                            className={`px-2.5 py-1 rounded-lg text-[11px] font-bold border transition-colors cursor-pointer ${
+                              safeLepidic === preset.lep
+                                ? "bg-purple-600 text-white border-purple-600 shadow-2xs"
+                                : "bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-200"
+                            }`}
+                          >
+                            {preset.label}
+                          </button>
+                        ))}
+                      </div>
+
+                      {/* Dynamic Formula Display Box */}
+                      <div className="p-3 bg-purple-50/80 rounded-xl border border-purple-200 text-xs text-purple-950 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          <Check className="w-4 h-4 text-purple-600 shrink-0" />
+                          <span>
+                            <strong>自动公式折算</strong>：浸润成分占比 = 100% - {safeLepidic}% = <strong>{invasivePercent}%</strong>
+                            {gross > 0 && (
+                              <span> · 浸润径 = {gross}cm × {invasivePercent}% = <strong className="text-purple-700 text-sm">{derivedInvasive} cm</strong></span>
+                            )}
+                          </span>
+                        </div>
+                        <span className="text-[11px] font-bold text-purple-700 bg-white px-2 py-0.5 rounded border border-purple-200 shrink-0">
+                          已自动作为 pT 判定尺寸 ({derivedInvasive} cm)
+                        </span>
+                      </div>
+                    </div>
+                  );
+                }
+
+                if (currentMode === "unspecified") {
+                  return (
+                    <div className="space-y-3.5 pt-1">
+                      {/* Clinical explanation for radio-pathological correlation */}
+                      <div className="p-3.5 bg-amber-50/80 rounded-xl border border-amber-200 text-xs text-amber-950 space-y-2">
+                        <div className="flex items-start gap-2">
+                          <Lightbulb className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                          <div className="space-y-1">
+                            <p className="font-bold text-slate-900">
+                              放射-病理学对照共识 (Radio-Pathological Correlation)：
+                            </p>
+                            <p className="leading-relaxed text-slate-700 text-[11px]">
+                              国内部分医院病理报告仅诊断“浸润性腺癌”或“微浸润”，未测量微观浸润成分且未标注贴壁成分百分比。在胸外科权威规范中，混合磨玻璃结节的<strong>薄层 CT 实性成分大小（Solid Component）</strong>与显微镜下的浸润成分具有高度病理对应性，临床常以 CT 实性成分作为浸润大小辅助估算。
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* One-click CT solid size helper button */}
+                        {(parsedData.solidSize || parsedData.tumorSize) && (
+                          <div className="pt-1 flex items-center gap-2 flex-wrap pl-6">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const solid = parsedData.solidSize !== undefined && parsedData.solidSize !== null ? String(parsedData.solidSize) : (parsedData.tumorSize ? String(parsedData.tumorSize) : "0.8");
+                                setParsedData({
+                                  ...parsedData,
+                                  pathologyInvasiveSize: solid,
+                                  pathologyReportMode: "unspecified"
+                                });
+                              }}
+                              className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-xl shadow-2xs cursor-pointer transition-colors flex items-center gap-1.5"
+                            >
+                              <span>🔍 参照术前 CT 实性成分 ({parsedData.solidSize || parsedData.tumorSize} cm) 一键作为浸润径估算</span>
+                            </button>
+                            <span className="text-[11px] text-amber-800 font-medium">
+                              (术前CT: 全径 {parsedData.tumorSize || 1.5}cm · 实性 {parsedData.solidSize || 0.8}cm)
+                            </span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Gross & Invasive Inputs */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                        <div>
+                          <label className="block text-xs font-semibold text-slate-700 mb-1 flex items-center justify-between">
+                            <span>标本大体肿瘤全径 (cm)</span>
+                            <span className="text-[11px] text-slate-400">肉眼切面最大径</span>
+                          </label>
+                          <input
+                            type="text"
+                            inputMode="decimal"
+                            value={parsedData.pathologyTumorSize !== undefined && parsedData.pathologyTumorSize !== null ? parsedData.pathologyTumorSize : ""}
+                            onChange={e => setParsedData({ ...parsedData, pathologyTumorSize: e.target.value })}
+                            placeholder="如 1.5 (厘米)"
+                            className="w-full h-10 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-800 focus:bg-white focus:ring-2 focus:ring-purple-500 outline-none transition-all font-mono"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-semibold text-purple-950 mb-1 flex items-center justify-between">
+                            <span className="font-bold">估算镜下浸润成分大小 (cm)</span>
+                            <span className="text-[11px] text-purple-600 font-bold">决定 pT 分期</span>
+                          </label>
+                          <input
+                            type="text"
+                            inputMode="decimal"
+                            value={parsedData.pathologyInvasiveSize !== undefined && parsedData.pathologyInvasiveSize !== null ? parsedData.pathologyInvasiveSize : ""}
+                            onChange={e => setParsedData({ ...parsedData, pathologyInvasiveSize: e.target.value })}
+                            placeholder="如 0.8 (参照CT实性成分)"
+                            className="w-full h-10 px-3 py-2 bg-slate-50 border border-purple-300 rounded-xl text-xs sm:text-sm font-bold text-purple-900 focus:bg-white focus:ring-2 focus:ring-purple-500 outline-none transition-all font-mono"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
+
+                // Default: Explicit mode
+                return (
+                  <div className="space-y-3.5 pt-1">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-700 mb-1 flex items-center justify-between">
+                          <span>标本大体肿瘤全径 (cm)</span>
+                          <span className="text-[11px] text-slate-400">肉眼切面最大径</span>
+                        </label>
+                        <input
+                          type="text"
+                          inputMode="decimal"
+                          value={parsedData.pathologyTumorSize !== undefined && parsedData.pathologyTumorSize !== null ? parsedData.pathologyTumorSize : ""}
+                          onChange={e => setParsedData({ ...parsedData, pathologyTumorSize: e.target.value })}
+                          placeholder="如 1.4 (厘米)"
+                          className="w-full h-10 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-800 focus:bg-white focus:ring-2 focus:ring-purple-500 outline-none transition-all font-mono"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold text-purple-950 mb-1 flex items-center justify-between">
+                          <span className="font-bold">镜下微观浸润成分大小 (cm)</span>
+                          <span className="text-[11px] text-purple-600 font-bold">决定 pT 分期</span>
+                        </label>
+                        <input
+                          type="text"
+                          inputMode="decimal"
+                          value={parsedData.pathologyInvasiveSize !== undefined && parsedData.pathologyInvasiveSize !== null ? parsedData.pathologyInvasiveSize : ""}
+                          onChange={e => setParsedData({ ...parsedData, pathologyInvasiveSize: e.target.value })}
+                          placeholder="纯原位填0，如 0.6"
+                          className="w-full h-10 px-3 py-2 bg-slate-50 border border-purple-300 rounded-xl text-xs sm:text-sm font-bold text-purple-900 focus:bg-white focus:ring-2 focus:ring-purple-500 outline-none transition-all font-mono"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Quick Presets for Invasive Size */}
+                    <div className="flex items-center gap-2 flex-wrap pt-0.5">
+                      <span className="text-[11px] text-slate-500 font-medium">快速预设:</span>
+                      <button
+                        type="button"
+                        onClick={() => setParsedData({ ...parsedData, pathologyInvasiveSize: "0" })}
+                        className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 cursor-pointer transition-colors"
+                      >
+                        纯原位 (浸润=0cm)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setParsedData({ ...parsedData, pathologyInvasiveSize: "0.5" })}
+                        className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 cursor-pointer transition-colors"
+                      >
+                        微浸润 (浸润≤0.5cm)
+                      </button>
+                      {parsedData.pathologyTumorSize && (
+                        <button
+                          type="button"
+                          onClick={() => setParsedData({ ...parsedData, pathologyInvasiveSize: parsedData.pathologyTumorSize })}
+                          className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 cursor-pointer transition-colors"
+                        >
+                          同标本全径 ({parsedData.pathologyTumorSize}cm · 纯实性)
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })()}
 
               {/* Clinical Evidence Note & CT Cross-Check */}
               <div className="p-3 bg-purple-50/70 rounded-xl border border-purple-200 text-xs text-purple-950 space-y-1">
@@ -1424,14 +1741,23 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
               </div>
             </div>
 
-            {/* Section 3: Pathology High-Risk Red/Green Factors & Ki-67 (Placed right after CT for clinical coherence) */}
-            <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3.5">
-              <div className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center justify-between">
-                <span className="flex items-center gap-1.5">
-                  <Activity className="w-3.5 h-3.5 text-slate-600" />
-                  <span>术后高危病理特征 (红绿灯指标)</span>
-                </span>
-                <span className="text-[11px] font-normal text-slate-400">决定辅助治疗与复发风险分层</span>
+            {/* Section 3: Pathology High-Risk Red/Green Factors & Ki-67 */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 shadow-soft space-y-4">
+              <div className="flex items-center justify-between flex-wrap gap-2 pb-2 border-b border-slate-100">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-700 border border-amber-100 flex items-center justify-center shrink-0">
+                    <Activity className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-xs sm:text-sm font-extrabold text-slate-900">
+                      术后高危病理特征 (红绿灯指标)
+                    </h3>
+                    <p className="text-[11px] text-slate-500">
+                      决定辅助治疗、复发风险分层与随访密度
+                    </p>
+                  </div>
+                </div>
+                <span className="text-[11px] font-normal text-slate-400">病理切片镜下评估</span>
               </div>
               
               {/* Symmetrical 3-Column Grid: 6 Core Pathology Indicators (2 rows x 3 cols = exactly 6) */}
@@ -1644,9 +1970,9 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
                       value={parsedData.ki67 !== undefined && parsedData.ki67 !== null ? String(parsedData.ki67).replace(/%/g, "") : ""}
                       onChange={e => setParsedData({ ...parsedData, ki67: e.target.value })}
                       placeholder="如 5 或 15"
-                      className="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 outline-none focus:bg-white focus:border-purple-400"
+                      className="w-full h-10 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-800 outline-none focus:bg-white focus:border-purple-400 font-mono"
                     />
-                    <span className="absolute right-3 top-1.5 text-xs text-slate-400 font-bold pointer-events-none">%</span>
+                    <span className="absolute right-3 top-2.5 text-xs text-slate-400 font-bold pointer-events-none">%</span>
                   </div>
 
                   {/* Preset Buttons */}
@@ -1660,7 +1986,7 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
                         key={preset.val}
                         type="button"
                         onClick={() => setParsedData({ ...parsedData, ki67: preset.val })}
-                        className={`px-2 py-1.5 text-[11px] font-bold rounded-xl border transition-all cursor-pointer ${
+                        className={`h-10 px-2.5 text-[11px] font-bold rounded-xl border transition-all cursor-pointer flex items-center justify-center ${
                           String(parsedData.ki67).replace(/%/g, "") === preset.val
                             ? "bg-purple-600 text-white border-purple-600 shadow-2xs"
                             : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
@@ -1681,57 +2007,59 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
         {currentStep === 3 && (
           <div className="space-y-6">
             {/* Section: Molecular Pathology & Driver Gene Mutation Panel (NGS / PCR / PD-L1) */}
-            <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-blue-50/60 via-slate-50 to-indigo-50/60 border-2 border-blue-200/80 space-y-4 shadow-xs">
-            <div className="flex items-center justify-between flex-wrap gap-2">
-              <div className="flex items-center gap-2">
-                <Dna className="w-5 h-5 text-blue-600" />
-                <div>
-                  <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
-                    分子病理与驱动基因突变谱 (NGS / PCR / 免疫组化)
-                  </h3>
-                  <p className="text-[11px] text-slate-500">
-                    录入驱动突变 (EGFR/ALK等)、高危伴随共突变 (TP53等) 与 PD-L1，指导靶向用药与复发监测
-                  </p>
+            <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 shadow-soft space-y-4">
+              <div className="flex items-center justify-between flex-wrap gap-2 pb-2 border-b border-slate-100">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-700 border border-blue-100 flex items-center justify-center shrink-0">
+                    <Dna className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-xs sm:text-sm font-extrabold text-slate-900">
+                      分子病理与驱动基因突变谱 (NGS / PCR / 免疫组化)
+                    </h3>
+                    <p className="text-[11px] text-slate-500">
+                      录入驱动突变 (EGFR/ALK等)、高危伴随共突变 (TP53等) 与 PD-L1，指导靶向用药与复发监测
+                    </p>
+                  </div>
+                </div>
+
+                {/* Status Switch Pills: Default to not_tested */}
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  {[
+                    { val: "not_tested", label: "未做基因检测 (常态/未送检)", color: "bg-slate-700 text-white" },
+                    { val: "tested", label: "已检出突变", color: "bg-blue-600 text-white" },
+                    { val: "negative", label: "全野生型(经检测全阴)", color: "bg-emerald-600 text-white" },
+                    { val: "in_progress", label: "送检中", color: "bg-amber-600 text-white" }
+                  ].map(s => {
+                    const currentStatus = parsedData.molecularTestStatus || (
+                      Array.isArray(parsedData.geneMutations) && parsedData.geneMutations.length > 0 ? "tested" : "not_tested"
+                    );
+                    const isSelected = currentStatus === s.val;
+                    return (
+                      <button
+                        key={s.val}
+                        type="button"
+                        onClick={() => {
+                          if (s.val === "negative" || s.val === "not_tested") {
+                            setParsedData({ ...parsedData, molecularTestStatus: s.val, geneMutations: [] });
+                          } else {
+                            setParsedData({ ...parsedData, molecularTestStatus: s.val });
+                          }
+                        }}
+                        className={`h-9 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center ${
+                          isSelected ? `${s.color} shadow-xs` : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
+                        }`}
+                      >
+                        {s.label}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
-              {/* Status Switch Pills */}
-              <div className="flex items-center gap-1.5 flex-wrap">
-                {[
-                  { val: "tested", label: "已检出突变", color: "bg-blue-600 text-white" },
-                  { val: "negative", label: "全野生型(阴性)", color: "bg-emerald-600 text-white" },
-                  { val: "not_tested", label: "未做基因检测", color: "bg-slate-700 text-white" },
-                  { val: "in_progress", label: "送检中", color: "bg-amber-600 text-white" }
-                ].map(s => {
-                  const currentStatus = parsedData.molecularTestStatus || (
-                    Array.isArray(parsedData.geneMutations) && parsedData.geneMutations.length > 0 ? "tested" : "not_tested"
-                  );
-                  const isSelected = currentStatus === s.val;
-                  return (
-                    <button
-                      key={s.val}
-                      type="button"
-                      onClick={() => {
-                        if (s.val === "negative" || s.val === "not_tested") {
-                          setParsedData({ ...parsedData, molecularTestStatus: s.val, geneMutations: [] });
-                        } else {
-                          setParsedData({ ...parsedData, molecularTestStatus: s.val });
-                        }
-                      }}
-                      className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                        isSelected ? `${s.color} shadow-2xs` : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
-                      }`}
-                    >
-                      {s.label}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
             {/* If Not Tested or Negative, Show Reassuring Guidelines info */}
             {(parsedData.molecularTestStatus === "not_tested" || parsedData.molecularTestStatus === "negative") && (
-              <div className="p-3.5 bg-white rounded-xl border border-slate-200 text-xs text-slate-600 space-y-1.5">
+              <div className="p-3.5 bg-slate-50/80 rounded-xl border border-slate-200 text-xs text-slate-600 space-y-1.5">
                 <div className="font-bold text-slate-800 flex items-center gap-1.5">
                   <Info className="w-4 h-4 text-blue-600 shrink-0" />
                   <span>
@@ -1796,7 +2124,7 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
                               <select
                                 value={currentMut.subtype || item.subtypes[0]?.name}
                                 onChange={e => handleUpdateGeneSubtype(item.gene, e.target.value)}
-                                className="w-full p-1 bg-slate-50 border border-slate-200 rounded-lg text-[10px] font-semibold text-slate-800 outline-none"
+                                className="w-full h-8 px-2 bg-slate-50 border border-slate-200 rounded-lg text-[10px] font-semibold text-slate-800 outline-none"
                               >
                                 {item.subtypes.map(sub => (
                                   <option key={sub.key} value={sub.name}>{sub.name}</option>
@@ -1809,7 +2137,7 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
                                   placeholder="如 24.5%"
                                   value={currentMut.abundance || ""}
                                   onChange={e => handleUpdateGeneAbundance(item.gene, e.target.value)}
-                                  className="w-full px-1.5 py-0.5 bg-slate-50 border border-slate-200 rounded text-[10px] text-slate-800 outline-none"
+                                  className="w-full h-8 px-2 bg-slate-50 border border-slate-200 rounded-lg text-[10px] text-slate-800 outline-none"
                                 />
                               </div>
                             </div>
@@ -1864,7 +2192,7 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
                             <select
                               value={currentMut.subtype || item.subtypes[0]?.name}
                               onChange={e => handleUpdateGeneSubtype(item.gene, e.target.value)}
-                              className="w-full p-1 bg-amber-50/50 border border-amber-200 rounded text-[10px] font-semibold text-amber-900 outline-none"
+                              className="w-full h-8 px-2 bg-amber-50/50 border border-amber-200 rounded-lg text-[10px] font-semibold text-amber-900 outline-none"
                             >
                               {item.subtypes.map(sub => (
                                 <option key={sub.key} value={sub.name}>{sub.name}</option>
@@ -1899,7 +2227,7 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
                           key={opt.val}
                           type="button"
                           onClick={() => setParsedData({ ...parsedData, pdl1Tps: opt.val })}
-                          className={`py-1 rounded-lg text-[11px] font-bold border transition-all cursor-pointer ${
+                          className={`h-9 rounded-xl text-[11px] font-bold border transition-all cursor-pointer flex items-center justify-center ${
                             (parsedData.pdl1Tps || "unknown") === opt.val
                               ? "bg-indigo-600 text-white border-indigo-600 shadow-2xs"
                               : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
@@ -1925,25 +2253,25 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
                         <span>设为伴随突变</span>
                       </label>
                     </div>
-                    <div className="flex gap-1.5">
+                    <div className="flex gap-2">
                       <input
                         type="text"
                         placeholder="基因 (如: NRG1)"
                         value={customGeneName}
                         onChange={e => setCustomGeneName(e.target.value)}
-                        className="w-1/3 px-2 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none"
+                        className="w-1/3 h-10 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold outline-none focus:bg-white focus:border-blue-400"
                       />
                       <input
                         type="text"
                         placeholder="位点/丰度 (如: 融合)"
                         value={customGeneSubtype}
                         onChange={e => setCustomGeneSubtype(e.target.value)}
-                        className="flex-1 px-2 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs outline-none"
+                        className="flex-1 h-10 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold outline-none focus:bg-white focus:border-blue-400"
                       />
                       <button
                         type="button"
                         onClick={handleAddCustomGene}
-                        className="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg transition-colors cursor-pointer shrink-0"
+                        className="h-10 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm rounded-xl transition-colors cursor-pointer shrink-0 flex items-center justify-center"
                       >
                         添加
                       </button>
@@ -2008,27 +2336,29 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
         {currentStep === 4 && (
           <div className="space-y-6">
             {/* Section 4: Systemic Staging & M0 Confirmation Matrix (Strict 3-Column Symmetrical Grid: 5 Organs + 1 Benign Findings) */}
-            <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-indigo-50/70 via-slate-50 to-teal-50/70 border-2 border-indigo-200/80 space-y-3.5 shadow-xs">
-            <div className="flex items-center justify-between flex-wrap gap-2">
-              <div className="flex items-center gap-2">
-                <Layers className="w-5 h-5 text-indigo-700" />
-                <div>
-                  <h3 className="text-xs font-bold text-indigo-950 uppercase tracking-wider">
-                    全身转移排查与 M0 早期根治窗口确认矩阵
-                  </h3>
-                  <p className="text-[11px] text-slate-500">
-                    排查中枢神经、肝脏、肾上腺与骨质，确立无远处转移 (M0) 黄金手术窗口
-                  </p>
+            <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 shadow-soft space-y-4">
+              <div className="flex items-center justify-between flex-wrap gap-2 pb-2 border-b border-slate-100">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-teal-50 text-teal-700 border border-teal-100 flex items-center justify-center shrink-0">
+                    <Layers className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-xs sm:text-sm font-extrabold text-slate-900">
+                      全身转移排查与 M0 早期根治窗口确认矩阵
+                    </h3>
+                    <p className="text-[11px] text-slate-500">
+                      排查中枢神经、肝脏、肾上腺与骨质，确立无远处转移 (M0) 黄金手术窗口
+                    </p>
+                  </div>
                 </div>
-              </div>
 
-              {isSystemicM0 && (
-                <span className="px-3 py-1 bg-emerald-600 text-white font-extrabold text-xs rounded-full shadow-2xs flex items-center gap-1.5">
-                  <Award className="w-3.5 h-3.5 text-white" />
-                  <span>全身排查阴性 · 确立 M0 根治窗口</span>
-                </span>
-              )}
-            </div>
+                {isSystemicM0 && (
+                  <span className="px-3 py-1 bg-emerald-600 text-white font-extrabold text-xs rounded-full shadow-2xs flex items-center gap-1.5">
+                    <Award className="w-3.5 h-3.5 text-white" />
+                    <span>全身排查阴性 · 确立 M0 根治窗口</span>
+                  </span>
+                )}
+              </div>
 
             {/* Symmetrical 3-Column Grid (2 rows x 3 cols = exactly 6 cards): No wrapping, No truncation! */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-1">
@@ -2241,12 +2571,12 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
                       onChange={e => setNewBenignInput(e.target.value)}
                       onKeyDown={e => e.key === 'Enter' && handleAddBenignFinding()}
                       placeholder="如：息肉"
-                      className="w-16 px-1.5 py-1 bg-slate-50 border border-slate-200 rounded-lg text-[10px] outline-none focus:bg-white focus:border-blue-400"
+                      className="w-16 h-8 px-2 bg-slate-50 border border-slate-200 rounded-lg text-[10px] outline-none focus:bg-white focus:border-blue-400"
                     />
                     <button 
                       type="button" 
                       onClick={handleAddBenignFinding}
-                      className="px-1.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px] font-bold rounded-lg cursor-pointer"
+                      className="h-8 px-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px] font-bold rounded-lg cursor-pointer flex items-center justify-center"
                     >
                       +
                     </button>
@@ -2257,19 +2587,28 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
             </div>
           </div>
 
-          {/* Section: Blood Tumor Markers (P2-2) */}
-          <div className="p-4 rounded-2xl bg-indigo-50/60 border border-indigo-200 space-y-3">
-            <div className="flex items-center justify-between flex-wrap gap-2">
-              <div className="text-xs font-bold text-indigo-900 uppercase tracking-wider flex items-center gap-1.5">
-                <TestTube2 className="w-3.5 h-3.5 text-indigo-700" />
-                <span>血液肿瘤标志物 (选填 · 结合影像综合排雷)</span>
+          {/* Section: Blood Tumor Markers */}
+          <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 shadow-soft space-y-4">
+            <div className="flex items-center justify-between flex-wrap gap-2 pb-2 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-700 border border-indigo-100 flex items-center justify-center shrink-0">
+                  <TestTube2 className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-xs sm:text-sm font-extrabold text-slate-900">
+                    血液肿瘤标志物 (选填 · 结合影像综合排雷)
+                  </h3>
+                  <p className="text-[11px] text-slate-500">
+                    血清学指标基线建立，正常范围内波动属生理正常代谢
+                  </p>
+                </div>
               </div>
-              <span className="text-[11px] text-indigo-700">正常范围内波动属生理正常代谢</span>
+              <span className="text-[11px] text-slate-400 font-medium">选填指标 · 结合影像综合研判</span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
               <div>
-                <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                   CEA 癌胚抗原 (ng/mL，参考 0~5.0)
                 </label>
                 <input
@@ -2286,11 +2625,11 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
                       }
                     })
                   }
-                  className="w-full p-2 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-800"
+                  className="w-full h-10 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all font-mono"
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                   CYFRA21-1 (ng/mL，参考 0~3.3)
                 </label>
                 <input
@@ -2307,11 +2646,11 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
                       }
                     })
                   }
-                  className="w-full p-2 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-800"
+                  className="w-full h-10 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all font-mono"
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                   NSE (ng/mL，参考 0~16.3)
                 </label>
                 <input
@@ -2328,11 +2667,11 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
                       }
                     })
                   }
-                  className="w-full p-2 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-800"
+                  className="w-full h-10 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all font-mono"
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                   SCC 鳞癌抗原 (ng/mL，参考 0~1.5)
                 </label>
                 <input
@@ -2349,11 +2688,11 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
                       }
                     })
                   }
-                  className="w-full p-2 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-800"
+                  className="w-full h-10 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all font-mono"
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                   ProGRP 胃泌素释放肽前体 (pg/mL，参考 0~65.0)
                 </label>
                 <input
@@ -2370,11 +2709,11 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
                       }
                     })
                   }
-                  className="w-full p-2 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-800"
+                  className="w-full h-10 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all font-mono"
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                   CA125 糖类抗原 (U/mL，参考 0~35.0)
                 </label>
                 <input
@@ -2391,11 +2730,11 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
                       }
                     })
                   }
-                  className="w-full p-2 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-800"
+                  className="w-full h-10 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all font-mono"
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                   CA19-9 糖类抗原 (U/mL，参考 0~27.0)
                 </label>
                 <input
@@ -2412,11 +2751,11 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
                       }
                     })
                   }
-                  className="w-full p-2 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-800"
+                  className="w-full h-10 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all font-mono"
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                   CA15-3 糖类抗原 (U/mL，参考 0~25.0)
                 </label>
                 <input
@@ -2433,11 +2772,11 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
                       }
                     })
                   }
-                  className="w-full p-2 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-800"
+                  className="w-full h-10 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all font-mono"
                 />
               </div>
               <div>
-                <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                   Ferritin 铁蛋白 (ng/mL，参考 20~300.0)
                 </label>
                 <input
@@ -2454,7 +2793,7 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
                       }
                     })
                   }
-                  className="w-full p-2 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-800"
+                  className="w-full h-10 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all font-mono"
                 />
               </div>
             </div>

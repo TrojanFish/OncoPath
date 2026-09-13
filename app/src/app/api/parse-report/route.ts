@@ -60,9 +60,14 @@ const SYSTEM_PROMPT = `
 - 伴发良性病变提取 (benignFindings): 字符串数组，如 ["肝囊肿", "肝内钙化灶", "胆囊息肉", "肾囊肿", "甲状腺结节TI-RADS 2类", "肺内陈旧性纤维钙化灶"]
 - 全身排查确认 (systemicStagingConfirmed): 若脑部、腹部或骨扫描中有至少一项确认阴性且无任何阳性转移，设为 true。
 
-【第五步：病理报告阴阳性识别规则（术后确诊报告核心）】：
+【第五步：病理报告阴阳性与浸润测量识别规则（术后确诊报告核心，分三种临床情形）】：
 - 标本大体肿瘤全径 (pathologyTumorSize): 标本大体/肉眼肿物最大径（厘米，例如 1.4）
-- 镜下微观浸润大小 (pathologyInvasiveSize): 显微镜下测得的浸润成分最大径（厘米，例如 0.6）；纯原位病变填 0；纯实性浸润性腺癌通常等同于全径；若未提及浸润径填 null
+- 镜下微观浸润大小 (pathologyInvasiveSize): 显微镜下测得的浸润成分最大径（厘米，例如 0.6）；纯原位病变填 0；若未单列浸润径填 null
+- 贴壁/伏壁生长型占比 (pathologyLepidicPercent): 若报告注明了各亚型成分百分比（如“贴壁型 70% / 伏壁型 60%”），提取贴壁亚型百分比（数字，例如 70）。系统将据此折算浸润径；未提及填 null
+- 病理报告模式 (pathologyReportMode):
+  * "explicit": 报告明确单列了镜下浸润成分最大径
+  * "percentage": 报告未单列浸润径，但注明了贴壁型/腺泡型等成分百分比
+  * "unspecified": 报告未写浸润径也未写成分百分比（基层简易报告）
 - 气道播散 (STAS): "未见" / "STAS (-)" ➔ "negative"; "见" / "STAS (+)" ➔ "positive"; 未提及 ➔ "negative"
 - 脉管内癌栓 (LVI): "未见" / "LVI (-)" ➔ "negative"; "见" / "LVI (+)" ➔ "positive"; 未提及 ➔ "negative"
 - 脏层胸膜侵犯 (VPI): "未见" / "PL0" ➔ "negative"; "突破脏层胸膜" / "PL1" / "PL2" ➔ "positive"; 未提及 ➔ "negative"
@@ -73,11 +78,12 @@ const SYSTEM_PROMPT = `
 - 识别高危伴随突变 (Co-mutations)：TP53、RB1、PIK3CA 等，设置 isComutation 为 true。
 - 提取突变丰度 (abundance / VAF 如 "24.5%")。
 - 提取 PD-L1 表达 (pdl1Tps)："<1%" | "1-49%" | ">=50%" | "unknown"。
-- 【阴性/野生型绝对排除红线（极其重要）】：
+- 【未做基因检测默认规则与阴性绝对排除红线（极其重要）】：
+  * 【绝对禁止无报告误判全野生型】：若用户上传的是单纯 CT 报告或常规石蜡切片病理报告，且报告未提及基因检测、未做 NGS/PCR、未列出靶点检测项目，molecularTestStatus 必须严格设为 "not_tested"（未做基因检测）！绝对严禁设为 "negative"（全野生型）！
   * 遇到 ALK 阴性 (-)、ALK (D5F3) 阴性 (-)、EGFR 未检出突变/野生型、KRAS (-)、ROS1 (-) 等未检出突变或阴性的基因，绝对严禁放入 geneMutations 数组！
   * geneMutations 数组中只允许包含【明确阳性 / 检出突变 (+)】的基因！
-  * 若报告中所有基因检测均为阴性（野生型），或显示“全基因野生型 / 未检出驱动基因突变”，必须设置 molecularTestStatus 为 "negative"，且 geneMutations 为 []（空数组）！
-  * 若未做基因检测，molecularTestStatus 设为 "not_tested"；检测中设为 "in_progress"；只有检出阳性突变才设为 "tested"。
+  * 只有在报告明确记载进行了基因检测且所有靶点均为阴性/全野生型时，才将 molecularTestStatus 设为 "negative"，且 geneMutations 为 []（空数组）！
+  * 若未做基因检测，molecularTestStatus 必须设为 "not_tested"；检测中设为 "in_progress"；只有检出阳性突变才设为 "tested"。
 
 请严格遵守以下 JSON 结构输出，不要包含任何 Markdown 标记或多余的文字：
 {
@@ -90,6 +96,8 @@ const SYSTEM_PROMPT = `
   "ctr": Number (实性成分最大径除以磨玻璃最大径，例如 0.53),
   "pathologyTumorSize": Number | null (术后病理标本肿瘤大体全径厘米，例如 1.4),
   "pathologyInvasiveSize": Number | null (镜下微观浸润成分大小厘米，例如 0.6),
+  "pathologyLepidicPercent": Number | null (贴壁/伏壁生长型占比百分比，例如 70),
+  "pathologyReportMode": "explicit" | "percentage" | "unspecified" | null,
   "imagingFeatures": ["分叶征", "毛刺征", ...],
   "lungRads": String | null,
   "malignancyRisk": "low" | "moderate" | "high",
@@ -284,14 +292,28 @@ export async function POST(request: Request) {
     const lvi = normalizeFlag(extracted.lvi);
     const marginStatus = normalizeFlag(extracted.marginStatus);
 
+    const rawPathologyTumor = extracted.pathologyTumorSize != null && !isNaN(Number(extracted.pathologyTumorSize)) ? Number(extracted.pathologyTumorSize) : null;
+    const rawLepidicPct = extracted.pathologyLepidicPercent != null && !isNaN(Number(extracted.pathologyLepidicPercent)) ? Number(extracted.pathologyLepidicPercent) : null;
+    let rawPathologyInvasive = extracted.pathologyInvasiveSize != null && !isNaN(Number(extracted.pathologyInvasiveSize)) ? Number(extracted.pathologyInvasiveSize) : null;
+    if (rawPathologyInvasive == null && rawLepidicPct != null) {
+      const gross = rawPathologyTumor || (extracted.tumorSize ?? 1.5);
+      rawPathologyInvasive = Math.max(0, Math.round(gross * (1 - rawLepidicPct / 100) * 100) / 100);
+    }
+
+    const pathologyReportMode = extracted.pathologyReportMode || (
+      rawLepidicPct != null ? "percentage" : (rawPathologyInvasive != null ? "explicit" : "unspecified")
+    );
+
     // Compute accurate TNM Stage using AJCC 8th/9th Solid Component Formula
     const stagingCalc = computeClinicalTnmStage({
       noduleType: extracted.noduleType || "mixed_ggo",
       tumorSize: extracted.tumorSize ?? 1.5,
       solidSize: extracted.solidSize ?? (isCtReport && extracted.noduleType === "pure_ggo" ? 0 : 0.8),
       ctr: extracted.ctr ?? 0.53,
-      pathologyTumorSize: extracted.pathologyTumorSize != null && !isNaN(Number(extracted.pathologyTumorSize)) ? Number(extracted.pathologyTumorSize) : null,
-      pathologyInvasiveSize: extracted.pathologyInvasiveSize != null && !isNaN(Number(extracted.pathologyInvasiveSize)) ? Number(extracted.pathologyInvasiveSize) : null,
+      pathologyTumorSize: rawPathologyTumor,
+      pathologyInvasiveSize: rawPathologyInvasive,
+      pathologyLepidicPercent: rawLepidicPct,
+      pathologyReportMode: pathologyReportMode,
       nStage: extracted.nStage || "N0",
       vpi: vpi,
       stas: stas,
@@ -409,8 +431,17 @@ export async function POST(request: Request) {
           return true;
         });
         if (positiveList.length > 0) return "tested";
-        if (extracted.molecularTestStatus === "negative" || rawList.length > 0) return "negative";
-        return extracted.molecularTestStatus || "not_tested";
+        
+        // Strict guard: if report does NOT genuinely mention gene testing, default strictly to "not_tested"
+        const reportContent = (reportText || "").toLowerCase();
+        const hasExplicitGeneTesting = /基因|突变|egfr|alk|ros1|kras|ngs|pcr|野生型|扩增|融合|全外显子|二代测序|靶向|分子病理/i.test(reportContent);
+        if (extracted.molecularTestStatus === "negative") {
+          if (hasExplicitGeneTesting || (rawList.length > 0 && positiveList.length === 0)) {
+            return "negative";
+          }
+        }
+        if (extracted.molecularTestStatus === "in_progress") return "in_progress";
+        return "not_tested";
       })(),
       molecular: (() => {
         const rawList = Array.isArray(extracted.geneMutations) ? extracted.geneMutations : [];
@@ -429,9 +460,11 @@ export async function POST(request: Request) {
           isComutation: Boolean(m.isComutation || ["TP53", "RB1", "PIK3CA"].includes(String(m.gene).trim().toUpperCase())),
           status: "positive"
         }));
+        const reportContent = (reportText || "").toLowerCase();
+        const hasExplicitGeneTesting = /基因|突变|egfr|alk|ros1|kras|ngs|pcr|野生型|扩增|融合|全外显子|二代测序|靶向|分子病理/i.test(reportContent);
         const status = positiveList.length > 0 
           ? "tested" 
-          : (extracted.molecularTestStatus === "negative" || rawList.length > 0 ? "negative" : (extracted.molecularTestStatus || "not_tested"));
+          : (extracted.molecularTestStatus === "negative" && (hasExplicitGeneTesting || rawList.length > 0) ? "negative" : "not_tested");
         return {
           testStatus: status,
           testMethod: "NGS_panel",
@@ -451,8 +484,12 @@ export async function POST(request: Request) {
           return true;
         });
         if (hasPositiveEgfr) return "positive";
-        if (extracted.molecularTestStatus === "negative" || (rawList.length > 0 && !hasPositiveEgfr)) return "negative";
-        return extracted.egfr || (extracted.molecularTestStatus === "not_tested" ? "not_tested" : "unknown");
+        const reportContent = (reportText || "").toLowerCase();
+        const hasExplicitGeneTesting = /基因|突变|egfr|alk|ros1|kras|ngs|pcr|野生型|扩增|融合|全外显子|二代测序|靶向|分子病理/i.test(reportContent);
+        if (extracted.molecularTestStatus === "negative" && (hasExplicitGeneTesting || rawList.length > 0)) {
+          return "negative";
+        }
+        return "not_tested";
       })(),
 
       age: extracted.age != null && !isNaN(Number(extracted.age)) ? Number(extracted.age) : null,
@@ -465,8 +502,10 @@ export async function POST(request: Request) {
       tumorSize: stagingCalc.tumorSize,
       solidSize: stagingCalc.solidSize,
       ctr: stagingCalc.ctr,
-      pathologyTumorSize: extracted.pathologyTumorSize != null && !isNaN(Number(extracted.pathologyTumorSize)) ? Number(extracted.pathologyTumorSize) : null,
-      pathologyInvasiveSize: extracted.pathologyInvasiveSize != null && !isNaN(Number(extracted.pathologyInvasiveSize)) ? Number(extracted.pathologyInvasiveSize) : null,
+      pathologyTumorSize: stagingCalc.pathologyTumorSize,
+      pathologyInvasiveSize: stagingCalc.pathologyInvasiveSize,
+      pathologyLepidicPercent: stagingCalc.pathologyLepidicPercent,
+      pathologyReportMode: stagingCalc.pathologyReportMode,
       tStage: stagingCalc.tStage,
       nStage: stagingCalc.nStage,
       mStage: stagingCalc.mStage,
