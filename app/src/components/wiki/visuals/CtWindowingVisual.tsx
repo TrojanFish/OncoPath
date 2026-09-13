@@ -840,7 +840,7 @@ export function CtWindowingVisual({
           <Info className="w-3.5 h-3.5" />
           <span>图解核心要点：</span>
         </span>
-        磨玻璃结节 (GGO) 的浸润性大小<strong>严禁按肺窗外周全径粗暴计算</strong>！在 AJCC 8th/9th 国际分期标准中，T 分期严格取决于<strong>纵隔窗实性浸润核心大小 (Solid Core)</strong>。在纵隔窗中“瞬间隐形”的磨玻璃成分属于原位伏壁惰性生长，切除后 5 年无复发生存率接近 100%，千万不要被肺窗的大尺寸吓倒。
+        磨玻璃结节 (GGO) 的浸润性大小<strong>严禁按肺窗外周全径粗暴计算</strong>！在 IASLC / AJCC 第 9 版 国际分期标准中，T 分期严格取决于<strong>纵隔窗实性浸润核心大小 (Solid Core)</strong>。在纵隔窗中“瞬间隐形”的磨玻璃成分属于原位伏壁惰性生长，切除后 5 年无复发生存率接近 100%，千万不要被肺窗的大尺寸吓倒。
       </div>
     </div>
   );

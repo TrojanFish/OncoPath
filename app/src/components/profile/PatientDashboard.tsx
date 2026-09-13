@@ -301,7 +301,7 @@ export default function PatientDashboard() {
             患者临床数字档案
           </h1>
           <p className="text-slate-400 font-bold text-xs uppercase tracking-wider mt-1">
-            PATIENT CLINICAL PROFILE · 动态决策状态机 · 基于 AJCC 8th/9th 实性成分与前瞻性临床队列
+            PATIENT CLINICAL PROFILE · 动态决策状态机 · 基于 IASLC / AJCC 第 9 版 实性成分与前瞻性临床队列
           </p>
         </div>
         <div className="flex items-center gap-2 self-start sm:self-center flex-wrap">
@@ -367,6 +367,24 @@ export default function PatientDashboard() {
         psychologicalState={profile.psychologicalState} 
       />
 
+      {/* IASLC 9th Edition Version Bridge Notice Banner */}
+      {profile.versionBridgeNotice && (
+        <div className="mb-6 p-4 sm:p-4.5 rounded-2xl bg-gradient-to-r from-teal-50/90 via-emerald-50/80 to-sky-50/70 border border-teal-200 shadow-2xs flex items-start gap-3 animate-fade-in">
+          <div className="w-8 h-8 rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center shrink-0 mt-0.5">
+            <Sparkles className="w-4 h-4" />
+          </div>
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-xs font-extrabold text-teal-950">IASLC 第 9 版国际现行分期演变说明</span>
+              <span className="text-[10px] bg-teal-200/80 text-teal-900 font-bold px-2 py-0.5 rounded-full">消除旧版报告疑惑</span>
+            </div>
+            <p className="text-xs text-slate-700 leading-relaxed font-medium">
+              {profile.versionBridgeNotice}
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* 2x2 Bento Grid Clinical Dashboard */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6 mb-6">
         
@@ -420,7 +438,7 @@ export default function PatientDashboard() {
                     </span>
                   </div>
                   <div className="text-[11px] text-teal-700 font-medium">
-                    依据 AJCC 8th/9th 规则以实性成分精准校准为 <strong>{profile.stage || 'IA1'} 期 ({profile.tStage || 'T1a'})</strong>
+                    依据 IASLC / AJCC 第 9 版 规则以实性成分精准校准为 <strong>{profile.stage || 'IA1'} 期 ({profile.tStage || 'T1a'})</strong>
                   </div>
                 </div>
               )}
@@ -521,7 +539,7 @@ export default function PatientDashboard() {
                   </span>
                 </div>
 
-                {/* Pathological Tumor Size Measurement Strip (AJCC 8th/9th pT Gold Standard) */}
+                {/* Pathological Tumor Size Measurement Strip (IASLC / AJCC 第 9 版 pT Gold Standard) */}
                 <div className="bg-purple-50/90 p-3 sm:p-3.5 rounded-2xl border border-purple-200 space-y-1.5">
                   <div className="flex items-center justify-between flex-wrap gap-2 text-xs">
                     <span className="text-purple-950 font-bold flex items-center gap-1.5 flex-wrap">
@@ -546,7 +564,7 @@ export default function PatientDashboard() {
                   </div>
                   <div className="text-[11px] text-purple-800 leading-snug flex items-center justify-between flex-wrap gap-1">
                     <span>
-                      依据 AJCC 8th/9th 伏壁贴壁腺癌金标准，以<strong>镜下微观浸润径</strong>判定 pT 分期
+                      依据 IASLC / AJCC 第 9 版 伏壁贴壁腺癌金标准，以<strong>镜下微观浸润径</strong>判定 pT 分期
                     </span>
                     {profile.tumorSize && (
                       <span className="text-purple-600 font-medium">
@@ -566,7 +584,15 @@ export default function PatientDashboard() {
                   <RiskBadge 
                     label="淋巴结分期" 
                     status={isN0Safe ? 'good' : profile.nStage === 'N1' ? 'warning' : 'danger'} 
-                    text={profile.nStage === 'N0' || !profile.nStage ? 'N0 (无转移)' : profile.nStage === 'N1' ? 'N1 (肺门累及)' : profile.nStage === 'N2' ? 'N2 (纵隔转移)' : profile.nStage} 
+                    text={
+                      profile.nStage === 'N0' || !profile.nStage ? 'N0 (无转移)' :
+                      profile.nStage === 'N1' ? 'N1 (肺门累及)' :
+                      profile.nStage === 'N2a' ? 'N2a (单站纵隔)' :
+                      profile.nStage === 'N2b' ? 'N2b (多站纵隔)' :
+                      profile.nStage === 'N2' ? 'N2 (纵隔转移)' :
+                      profile.nStage === 'N3' ? 'N3 (对侧/锁骨上)' :
+                      profile.nStage
+                    } 
                   />
                   <RiskBadge 
                     label="胸膜侵犯 (VPI)" 

@@ -25,7 +25,7 @@ const REASONING_STEPS: StepInfo[] = [
     step: 1,
     title: "结构化提取病理与薄层 CT 影像特征",
     subtitle: "解析肿瘤全径、实性成分浸润比 (CTR)、STAS 气道播散与胸膜侵犯 (VPI)",
-    details: "对齐 AJCC 8th/9th 磨玻璃实性成分折算规则，排查切缘 R0 状态与淋巴结转移",
+    details: "对齐 IASLC / AJCC 第 9 版 磨玻璃实性成分折算规则，排查切缘 R0 状态与淋巴结转移",
     icon: FileSearch,
   },
   {

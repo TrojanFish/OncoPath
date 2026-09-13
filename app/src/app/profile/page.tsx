@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
-      <div className="flex-1 pt-24 sm:pt-28 pb-8 sm:pb-12">
+      <div className="flex-1 pt-[calc(4.25rem+env(safe-area-inset-top,0px))] md:pt-28 pb-8 sm:pb-12">
         <PatientDashboard />
       </div>
       <Footer maxWidth="max-w-7xl" />

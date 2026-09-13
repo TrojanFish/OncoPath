@@ -83,7 +83,7 @@ export default function CommandPalette() {
     {
       id: "tool_profile",
       title: "临床数字档案 (TNM分期与倍增动力学)",
-      subtitle: "输入病理/CT参数，秒级计算 8th/9th AJCC 阶段与 Schwartz VDT",
+      subtitle: "输入病理/CT参数，秒级计算 IASLC / AJCC 第 9 版 分期与 Schwartz VDT",
       category: "clinical_tool",
       categoryLabel: "核心工具",
       icon: Activity,

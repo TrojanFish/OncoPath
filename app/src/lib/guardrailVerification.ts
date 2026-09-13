@@ -245,16 +245,34 @@ export function runAllGuardrailTests(): GuardrailTestResult[] {
     });
     const vpiPassed = vpiUpstagingResult.tStage === 'T2a' && vpiUpstagingResult.stage === 'IB';
 
-    // Case C: T3 (6.0cm) with N2 -> Stage IIIB (AJCC 8th/9th)
-    const t3n2Result = computeClinicalTnmStage({
+    // Case C: T1a (1.0cm) with N1 -> Stage IIA (IASLC 9th Downstaged from IIB!)
+    const t1n1Result = computeClinicalTnmStage({
       noduleType: 'pure_solid',
-      tumorSize: 6.0,
-      nStage: 'N2',
+      tumorSize: 1.0,
+      nStage: 'N1',
       mStage: 'M0',
     });
-    const t3n2Passed = t3n2Result.tStage === 'T3' && t3n2Result.stage === 'IIIB';
+    const t1n1Passed = t1n1Result.stage === 'IIA' && Boolean(t1n1Result.versionBridgeNotice);
 
-    // Case D: T3 (6.0cm) with N3 -> Stage IIIC (AJCC 8th/9th)
+    // Case D: T3 (6.0cm) with N2a (单站纵隔) -> Stage IIIA (IASLC 9th Downstaged from IIIB!)
+    const t3n2aResult = computeClinicalTnmStage({
+      noduleType: 'pure_solid',
+      tumorSize: 6.0,
+      nStage: 'N2a',
+      mStage: 'M0',
+    });
+    const t3n2aPassed = t3n2aResult.tStage === 'T3' && t3n2aResult.stage === 'IIIA';
+
+    // Case E: T3 (6.0cm) with N2b (多站纵隔) -> Stage IIIB (IASLC 9th)
+    const t3n2bResult = computeClinicalTnmStage({
+      noduleType: 'pure_solid',
+      tumorSize: 6.0,
+      nStage: 'N2b',
+      mStage: 'M0',
+    });
+    const t3n2bPassed = t3n2bResult.tStage === 'T3' && t3n2bResult.stage === 'IIIB';
+
+    // Case F: T3 (6.0cm) with N3 -> Stage IIIC (IASLC 9th)
     const t3n3Result = computeClinicalTnmStage({
       noduleType: 'pure_solid',
       tumorSize: 6.0,
@@ -263,7 +281,7 @@ export function runAllGuardrailTests(): GuardrailTestResult[] {
     });
     const t3n3Passed = t3n3Result.tStage === 'T3' && t3n3Result.stage === 'IIIC';
 
-    // Case E: T2b (4.5cm) with N1 -> Stage IIB (AJCC 8th/9th)
+    // Case G: T2b (4.5cm) with N1 -> Stage IIB (IASLC 9th)
     const t2bn1Result = computeClinicalTnmStage({
       noduleType: 'pure_solid',
       tumorSize: 4.5,
@@ -272,16 +290,26 @@ export function runAllGuardrailTests(): GuardrailTestResult[] {
     });
     const t2bn1Passed = t2bn1Result.tStage === 'T2b' && t2bn1Result.stage === 'IIB';
 
-    const stagingSuitePassed = mGgoPassed && vpiPassed && t3n2Passed && t3n3Passed && t2bn1Passed;
+    // Case H: 1.5cm with adjacentLobeInvasion -> Stage IB (T2a)
+    const adjLobeResult = computeClinicalTnmStage({
+      noduleType: 'pure_solid',
+      tumorSize: 1.5,
+      adjacentLobeInvasion: true,
+      nStage: 'N0',
+      mStage: 'M0',
+    });
+    const adjLobePassed = adjLobeResult.tStage === 'T2a' && adjLobeResult.stage === 'IB';
+
+    const stagingSuitePassed = mGgoPassed && vpiPassed && t1n1Passed && t3n2aPassed && t3n2bPassed && t3n3Passed && t2bn1Passed && adjLobePassed;
 
     results.push({
       suite: 'Deterministic Staging Engine (P0)',
-      name: 'AJCC 8th/9th Full Matrix & Pleural Upstaging Rules',
+      name: 'IASLC / AJCC 第 9 版 Full Matrix & Pleural/Lobe Upstaging Rules',
       passed: stagingSuitePassed,
       message: stagingSuitePassed
-        ? '磨玻璃实性成分折算 (T1a/IA1)、胸膜升期 (T2a/IB)、T3N2(IIIB)、T3N3(IIIC) 与 T2bN1(IIB) 逻辑严密验证通过'
-        : '分期公式计算不符合 AJCC/IASLC 规范',
-      details: { mGgoResult, vpiUpstagingResult, t3n2Result, t3n3Result, t2bn1Result }
+        ? '磨玻璃实性折算(T1a/IA1)、胸膜/跨叶升期(T2a/IB)、T1N1降期(IIA)、T3N2a(IIIA)、T3N2b(IIIB)、T3N3(IIIC) 逻辑严密验证通过'
+        : '分期公式计算不符合 IASLC 第 9 版金标准规范',
+      details: { mGgoResult, vpiUpstagingResult, t1n1Result, t3n2aResult, t3n2bResult, t3n3Result, t2bn1Result, adjLobeResult }
     });
   } catch (err: any) {
     results.push({

@@ -59,6 +59,8 @@
        of the horizontal navbar jitter on page navigation) */
     scrollbar-gutter: stable;
     overflow-x: hidden;
+    touch-action: manipulation;
+    -webkit-text-size-adjust: 100%;
     /* Remove global smooth scroll — it conflicts with Next.js App Router's
        instant scroll-to-top on route change, causing vertical bounce flicker */
   }
@@ -71,6 +73,7 @@
     -webkit-font-smoothing: antialiased;
     font-variant-numeric: tabular-nums;
     overflow-x: hidden;
+    touch-action: manipulation;
   }
 }
 

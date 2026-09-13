@@ -249,22 +249,28 @@ function Step1({ form, updateForm }: StepProps) {
         </select>
       </FormField>
 
-      <FormField label="淋巴结状态" tooltip="手术中所清扫的淋巴结。N0表示没有淋巴结转移，是最理想的结果。这个数据在你的手术活检报告中可以找到">
-        <div className="flex gap-2">
-          {(["N0", "N1", "N2"] as const).map((n) => (
+      <FormField label="淋巴结状态 (IASLC 第9版)" tooltip="手术中所清扫的淋巴结。第9版国际金标准将 N2 细分为 N2a 单站与 N2b 多站纵隔。N0表示没有淋巴结转移，是最理想的结果。">
+        <div className="grid grid-cols-5 gap-1.5">
+          {[
+            { val: "N0", label: "N0", sub: "无转移" },
+            { val: "N1", label: "N1", sub: "同侧肺门" },
+            { val: "N2a", label: "N2a", sub: "单站纵隔" },
+            { val: "N2b", label: "N2b", sub: "多站纵隔" },
+            { val: "N3", label: "N3", sub: "对侧/锁骨" },
+          ].map((n) => (
             <button
-              key={n}
-              id={`lymph-${n}`}
-              onClick={() => updateForm("lymphNodes", n)}
-              className={`flex-1 py-3 rounded-lg text-sm font-medium transition-all cursor-pointer ${
-                form.lymphNodes === n
-                  ? "bg-blue-50 border border-blue-500 text-blue-600"
+              key={n.val}
+              id={`lymph-${n.val}`}
+              onClick={() => updateForm("lymphNodes", n.val as any)}
+              className={`py-2 px-1 rounded-lg text-sm font-medium transition-all cursor-pointer ${
+                form.lymphNodes === n.val || (n.val === "N2a" && form.lymphNodes === "N2")
+                  ? "bg-blue-50 border border-blue-500 text-blue-600 font-bold"
                   : "bg-white border border-gray-200 text-gray-500 hover:bg-gray-50"
               }`}
             >
-              {n}
-              <div className="text-xs mt-0.5 opacity-70">
-                {n === "N0" ? "无转移" : n === "N1" ? "同侧淋巴结" : "纵隔淋巴结"}
+              {n.label}
+              <div className="text-[10px] mt-0.5 opacity-70 truncate">
+                {n.sub}
               </div>
             </button>
           ))}
@@ -332,16 +338,16 @@ function Step2({ form, updateForm }: StepProps) {
         <p className="text-text-secondary text-sm">这些来自手术后病理报告，不记得的项目可以选“未知”</p>
       </div>
 
-      <FormField label="TNM 分期" tooltip="分期是医生评估肿瘤进展的方式。其中 Tis (原位癌) 和 MIA (微浸润) 属于极早期，IA1是最早期浸润癌，数字越大表示进展越晚。在病理报告第一页一般可以找到">
-        <div className="grid grid-cols-4 gap-2">
-          {["Tis", "MIA", "IA1", "IA2", "IA3", "IB", "IIA", "IIB"].map((s) => (
+      <FormField label="TNM 分期 (IASLC / AJCC 第9版)" tooltip="分期是医生评估肿瘤进展的方式。其中 Tis (原位癌) 和 MIA (微浸润) 属于极早期，IA1是最早期浸润癌。第9版新增 IVA/IVB 寡转移细分。">
+        <div className="grid grid-cols-4 sm:grid-cols-5 gap-1.5">
+          {["Tis", "MIA", "IA1", "IA2", "IA3", "IB", "IIA", "IIB", "IIIA", "IIIB", "IIIC", "IVA", "IVB"].map((s) => (
             <button
               key={s}
               id={`stage-${s}`}
-              onClick={() => updateForm("stage", s)}
-              className={`py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${
+              onClick={() => updateForm("stage", s as any)}
+              className={`py-2 rounded-lg text-xs sm:text-sm font-medium transition-all cursor-pointer ${
                 form.stage === s
-                  ? "bg-blue-50 border border-blue-500 text-blue-600"
+                  ? "bg-blue-50 border border-blue-500 text-blue-600 font-bold"
                   : "bg-white border border-gray-200 text-gray-500 hover:bg-gray-50"
               }`}
             >

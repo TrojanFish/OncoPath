@@ -29,7 +29,7 @@ const POST_OP_PROMPT = `
 请严格按照以下 4 大核心板块输出（请使用标准 Markdown 格式）：
 
 > 🌟 **【专家组核心研判·一句话全景省流】**
-> - **诊断与分期结论**：以温和肯定的语气说明患者目前的病理确诊结论与 AJCC 8th/9th 实际分期。
+> - **诊断与分期结论**：以温和肯定的语气说明患者目前的病理确诊结论与 IASLC / AJCC 第 9 版 (2024) 实际分期。如果属于第九版演变分期（如 T1N1 归为 IIA 期，或 N2 细分），请给予贴心专业的新旧版演变说明，消除患者对旧版报告的疑惑。
 > - **全身排查与 M0 定心丸**：清晰告知患者全身排查结果、M0 无远处转移的黄金意义及 R0 根治性切除的重大基石价值，彻底消除未知恐惧。
 > - **核心行动指引**：提炼最关键的一条医疗建议（IA期低危患者为：规律随访复查，无需过度用药与盲目基因检测；中高危患者为：完善驱动基因检测或多学科会诊 MDT）。
 
@@ -209,7 +209,7 @@ export async function POST(request: Request) {
 
       // Visceral Pleural Invasion (VPI) Evidence
       if (profile.vpi === "positive") {
-        evidenceItems.push("【IASLC 8th/9th TNM 胸膜侵犯专病研究】：脏层胸膜侵犯 (VPI) 突破弹性层使 T1 期自动升期为 T2a，是局部微转移的独立预后风险指标。");
+        evidenceItems.push("【IASLC 第 9 版 TNM 胸膜侵犯专病研究】：脏层胸膜侵犯 (VPI) 突破弹性层使 T1 期自动升期为 T2a，是局部微转移的独立预后风险指标。");
       }
 
       // EGFR Positive Evidence

@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { computeClinicalTnmStage, getClinicalCohortForProfile, StagingInput } from '../lib/staging';
 
 
-describe('AJCC 8th/9th Edition & IASLC TNM Staging Engine', () => {
+describe('IASLC / AJCC 第 9 版 (2024 现行国际金标准) TNM Staging Engine', () => {
   describe('Pure GGO Staging Rules (Tis / 0期)', () => {
     it('should stage pure GGO as Tis / Stage 0 regardless of total tumor size', () => {
       const input: StagingInput = {
@@ -184,15 +184,17 @@ describe('AJCC 8th/9th Edition & IASLC TNM Staging Engine', () => {
     });
   });
 
-  describe('Lymph Node & Distant Metastasis Rules (N and M Stages)', () => {
-    it('should stage N1 involvement with T1a-T2b as Stage IIB', () => {
+  describe('IASLC 9th Edition Lymph Node & Distant Metastasis Rules (N and M Stages)', () => {
+    it('should stage N1 involvement according to IASLC 9th edition (T1N1 -> IIA, T2N1 -> IIB)', () => {
       const r1 = computeClinicalTnmStage({
         noduleType: 'pure_solid',
-        tumorSize: 1.0,
+        tumorSize: 1.0, // T1a
         nStage: 'N1',
         mStage: 'M0'
       });
-      expect(r1.stage).toBe('IIB');
+      // IASLC 9th Edition Major Update: T1N1 downstaged from IIB to IIA!
+      expect(r1.stage).toBe('IIA');
+      expect(r1.versionBridgeNotice).toContain('IIA');
 
       const r2 = computeClinicalTnmStage({
         noduleType: 'pure_solid',
@@ -221,43 +223,84 @@ describe('AJCC 8th/9th Edition & IASLC TNM Staging Engine', () => {
       expect(r4.stage).toBe('IIIA');
     });
 
-    it('should stage N2 involvement with T1-T2 as Stage IIIA', () => {
+    it('should stage N2a (single station) according to IASLC 9th Edition (T1N2a -> IIB, T2N2a -> IIIA, T3N2a -> IIIA)', () => {
       const r1 = computeClinicalTnmStage({
         noduleType: 'pure_solid',
-        tumorSize: 1.5,
-        nStage: 'N2',
+        tumorSize: 1.5, // T1b
+        nStage: 'N2a',
+        mStage: 'M0'
+      });
+      // IASLC 9th Edition: T1N2a is Stage IIB!
+      expect(r1.stage).toBe('IIB');
+      expect(r1.versionBridgeNotice).toContain('IIB');
+
+      const r2 = computeClinicalTnmStage({
+        noduleType: 'pure_solid',
+        tumorSize: 4.5, // T2b
+        nStage: 'N2a',
+        mStage: 'M0'
+      });
+      expect(r2.stage).toBe('IIIA');
+
+      const r3 = computeClinicalTnmStage({
+        noduleType: 'pure_solid',
+        tumorSize: 6.0, // T3
+        nStage: 'N2a',
+        mStage: 'M0'
+      });
+      // IASLC 9th Edition: T3N2a is Stage IIIA (downstaged from IIIB)!
+      expect(r3.stage).toBe('IIIA');
+      expect(r3.versionBridgeNotice).toContain('IIIA');
+
+      const r4 = computeClinicalTnmStage({
+        noduleType: 'pure_solid',
+        tumorSize: 8.0, // T4
+        nStage: 'N2a',
+        mStage: 'M0'
+      });
+      expect(r4.stage).toBe('IIIB');
+    });
+
+    it('should stage N2b (multiple stations) according to IASLC 9th Edition (T1N2b -> IIIA, T2N2b -> IIIB, T3N2b -> IIIB)', () => {
+      const r1 = computeClinicalTnmStage({
+        noduleType: 'pure_solid',
+        tumorSize: 1.5, // T1b
+        nStage: 'N2b',
         mStage: 'M0'
       });
       expect(r1.stage).toBe('IIIA');
 
       const r2 = computeClinicalTnmStage({
         noduleType: 'pure_solid',
-        tumorSize: 4.5, // T2b
-        nStage: 'N2',
+        tumorSize: 3.5, // T2a
+        nStage: 'N2b',
         mStage: 'M0'
       });
-      expect(r2.stage).toBe('IIIA');
-    });
+      expect(r2.stage).toBe('IIIB');
 
-    it('should stage N2 involvement with T3/T4 as Stage IIIB (AJCC 8th/9th Rule)', () => {
       const r3 = computeClinicalTnmStage({
         noduleType: 'pure_solid',
         tumorSize: 6.0, // T3
-        nStage: 'N2',
+        nStage: 'N2b',
         mStage: 'M0'
       });
       expect(r3.stage).toBe('IIIB');
-
-      const r4 = computeClinicalTnmStage({
-        noduleType: 'pure_solid',
-        tumorSize: 8.0, // T4
-        nStage: 'N2',
-        mStage: 'M0'
-      });
-      expect(r4.stage).toBe('IIIB');
     });
 
-    it('should stage N3 involvement with T1-T2 as Stage IIIB', () => {
+    it('should stage adjacentLobeInvasion as T2a (Stage IB if N0M0) according to IASLC 9th Edition', () => {
+      const result = computeClinicalTnmStage({
+        noduleType: 'pure_solid',
+        tumorSize: 1.5, // normally T1b
+        adjacentLobeInvasion: true,
+        nStage: 'N0',
+        mStage: 'M0'
+      });
+      expect(result.tStage).toBe('T2a');
+      expect(result.stage).toBe('IB');
+      expect(result.explanation).toContain('直接侵犯相邻肺叶');
+    });
+
+    it('should stage N3 involvement with T1-T2 as Stage IIIB and T3/T4 as Stage IIIC', () => {
       const r1 = computeClinicalTnmStage({
         noduleType: 'pure_solid',
         tumorSize: 1.5,
@@ -268,39 +311,45 @@ describe('AJCC 8th/9th Edition & IASLC TNM Staging Engine', () => {
 
       const r2 = computeClinicalTnmStage({
         noduleType: 'pure_solid',
-        tumorSize: 4.5, // T2b
-        nStage: 'N3',
-        mStage: 'M0'
-      });
-      expect(r2.stage).toBe('IIIB');
-    });
-
-    it('should stage N3 involvement with T3/T4 as Stage IIIC (AJCC 8th/9th Rule)', () => {
-      const r3 = computeClinicalTnmStage({
-        noduleType: 'pure_solid',
         tumorSize: 6.0, // T3
         nStage: 'N3',
         mStage: 'M0'
       });
-      expect(r3.stage).toBe('IIIC');
-
-      const r4 = computeClinicalTnmStage({
-        noduleType: 'pure_solid',
-        tumorSize: 8.0, // T4
-        nStage: 'N3',
-        mStage: 'M0'
-      });
-      expect(r4.stage).toBe('IIIC');
+      expect(r2.stage).toBe('IIIC');
     });
 
-    it('should stage any M1 distant metastasis as Stage IV', () => {
-      const result = computeClinicalTnmStage({
+    it('should stage M1 distant metastasis according to IASLC 9th Edition (M1a/M1b -> IVA, M1c1/M1c2 -> IVB)', () => {
+      const rM1a = computeClinicalTnmStage({
         noduleType: 'pure_solid',
         tumorSize: 0.8,
         nStage: 'N0',
         mStage: 'M1a'
       });
-      expect(result.stage).toBe('IV');
+      expect(rM1a.stage).toBe('IVA');
+
+      const rM1b = computeClinicalTnmStage({
+        noduleType: 'pure_solid',
+        tumorSize: 2.0,
+        nStage: 'N1',
+        mStage: 'M1b'
+      });
+      expect(rM1b.stage).toBe('IVA');
+
+      const rM1c1 = computeClinicalTnmStage({
+        noduleType: 'pure_solid',
+        tumorSize: 2.0,
+        nStage: 'N0',
+        mStage: 'M1c1'
+      });
+      expect(rM1c1.stage).toBe('IVB');
+
+      const rM1c2 = computeClinicalTnmStage({
+        noduleType: 'pure_solid',
+        tumorSize: 2.0,
+        nStage: 'N2b',
+        mStage: 'M1c2'
+      });
+      expect(rM1c2.stage).toBe('IVB');
     });
   });
 
@@ -461,7 +510,7 @@ describe('AJCC 8th/9th Edition & IASLC TNM Staging Engine', () => {
     });
   });
 
-  describe('AJCC 8th/9th Advanced Guardrails & Conflict Detection', () => {
+  describe('IASLC / AJCC 第 9 版 Advanced Guardrails & Conflict Detection', () => {
     it('should NOT stage tumor as T1mi if total size exceeds 3.0cm even if solid component <= 0.5cm', () => {
       const result = computeClinicalTnmStage({
         noduleType: 'mixed_ggo',
@@ -506,7 +555,7 @@ describe('AJCC 8th/9th Edition & IASLC TNM Staging Engine', () => {
         nStage: 'N0',
         mStage: 'M1a'
       });
-      expect(rM1a.stage).toBe('IV');
+      expect(rM1a.stage).toBe('IVA');
       expect(rM1a.explanation).toContain('IVA期');
 
       const rM1c = computeClinicalTnmStage({
@@ -515,11 +564,11 @@ describe('AJCC 8th/9th Edition & IASLC TNM Staging Engine', () => {
         nStage: 'N0',
         mStage: 'M1c'
       });
-      expect(rM1c.stage).toBe('IV');
+      expect(rM1c.stage).toBe('IVB');
       expect(rM1c.explanation).toContain('IVB期');
     });
 
-    it('should stage pT based on pathologyInvasiveSize according to AJCC 8th/9th gold standard', () => {
+    it('should stage pT based on pathologyInvasiveSize according to IASLC / AJCC 第 9 版 gold standard', () => {
       // 1. Invasive size 0.3cm, gross size 1.5cm -> pT1mi / Stage IA1
       const rMIA = computeClinicalTnmStage({
         noduleType: 'mixed_ggo',

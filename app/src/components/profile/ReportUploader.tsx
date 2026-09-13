@@ -272,7 +272,10 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
         pathologyInvasiveSize: pathInvasive,
         pathologyLepidicPercent: pathLepidic,
         pathologyReportMode: parsedData.pathologyReportMode,
+        tStage: parsedData.tStage,
         nStage: parsedData.nStage || "N0",
+        mStage: parsedData.mStage || "M0",
+        adjacentLobeInvasion: Boolean(parsedData.adjacentLobeInvasion),
         vpi: parsedData.vpi,
         stas: parsedData.stas,
         lvi: parsedData.lvi,
@@ -289,7 +292,10 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
     parsedData?.pathologyInvasiveSize,
     parsedData?.pathologyLepidicPercent,
     parsedData?.pathologyReportMode,
+    parsedData?.tStage,
     parsedData?.nStage,
+    parsedData?.mStage,
+    parsedData?.adjacentLobeInvasion,
     parsedData?.vpi,
     parsedData?.stas,
     parsedData?.lvi,
@@ -462,8 +468,10 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
         stage: stagingPreview?.stage || parsedData.stage || base.stage || "IA1",
         tStage: stagingPreview?.tStage || parsedData.tStage || base.tStage || "T1a",
         noduleType: parsedData.noduleType || base.noduleType || "mixed_ggo",
-        nStage: parsedData.nStage || base.nStage || "N0",
-        mStage: parsedData.mStage || base.mStage || "M0",
+        nStage: stagingPreview?.nStage || parsedData.nStage || base.nStage || "N0",
+        mStage: stagingPreview?.mStage || parsedData.mStage || base.mStage || "M0",
+        adjacentLobeInvasion: Boolean(parsedData.adjacentLobeInvasion ?? base.adjacentLobeInvasion),
+        versionBridgeNotice: stagingPreview?.versionBridgeNotice,
         stas: parsedData.stas !== undefined ? parsedData.stas : (base.stas || "negative"),
         vpi: parsedData.vpi !== undefined ? parsedData.vpi : (base.vpi || "negative"),
         lvi: parsedData.lvi !== undefined ? parsedData.lvi : (base.lvi || "negative"),
@@ -771,11 +779,19 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
               })}
             </nav>
             {stagingPreview && (
-              <div className="p-3.5 rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200">
-                <div className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider mb-1.5">AJCC 分期校准</div>
-                <div className="text-lg font-extrabold text-emerald-900 mb-0.5">{stagingPreview.stage} 期</div>
-                <div className="text-xs font-bold text-emerald-800 mb-1">{stagingPreview.tStage}{stagingPreview.nStage}{stagingPreview.mStage}</div>
+              <div className="p-3.5 rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200 space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <div className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider">IASLC / AJCC 第 9 版</div>
+                  <span className="text-[9px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.5 rounded">2024新标准</span>
+                </div>
+                <div className="text-lg font-extrabold text-emerald-900">{stagingPreview.stage} 期</div>
+                <div className="text-xs font-bold text-emerald-800">{stagingPreview.tStage}{stagingPreview.nStage}{stagingPreview.mStage}</div>
                 <p className="text-[11px] text-slate-600 leading-relaxed">{stagingPreview.explanation}</p>
+                {stagingPreview.versionBridgeNotice && (
+                  <div className="mt-1 pt-1.5 border-t border-emerald-200/80 text-[10px] text-teal-800 font-medium leading-tight">
+                    💡 <strong>新旧演变释疑</strong>: {stagingPreview.versionBridgeNotice}
+                  </div>
+                )}
               </div>
             )}
           </aside>
@@ -1359,7 +1375,7 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
               </div>
             ) : null}
 
-            {/* Section 2.5: Surgical Pathology Tumor Dimensions & Microscopic Invasive Size (AJCC 8th/9th pT Standard) */}
+            {/* Section 2.5: Surgical Pathology Tumor Dimensions & Microscopic Invasive Size (IASLC / AJCC 第 9 版 pT Standard) */}
             <div className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/90 shadow-soft space-y-4">
               <div className="flex items-center justify-between flex-wrap gap-2 pb-2 border-b border-slate-100">
                 <div className="flex items-center gap-2">
@@ -1371,7 +1387,7 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
                       术后病理标本肿瘤大小与镜下浸润测量 (pT 标准)
                     </h3>
                     <p className="text-[11px] text-slate-500">
-                      AJCC 8th/9th 金标准 · 依据显微镜下微观浸润成分最大径决定 pT 分期
+                      IASLC / AJCC 第 9 版金标准 · 依据显微镜下微观浸润成分最大径决定 pT 分期
                     </p>
                   </div>
                 </div>
@@ -1730,7 +1746,7 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
                 <div className="flex items-start gap-1.5">
                   <Lightbulb className="w-3.5 h-3.5 text-purple-600 shrink-0 mt-0.5" />
                   <p className="leading-relaxed">
-                    <strong>AJCC 8th/9th 病理金标准说明</strong>：伴贴壁伏壁生长 (Lepidic) 的肺腺癌，病理分期 (pT) 严格依据<strong>【显微镜下微观浸润成分最大径】</strong>判定（如浸润径 ≤0.5cm 为 pT1mi 微浸润腺癌，≤1.0cm 为 pT1a）；标本大体全径反映肉眼肿物轮廓。
+                    <strong>IASLC / AJCC 第 9 版病理金标准说明</strong>：伴贴壁伏壁生长 (Lepidic) 的肺腺癌，病理分期 (pT) 严格依据<strong>【显微镜下微观浸润成分最大径】</strong>判定（如浸润径 ≤0.5cm 为 pT1mi 微浸润腺癌，≤1.0cm 为 pT1a）；标本大体全径反映肉眼肿物轮廓。
                   </p>
                 </div>
                 {(parsedData.tumorSize || parsedData.solidSize) && (
@@ -1795,31 +1811,51 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
                   </div>
                 </div>
 
-                {/* 2. Lymph Node N-Stage */}
-                <div className="bg-white p-3.5 rounded-xl border border-slate-200 flex flex-col justify-between h-[96px] shadow-2xs">
+                {/* 2. Lymph Node N-Stage (IASLC 9th Edition: N0, N1, N2a, N2b, N3) */}
+                <div className="bg-white p-3.5 rounded-xl border border-slate-200 flex flex-col justify-between min-h-[96px] shadow-2xs">
                   <div className="flex items-center justify-between">
                     <div className="text-xs font-bold text-slate-800">淋巴结分期 (N)</div>
-                    <div className="text-[11px] text-slate-400">纵隔/肺门淋巴</div>
+                    <div className="text-[10px] text-teal-700 bg-teal-50 px-1.5 py-0.5 rounded font-bold border border-teal-200">
+                      第9版细分单/多站
+                    </div>
                   </div>
-                  <div className="flex gap-1.5 h-[34px]">
-                    {(["N0", "N1", "N2"] as const).map((n) => (
-                      <button
-                        key={n}
-                        type="button"
-                        onClick={() => setParsedData({ ...parsedData, nStage: n, lymphNodes: n })}
-                        className={`flex-1 text-xs rounded-lg font-bold transition-all cursor-pointer flex items-center justify-center ${
-                          (parsedData.nStage || "N0") === n
-                            ? n === "N0"
-                              ? "bg-emerald-500 text-white shadow-2xs"
-                              : n === "N1"
-                              ? "bg-amber-500 text-white shadow-2xs"
-                              : "bg-rose-500 text-white shadow-2xs"
-                            : "bg-slate-100 text-slate-500 hover:bg-slate-200"
-                        }`}
-                      >
-                        {n === "N0" ? "N0(无)" : n === "N1" ? "N1(肺门)" : "N2(纵隔)"}
-                      </button>
-                    ))}
+                  <div className="flex gap-1 h-[34px]">
+                    {[
+                      { val: "N0", label: "N0(无)" },
+                      { val: "N1", label: "N1(肺门)" },
+                      { val: "N2a", label: "N2a(单站)" },
+                      { val: "N2b", label: "N2b(多站)" },
+                      { val: "N3", label: "N3(对侧)" },
+                    ].map((opt) => {
+                      const currentN = parsedData.nStage || "N0";
+                      const isSelected = currentN === opt.val || (opt.val === "N2a" && currentN === "N2");
+                      return (
+                        <button
+                          key={opt.val}
+                          type="button"
+                          onClick={() => setParsedData({ ...parsedData, nStage: opt.val, lymphNodes: opt.val })}
+                          className={`flex-1 text-[10px] sm:text-[11px] rounded-lg font-bold transition-all cursor-pointer flex items-center justify-center px-0.5 ${
+                            isSelected
+                              ? opt.val === "N0"
+                                ? "bg-emerald-500 text-white shadow-2xs"
+                                : opt.val === "N1"
+                                ? "bg-amber-500 text-white shadow-2xs"
+                                : opt.val === "N2a"
+                                ? "bg-blue-600 text-white shadow-2xs"
+                                : "bg-rose-500 text-white shadow-2xs"
+                              : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                          }`}
+                          title={
+                            opt.val === "N2a" ? "IASLC第9版：同侧单站纵隔淋巴结转移 (较N2b预后明显更优，分期降级)" :
+                            opt.val === "N2b" ? "IASLC第9版：同侧多站纵隔淋巴结转移 (局部广泛累及)" :
+                            opt.val === "N1" ? "同侧支气管周或肺门淋巴结转移" :
+                            opt.val === "N0" ? "未发现区域淋巴结转移" : "对侧纵隔/锁骨上淋巴结转移"
+                          }
+                        >
+                          {opt.label}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 
@@ -1996,6 +2032,41 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
                       </button>
                     ))}
                   </div>
+                </div>
+              </div>
+
+              {/* IASLC 9th Special Invasive Factor: Adjacent Lobe Invasion (跨叶直接侵犯) */}
+              <div className="bg-white p-3.5 rounded-xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+                <div className="space-y-0.5">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-slate-800">跨叶直接侵犯 (Adjacent Lobe Invasion)</span>
+                    <span className="text-[10px] text-teal-700 bg-teal-50 px-1.5 py-0.5 rounded font-bold border border-teal-200">
+                      第9版明确归入 T2a
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-500 leading-snug">
+                    原发肿瘤经叶间裂直接跨叶浸润至相邻肺叶（非独立副结节），依据 IASLC 第9版金标准，T 分期自动定为 T2a。
+                  </p>
+                </div>
+                <div className="flex gap-1.5 h-[34px] sm:w-48 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setParsedData({ ...parsedData, adjacentLobeInvasion: false })}
+                    className={`flex-1 text-xs rounded-lg font-bold transition-all cursor-pointer flex items-center justify-center ${
+                      !parsedData.adjacentLobeInvasion ? "bg-emerald-500 text-white shadow-2xs" : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                    }`}
+                  >
+                    无跨叶侵犯
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setParsedData({ ...parsedData, adjacentLobeInvasion: true })}
+                    className={`flex-1 text-xs rounded-lg font-bold transition-all cursor-pointer flex items-center justify-center ${
+                      parsedData.adjacentLobeInvasion ? "bg-amber-500 text-white shadow-2xs" : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                    }`}
+                  >
+                    见跨叶侵犯
+                  </button>
                 </div>
               </div>
 
@@ -2585,6 +2656,49 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
               </div>
 
             </div>
+
+            {/* IASLC 9th M-Stage Refinement Card when Distant Suspicion Detected */}
+            {(parsedData.brainMri === 'positive' || parsedData.abdominalUltrasound === 'positive' || parsedData.boneScan === 'positive' || parsedData.petCt === 'positive' || (parsedData.mStage && parsedData.mStage !== 'M0')) && (
+              <div className="p-4 rounded-2xl bg-amber-50/90 border border-amber-300 shadow-xs space-y-2.5 animate-fade-in mt-3">
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <div className="flex items-center gap-2">
+                    <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+                    <span className="text-xs font-bold text-amber-950">IASLC 第 9 版远处转移精细分层 (M1a / M1b / M1c1 / M1c2)</span>
+                  </div>
+                  <span className="text-[10px] font-bold text-amber-800 bg-white/90 px-2 py-0.5 rounded border border-amber-300">
+                    IVA期 (寡转移局部根治机会) vs IVB期 (多系统综合治疗)
+                  </span>
+                </div>
+                <p className="text-[11px] text-amber-900 leading-relaxed">
+                  系统排查中标记了可疑提示。依据第9版国际金标准，远处转移已精确细分：单一胸外孤立转移 (M1b) 与对侧肺/胸膜播散 (M1a) 仍属于 <strong>IVA 期</strong>（具有积极局部根治切除或 SBRT 机会）；多发病灶则归为 <strong>IVB 期</strong>。
+                </p>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
+                  {[
+                    { val: "M1a", label: "M1a (对侧肺/胸膜播散)", sub: "Stage IVA 期" },
+                    { val: "M1b", label: "M1b (单器官孤立寡转移)", sub: "Stage IVA 期" },
+                    { val: "M1c1", label: "M1c1 (单系统多发转移)", sub: "Stage IVB 期" },
+                    { val: "M1c2", label: "M1c2 (多系统广泛转移)", sub: "Stage IVB 期" },
+                  ].map(m => {
+                    const isSelected = parsedData.mStage === m.val;
+                    return (
+                      <button
+                        key={m.val}
+                        type="button"
+                        onClick={() => setParsedData({ ...parsedData, mStage: m.val })}
+                        className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
+                          isSelected
+                            ? "bg-amber-600 text-white border-amber-600 shadow-2xs"
+                            : "bg-white text-slate-700 border-amber-200 hover:bg-amber-100/60"
+                        }`}
+                      >
+                        <span className="text-xs font-bold leading-tight">{m.label}</span>
+                        <span className={`text-[10px] mt-1 font-semibold ${isSelected ? "text-amber-100" : "text-amber-700"}`}>{m.sub}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Section: Blood Tumor Markers */}

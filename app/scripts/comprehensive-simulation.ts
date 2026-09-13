@@ -40,7 +40,7 @@ console.log('🔬 ONCOPATH 生产环境上线前综合仿真测试 (COMPREHENSIV
 console.log('========================================================================\n');
 
 // ============================================================================
-// 1. 临床肿瘤精准分期与临床红线决策仿真 (AJCC 8th/9th & Guideline Guardrails)
+// 1. 临床肿瘤精准分期与临床红线决策仿真 (IASLC / AJCC 第 9 版 & Guideline Guardrails)
 // ============================================================================
 console.log('▶ [1/7] 正在仿真测试: 临床精准分期引擎与指南红线防护...');
 
@@ -58,7 +58,7 @@ assert(
   case1.stage === '0' && case1.tStage === 'Tis',
   'Clinical Staging',
   'Pure GGO Infiltration Zero Staging (Tis Stage 0)',
-  `纯磨玻璃 18mm 正确折算浸润大小为0，按 AJCC 权威标准定级为 ${case1.stage}期 (${case1.tStage} 原位病变)`,
+  `纯磨玻璃 18mm 正确折算浸润大小为0，按 IASLC / AJCC 第 9 版权威标准定级为 ${case1.stage}期 (${case1.tStage} 原位病变)`,
   `纯磨玻璃定级异常: ${case1.stage} (${case1.tStage})`,
   { tStage: case1.tStage, stage: case1.stage }
 );
@@ -101,23 +101,58 @@ assert(
   { vpi: true, tStage: case3.tStage, stage: case3.stage }
 );
 
-// 场景 4: 25mm 结节伴单站同侧纵隔淋巴结转移 (N2) -> IIIA期
-const case4 = computeClinicalTnmStage({
+// 场景 4a: IASLC 第9版单站纵隔转移 (T1c N2a) -> 降为 IIB 期 (原第8版判IIIA)
+const case4a = computeClinicalTnmStage({
   noduleType: 'pure_solid',
   tumorSize: 2.5,
   solidSize: 2.5,
   ctr: 1.0,
-  nStage: 'N2',
+  nStage: 'N2a',
   vpi: false,
   stas: true,
 });
 assert(
-  case4.stage === 'IIIA',
+  case4a.stage === 'IIB',
   'Clinical Staging',
-  'N2 Mediastinal Node Upstaging to Stage IIIA',
-  `同侧纵隔淋巴结转移(N2)准确判定为局部进展期 ${case4.stage}`,
-  `N2 淋巴结分期计算异常: ${case4.stage}`,
-  { nStage: 'N2', stage: case4.stage }
+  'IASLC 9th T1N2a Single-Station Downstaging to IIB',
+  `IASLC第9版单站纵隔转移(N2a)准确优化降期为 ${case4a.stage}期 (原第8版判IIIA)`,
+  `T1N2a 计算异常: ${case4a.stage}`,
+  { nStage: 'N2a', stage: case4a.stage }
+);
+
+// 场景 4b: IASLC 第9版多站纵隔转移 (T1c N2b) -> IIIA 期
+const case4b = computeClinicalTnmStage({
+  noduleType: 'pure_solid',
+  tumorSize: 2.5,
+  solidSize: 2.5,
+  ctr: 1.0,
+  nStage: 'N2b',
+  vpi: false,
+  stas: true,
+});
+assert(
+  case4b.stage === 'IIIA',
+  'Clinical Staging',
+  'IASLC 9th T1N2b Multiple-Station Staging to IIIA',
+  `多站纵隔转移(N2b)准确评定为局部进展期 ${case4b.stage}`,
+  `T1N2b 计算异常: ${case4b.stage}`,
+  { nStage: 'N2b', stage: case4b.stage }
+);
+
+// 场景 4c: IASLC 第9版 T1N1 降期为 IIA 期 (原第8版判IIB)
+const case4c = computeClinicalTnmStage({
+  noduleType: 'pure_solid',
+  tumorSize: 1.5,
+  nStage: 'N1',
+  mStage: 'M0',
+});
+assert(
+  case4c.stage === 'IIA',
+  'Clinical Staging',
+  'IASLC 9th T1N1 Downstaging to IIA',
+  `IASLC第9版T1N1准确降期为 ${case4c.stage}期 (原第8版判IIB)`,
+  `T1N1 计算异常: ${case4c.stage}`,
+  { nStage: 'N1', stage: case4c.stage }
 );
 
 // 场景 5: 真实世界临床队列匹配 (IA1期 vs IIIA期 5年无复发生存率)

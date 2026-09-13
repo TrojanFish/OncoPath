@@ -102,7 +102,7 @@ export default function DoctorSummaryModal({ events, onClose }: DoctorSummaryMod
       questions.push({
         id: "q_adjuvant",
         category: "辅助治疗",
-        text: "依据当前 AJCC 8th/9th 术后分期，指南常规推荐纯规律随访还是需要术后辅助靶向/化疗？",
+        text: "依据当前 IASLC / AJCC 第 9 版 术后分期，指南常规推荐纯规律随访还是需要术后辅助靶向/化疗？",
         rationale: "IA 期通常免化疗靶向过度治疗，IB 以上或高危可评估奥希替尼等靶向干预。",
         priority: "high"
       });

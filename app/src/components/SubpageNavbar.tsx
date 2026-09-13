@@ -52,9 +52,9 @@ export default function SubpageNavbar() {
 
   return (
     <>
-      {/* Floating Island Navbar (Desktop & Mobile) */}
-      <div className="fixed top-2.5 sm:top-4 left-0 right-0 z-50 px-2.5 sm:px-6 pointer-events-none print:hidden">
-        <nav className="max-w-7xl mx-auto flex items-center justify-between px-3.5 sm:px-6 py-2 sm:py-2.5 rounded-2xl sm:rounded-full bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-lg shadow-slate-900/5 transition-all pointer-events-auto hover:border-slate-300">
+      {/* Immersive Pass-Through Navbar: Full-width Edge-to-Edge with Safe Area on Mobile, Floating Island on Desktop */}
+      <div className="fixed top-0 left-0 right-0 z-50 pointer-events-none print:hidden md:top-3.5 md:px-6">
+        <nav className="w-full md:max-w-7xl md:mx-auto flex items-center justify-between px-3.5 sm:px-6 pt-[calc(0.6rem+env(safe-area-inset-top,0px))] pb-2.5 md:py-2.5 md:rounded-full bg-white/85 md:bg-white/95 backdrop-blur-xl md:backdrop-blur-md border-b md:border border-slate-200/80 md:border-slate-200/90 shadow-xs md:shadow-lg shadow-slate-900/5 transition-all pointer-events-auto hover:border-slate-300">
           <Link href="/" prefetch={true} className="flex-shrink-0 hover:opacity-85 transition-opacity">
             <LogoMark />
           </Link>
@@ -131,8 +131,8 @@ export default function SubpageNavbar() {
             onClick={() => setMobileMenuOpen(false)}
           />
 
-          {/* Drawer Panel: Compact Width max-w-[310px] */}
-          <div className="fixed top-0 right-0 bottom-0 w-[82%] max-w-[310px] bg-white/98 backdrop-blur-2xl shadow-2xl p-5 flex flex-col justify-between animate-fade-in-up border-l border-slate-200/90 overflow-y-auto">
+          {/* Drawer Panel: Compact Width max-w-[310px] with Safe Area Top */}
+          <div className="fixed top-0 right-0 bottom-0 w-[82%] max-w-[310px] bg-white/98 backdrop-blur-2xl shadow-2xl p-5 pt-[calc(1.25rem+env(safe-area-inset-top,0px))] flex flex-col justify-between animate-fade-in-up border-l border-slate-200/90 overflow-y-auto">
             <div className="space-y-4">
               {/* Drawer Header */}
               <div className="flex items-center justify-between pb-3 border-b border-slate-100">

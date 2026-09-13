@@ -6,7 +6,8 @@ export const viewport: Viewport = {
   themeColor: "#0284c7",
   width: "device-width",
   initialScale: 1,
-  maximumScale: 5,
+  maximumScale: 1,
+  userScalable: false,
   viewportFit: "cover",
 };
 
@@ -70,13 +71,13 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="OncoPath" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="theme-color" content="#0284c7" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
       </head>
       <body className="antialiased">
         <NavigationProgress />
         {/* SubpageNavbar 常驻根布局：确保路由切换时导航栏永不 Unmount/Remount，彻底消除白闪抖动 */}
         <SubpageNavbar />
-        <div className="min-h-screen flex flex-col pb-[calc(5rem+env(safe-area-inset-bottom,0px))] md:pb-0">
+        <div className="min-h-screen flex flex-col">
           {children}
         </div>
         <MobileBottomNav />

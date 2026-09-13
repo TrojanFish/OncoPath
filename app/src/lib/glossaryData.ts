@@ -153,7 +153,7 @@ export const CLINICAL_GLOSSARY: Record<string, GlossaryTerm> = {
     category: "pathology",
     categoryLabel: "术后病理指标",
     summary: "肿瘤细胞穿透浸润了覆盖在肺表面的脏层胸膜弹力纤维层（PL1/PL2）。",
-    clinicalMeaning: "根据 AJCC 8th/9th 规则，肿瘤突破脏层胸膜弹性层会使 T1 期升级为 T2a，但依然属于局限性手术可根治范围。",
+    clinicalMeaning: "根据 IASLC / AJCC 第 9 版 规则，肿瘤突破脏层胸膜弹性层会使 T1 期升级为 T2a，但依然属于局限性手术可根治范围。",
     plainLanguageReassurance: "病理切片标明 PL0 表示胸膜完全完好无侵犯；若为 PL1，现代胸外科解剖性切除加规律随访也能有效防范风险。"
   },
   "LVI": {

@@ -548,9 +548,9 @@ export default function EvidenceReportPage() {
         </div>
       )}
 
-      {/* Floating Island Navigation Header */}
-      <div className="fixed top-2.5 sm:top-4 left-0 right-0 z-50 px-2.5 sm:px-6 pointer-events-none print:hidden">
-        <nav className="max-w-7xl mx-auto flex items-center justify-between px-3.5 sm:px-6 py-2 sm:py-2.5 rounded-2xl sm:rounded-full bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-lg shadow-slate-900/5 transition-all pointer-events-auto gap-2">
+      {/* Immersive Pass-Through Navigation Header: Full-width Edge-to-Edge with Safe Area on Mobile, Floating Island on Desktop */}
+      <div className="fixed top-0 left-0 right-0 z-50 pointer-events-none print:hidden md:top-3.5 md:px-6">
+        <nav className="w-full max-w-7xl mx-auto flex items-center justify-between px-3.5 sm:px-6 pt-[calc(0.6rem+env(safe-area-inset-top,0px))] pb-2.5 md:py-2.5 md:rounded-full bg-white/85 md:bg-white/95 backdrop-blur-xl md:backdrop-blur-md border-b md:border border-slate-200/80 md:border-slate-200/90 shadow-xs md:shadow-lg shadow-slate-900/5 transition-all pointer-events-auto gap-2">
           <div className="flex items-center gap-1.5 sm:gap-3 flex-shrink-0 min-w-0">
             <Link 
               href="/profile" 
@@ -634,7 +634,7 @@ export default function EvidenceReportPage() {
       </div>
 
       {/* Main Page Layout Wrapper */}
-      <div className="max-w-5xl xl:max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 pt-24 sm:pt-28 pb-12 print:pt-0 print:px-0">
+      <div className="max-w-5xl xl:max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 pt-[calc(4.25rem+env(safe-area-inset-top,0px))] md:pt-28 pb-12 print:pt-0 print:px-0">
 
         {/* Pure printable & long-image exportable container (No trailing blank space) */}
         <div id="report-printable-area" ref={reportContainerRef} className="space-y-4 sm:space-y-5 bg-slate-50/90 p-3.5 sm:p-6 md:p-7 rounded-3xl border border-slate-200/90 shadow-sm print:bg-white print:border-none print:shadow-none print:p-0">
@@ -686,7 +686,7 @@ export default function EvidenceReportPage() {
                     }
                   </h2>
                   <span className="px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 text-xs font-black">
-                    {profile.tStage || "T1a"}{profile.nStage || "N0"}{profile.mStage || "M0"}
+                    IASLC 第9版 · {profile.tStage || "T1a"}{profile.nStage || "N0"}{profile.mStage || "M0"}
                   </span>
                 </div>
 
@@ -721,17 +721,27 @@ export default function EvidenceReportPage() {
                 <span className={`px-2.5 sm:px-3 py-1 rounded-full text-xs font-bold ${
                   profile.currentStage === 'evaluation' || profile.currentStage === 'discovery' || profile.reportType === 'ct_imaging'
                     ? (profile.riskLevel === 'high' ? 'bg-amber-50 text-amber-800 border border-amber-200' : 'bg-emerald-50 text-emerald-800 border border-emerald-200')
-                    : (profile.nStage === 'N2' || profile.stas === 'positive' || (profile.stas as any) === true
+                    : (profile.nStage === 'N2' || profile.nStage === 'N2b' || profile.stas === 'positive' || (profile.stas as any) === true
                         ? 'bg-amber-50 text-amber-800 border border-amber-200' 
                         : 'bg-emerald-50 text-emerald-800 border border-emerald-200')
                 }`}>
                   {profile.currentStage === 'evaluation' || profile.currentStage === 'discovery' || profile.reportType === 'ct_imaging'
                     ? (profile.riskLevel === 'high' ? '⚡ 需胸外科微创评估' : '🌱 早期随访观察')
-                    : (profile.nStage === 'N2' || profile.stas === 'positive' || (profile.stas as any) === true ? '⚡ 需积极辅助治疗' : '🌱 早期低风险随访')
+                    : (profile.nStage === 'N2' || profile.nStage === 'N2b' || profile.stas === 'positive' || (profile.stas as any) === true ? '⚡ 需积极辅助治疗' : '🌱 早期低风险随访')
                   }
                 </span>
               </div>
             </div>
+
+            {profile.versionBridgeNotice && (
+              <div className="mt-3.5 p-3 rounded-xl bg-teal-50 border border-teal-200 text-xs text-teal-950 flex items-start gap-2 print:hidden">
+                <Sparkles className="w-4 h-4 text-teal-600 shrink-0 mt-0.5" />
+                <div className="space-y-0.5">
+                  <span className="font-bold">IASLC 第 9 版国际分期演变释疑：</span>
+                  <span className="text-teal-900 leading-relaxed font-medium">{profile.versionBridgeNotice}</span>
+                </div>
+              </div>
+            )}
 
             {/* CT Matrix vs Pathology Matrix */}
             {profile.currentStage === 'evaluation' || profile.currentStage === 'discovery' || profile.reportType === 'ct_imaging' ? (
@@ -1203,7 +1213,7 @@ export default function EvidenceReportPage() {
                 <div className="bg-slate-900/90 px-2 py-1.5 rounded-lg border border-slate-700/60 flex items-center justify-between">
                   <span className="text-slate-400 text-[10px]">淋巴结分期</span>
                   <span className={`font-bold ${isN0Safe ? 'text-emerald-400' : profile.nStage === 'N1' ? 'text-amber-400' : 'text-rose-400'}`}>
-                    {profile.nStage || 'N0 (无)'}
+                    {profile.nStage === 'N0' || !profile.nStage ? 'N0 (无)' : profile.nStage === 'N1' ? 'N1 (肺门)' : profile.nStage === 'N2a' ? 'N2a (单站)' : profile.nStage === 'N2b' ? 'N2b (多站)' : profile.nStage}
                   </span>
                 </div>
                 <div className="bg-slate-900/90 px-2 py-1.5 rounded-lg border border-slate-700/60 flex items-center justify-between">

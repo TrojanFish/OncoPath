@@ -1,6 +1,11 @@
 /**
- * AJCC 8th/9th Edition & IASLC TNM Staging Engine for Lung Adenocarcinoma
- * Handles Subsolid (Mixed GGO), Pure GGO, and Pure Solid nodules with invasive solid component rules.
+ * IASLC / AJCC 第 9 版 (2024 现行国际标准) TNM 临床分期引擎
+ * 严格对齐 2024 年 IASLC Staging Cards 9th Edition 官方规范：
+ * 1. 磨玻璃结节 (Mixed GGO) 与原位/微浸润 (Tis/T1mi) 浸润实性成分折算规则；
+ * 2. T1N1 正式降期为 Stage IIA（第8版旧标准曾划为 IIB）；
+ * 3. N2 同侧纵隔淋巴结裂变为 N2a (单站) 与 N2b (多站) 差异化定级；
+ * 4. M1 远处转移正式细化为 IVA (M1a/M1b 寡转移) 与 IVB (M1c1/M1c2 广泛转移)；
+ * 5. T2a 纳入“跨叶侵犯相邻肺叶 (invades an adjacent lobe)”与胸膜侵犯 (VPI) 升期。
  */
 
 export interface StagingInput {
@@ -14,9 +19,10 @@ export interface StagingInput {
   pathologyReportMode?: string | null;
   isPathology?: boolean;
   tStage?: string | null;
-  nStage?: string | null; // N0, N1, N2, N3
-  mStage?: string | null; // M0, M1a, M1b, M1c
+  nStage?: "N0" | "N1" | "N2" | "N2a" | "N2b" | "N3" | string | null; // IASLC 9th: N0, N1, N2a, N2b, N3
+  mStage?: "M0" | "M1" | "M1a" | "M1b" | "M1c" | "M1c1" | "M1c2" | string | null; // IASLC 9th: M0, M1a, M1b, M1c1, M1c2
   vpi?: boolean | string | null; // Visceral pleural invasion (positive / negative / true / false)
+  adjacentLobeInvasion?: boolean | string | null; // IASLC 9th T2a: 直接侵犯相邻肺叶
   stas?: boolean | string | null;
   lvi?: boolean | string | null;
   marginStatus?: string | null;
@@ -24,10 +30,10 @@ export interface StagingInput {
 }
 
 export interface StagingResult {
-  stage: string;       // e.g. "IA1", "IA2", "IA3", "IB", "IIA", "IIB", "IIIA", "IIIB", "IV"
+  stage: string;       // e.g. "0", "IA1", "IA2", "IA3", "IB", "IIA", "IIB", "IIIA", "IIIB", "IIIC", "IVA", "IVB"
   tStage: string;      // e.g. "Tis", "T1mi", "T1a", "T1b", "T1c", "T2a", "T2b", "T3", "T4"
-  nStage: string;      // e.g. "N0", "N1", "N2", "N3"
-  mStage: string;      // e.g. "M0", "M1"
+  nStage: string;      // e.g. "N0", "N1", "N2", "N2a", "N2b", "N3"
+  mStage: string;      // e.g. "M0", "M1a", "M1b", "M1c1", "M1c2"
   noduleType: string;
   tumorSize: number;
   solidSize: number;
@@ -40,6 +46,7 @@ export interface StagingResult {
   isSubsolidAdjusted: boolean;
   marginSafety?: "safe" | "close_margin" | "positive";
   marginNotice?: string;
+  versionBridgeNotice?: string; // 历史版本演变释疑 (针对拿第8版旧报告的患者)
 }
 
 export function computeClinicalTnmStage(input: StagingInput): StagingResult {
@@ -78,44 +85,46 @@ export function computeClinicalTnmStage(input: StagingInput): StagingResult {
   const mStage = input.mStage || "M0";
   const isVpi = input.vpi === true || input.vpi === "positive";
 
+  const isAdjacentLobe = input.adjacentLobeInvasion === true || input.adjacentLobeInvasion === "positive";
+
   let effectiveT = "T1a";
   let explanation = "";
   let isSubsolidAdjusted = false;
 
-  // 1. AJCC 8th/9th T-Staging Rules (Pathology Invasive Size vs CT Morphology)
+  // 1. IASLC / AJCC 第 9 版 (2024) T 分期规则 (病理镜下浸润径 vs CT 影像形态)
   if (pathologyInvasiveSize != null) {
-    // Post-op Pathology pT Staging based on microscopic invasive size & gross tumor size
+    // 术后大体病理 pT 分期（依据镜下实性/浸润径与标本全径）
     const grossSize = pathologyTumorSize || tumorSize;
     const percentPrefix = isDerivedFromPercent 
       ? `标本全径 ${grossSize}cm · 贴壁型占比 ${pathologyLepidicPercent}% (折算镜下浸润径 ${pathologyInvasiveSize}cm) ➔ ` 
       : "";
     if (pathologyInvasiveSize === 0) {
       effectiveT = "Tis";
-      explanation = `${percentPrefix}病理标本大体全径 ${grossSize}cm，镜下浸润径 0cm ➔ 依据 AJCC 8th/9th 病理金标准定级为 pTis (原位癌 0期)`;
+      explanation = `${percentPrefix}病理标本大体全径 ${grossSize}cm，镜下浸润径 0cm ➔ 依据 IASLC / AJCC 第 9 版金标准定级为 pTis (原位癌 0期)`;
     } else if (pathologyInvasiveSize <= 0.5 && grossSize <= 3.0) {
       effectiveT = "T1mi";
-      explanation = `${percentPrefix}病理标本大体全径 ${grossSize}cm ≤3.0cm，镜下浸润径 ${pathologyInvasiveSize}cm ≤0.5cm ➔ 依据 AJCC 8th/9th 病理金标准定级为 pT1mi (微浸润腺癌 IA1期)`;
+      explanation = `${percentPrefix}病理标本大体全径 ${grossSize}cm ≤3.0cm，镜下浸润径 ${pathologyInvasiveSize}cm ≤0.5cm ➔ 依据 IASLC / AJCC 第 9 版金标准定级为 pT1mi (微浸润腺癌 IA1期)`;
     } else if (pathologyInvasiveSize <= 1.0) {
       effectiveT = "T1a";
-      explanation = `${percentPrefix}病理镜下浸润径 ${pathologyInvasiveSize}cm ≤1.0cm (标本全径 ${grossSize}cm${grossSize > 3.0 ? '，总径>3cm不归入T1mi' : ''}) ➔ 依据 AJCC 8th/9th 病理金标准定级为 pT1a (IA1期)`;
+      explanation = `${percentPrefix}病理镜下浸润径 ${pathologyInvasiveSize}cm ≤1.0cm (标本全径 ${grossSize}cm${grossSize > 3.0 ? '，总径>3cm不归入T1mi' : ''}) ➔ 依据 IASLC / AJCC 第 9 版金标准定级为 pT1a (IA1期)`;
     } else if (pathologyInvasiveSize <= 2.0) {
       effectiveT = "T1b";
-      explanation = `${percentPrefix}病理镜下浸润径 ${pathologyInvasiveSize}cm ≤2.0cm ➔ 依据 AJCC 8th/9th 病理金标准定级为 pT1b (IA2期)`;
+      explanation = `${percentPrefix}病理镜下浸润径 ${pathologyInvasiveSize}cm ≤2.0cm ➔ 依据 IASLC / AJCC 第 9 版金标准定级为 pT1b (IA2期)`;
     } else if (pathologyInvasiveSize <= 3.0) {
       effectiveT = "T1c";
-      explanation = `${percentPrefix}病理镜下浸润径 ${pathologyInvasiveSize}cm ≤3.0cm ➔ 依据 AJCC 8th/9th 病理金标准定级为 pT1c (IA3期)`;
+      explanation = `${percentPrefix}病理镜下浸润径 ${pathologyInvasiveSize}cm ≤3.0cm ➔ 依据 IASLC / AJCC 第 9 版金标准定级为 pT1c (IA3期)`;
     } else if (pathologyInvasiveSize <= 4.0) {
       effectiveT = "T2a";
-      explanation = `${percentPrefix}病理镜下浸润径 ${pathologyInvasiveSize}cm ≤4.0cm ➔ 依据 AJCC 8th/9th 病理金标准定级为 pT2a (IB期)`;
+      explanation = `${percentPrefix}病理镜下浸润径 ${pathologyInvasiveSize}cm ≤4.0cm ➔ 依据 IASLC / AJCC 第 9 版金标准定级为 pT2a (IB期)`;
     } else if (pathologyInvasiveSize <= 5.0) {
       effectiveT = "T2b";
-      explanation = `${percentPrefix}病理镜下浸润径 ${pathologyInvasiveSize}cm ≤5.0cm ➔ 依据 AJCC 8th/9th 病理金标准定级为 pT2b (IIA期)`;
+      explanation = `${percentPrefix}病理镜下浸润径 ${pathologyInvasiveSize}cm ≤5.0cm ➔ 依据 IASLC / AJCC 第 9 版金标准定级为 pT2b (IIA期)`;
     } else if (pathologyInvasiveSize <= 7.0) {
       effectiveT = "T3";
-      explanation = `${percentPrefix}病理镜下浸润径 ${pathologyInvasiveSize}cm ≤7.0cm ➔ 依据 AJCC 8th/9th 病理金标准定级为 pT3 (IIB期)`;
+      explanation = `${percentPrefix}病理镜下浸润径 ${pathologyInvasiveSize}cm ≤7.0cm ➔ 依据 IASLC / AJCC 第 9 版金标准定级为 pT3 (IIB期)`;
     } else {
       effectiveT = "T4";
-      explanation = `${percentPrefix}病理镜下浸润径 ${pathologyInvasiveSize}cm >7.0cm ➔ 依据 AJCC 8th/9th 病理金标准定级为 pT4 (IIIA期)`;
+      explanation = `${percentPrefix}病理镜下浸润径 ${pathologyInvasiveSize}cm >7.0cm ➔ 依据 IASLC / AJCC 第 9 版金标准定级为 pT4 (IIIA期)`;
     }
   } else if (noduleType === "pure_ggo" || solidSize === 0) {
     effectiveT = "Tis";
@@ -123,13 +132,13 @@ export function computeClinicalTnmStage(input: StagingInput): StagingResult {
     isSubsolidAdjusted = true;
   } else if (noduleType === "mixed_ggo" || (ctr > 0 && ctr < 1)) {
     isSubsolidAdjusted = true;
-    // AJCC 8th/9th Strict MIA Rule: T1mi requires total tumor size <= 3.0cm AND invasive solid component <= 0.5cm
+    // IASLC / AJCC 第 9 版严格微浸润 (MIA) 准则: 结节总径 <= 3.0cm 且实性成分 <= 0.5cm
     if (solidSize <= 0.5 && tumorSize <= 3.0) {
       effectiveT = "T1mi";
-      explanation = `混合磨玻璃结节 (结节总全径 ${tumorSize}cm ≤3.0cm，CT实性成分 ${solidSize}cm ≤0.5cm, CTR=${ctr}) ➔ 依据 AJCC 8th/9th 规则以微浸润判定为 T1mi (IA1期)`;
+      explanation = `混合磨玻璃结节 (结节总全径 ${tumorSize}cm ≤3.0cm，CT实性成分 ${solidSize}cm ≤0.5cm, CTR=${ctr}) ➔ 依据 IASLC / AJCC 第 9 版规则以微浸润判定为 T1mi (IA1期)`;
     } else if (solidSize <= 1.0) {
       effectiveT = "T1a";
-      explanation = `混合磨玻璃结节 (结节总全径 ${tumorSize}cm，CT实性成分 ${solidSize}cm ≤1.0cm, CTR=${ctr}${tumorSize > 3.0 ? '，总径>3cm不归入T1mi' : ''}) ➔ 依据 AJCC 8th/9th 规则以实性成分判定为 T1a (IA1期)，非结节全径对应的更高分期`;
+      explanation = `混合磨玻璃结节 (结节总全径 ${tumorSize}cm，CT实性成分 ${solidSize}cm ≤1.0cm, CTR=${ctr}${tumorSize > 3.0 ? '，总径>3cm不归入T1mi' : ''}) ➔ 依据 IASLC / AJCC 第 9 版规则以实性成分判定为 T1a (IA1期)，非结节全径对应的更高分期`;
     } else if (solidSize <= 2.0) {
       effectiveT = "T1b";
       explanation = `混合磨玻璃结节 (CT实性成分 ${solidSize}cm ≤2.0cm, CTR=${ctr}) ➔ 判定为 T1b (IA2期)`;
@@ -150,7 +159,7 @@ export function computeClinicalTnmStage(input: StagingInput): StagingResult {
       explanation = `混合磨玻璃结节 (CT实性成分 >7.0cm) ➔ 判定为 T4 (IIIA期)`;
     }
   } else {
-    // Pure Solid
+    // 纯实性病灶 (Pure Solid)
     if (tumorSize <= 1.0) {
       effectiveT = "T1a";
       explanation = `纯实性结节 (总径 ${tumorSize}cm ≤1.0cm) ➔ 判定为 T1a (IA1期)`;
@@ -175,42 +184,118 @@ export function computeClinicalTnmStage(input: StagingInput): StagingResult {
     }
   }
 
-  // 2. Visceral Pleural Invasion (VPI) Upstaging Rule (PL1/PL2 automatically upstages T1 to T2a)
-  if (isVpi && (effectiveT === "Tis" || effectiveT === "T1mi" || effectiveT === "T1a" || effectiveT === "T1b" || effectiveT === "T1c")) {
+  // 2. 脏层胸膜侵犯 (VPI) 及跨叶侵犯 (Adjacent Lobe Invasion) 升期准则
+  if ((isVpi || isAdjacentLobe) && (effectiveT === "Tis" || effectiveT === "T1mi" || effectiveT === "T1a" || effectiveT === "T1b" || effectiveT === "T1c")) {
     effectiveT = "T2a";
-    explanation += ` (提示：伴有脏层胸膜侵犯 VPI+，依据指南自动升期为 T2a)`;
+    if (isVpi && isAdjacentLobe) {
+      explanation += ` (提示：伴有脏层胸膜侵犯 VPI+ 且直接侵犯相邻肺叶，依据 IASLC 第 9 版自动升期为 T2a)`;
+    } else if (isVpi) {
+      explanation += ` (提示：伴有脏层胸膜侵犯 VPI+，依据 IASLC 第 9 版自动升期为 T2a)`;
+    } else {
+      explanation += ` (提示：伴有肿瘤直接侵犯相邻肺叶，依据 IASLC 第 9 版自动归为 T2a)`;
+    }
   }
 
-  // 2.1 Clinical Conflict Detection: Carcinoma in situ (Tis) Cannot Metastasize to Lymph Nodes
-  if (effectiveT === "Tis" && nStage !== "N0") {
-    explanation += ` (⚠️【病理冲突提示】：原位腺癌 Tis 依定义未突破上皮基底膜，病理学上不应伴随 ${nStage} 淋巴结转移，请核查输入数据)`;
-  }
-
-  // 3. Compute Group TNM Stage (Full AJCC 8th/9th Matrix)
+  // 3. 核心 TNM 分期综合定级 (严格贯彻 2024 年 IASLC 第 9 版最新官方分期矩阵)
   let stage = "IA1";
-  const isT3orT4 = effectiveT === "T3" || effectiveT === "T4";
+  let versionBridgeNotice: string | undefined;
+
+  const isT1 = effectiveT === "Tis" || effectiveT === "T1mi" || effectiveT === "T1a" || effectiveT === "T1b" || effectiveT === "T1c";
+  const isT2 = effectiveT === "T2a" || effectiveT === "T2b";
+  const isT3 = effectiveT === "T3";
+  const isT4 = effectiveT === "T4";
 
   if (mStage.startsWith("M1")) {
-    stage = "IV";
-    const subStageDesc = (mStage === "M1a" || mStage === "M1b") ? " (对应 AJCC 8th/9th IVA期 · 寡转移/局限转移)" : (mStage === "M1c" ? " (对应 AJCC 8th/9th IVB期 · 多器官广泛转移)" : "");
-    explanation = `存在远处转移信号 (${mStage}${subStageDesc}) ➔ 综合判定为 IV 期`;
+    if (mStage === "M1a") {
+      stage = "IVA";
+      explanation = `存在远处转移 M1a (恶性胸膜/心包积液/结节或对侧肺叶副结节) ➔ 依据 IASLC 第 9 版定级为 IVA期 (胸内播散/寡转移)`;
+    } else if (mStage === "M1b") {
+      stage = "IVA";
+      explanation = `存在胸外孤立远处转移 M1b (单一器官系统单处转移/单个远处非区域淋巴结) ➔ 依据 IASLC 第 9 版定级为 IVA期 (寡转移)`;
+    } else if (mStage === "M1c1") {
+      stage = "IVB";
+      explanation = `存在胸外多发转移 M1c1 (单一器官系统多发转移) ➔ 依据 IASLC 第 9 版定级为 IVB期 (系统治疗为主)`;
+    } else if (mStage === "M1c2") {
+      stage = "IVB";
+      explanation = `存在胸外广泛转移 M1c2 (多个器官系统多发转移) ➔ 依据 IASLC 第 9 版定级为 IVB期 (多器官系统转移)`;
+    } else if (mStage === "M1c") {
+      stage = "IVB";
+      explanation = `存在多发远处转移 M1c ➔ 依据 IASLC 第 9 版定级为 IVB期`;
+    } else {
+      stage = "IVA";
+      explanation = `存在远处转移信号 (${mStage}) ➔ 依据 IASLC 第 9 版综合判定为 IV期 (IVA/IVB)`;
+    }
   } else if (nStage === "N3") {
-    if (isT3orT4) {
+    if (isT3 || isT4) {
       stage = "IIIC";
+      explanation = `${effectiveT} 伴对侧或锁骨上淋巴结转移 (N3) ➔ 依据 IASLC 第 9 版定级为 IIIC 期 (局部晚期不可切除)`;
     } else {
       stage = "IIIB";
+      explanation = `${effectiveT} 伴对侧或锁骨上淋巴结转移 (N3) ➔ 依据 IASLC 第 9 版定级为 IIIB 期`;
+    }
+  } else if (nStage === "N2b") {
+    // IASLC 第 9 版：多站同侧纵隔/隆突下淋巴结转移
+    if (isT1) {
+      stage = "IIIA";
+      explanation = `${effectiveT} 伴同侧多站纵隔/隆突下淋巴结转移 (N2b) ➔ 依据 IASLC 第 9 版定级为 IIIA 期`;
+    } else if (isT2) {
+      stage = "IIIB";
+      versionBridgeNotice = "在第 8 版旧标准中，T2伴纵隔转移定为 IIIA 期；2024 年 IASLC 第 9 版基于全球大数据分析，正式将 T2 伴多站纵隔转移 (N2b) 上调升期为 IIIB 期。";
+      explanation = `${effectiveT} 伴同侧多站纵隔/隆突下淋巴结转移 (N2b) ➔ 依据 IASLC 第 9 版升期为 IIIB 期`;
+    } else {
+      // T3 or T4
+      stage = "IIIB";
+      explanation = `${effectiveT} 伴同侧多站纵隔/隆突下淋巴结转移 (N2b) ➔ 依据 IASLC 第 9 版定级为 IIIB 期`;
+    }
+  } else if (nStage === "N2a") {
+    // IASLC 第 9 版：单站同侧纵隔/隆突下淋巴结转移
+    if (isT1) {
+      stage = "IIB";
+      versionBridgeNotice = "在第 8 版旧标准中，T1伴纵隔转移一律定为 IIIA 期；2024 年 IASLC 第 9 版基于单站较好预后，正式将 T1 单站纵隔转移 (N2a) 优化降期为 IIB 期。";
+      explanation = `${effectiveT} 伴同侧单站纵隔/隆突下淋巴结转移 (N2a) ➔ 依据 IASLC 第 9 版优化定级为 IIB 期`;
+    } else if (isT2) {
+      stage = "IIIA";
+      explanation = `${effectiveT} 伴同侧单站纵隔/隆突下淋巴结转移 (N2a) ➔ 依据 IASLC 第 9 版定级为 IIIA 期`;
+    } else if (isT3) {
+      stage = "IIIA";
+      versionBridgeNotice = "在第 8 版旧标准中，T3伴纵隔转移定为 IIIB 期；2024 年 IASLC 第 9 版正式将 T3 单站纵隔转移 (N2a) 优化降期为 IIIA 期。";
+      explanation = `${effectiveT} 伴同侧单站纵隔/隆突下淋巴结转移 (N2a) ➔ 依据 IASLC 第 9 版定级为 IIIA 期`;
+    } else {
+      // T4
+      stage = "IIIB";
+      explanation = `${effectiveT} 伴同侧单站纵隔/隆突下淋巴结转移 (N2a) ➔ 依据 IASLC 第 9 版定级为 IIIB 期`;
     }
   } else if (nStage === "N2") {
-    if (isT3orT4) {
-      stage = "IIIB";
-    } else {
+    // 兼容通用未细分 N2：展示稳健过渡评估并附带站数释疑
+    if (isT1) {
       stage = "IIIA";
+      versionBridgeNotice = "IASLC 第 9 版正式将纵隔 N2 细分为单站 (N2a, IIB期) 与多站 (N2b, IIIA期)。报告未详注站数时偏保守评估为 IIIA 期，建议核实站数。";
+      explanation = `${effectiveT} 伴同侧纵隔淋巴结转移 (N2) ➔ 综合评估为 IIIA 期 (若病理证实为单站 N2a 则可降为 IIB 期)`;
+    } else if (isT2) {
+      stage = "IIIB";
+      versionBridgeNotice = "IASLC 第 9 版单站纵隔 (N2a) 为 IIIA 期，多站纵隔 (N2b) 升为 IIIB 期。未详注站数时偏保守评估为 IIIB 期。";
+      explanation = `${effectiveT} 伴同侧纵隔淋巴结转移 (N2) ➔ 依据第 9 版综合评估为 IIIB 期 (若仅为单站 N2a 则为 IIIA 期)`;
+    } else if (isT3) {
+      stage = "IIIB";
+      versionBridgeNotice = "IASLC 第 9 版单站纵隔 (N2a) 降为 IIIA 期，多站纵隔 (N2b) 维持 IIIB 期。未详注站数时偏保守评估为 IIIB 期。";
+      explanation = `${effectiveT} 伴同侧纵隔淋巴结转移 (N2) ➔ 综合评估为 IIIB 期 (若为单站 N2a 则为 IIIA 期)`;
+    } else {
+      stage = "IIIB";
+      explanation = `${effectiveT} 伴同侧纵隔淋巴结转移 (N2) ➔ 依据 IASLC 第 9 版定级为 IIIB 期`;
     }
   } else if (nStage === "N1") {
-    if (isT3orT4) {
-      stage = "IIIA";
-    } else {
+    // IASLC 第 9 版核心修正：T1N1 降期为 Stage IIA
+    if (isT1) {
+      stage = "IIA";
+      versionBridgeNotice = "在第 8 版旧标准中，T1N1 曾定为 IIB 期；2024 年 IASLC / AJCC 第 9 版最新标准基于全球多中心前瞻数据，正式将 T1N1 优化降级为 IIA 期。";
+      explanation = `${effectiveT} 伴同侧肺门/支气管旁淋巴结转移 (N1) ➔ 依据 IASLC 第 9 版定级为 IIA 期`;
+    } else if (isT2) {
       stage = "IIB";
+      explanation = `${effectiveT} 伴同侧肺门/支气管旁淋巴结转移 (N1) ➔ 依据 IASLC 第 9 版定级为 IIB 期`;
+    } else {
+      // T3 or T4
+      stage = "IIIA";
+      explanation = `${effectiveT} 伴同侧肺门/支气管旁淋巴结转移 (N1) ➔ 依据 IASLC 第 9 版定级为 IIIA 期`;
     }
   } else {
     // N0 M0
@@ -222,6 +307,11 @@ export function computeClinicalTnmStage(input: StagingInput): StagingResult {
     else if (effectiveT === "T2b") stage = "IIA";
     else if (effectiveT === "T3") stage = "IIB";
     else if (effectiveT === "T4") stage = "IIIA";
+  }
+
+  // 3.1 临床病理冲突拦截：原位病变 (Tis) 定义上不突破基底膜，不应伴随淋巴结转移
+  if (effectiveT === "Tis" && nStage !== "N0") {
+    explanation += ` (⚠️【病理冲突提示】：原位腺癌 Tis 依定义未突破上皮基底膜，病理学上不应伴随 ${nStage} 淋巴结转移，请核查输入数据)`;
   }
 
   // 4. Surgical Resection Margin Safety Calculation (JCOG0804 & JCOG0802 Guidelines)
@@ -257,7 +347,8 @@ export function computeClinicalTnmStage(input: StagingInput): StagingResult {
     explanation,
     isSubsolidAdjusted,
     marginSafety,
-    marginNotice
+    marginNotice,
+    versionBridgeNotice
   };
 }
 
@@ -492,7 +583,7 @@ export function getClinicalCohortForProfile(rawProfile: any): ClinicalCohortResu
         os5Year: "94.0% ~ 97.0%",
         confidenceRating: "⭐⭐⭐⭐☆",
         confidenceLevel: "高置信度 (多中心分析)",
-        source: "IASLC 8th/9th Staging Database & Chest 2021 Meta-analysis",
+        source: "IASLC 9th Staging Database & Chest 2021 Meta-analysis",
         description: "微浸润虽局限于 IA1 期，但病理切片提示伴有微小高危征象。切缘阴性切除后整体生存率依然高达 94%~97%，建议保持规律薄层 CT 随访。",
         isPreOp: false,
         keyFactors,
@@ -545,7 +636,7 @@ export function getClinicalCohortForProfile(rawProfile: any): ClinicalCohortResu
         os5Year: "91.0% ~ 94.5%",
         confidenceRating: "⭐⭐⭐⭐☆",
         confidenceLevel: "高置信度 (多中心分析)",
-        source: "IASLC 8th/9th Database & Eguchi JCO 2019",
+        source: "IASLC 9th Database & Eguchi JCO 2019",
         description: "IA2 期病灶完全切除。伴有微血管侵犯或气道播散提示局部细胞活性较强，遵医嘱按时复查胸部薄层 CT 即可早期排查所有潜在风险。",
         isPreOp: false,
         keyFactors,
@@ -598,7 +689,7 @@ export function getClinicalCohortForProfile(rawProfile: any): ClinicalCohortResu
         os5Year: "86.0% ~ 90.0%",
         confidenceRating: "⭐⭐⭐⭐☆",
         confidenceLevel: "高置信度 (多中心分析)",
-        source: "IASLC 8th/9th Staging Database & Eguchi JCO",
+        source: "IASLC 9th Staging Database & Eguchi JCO",
         description: "2~3cm 病灶完全切除但伴局部高危特征。术后遵医嘱在前两年每 6 个月进行胸部增强 CT 与腹部排查，可早期发现并化解隐患。",
         isPreOp: false,
         keyFactors,
@@ -614,7 +705,7 @@ export function getClinicalCohortForProfile(rawProfile: any): ClinicalCohortResu
       os5Year: "91.0% ~ 94.0%",
       confidenceRating: "⭐⭐⭐⭐☆",
       confidenceLevel: "高置信度 (2级证据)",
-      source: "IASLC 8th/9th Staging Database & JCOG1211",
+      source: "IASLC 9th Staging Database & JCOG1211",
       description: "2~3cm 原发灶完全切除队列。5 年总生存率达 91.0%~94.0%，建议术后前两年每 6 个月定期复查胸部 CT 与腹部超声。",
       isPreOp: false,
       keyFactors,
@@ -822,7 +913,45 @@ export function getClinicalCohortForProfile(rawProfile: any): ClinicalCohortResu
     };
   }
 
-  // Stage IV / Metastatic
+  // Stage IVA (Oligometastatic / Intrathoracic Metastasis - IASLC 9th Edition)
+  if (stage === "IVA") {
+    return {
+      name: "IASLC9th_IVA_Oligometastatic",
+      stage: "IVA期 (局限寡转移/胸内播散)",
+      cohortSize: 2200,
+      rfs5Year: "32.0% ~ 42.0%",
+      os5Year: "38.0% ~ 50.0%",
+      confidenceRating: "⭐⭐⭐⭐☆",
+      confidenceLevel: "高置信度 (IASLC 第 9 版)",
+      source: "IASLC 9th Staging (JTO 2024 Fong et al.) / SBRT Oligometastasis Trials",
+      description: "IVA 期涵盖胸膜心包播散 (M1a) 与单器官孤立寡转移 (M1b)。经 MDT 评估原发灶联合寡转移灶根治性切除或 SBRT，结合靶向/免疫维持，长期生存率较传统广泛播散显著提升。",
+      isPreOp: false,
+      keyFactors,
+      matchedMorphology: morphologyLabel,
+      riskTier: "high_risk",
+    };
+  }
+
+  // Stage IVB (Widespread Distant Metastasis - IASLC 9th Edition M1c1/M1c2)
+  if (stage === "IVB") {
+    return {
+      name: "FLAURA_KEYNOTE_IVB",
+      stage: "IVB期 (广泛多发转移综合管理)",
+      cohortSize: 3800,
+      rfs5Year: "18.0% ~ 28.0%",
+      os5Year: "26.0% ~ 38.0%",
+      confidenceRating: "⭐⭐⭐⭐☆",
+      confidenceLevel: "高置信度 (1级RCT证据)",
+      source: "IASLC 9th (JTO 2024) / FLAURA / CROWN / KEYNOTE-189",
+      description: "IVB 期涵盖单器官多发转移 (M1c1) 与多器官广泛播散 (M1c2)。以高选择性靶向药或免疫联合化疗为主轴，已全面步入长期带瘤高质量生存的慢病管理时代。",
+      isPreOp: false,
+      keyFactors,
+      matchedMorphology: morphologyLabel,
+      riskTier: "high_risk",
+    };
+  }
+
+  // Stage IV / Metastatic Fallback
   return {
     name: "FLAURA_KEYNOTE_IV",
     stage: "IV期 (远处转移综合管理)",

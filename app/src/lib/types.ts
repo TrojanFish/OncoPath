@@ -59,18 +59,19 @@ export interface PatientProfile {
   malignancyRisk?: "low" | "moderate" | "high" | string;
   clinicalRecommendation?: string; // e.g. "建议3个月薄层CT随访" 或 "建议胸外科微创手术评估"
 
-  // Imaging & Morphology (AJCC 8th/9th Solid Component Support)
+  // Imaging & Morphology (IASLC / AJCC 第 9 版 Solid Component Support)
   noduleType?: "mixed_ggo" | "pure_ggo" | "pure_solid" | string;
   morphology?: "pure_ggo" | "mixed_ggo" | "pure_solid" | string;
   tumorSize?: number; // Total gross tumor size in cm (Clinical HRCT thin-slice imaging)
   solidSize?: number; // Invasive / solid component size on CT in cm
   ctr: number;        // Consolidation-to-tumor ratio (0 to 1)
   
-  // Surgical Pathology Tumor Dimensions (AJCC 8th/9th Pathological pT Standard)
+  // Surgical Pathology Tumor Dimensions (IASLC / AJCC 第 9 版 Pathological pT Standard)
   pathologyTumorSize?: number | null;    // 标本大体肿瘤全径 (Gross tumor size in cm)
   pathologyInvasiveSize?: number | null; // 镜下浸润成分最大径 (Microscopic invasive size in cm, determines pT)
   pathologyLepidicPercent?: number | null; // 贴壁/伏壁生长型亚型占比百分比 (0~100)
   pathologyReportMode?: "explicit" | "percentage" | "unspecified" | string | null; // 病理报告模式
+  adjacentLobeInvasion?: boolean;        // IASLC 第9版 T2a: 直接侵犯相邻肺叶
   
   stageExplanation?: string;
 
@@ -87,11 +88,12 @@ export interface PatientProfile {
   tumorMarkersHistory?: TumorMarkersData[];
 
 
-  // Staging
-  tStage?: string;
-  nStage?: string;
-  mStage?: string;
-  lymphNodes?: "N0" | "N1" | "N2" | string;
+  // Staging (IASLC / AJCC 第 9 版 2024 现行标准)
+  tStage?: "Tx" | "T0" | "Tis" | "T1mi" | "T1a" | "T1b" | "T1c" | "T2a" | "T2b" | "T3" | "T4" | string;
+  nStage?: "N0" | "N1" | "N2" | "N2a" | "N2b" | "N3" | "unknown" | string;
+  mStage?: "M0" | "M1" | "M1a" | "M1b" | "M1c" | "M1c1" | "M1c2" | "unknown" | string;
+  lymphNodes?: "N0" | "N1" | "N2" | "N2a" | "N2b" | "N3" | string;
+  versionBridgeNotice?: string; // 第9版与第8版演变桥接释疑
 
   // Systemic Metastasis Staging & Organ Exclusion (M0 Confirmation)
   brainMri?: "negative" | "positive" | "not_performed" | string;

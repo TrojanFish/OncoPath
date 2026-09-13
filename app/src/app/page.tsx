@@ -14,7 +14,9 @@ import {
   Dna, 
   HeartPulse, 
   Compass, 
-  FileText 
+  FileText,
+  Award,
+  ShieldCheck
 } from "lucide-react";
 import Footer from "@/components/Footer";
 import ConsentModal from "@/components/ConsentModal";
@@ -67,7 +69,7 @@ export default function HomePage() {
         {/* Act 1: Hero Section (2-Column Split Layout matching Telemedicine Demo) */}
         <section
           ref={heroRef}
-          className="relative min-h-[85vh] flex items-center bg-gradient-to-b from-blue-50/40 via-slate-50 to-white overflow-hidden pt-28 pb-16"
+          className="relative min-h-[85vh] flex items-center bg-gradient-to-b from-blue-50/40 via-slate-50 to-white overflow-hidden pt-[calc(4.25rem+env(safe-area-inset-top,0px))] md:pt-28 pb-16"
         >
           {/* Ambient background glow orbs with pure CSS animation (Zero JS main-thread scroll lag) */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -125,19 +127,54 @@ export default function HomePage() {
                 </Link>
               </div>
 
-              {/* Quick Trust Highlights */}
-              <div className="pt-6 border-t border-slate-200/60 grid grid-cols-3 gap-4 max-w-lg animate-fade-in-up stagger-4">
-                <div>
-                  <div className="text-xl sm:text-2xl font-extrabold text-slate-900 tabular-nums">500,000+</div>
-                  <div className="text-xs text-slate-500 font-medium mt-0.5">循证病例队列</div>
+              {/* Core Trust Pillars: 患者 3 大安心基石 (权威分期金标准 / 顶刊出处全溯源 / 医疗级隐私脱敏) */}
+              <div className="pt-6 border-t border-slate-200/60 grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-4 max-w-xl animate-fade-in-up stagger-4">
+                {/* Pillar 1: IASLC 9th Edition Gold Standard */}
+                <div className="flex items-start gap-2.5 p-3 sm:p-0 rounded-2xl sm:rounded-none bg-white/70 sm:bg-transparent border sm:border-0 border-slate-200/80 shadow-2xs sm:shadow-none">
+                  <div className="w-8 h-8 rounded-xl bg-sky-50 text-sky-600 border border-sky-100 flex items-center justify-center shrink-0 mt-0.5">
+                    <Award className="w-4 h-4 text-sky-600" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-xs sm:text-sm font-extrabold text-slate-900 tracking-tight flex items-center gap-1.5 flex-wrap">
+                      <span>IASLC 第9版</span>
+                      <span className="text-[10px] text-sky-700 bg-sky-100/80 px-1.5 py-0.2 rounded-md font-bold border border-sky-200/60">现行标准</span>
+                    </div>
+                    <div className="text-[11px] text-slate-500 leading-snug mt-0.5">
+                      2024全新国际分期矩阵 · 拒绝滞后误判
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <div className="text-xl sm:text-2xl font-extrabold text-blue-600 tabular-nums">3,000+</div>
-                  <div className="text-xs text-slate-500 font-medium mt-0.5">同行评审文献</div>
+
+                {/* Pillar 2: 100% DOI Provenance */}
+                <div className="flex items-start gap-2.5 p-3 sm:p-0 rounded-2xl sm:rounded-none bg-white/70 sm:bg-transparent border sm:border-0 border-slate-200/80 shadow-2xs sm:shadow-none">
+                  <div className="w-8 h-8 rounded-xl bg-teal-50 text-teal-600 border border-teal-100 flex items-center justify-center shrink-0 mt-0.5">
+                    <CheckCircle2 className="w-4 h-4 text-teal-600" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-xs sm:text-sm font-extrabold text-slate-900 tracking-tight flex items-center gap-1.5 flex-wrap">
+                      <span>100% 顶刊溯源</span>
+                      <span className="text-[10px] text-teal-700 bg-teal-100/80 px-1.5 py-0.2 rounded-md font-bold border border-teal-200/60">DOI可查</span>
+                    </div>
+                    <div className="text-[11px] text-slate-500 leading-snug mt-0.5">
+                      JTO / Lancet / NEJM 真实队列 · 拒绝AI幻觉
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <div className="text-xl sm:text-2xl font-extrabold text-teal-600 tabular-nums">100%</div>
-                  <div className="text-xs text-slate-500 font-medium mt-0.5">DOI 全溯源</div>
+
+                {/* Pillar 3: Medical-Grade Privacy */}
+                <div className="flex items-start gap-2.5 p-3 sm:p-0 rounded-2xl sm:rounded-none bg-white/70 sm:bg-transparent border sm:border-0 border-slate-200/80 shadow-2xs sm:shadow-none">
+                  <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center shrink-0 mt-0.5">
+                    <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-xs sm:text-sm font-extrabold text-slate-900 tracking-tight flex items-center gap-1.5 flex-wrap">
+                      <span>医疗级隐私脱敏</span>
+                      <span className="text-[10px] text-emerald-700 bg-emerald-100/80 px-1.5 py-0.2 rounded-md font-bold border border-emerald-200/60">安全防护</span>
+                    </div>
+                    <div className="text-[11px] text-slate-500 leading-snug mt-0.5">
+                      身份标识不可逆擦除 · 严防过度医疗
+                    </div>
+                  </div>
                 </div>
               </div>
 

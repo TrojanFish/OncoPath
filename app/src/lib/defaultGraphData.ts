@@ -111,7 +111,7 @@ export const DEFAULT_GRAPH_NODES: KnowledgeNode[] = [
     },
     studies: 35,
     evidence: 5,
-    description: "AJCC / UICC 第 8/9 版国际肺癌分期指南：基于解剖肿瘤大小 (T)、淋巴结侵犯 (N) 及远处转移 (M) 确立基础预后分层。"
+    description: "IASLC / AJCC 第 9 版国际肺癌分期指南：基于解剖肿瘤大小 (T)、淋巴结侵犯 (N) 及远处转移 (M) 确立基础预后分层。"
   },
   {
     id: "SURGERY",

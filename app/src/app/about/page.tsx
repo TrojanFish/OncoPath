@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
@@ -46,7 +46,7 @@ export default function AboutPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-800">
-      <main className="flex-1 max-w-4xl mx-auto w-full space-y-8 py-10 sm:py-14 px-2.5 sm:px-6 lg:px-8">
+      <main className="flex-1 max-w-4xl mx-auto w-full space-y-8 pt-[calc(4.25rem+env(safe-area-inset-top,0px))] md:pt-28 pb-12 sm:pb-16 px-2.5 sm:px-6 lg:px-8">
         
         {/* Top Navigation */}
         <div className="flex items-center justify-between">
@@ -116,7 +116,7 @@ export default function AboutPage() {
                 <span>为什么做 OncoPath —— 用理性的证据，消解不必要的恐惧</span>
               </h2>
               <p>
-                恐慌往往来源于对未知的想象。随着我深入研读了数百篇国际同行评审的前瞻性临床队列研究（如日本 JCOG0804/JCOG0802 系列研究、ADAURA 第三代靶向研究、AJCC 第 8/9 版 TNM 分期指南），我发现：<strong>现代胸部肿瘤医学对早期肺癌的根治率、高危病理特征以及规范随访路径，已经有了极为清晰、严谨的统计学定论。</strong>
+                恐慌往往来源于对未知的想象。随着我深入研读了数百篇国际同行评审的前瞻性临床队列研究（如日本 JCOG0804/JCOG0802 系列研究、ADAURA 第三代靶向研究、IASLC / AJCC 第 9 版 TNM 分期指南），我发现：<strong>现代胸部肿瘤医学对早期肺癌的根治率、高危病理特征以及规范随访路径，已经有了极为清晰、严谨的统计学定论。</strong>
               </p>
               <p>
                 作为一名技术开发者，我决定搭建 <strong>OncoPath</strong> 这个纯粹的公益工具：

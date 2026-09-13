@@ -2,14 +2,20 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { BookOpen, Users, FileBarChart, Award } from "lucide-react";
+import { FEATURED_STUDIES } from "@/lib/evidence-data";
+
+const defaultTotalStudies = FEATURED_STUDIES.length;
+const defaultTotalPatients = FEATURED_STUDIES.reduce((sum, s) => sum + (s.patientN || 0), 0);
+const defaultMetaCount = FEATURED_STUDIES.filter((s) => s.studyType === "meta_analysis").length;
+const defaultRctCount = FEATURED_STUDIES.filter((s) => s.studyType === "rct" || s.studyType === "prospective_multicenter").length;
 
 export default function StatsBanner() {
   const [animated, setAnimated] = useState(false);
   const [stats, setStats] = useState([
-    { label: "已收录顶刊文献", value: 24, suffix: "篇+", icon: BookOpen, color: "text-blue-600 bg-blue-50" },
-    { label: "累计队列样本", value: 528000, suffix: "例", icon: Users, color: "text-teal-600 bg-teal-50" },
-    { label: "Meta分析汇总", value: 12, suffix: "项", icon: FileBarChart, color: "text-indigo-600 bg-indigo-50" },
-    { label: "前瞻性RCT试验", value: 9, suffix: "项", icon: Award, color: "text-amber-600 bg-amber-50" },
+    { label: "已收录顶刊文献", value: defaultTotalStudies, suffix: "篇+", icon: BookOpen, color: "text-blue-600 bg-blue-50" },
+    { label: "前瞻队列样本", value: defaultTotalPatients, suffix: "例+", icon: Users, color: "text-teal-600 bg-teal-50" },
+    { label: "Meta分析汇总", value: defaultMetaCount, suffix: "项", icon: FileBarChart, color: "text-indigo-600 bg-indigo-50" },
+    { label: "前瞻性RCT试验", value: defaultRctCount, suffix: "项", icon: Award, color: "text-amber-600 bg-amber-50" },
   ]);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -37,10 +43,10 @@ export default function StatsBanner() {
           const rctCount = data.studies.filter((s: any) => s.studyType === "rct" || s.studyType === "prospective_multicenter").length;
 
           setStats([
-            { label: "已收录顶刊文献", value: Math.max(totalStudies, 20), suffix: "篇+", icon: BookOpen, color: "text-blue-600 bg-blue-50" },
-            { label: "前瞻队列样本", value: Math.max(totalPatients, 28000), suffix: "例+", icon: Users, color: "text-teal-600 bg-teal-50" },
-            { label: "Meta分析汇总", value: Math.max(metaCount, 6), suffix: "项", icon: FileBarChart, color: "text-indigo-600 bg-indigo-50" },
-            { label: "前瞻性RCT试验", value: Math.max(rctCount, 5), suffix: "项", icon: Award, color: "text-amber-600 bg-amber-50" },
+            { label: "已收录顶刊文献", value: totalStudies, suffix: "篇+", icon: BookOpen, color: "text-blue-600 bg-blue-50" },
+            { label: "前瞻队列样本", value: totalPatients, suffix: "例+", icon: Users, color: "text-teal-600 bg-teal-50" },
+            { label: "Meta分析汇总", value: metaCount, suffix: "项", icon: FileBarChart, color: "text-indigo-600 bg-indigo-50" },
+            { label: "前瞻性RCT试验", value: rctCount, suffix: "项", icon: Award, color: "text-amber-600 bg-amber-50" },
           ]);
         }
       } catch (err) {

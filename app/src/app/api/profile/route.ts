@@ -51,6 +51,7 @@ export async function POST(request: Request) {
       tStage: data.tStage,
       nStage: data.nStage || "N0",
       mStage: data.mStage || "M0",
+      adjacentLobeInvasion: Boolean(data.adjacentLobeInvasion),
       vpi: isVpi,
       stas: isStas,
       lvi: isLvi,
@@ -669,7 +670,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ profile: null });
     }
 
-    // Recompute accurate AJCC Stage and normalize all fields for frontend
+    // Recompute accurate IASLC / AJCC 第 9 版 Stage and normalize all fields for frontend
     const tumorSize = profile.tumorSize ?? (profile.sizeMm ? profile.sizeMm / 10 : 1.5);
     const stagingResult = computeClinicalTnmStage({
       noduleType: profile.noduleType || "mixed_ggo",
@@ -680,6 +681,7 @@ export async function GET(request: Request) {
       tStage: profile.tStage,
       nStage: profile.nStage || "N0",
       mStage: profile.mStage || "M0",
+      adjacentLobeInvasion: Boolean((profile as any).adjacentLobeInvasion),
       vpi: profile.vpi,
       stas: profile.stas,
       lvi: profile.lvi,
@@ -835,6 +837,8 @@ export async function GET(request: Request) {
       nStage: stagingResult.nStage,
       mStage: stagingResult.mStage,
       stageExplanation: stagingResult.explanation,
+      versionBridgeNotice: stagingResult.versionBridgeNotice,
+      adjacentLobeInvasion: Boolean((profile as any).adjacentLobeInvasion),
       iaslcGrade: profile.grade || '2',
       ki67: (profile as any).ki67 || null,
 

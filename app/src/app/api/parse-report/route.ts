@@ -175,7 +175,8 @@ const SYSTEM_PROMPT = `
   "organ": "lung",
   "histology": String | null (例如: "adenocarcinoma", "squamous_cell_carcinoma", "unknown"),
   "tStage": "Tis" | "T1mi" | "T1a" | "T1b" | "T1c" | "T2a" | "T2b" | "T3" | "T4" | null,
-  "nStage": "N0" | "N1" | "N2" | "N3" | null,
+  "nStage": "N0" | "N1" | "N2" | "N2a" | "N2b" | "N3" | null,
+  "adjacentLobeInvasion": Boolean | null,
   "stas": "positive" | "negative",
   "vpi": "positive" | "negative",
   "lvi": "positive" | "negative",
@@ -304,7 +305,7 @@ export async function POST(request: Request) {
       rawLepidicPct != null ? "percentage" : (rawPathologyInvasive != null ? "explicit" : "unspecified")
     );
 
-    // Compute accurate TNM Stage using AJCC 8th/9th Solid Component Formula
+    // Compute accurate TNM Stage using IASLC / AJCC 第 9 版 (2024) Solid Component Formula
     const stagingCalc = computeClinicalTnmStage({
       noduleType: extracted.noduleType || "mixed_ggo",
       tumorSize: extracted.tumorSize ?? 1.5,
@@ -316,6 +317,7 @@ export async function POST(request: Request) {
       pathologyReportMode: pathologyReportMode,
       nStage: extracted.nStage || "N0",
       vpi: vpi,
+      adjacentLobeInvasion: extracted.adjacentLobeInvasion || false,
       stas: stas,
       lvi: lvi,
       marginStatus: marginStatus,

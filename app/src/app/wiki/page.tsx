@@ -191,7 +191,7 @@ export default function WikiPage() {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col selection:bg-blue-500 selection:text-white relative">
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-2.5 sm:px-6 pt-28 md:pt-32 pb-16 space-y-6 sm:space-y-8">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-2.5 sm:px-6 pt-[calc(4.25rem+env(safe-area-inset-top,0px))] md:pt-32 pb-16 space-y-6 sm:space-y-8">
 
         {/* Hero Section */}
         <section className="text-center space-y-4 pb-4">
