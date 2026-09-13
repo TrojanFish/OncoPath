@@ -61,6 +61,8 @@ const SYSTEM_PROMPT = `
 - 全身排查确认 (systemicStagingConfirmed): 若脑部、腹部或骨扫描中有至少一项确认阴性且无任何阳性转移，设为 true。
 
 【第五步：病理报告阴阳性识别规则（术后确诊报告核心）】：
+- 标本大体肿瘤全径 (pathologyTumorSize): 标本大体/肉眼肿物最大径（厘米，例如 1.4）
+- 镜下微观浸润大小 (pathologyInvasiveSize): 显微镜下测得的浸润成分最大径（厘米，例如 0.6）；纯原位病变填 0；纯实性浸润性腺癌通常等同于全径；若未提及浸润径填 null
 - 气道播散 (STAS): "未见" / "STAS (-)" ➔ "negative"; "见" / "STAS (+)" ➔ "positive"; 未提及 ➔ "negative"
 - 脉管内癌栓 (LVI): "未见" / "LVI (-)" ➔ "negative"; "见" / "LVI (+)" ➔ "positive"; 未提及 ➔ "negative"
 - 脏层胸膜侵犯 (VPI): "未见" / "PL0" ➔ "negative"; "突破脏层胸膜" / "PL1" / "PL2" ➔ "positive"; 未提及 ➔ "negative"
@@ -86,6 +88,8 @@ const SYSTEM_PROMPT = `
   "tumorSize": Number (主结节全径厘米，例如 1.5),
   "solidSize": Number (实性成分最大径厘米，例如 0.8),
   "ctr": Number (实性成分最大径除以磨玻璃最大径，例如 0.53),
+  "pathologyTumorSize": Number | null (术后病理标本肿瘤大体全径厘米，例如 1.4),
+  "pathologyInvasiveSize": Number | null (镜下微观浸润成分大小厘米，例如 0.6),
   "imagingFeatures": ["分叶征", "毛刺征", ...],
   "lungRads": String | null,
   "malignancyRisk": "low" | "moderate" | "high",
@@ -286,6 +290,8 @@ export async function POST(request: Request) {
       tumorSize: extracted.tumorSize ?? 1.5,
       solidSize: extracted.solidSize ?? (isCtReport && extracted.noduleType === "pure_ggo" ? 0 : 0.8),
       ctr: extracted.ctr ?? 0.53,
+      pathologyTumorSize: extracted.pathologyTumorSize != null && !isNaN(Number(extracted.pathologyTumorSize)) ? Number(extracted.pathologyTumorSize) : null,
+      pathologyInvasiveSize: extracted.pathologyInvasiveSize != null && !isNaN(Number(extracted.pathologyInvasiveSize)) ? Number(extracted.pathologyInvasiveSize) : null,
       nStage: extracted.nStage || "N0",
       vpi: vpi,
       stas: stas,
@@ -459,6 +465,8 @@ export async function POST(request: Request) {
       tumorSize: stagingCalc.tumorSize,
       solidSize: stagingCalc.solidSize,
       ctr: stagingCalc.ctr,
+      pathologyTumorSize: extracted.pathologyTumorSize != null && !isNaN(Number(extracted.pathologyTumorSize)) ? Number(extracted.pathologyTumorSize) : null,
+      pathologyInvasiveSize: extracted.pathologyInvasiveSize != null && !isNaN(Number(extracted.pathologyInvasiveSize)) ? Number(extracted.pathologyInvasiveSize) : null,
       tStage: stagingCalc.tStage,
       nStage: stagingCalc.nStage,
       mStage: stagingCalc.mStage,

@@ -521,6 +521,31 @@ export default function PatientDashboard() {
                   </span>
                 </div>
 
+                {/* Pathological Tumor Size Measurement Strip (AJCC 8th/9th pT Gold Standard) */}
+                <div className="bg-purple-50/90 p-3 sm:p-3.5 rounded-2xl border border-purple-200 space-y-1.5">
+                  <div className="flex items-center justify-between flex-wrap gap-2 text-xs">
+                    <span className="text-purple-950 font-bold flex items-center gap-1.5">
+                      <Ruler className="w-3.5 h-3.5 text-purple-700 shrink-0" />
+                      <span>病理浸润大小: {profile.pathologyInvasiveSize != null ? `${profile.pathologyInvasiveSize} cm` : (profile.solidSize != null ? `${profile.solidSize} cm (参考CT实性)` : '未标明')}</span>
+                      <span className="text-purple-300">/</span>
+                      <span>标本全径: {profile.pathologyTumorSize != null ? `${profile.pathologyTumorSize} cm` : (profile.tumorSize ? `${profile.tumorSize} cm (参考原发灶)` : '未标明')}</span>
+                    </span>
+                    <span className="px-2.5 py-0.5 rounded-md bg-purple-200/90 font-extrabold text-purple-950 text-xs shrink-0">
+                      pT定级基准: {profile.tStage || 'pT1'}
+                    </span>
+                  </div>
+                  <div className="text-[11px] text-purple-800 leading-snug flex items-center justify-between flex-wrap gap-1">
+                    <span>
+                      依据 AJCC 8th/9th 伏壁贴壁腺癌金标准，以<strong>镜下微观浸润径</strong>判定 pT 分期
+                    </span>
+                    {profile.tumorSize && (
+                      <span className="text-purple-600 font-medium">
+                        (术前CT: 全径 {profile.tumorSize}cm · 实性 {profile.solidSize ?? 0}cm)
+                      </span>
+                    )}
+                  </div>
+                </div>
+
                 {/* 6-Core Risk Badges Matrix */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   <RiskBadge 

@@ -229,30 +229,44 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
   const [stagingPreview, setStagingPreview] = useState<any>(null);
 
   useEffect(() => {
-    if (initialData) {
-      const muts = Array.isArray(initialData.geneMutations) 
-        ? initialData.geneMutations 
-        : (Array.isArray(initialData.molecular?.mutations) ? initialData.molecular.mutations : []);
-      const status = initialData.molecularTestStatus || initialData.molecular?.testStatus || (
-        muts.length > 0 ? "tested" : (initialData.egfr === 'positive' ? "tested" : (initialData.egfr === 'negative' ? 'negative' : "not_tested"))
+    const sourceData = initialData || existingProfile;
+    if (sourceData) {
+      const muts = Array.isArray(sourceData.geneMutations) 
+        ? sourceData.geneMutations 
+        : (Array.isArray(sourceData.molecular?.mutations) ? sourceData.molecular.mutations : []);
+      const status = sourceData.molecularTestStatus || sourceData.molecular?.testStatus || (
+        muts.length > 0 ? "tested" : (sourceData.egfr === 'positive' ? "tested" : (sourceData.egfr === 'negative' ? 'negative' : "not_tested"))
       );
       setParsedData({
-        ...initialData,
+        ...sourceData,
         geneMutations: muts,
         molecularTestStatus: status,
+        brainMri: sourceData.brainMri || "not_performed",
+        abdominalUltrasound: sourceData.abdominalUltrasound || "not_performed",
+        boneScan: sourceData.boneScan || "not_performed",
+        neckLymphNodes: sourceData.neckLymphNodes || "not_performed",
+        petCt: sourceData.petCt || "not_performed",
+        benignFindings: Array.isArray(sourceData.benignFindings) ? sourceData.benignFindings : [],
+        pathologyTumorSize: sourceData.pathologyTumorSize !== undefined && sourceData.pathologyTumorSize !== null ? sourceData.pathologyTumorSize : "",
+        pathologyInvasiveSize: sourceData.pathologyInvasiveSize !== undefined && sourceData.pathologyInvasiveSize !== null ? sourceData.pathologyInvasiveSize : "",
       });
     }
-  }, [initialData]);
+  }, [initialData, existingProfile]);
 
   useEffect(() => {
     if (parsedData) {
       const tumorVal = parsedData.tumorSize !== "" && parsedData.tumorSize != null ? parseFloat(String(parsedData.tumorSize)) : 1.5;
       const solidVal = parsedData.solidSize !== "" && parsedData.solidSize != null ? parseFloat(String(parsedData.solidSize)) : 0.8;
+      const pathTumor = parsedData.pathologyTumorSize !== "" && parsedData.pathologyTumorSize != null ? parseFloat(String(parsedData.pathologyTumorSize)) : null;
+      const pathInvasive = parsedData.pathologyInvasiveSize !== "" && parsedData.pathologyInvasiveSize != null ? parseFloat(String(parsedData.pathologyInvasiveSize)) : null;
+
       const calc = computeClinicalTnmStage({
         noduleType: parsedData.noduleType || "mixed_ggo",
         tumorSize: isNaN(tumorVal) ? 1.5 : tumorVal,
         solidSize: isNaN(solidVal) ? 0.8 : solidVal,
         ctr: parsedData.ctr ? parseFloat(String(parsedData.ctr)) : (tumorVal > 0 ? Math.min(1, Math.round((solidVal / tumorVal) * 100) / 100) : null),
+        pathologyTumorSize: pathTumor,
+        pathologyInvasiveSize: pathInvasive,
         nStage: parsedData.nStage || "N0",
         vpi: parsedData.vpi,
         stas: parsedData.stas,
@@ -266,6 +280,8 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
     parsedData?.tumorSize,
     parsedData?.solidSize,
     parsedData?.ctr,
+    parsedData?.pathologyTumorSize,
+    parsedData?.pathologyInvasiveSize,
     parsedData?.nStage,
     parsedData?.vpi,
     parsedData?.stas,
@@ -432,6 +448,8 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
         tumorSize: stagingPreview?.tumorSize || tumorVal,
         solidSize: stagingPreview?.solidSize || solidVal,
         ctr: stagingPreview?.ctr ?? calculatedCtr,
+        pathologyTumorSize: parsedData.pathologyTumorSize !== "" && parsedData.pathologyTumorSize != null ? parseFloat(String(parsedData.pathologyTumorSize)) : (base.pathologyTumorSize ?? null),
+        pathologyInvasiveSize: parsedData.pathologyInvasiveSize !== "" && parsedData.pathologyInvasiveSize != null ? parseFloat(String(parsedData.pathologyInvasiveSize)) : (base.pathologyInvasiveSize ?? null),
         stage: stagingPreview?.stage || parsedData.stage || base.stage || "IA1",
         tStage: stagingPreview?.tStage || parsedData.tStage || base.tStage || "T1a",
         noduleType: parsedData.noduleType || base.noduleType || "mixed_ggo",
@@ -1307,6 +1325,104 @@ export default function ReportUploader({ onParsed, initialData, existingProfile,
                 </div>
               </div>
             ) : null}
+
+            {/* Section 2.5: Surgical Pathology Tumor Dimensions & Microscopic Invasive Size (AJCC 8th/9th pT Standard) */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-white border border-purple-200/90 shadow-2xs space-y-3.5">
+              <div className="flex items-center justify-between flex-wrap gap-2 pb-2 border-b border-purple-100">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-lg bg-purple-100 text-purple-700 font-bold flex items-center justify-center shrink-0">
+                    <Microscope className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h4 className="text-xs sm:text-sm font-extrabold text-slate-900">
+                      术后病理标本肿瘤大小与镜下浸润测量 (pT 标准)
+                    </h4>
+                    <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mt-0.5">
+                      SURGICAL PATHOLOGY GROSS & INVASIVE COMPONENT SIZE
+                    </p>
+                  </div>
+                </div>
+                <span className="text-[11px] font-bold text-purple-700 bg-purple-50 px-2.5 py-0.5 rounded-full border border-purple-200 shrink-0">
+                  病理金标准 · 解决 pT 定期
+                </span>
+              </div>
+
+              {/* Input Grid: Pathology Gross Size & Invasive Size */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1 flex items-center justify-between">
+                    <span>标本大体肿瘤全径 (cm)</span>
+                    <span className="text-[11px] text-slate-400">肉眼切面最大径</span>
+                  </label>
+                  <input
+                    type="text"
+                    inputMode="decimal"
+                    value={parsedData.pathologyTumorSize !== undefined && parsedData.pathologyTumorSize !== null ? parsedData.pathologyTumorSize : ""}
+                    onChange={e => setParsedData({ ...parsedData, pathologyTumorSize: e.target.value })}
+                    placeholder="如 1.4 (厘米)"
+                    className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm font-bold text-slate-800 focus:bg-white focus:ring-2 focus:ring-purple-500 outline-none transition-all font-mono"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1 flex items-center justify-between">
+                    <span className="text-purple-950 font-bold">镜下微观浸润成分大小 (cm)</span>
+                    <span className="text-[11px] text-purple-600 font-bold">决定 pT 分期</span>
+                  </label>
+                  <input
+                    type="text"
+                    inputMode="decimal"
+                    value={parsedData.pathologyInvasiveSize !== undefined && parsedData.pathologyInvasiveSize !== null ? parsedData.pathologyInvasiveSize : ""}
+                    onChange={e => setParsedData({ ...parsedData, pathologyInvasiveSize: e.target.value })}
+                    placeholder="纯原位填0，如 0.6"
+                    className="w-full p-2.5 bg-slate-50 border border-purple-300 rounded-xl text-xs sm:text-sm font-bold text-purple-900 focus:bg-white focus:ring-2 focus:ring-purple-500 outline-none transition-all font-mono"
+                  />
+                </div>
+              </div>
+
+              {/* Quick Presets for Invasive Size */}
+              <div className="flex items-center gap-2 flex-wrap pt-0.5">
+                <span className="text-[11px] text-slate-500 font-medium">快速预设:</span>
+                <button
+                  type="button"
+                  onClick={() => setParsedData({ ...parsedData, pathologyInvasiveSize: "0" })}
+                  className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 cursor-pointer transition-colors"
+                >
+                  纯原位 (浸润=0cm)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setParsedData({ ...parsedData, pathologyInvasiveSize: "0.5" })}
+                  className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 cursor-pointer transition-colors"
+                >
+                  微浸润 (浸润≤0.5cm)
+                </button>
+                {parsedData.pathologyTumorSize && (
+                  <button
+                    type="button"
+                    onClick={() => setParsedData({ ...parsedData, pathologyInvasiveSize: parsedData.pathologyTumorSize })}
+                    className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 cursor-pointer transition-colors"
+                  >
+                    同标本全径 ({parsedData.pathologyTumorSize}cm · 纯实性)
+                  </button>
+                )}
+              </div>
+
+              {/* Clinical Evidence Note & CT Cross-Check */}
+              <div className="p-3 bg-purple-50/70 rounded-xl border border-purple-200 text-xs text-purple-950 space-y-1">
+                <div className="flex items-start gap-1.5">
+                  <Lightbulb className="w-3.5 h-3.5 text-purple-600 shrink-0 mt-0.5" />
+                  <p className="leading-relaxed">
+                    <strong>AJCC 8th/9th 病理金标准说明</strong>：伴贴壁伏壁生长 (Lepidic) 的肺腺癌，病理分期 (pT) 严格依据<strong>【显微镜下微观浸润成分最大径】</strong>判定（如浸润径 ≤0.5cm 为 pT1mi 微浸润腺癌，≤1.0cm 为 pT1a）；标本大体全径反映肉眼肿物轮廓。
+                  </p>
+                </div>
+                {(parsedData.tumorSize || parsedData.solidSize) && (
+                  <div className="text-[11px] text-purple-800 pt-0.5 font-medium pl-5">
+                    🔍 术前薄层 CT 对照参考：影像结节总全径 <strong>{parsedData.tumorSize || 1.5} cm</strong> · CT实性浸润 <strong>{parsedData.solidSize || 0.8} cm</strong>
+                  </div>
+                )}
+              </div>
+            </div>
 
             {/* Section 3: Pathology High-Risk Red/Green Factors & Ki-67 (Placed right after CT for clinical coherence) */}
             <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3.5">

@@ -123,6 +123,8 @@ model PatientProfile {
   
   // Pathology
   tumorSize           Float?
+  pathologyTumorSize  Float?
+  pathologyInvasiveSize Float?
   grade               String?
   tStage              String?
   nStage              String?
@@ -130,6 +132,15 @@ model PatientProfile {
   stas                Boolean?
   vpi                 Boolean?
   lvi                 Boolean?
+
+  // Systemic Staging & M0 Confirmation
+  brainMri            String?  @default("not_performed")
+  abdominalUltrasound String?  @default("not_performed")
+  boneScan            String?  @default("not_performed")
+  neckLymphNodes      String?  @default("not_performed")
+  petCt               String?  @default("not_performed")
+  benignFindings      String?  // JSON string e.g. ["肝囊肿", "钙化点"]
+  systemicStagingConfirmed Boolean? @default(false)
   
   // Treatment
   surgeryType         String?

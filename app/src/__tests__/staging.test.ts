@@ -518,6 +518,57 @@ describe('AJCC 8th/9th Edition & IASLC TNM Staging Engine', () => {
       expect(rM1c.stage).toBe('IV');
       expect(rM1c.explanation).toContain('IVB期');
     });
+
+    it('should stage pT based on pathologyInvasiveSize according to AJCC 8th/9th gold standard', () => {
+      // 1. Invasive size 0.3cm, gross size 1.5cm -> pT1mi / Stage IA1
+      const rMIA = computeClinicalTnmStage({
+        noduleType: 'mixed_ggo',
+        tumorSize: 1.8,
+        solidSize: 0.8,
+        pathologyTumorSize: 1.5,
+        pathologyInvasiveSize: 0.3,
+        nStage: 'N0',
+        mStage: 'M0'
+      });
+      expect(rMIA.tStage).toBe('T1mi');
+      expect(rMIA.stage).toBe('IA1');
+      expect(rMIA.pathologyInvasiveSize).toBe(0.3);
+      expect(rMIA.pathologyTumorSize).toBe(1.5);
+      expect(rMIA.explanation).toContain('pT1mi');
+
+      // 2. Pure in-situ AIS: pathologyInvasiveSize 0cm -> pTis / Stage 0
+      const rAIS = computeClinicalTnmStage({
+        noduleType: 'mixed_ggo',
+        pathologyTumorSize: 1.2,
+        pathologyInvasiveSize: 0,
+        nStage: 'N0',
+        mStage: 'M0'
+      });
+      expect(rAIS.tStage).toBe('Tis');
+      expect(rAIS.stage).toBe('0');
+
+      // 3. Invasive size 0.8cm -> pT1a / Stage IA1
+      const rT1a = computeClinicalTnmStage({
+        noduleType: 'mixed_ggo',
+        pathologyTumorSize: 2.0,
+        pathologyInvasiveSize: 0.8,
+        nStage: 'N0',
+        mStage: 'M0'
+      });
+      expect(rT1a.tStage).toBe('T1a');
+      expect(rT1a.stage).toBe('IA1');
+
+      // 4. Invasive size 3.5cm -> pT2a / Stage IB
+      const rT2a = computeClinicalTnmStage({
+        noduleType: 'pure_solid',
+        pathologyTumorSize: 3.5,
+        pathologyInvasiveSize: 3.5,
+        nStage: 'N0',
+        mStage: 'M0'
+      });
+      expect(rT2a.tStage).toBe('T2a');
+      expect(rT2a.stage).toBe('IB');
+    });
   });
 });
 

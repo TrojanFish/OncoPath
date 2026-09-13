@@ -5,9 +5,12 @@
 
 export interface StagingInput {
   noduleType?: "mixed_ggo" | "pure_ggo" | "pure_solid" | string | null;
-  tumorSize?: number | null; // Total gross tumor size in cm
-  solidSize?: number | null; // Invasive / solid component size on CT or pathology in cm
+  tumorSize?: number | null; // Total gross tumor size on CT in cm
+  solidSize?: number | null; // Invasive / solid component size on CT in cm
   ctr?: number | null; // Consolidation-to-Tumor Ratio (0 to 1)
+  pathologyTumorSize?: number | null; // Surgical Pathology Gross Tumor Size in cm
+  pathologyInvasiveSize?: number | null; // Surgical Pathology Microscopic Invasive Size in cm
+  isPathology?: boolean;
   tStage?: string | null;
   nStage?: string | null; // N0, N1, N2, N3
   mStage?: string | null; // M0, M1a, M1b, M1c
@@ -27,6 +30,8 @@ export interface StagingResult {
   tumorSize: number;
   solidSize: number;
   ctr: number;
+  pathologyTumorSize?: number | null;
+  pathologyInvasiveSize?: number | null;
   explanation: string;
   isSubsolidAdjusted: boolean;
   marginSafety?: "safe" | "close_margin" | "positive";
@@ -36,6 +41,8 @@ export interface StagingResult {
 export function computeClinicalTnmStage(input: StagingInput): StagingResult {
   const noduleType = input.noduleType || "mixed_ggo";
   const tumorSize = input.tumorSize != null && !isNaN(Number(input.tumorSize)) ? Number(input.tumorSize) : 1.5;
+  const pathologyTumorSize = input.pathologyTumorSize != null && !isNaN(Number(input.pathologyTumorSize)) ? Number(input.pathologyTumorSize) : null;
+  const pathologyInvasiveSize = input.pathologyInvasiveSize != null && !isNaN(Number(input.pathologyInvasiveSize)) ? Number(input.pathologyInvasiveSize) : null;
   
   // Calculate solid size and CTR
   let solidSize: number;
@@ -63,8 +70,39 @@ export function computeClinicalTnmStage(input: StagingInput): StagingResult {
   let explanation = "";
   let isSubsolidAdjusted = false;
 
-  // 1. AJCC 8th/9th T-Staging Rules
-  if (noduleType === "pure_ggo" || solidSize === 0) {
+  // 1. AJCC 8th/9th T-Staging Rules (Pathology Invasive Size vs CT Morphology)
+  if (pathologyInvasiveSize != null) {
+    // Post-op Pathology pT Staging based on microscopic invasive size & gross tumor size
+    const grossSize = pathologyTumorSize || tumorSize;
+    if (pathologyInvasiveSize === 0) {
+      effectiveT = "Tis";
+      explanation = `病理标本大体全径 ${grossSize}cm，镜下浸润径 0cm ➔ 依据 AJCC 8th/9th 病理金标准定级为 pTis (原位癌 0期)`;
+    } else if (pathologyInvasiveSize <= 0.5 && grossSize <= 3.0) {
+      effectiveT = "T1mi";
+      explanation = `病理标本大体全径 ${grossSize}cm ≤3.0cm，镜下浸润径 ${pathologyInvasiveSize}cm ≤0.5cm ➔ 依据 AJCC 8th/9th 病理金标准定级为 pT1mi (微浸润腺癌 IA1期)`;
+    } else if (pathologyInvasiveSize <= 1.0) {
+      effectiveT = "T1a";
+      explanation = `病理镜下浸润径 ${pathologyInvasiveSize}cm ≤1.0cm (标本全径 ${grossSize}cm${grossSize > 3.0 ? '，总径>3cm不归入T1mi' : ''}) ➔ 依据 AJCC 8th/9th 病理金标准定级为 pT1a (IA1期)`;
+    } else if (pathologyInvasiveSize <= 2.0) {
+      effectiveT = "T1b";
+      explanation = `病理镜下浸润径 ${pathologyInvasiveSize}cm ≤2.0cm ➔ 依据 AJCC 8th/9th 病理金标准定级为 pT1b (IA2期)`;
+    } else if (pathologyInvasiveSize <= 3.0) {
+      effectiveT = "T1c";
+      explanation = `病理镜下浸润径 ${pathologyInvasiveSize}cm ≤3.0cm ➔ 依据 AJCC 8th/9th 病理金标准定级为 pT1c (IA3期)`;
+    } else if (pathologyInvasiveSize <= 4.0) {
+      effectiveT = "T2a";
+      explanation = `病理镜下浸润径 ${pathologyInvasiveSize}cm ≤4.0cm ➔ 依据 AJCC 8th/9th 病理金标准定级为 pT2a (IB期)`;
+    } else if (pathologyInvasiveSize <= 5.0) {
+      effectiveT = "T2b";
+      explanation = `病理镜下浸润径 ${pathologyInvasiveSize}cm ≤5.0cm ➔ 依据 AJCC 8th/9th 病理金标准定级为 pT2b (IIA期)`;
+    } else if (pathologyInvasiveSize <= 7.0) {
+      effectiveT = "T3";
+      explanation = `病理镜下浸润径 ${pathologyInvasiveSize}cm ≤7.0cm ➔ 依据 AJCC 8th/9th 病理金标准定级为 pT3 (IIB期)`;
+    } else {
+      effectiveT = "T4";
+      explanation = `病理镜下浸润径 ${pathologyInvasiveSize}cm >7.0cm ➔ 依据 AJCC 8th/9th 病理金标准定级为 pT4 (IIIA期)`;
+    }
+  } else if (noduleType === "pure_ggo" || solidSize === 0) {
     effectiveT = "Tis";
     explanation = `纯磨玻璃结节 (实性成分=0cm, CTR=0) ➔ 判定为原位/微浸润 Tis/T1mi (0期/IA1期)`;
     isSubsolidAdjusted = true;
@@ -197,6 +235,8 @@ export function computeClinicalTnmStage(input: StagingInput): StagingResult {
     tumorSize,
     solidSize,
     ctr,
+    pathologyTumorSize,
+    pathologyInvasiveSize,
     explanation,
     isSubsolidAdjusted,
     marginSafety,
@@ -249,6 +289,8 @@ export function getClinicalCohortForProfile(rawProfile: any): ClinicalCohortResu
     tumorSize: rawProfile.tumorSize ? parseFloat(rawProfile.tumorSize) : (rawProfile.sizeMm ? parseFloat(rawProfile.sizeMm) / 10 : 1.5),
     solidSize: rawProfile.solidSize ? parseFloat(rawProfile.solidSize) : null,
     ctr: rawProfile.ctr ? parseFloat(rawProfile.ctr) : null,
+    pathologyTumorSize: rawProfile.pathologyTumorSize ? parseFloat(rawProfile.pathologyTumorSize) : null,
+    pathologyInvasiveSize: rawProfile.pathologyInvasiveSize ? parseFloat(rawProfile.pathologyInvasiveSize) : null,
     tStage: rawProfile.tStage,
     nStage: rawProfile.nStage,
     mStage: rawProfile.mStage,

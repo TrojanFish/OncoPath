@@ -62,9 +62,14 @@ export interface PatientProfile {
   // Imaging & Morphology (AJCC 8th/9th Solid Component Support)
   noduleType?: "mixed_ggo" | "pure_ggo" | "pure_solid" | string;
   morphology?: "pure_ggo" | "mixed_ggo" | "pure_solid" | string;
-  tumorSize?: number; // Total gross tumor size in cm
+  tumorSize?: number; // Total gross tumor size in cm (Clinical HRCT thin-slice imaging)
   solidSize?: number; // Invasive / solid component size on CT in cm
   ctr: number;        // Consolidation-to-tumor ratio (0 to 1)
+  
+  // Surgical Pathology Tumor Dimensions (AJCC 8th/9th Pathological pT Standard)
+  pathologyTumorSize?: number | null;    // 标本大体肿瘤全径 (Gross tumor size in cm)
+  pathologyInvasiveSize?: number | null; // 镜下浸润成分最大径 (Microscopic invasive size in cm, determines pT)
+  
   stageExplanation?: string;
 
   // Multiple Nodules Management (P0-1)

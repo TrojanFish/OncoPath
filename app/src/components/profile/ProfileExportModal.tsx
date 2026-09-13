@@ -448,6 +448,13 @@ export default function ProfileExportModal({ profile, onClose }: ProfileExportMo
               </span>
             </div>
 
+            {(profile.pathologyTumorSize != null || profile.pathologyInvasiveSize != null) && (
+              <div className="p-2 rounded-xl bg-purple-950/40 border border-purple-800/60 flex items-center justify-between text-[11px] text-purple-200">
+                <span>标本大体全径: <strong className="text-purple-300">{profile.pathologyTumorSize != null ? `${profile.pathologyTumorSize} cm` : '未单独标注'}</strong></span>
+                <span>镜下浸润大小: <strong className="text-purple-300">{profile.pathologyInvasiveSize != null ? `${profile.pathologyInvasiveSize} cm` : '未标明'}</strong></span>
+              </div>
+            )}
+
             <div className="grid grid-cols-3 gap-2 text-center text-xs">
               <div className="p-2 rounded-xl bg-slate-900/80 border border-slate-800">
                 <div className="text-[9px] text-slate-400">切缘状态 (R0)</div>
