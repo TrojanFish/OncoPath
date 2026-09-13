@@ -460,5 +460,64 @@ describe('AJCC 8th/9th Edition & IASLC TNM Staging Engine', () => {
       expect(cohort.keyFactors).toContain('ALK 融合突变');
     });
   });
+
+  describe('AJCC 8th/9th Advanced Guardrails & Conflict Detection', () => {
+    it('should NOT stage tumor as T1mi if total size exceeds 3.0cm even if solid component <= 0.5cm', () => {
+      const result = computeClinicalTnmStage({
+        noduleType: 'mixed_ggo',
+        tumorSize: 4.0, // Gross size > 3.0cm
+        solidSize: 0.4,
+        nStage: 'N0',
+        mStage: 'M0'
+      });
+      // T1mi requires gross size <= 3.0cm; here it must be staged by solid component as T1a, not T1mi
+      expect(result.tStage).toBe('T1a');
+      expect(result.explanation).toContain('总径>3cm不归入T1mi');
+    });
+
+    it('should clamp solid component if it erroneously exceeds total tumor size', () => {
+      const result = computeClinicalTnmStage({
+        noduleType: 'mixed_ggo',
+        tumorSize: 1.5,
+        solidSize: 3.5, // Erroneous input > tumorSize
+        nStage: 'N0',
+        mStage: 'M0'
+      });
+      expect(result.solidSize).toBe(1.5);
+      expect(result.ctr).toBe(1);
+    });
+
+    it('should detect pathological contradiction when Tis is accompanied by N1 nodal metastasis', () => {
+      const result = computeClinicalTnmStage({
+        noduleType: 'pure_ggo',
+        tumorSize: 1.5,
+        solidSize: 0,
+        nStage: 'N1',
+        mStage: 'M0'
+      });
+      expect(result.tStage).toBe('Tis');
+      expect(result.explanation).toContain('病理冲突提示');
+    });
+
+    it('should detail IVA/IVB sub-stage guidance for distant metastasis M1', () => {
+      const rM1a = computeClinicalTnmStage({
+        noduleType: 'pure_solid',
+        tumorSize: 2.5,
+        nStage: 'N0',
+        mStage: 'M1a'
+      });
+      expect(rM1a.stage).toBe('IV');
+      expect(rM1a.explanation).toContain('IVA期');
+
+      const rM1c = computeClinicalTnmStage({
+        noduleType: 'pure_solid',
+        tumorSize: 2.5,
+        nStage: 'N0',
+        mStage: 'M1c'
+      });
+      expect(rM1c.stage).toBe('IV');
+      expect(rM1c.explanation).toContain('IVB期');
+    });
+  });
 });
 

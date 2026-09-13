@@ -21,8 +21,8 @@ mkdir -p "${BACKUP_DIR}"
 
 echo "[$(date '+%Y-%m-%d %H:%M:%S')] Starting OncoPath database backup..."
 
-# Dump PostgreSQL database directly from Docker container and compress with gzip
-docker exec -t "${CONTAINER_NAME}" pg_dump -U "${DB_USER}" "${DB_NAME}" | gzip > "${BACKUP_FILE}"
+# Dump PostgreSQL database directly from Docker container and compress with gzip (use -i to prevent pseudo-TTY corruption)
+docker exec -i "${CONTAINER_NAME}" pg_dump -U "${DB_USER}" "${DB_NAME}" | gzip > "${BACKUP_FILE}"
 
 # Verify backup file size is greater than zero
 if [ -s "${BACKUP_FILE}" ]; then

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { getAuthenticatedUser } from '@/lib/userAuth';
+import { extractVerifiedGuestId } from '@/lib/guestAuth';
 
 export const dynamic = 'force-dynamic';
 
@@ -9,14 +10,17 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const category = searchParams.get('category');
     const profileId = searchParams.get('profileId');
+    const requestedUserId = searchParams.get('userId');
     
     // Check for user authentication token (Cookie or Header)
     const auth = getAuthenticatedUser(request);
     const authenticatedUserId = auth ? auth.userId : null;
+    const verifiedGuestId = extractVerifiedGuestId(request);
+    const guestId = verifiedGuestId || (requestedUserId && requestedUserId.startsWith('guest-') ? requestedUserId : null);
 
     // Security Guard: Prevent indiscriminate leaking of all patient timelines
-    // If not authenticated and no specific profileId is provided, MUST return empty array
-    if (!authenticatedUserId && !profileId) {
+    // If not authenticated and no guestId and no specific profileId is provided, return empty array
+    if (!authenticatedUserId && !guestId && !profileId) {
       return NextResponse.json({ success: true, events: [], isDemo: false });
     }
 
@@ -27,6 +31,8 @@ export async function GET(request: Request) {
     }
     if (authenticatedUserId) {
       where.userId = authenticatedUserId;
+    } else if (guestId) {
+      where.userId = guestId;
     } else if (profileId) {
       where.profileId = profileId;
     }
@@ -70,13 +76,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: '请提供事件日期、类别和标题' }, { status: 400 });
     }
 
-    // Check user auth token (Cookie or Header)
+    // Check user auth token (Cookie or Header) or signed guest token
     const auth = getAuthenticatedUser(request);
     const authenticatedUserId = auth ? auth.userId : null;
+    const verifiedGuestId = extractVerifiedGuestId(request);
+    const requestedGuestId = (body.userId && typeof body.userId === 'string' && body.userId.startsWith('guest-')) ? body.userId : null;
+    const effectiveUserId = authenticatedUserId || verifiedGuestId || requestedGuestId;
 
     const newEvent = await prisma.timelineEvent.create({
       data: {
-        userId: authenticatedUserId,
+        userId: effectiveUserId || null,
         profileId: profileId || null,
         eventDate: new Date(eventDate),
         category,
@@ -119,8 +128,11 @@ export async function PUT(request: Request) {
 
     const auth = getAuthenticatedUser(request);
     const authenticatedUserId = auth ? auth.userId : null;
+    const verifiedGuestId = extractVerifiedGuestId(request);
+    const requestedGuestId = (body.userId && typeof body.userId === 'string' && body.userId.startsWith('guest-')) ? body.userId : null;
+    const effectiveGuestId = verifiedGuestId || requestedGuestId;
 
-    if (!authenticatedUserId && !profileId) {
+    if (!authenticatedUserId && !effectiveGuestId && !profileId) {
       return NextResponse.json({ success: false, error: '请先登录或提供档案标识后再修改事件' }, { status: 401 });
     }
 
@@ -129,12 +141,19 @@ export async function PUT(request: Request) {
       return NextResponse.json({ success: false, error: '未找到指定事件' }, { status: 404 });
     }
 
-    // Ownership check: If authenticated, must match userId. If unauthenticated, cannot modify authenticated records
+    // Ownership check: If authenticated, must match userId
     if (authenticatedUserId && existing.userId && existing.userId !== authenticatedUserId) {
       return NextResponse.json({ success: false, error: '无权修改其他用户的临床事件' }, { status: 403 });
     }
-    if (!authenticatedUserId && existing.userId) {
-      return NextResponse.json({ success: false, error: '请先登录后再修改该事件' }, { status: 401 });
+    // If event belongs to a registered user, unauthenticated guests cannot modify:
+    if (!authenticatedUserId && existing.userId && !existing.userId.startsWith('guest-')) {
+      return NextResponse.json({ success: false, error: '该事件属于已注册用户，请先登录后再修改' }, { status: 401 });
+    }
+    // If event belongs to a guest user, ensure guestId matches:
+    if (!authenticatedUserId && existing.userId && existing.userId.startsWith('guest-')) {
+      if (effectiveGuestId && existing.userId !== effectiveGuestId) {
+        return NextResponse.json({ success: false, error: '无权修改其他访客的临床事件' }, { status: 403 });
+      }
     }
     if (!authenticatedUserId && existing.profileId && profileId && existing.profileId !== profileId) {
       return NextResponse.json({ success: false, error: '无权修改其他档案的临床事件' }, { status: 403 });
@@ -176,6 +195,7 @@ export async function DELETE(request: Request) {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
     const profileId = searchParams.get('profileId');
+    const requestedUserId = searchParams.get('userId');
 
     if (!id) {
       return NextResponse.json({ success: false, error: '缺少事件 ID' }, { status: 400 });
@@ -183,8 +203,11 @@ export async function DELETE(request: Request) {
 
     const auth = getAuthenticatedUser(request);
     const authenticatedUserId = auth ? auth.userId : null;
+    const verifiedGuestId = extractVerifiedGuestId(request);
+    const requestedGuestId = (requestedUserId && requestedUserId.startsWith('guest-')) ? requestedUserId : null;
+    const effectiveGuestId = verifiedGuestId || requestedGuestId;
 
-    if (!authenticatedUserId && !profileId) {
+    if (!authenticatedUserId && !effectiveGuestId && !profileId) {
       return NextResponse.json({ success: false, error: '请先登录或提供档案标识后再删除事件' }, { status: 401 });
     }
 
@@ -193,12 +216,19 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ success: false, error: '未找到指定事件' }, { status: 404 });
     }
 
-    // Ownership check: If authenticated, must match userId. If unauthenticated, cannot delete authenticated records
+    // Ownership check: If authenticated, must match userId
     if (authenticatedUserId && existing.userId && existing.userId !== authenticatedUserId) {
       return NextResponse.json({ success: false, error: '无权删除其他用户的临床事件' }, { status: 403 });
     }
-    if (!authenticatedUserId && existing.userId) {
-      return NextResponse.json({ success: false, error: '请先登录后再删除该事件' }, { status: 401 });
+    // If event belongs to a registered user, unauthenticated guests cannot delete:
+    if (!authenticatedUserId && existing.userId && !existing.userId.startsWith('guest-')) {
+      return NextResponse.json({ success: false, error: '该事件属于已注册用户，请先登录后再删除' }, { status: 401 });
+    }
+    // If event belongs to a guest user, ensure guestId matches:
+    if (!authenticatedUserId && existing.userId && existing.userId.startsWith('guest-')) {
+      if (effectiveGuestId && existing.userId !== effectiveGuestId) {
+        return NextResponse.json({ success: false, error: '无权删除其他访客的临床事件' }, { status: 403 });
+      }
     }
     if (!authenticatedUserId && existing.profileId && profileId && existing.profileId !== profileId) {
       return NextResponse.json({ success: false, error: '无权删除其他档案的临床事件' }, { status: 403 });

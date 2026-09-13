@@ -40,9 +40,12 @@ export function computeClinicalTnmStage(input: StagingInput): StagingResult {
   // Calculate solid size and CTR
   let solidSize: number;
   if (input.solidSize != null && !isNaN(Number(input.solidSize))) {
-    solidSize = Number(input.solidSize);
+    const rawSolid = Number(input.solidSize);
+    // Clinical sanity check: solid component cannot exceed total gross tumor size
+    solidSize = rawSolid > tumorSize ? tumorSize : rawSolid;
   } else if (input.ctr != null && !isNaN(Number(input.ctr))) {
-    solidSize = Math.round(tumorSize * Number(input.ctr) * 10) / 10;
+    const rawCtr = Math.max(0, Math.min(1, Number(input.ctr)));
+    solidSize = Math.round(tumorSize * rawCtr * 10) / 10;
   } else if (noduleType === "pure_ggo") {
     solidSize = 0;
   } else if (noduleType === "mixed_ggo") {
@@ -67,12 +70,13 @@ export function computeClinicalTnmStage(input: StagingInput): StagingResult {
     isSubsolidAdjusted = true;
   } else if (noduleType === "mixed_ggo" || (ctr > 0 && ctr < 1)) {
     isSubsolidAdjusted = true;
-    if (solidSize <= 0.5) {
+    // AJCC 8th/9th Strict MIA Rule: T1mi requires total tumor size <= 3.0cm AND invasive solid component <= 0.5cm
+    if (solidSize <= 0.5 && tumorSize <= 3.0) {
       effectiveT = "T1mi";
-      explanation = `混合磨玻璃结节 (结节总全径 ${tumorSize}cm，CT实性成分 ${solidSize}cm, CTR=${ctr}) ➔ 依据 AJCC 8th/9th 规则以实性成分判定为 T1mi (IA1期)`;
+      explanation = `混合磨玻璃结节 (结节总全径 ${tumorSize}cm ≤3.0cm，CT实性成分 ${solidSize}cm ≤0.5cm, CTR=${ctr}) ➔ 依据 AJCC 8th/9th 规则以微浸润判定为 T1mi (IA1期)`;
     } else if (solidSize <= 1.0) {
       effectiveT = "T1a";
-      explanation = `混合磨玻璃结节 (结节总全径 ${tumorSize}cm，CT实性成分 ${solidSize}cm, CTR=${ctr}) ➔ 依据 AJCC 8th/9th 规则以实性成分判定为 T1a (IA1期)，非结节全径对应的更高分期`;
+      explanation = `混合磨玻璃结节 (结节总全径 ${tumorSize}cm，CT实性成分 ${solidSize}cm ≤1.0cm, CTR=${ctr}${tumorSize > 3.0 ? '，总径>3cm不归入T1mi' : ''}) ➔ 依据 AJCC 8th/9th 规则以实性成分判定为 T1a (IA1期)，非结节全径对应的更高分期`;
     } else if (solidSize <= 2.0) {
       effectiveT = "T1b";
       explanation = `混合磨玻璃结节 (CT实性成分 ${solidSize}cm ≤2.0cm, CTR=${ctr}) ➔ 判定为 T1b (IA2期)`;
@@ -124,12 +128,19 @@ export function computeClinicalTnmStage(input: StagingInput): StagingResult {
     explanation += ` (提示：伴有脏层胸膜侵犯 VPI+，依据指南自动升期为 T2a)`;
   }
 
+  // 2.1 Clinical Conflict Detection: Carcinoma in situ (Tis) Cannot Metastasize to Lymph Nodes
+  if (effectiveT === "Tis" && nStage !== "N0") {
+    explanation += ` (⚠️【病理冲突提示】：原位腺癌 Tis 依定义未突破上皮基底膜，病理学上不应伴随 ${nStage} 淋巴结转移，请核查输入数据)`;
+  }
+
   // 3. Compute Group TNM Stage (Full AJCC 8th/9th Matrix)
   let stage = "IA1";
   const isT3orT4 = effectiveT === "T3" || effectiveT === "T4";
 
   if (mStage.startsWith("M1")) {
     stage = "IV";
+    const subStageDesc = (mStage === "M1a" || mStage === "M1b") ? " (对应 AJCC 8th/9th IVA期 · 寡转移/局限转移)" : (mStage === "M1c" ? " (对应 AJCC 8th/9th IVB期 · 多器官广泛转移)" : "");
+    explanation = `存在远处转移信号 (${mStage}${subStageDesc}) ➔ 综合判定为 IV 期`;
   } else if (nStage === "N3") {
     if (isT3orT4) {
       stage = "IIIC";

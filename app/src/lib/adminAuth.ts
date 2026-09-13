@@ -15,12 +15,16 @@ if (process.env.NODE_ENV === 'production' && ADMIN_SECRET === DEFAULT_ADMIN_SECR
   console.warn('⚠️ [SECURITY WARNING] OncoPath is running in production with default ADMIN_SECRET! Please configure ADMIN_SECRET in your production .env file.');
 }
 
+export function isUsingDefaultAdminPassword(): boolean {
+  return ADMIN_PASSWORD === DEFAULT_ADMIN_PASSWORD;
+}
+
 export function validateAdminCredentials(username: string, password: string): boolean {
   const cleanUser = username.trim();
   const cleanPass = password.trim();
 
   // In production, block login if still using default password to avoid hijacking
-  if (process.env.NODE_ENV === 'production' && ADMIN_PASSWORD === DEFAULT_ADMIN_PASSWORD) {
+  if (process.env.NODE_ENV === 'production' && isUsingDefaultAdminPassword()) {
     console.error('⛔ [SECURITY ERROR] Default ADMIN_PASSWORD is not allowed in production! Please set ADMIN_PASSWORD in your production .env file.');
     return false;
   }

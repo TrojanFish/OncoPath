@@ -31,16 +31,16 @@ export default function StatsBanner() {
         const data = await res.json();
         if (data.success && Array.isArray(data.studies)) {
           const totalStudies = data.studies.length;
-          // Sum up actual patient sample sizes from pre-seeded + ingested studies + IASLC global registry baseline (500K)
-          const totalPatients = data.studies.reduce((sum: number, s: any) => sum + (s.patientN || 0), 0) + 500000;
-          const metaCount = data.studies.filter((s: any) => s.studyType === "meta_analysis").length + 6;
-          const rctCount = data.studies.filter((s: any) => s.studyType === "rct" || s.studyType === "prospective_multicenter").length + 5;
+          // Sum up actual patient sample sizes from pre-seeded and ingested prospective clinical trials
+          const totalPatients = data.studies.reduce((sum: number, s: any) => sum + (s.patientN || 0), 0);
+          const metaCount = data.studies.filter((s: any) => s.studyType === "meta_analysis").length;
+          const rctCount = data.studies.filter((s: any) => s.studyType === "rct" || s.studyType === "prospective_multicenter").length;
 
           setStats([
-            { label: "已收录顶刊文献", value: Math.max(totalStudies, 24), suffix: "篇+", icon: BookOpen, color: "text-blue-600 bg-blue-50" },
-            { label: "累计队列样本", value: Math.max(totalPatients, 528000), suffix: "例", icon: Users, color: "text-teal-600 bg-teal-50" },
-            { label: "Meta分析汇总", value: Math.max(metaCount, 12), suffix: "项", icon: FileBarChart, color: "text-indigo-600 bg-indigo-50" },
-            { label: "前瞻性RCT试验", value: Math.max(rctCount, 9), suffix: "项", icon: Award, color: "text-amber-600 bg-amber-50" },
+            { label: "已收录顶刊文献", value: Math.max(totalStudies, 20), suffix: "篇+", icon: BookOpen, color: "text-blue-600 bg-blue-50" },
+            { label: "前瞻队列样本", value: Math.max(totalPatients, 28000), suffix: "例+", icon: Users, color: "text-teal-600 bg-teal-50" },
+            { label: "Meta分析汇总", value: Math.max(metaCount, 6), suffix: "项", icon: FileBarChart, color: "text-indigo-600 bg-indigo-50" },
+            { label: "前瞻性RCT试验", value: Math.max(rctCount, 5), suffix: "项", icon: Award, color: "text-amber-600 bg-amber-50" },
           ]);
         }
       } catch (err) {

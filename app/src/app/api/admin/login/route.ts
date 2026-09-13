@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { validateAdminCredentials, generateAdminToken, verifyAdminRequest, setAdminCookie } from '@/lib/adminAuth';
+import { validateAdminCredentials, generateAdminToken, verifyAdminRequest, setAdminCookie, isUsingDefaultAdminPassword } from '@/lib/adminAuth';
 import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
 
 export async function POST(request: Request) {
@@ -18,6 +18,16 @@ export async function POST(request: Request) {
 
     if (!username || !password) {
       return NextResponse.json({ success: false, error: "请输入管理员账号与密码" }, { status: 400 });
+    }
+
+    if (process.env.NODE_ENV === 'production' && isUsingDefaultAdminPassword()) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: "生产环境安全拦截：系统正在使用默认初始密码。为了防范控制台被恶意接管，请在生产环境 .env 中配置自定义 ADMIN_PASSWORD 强密码后重启容器。" 
+        }, 
+        { status: 403 }
+      );
     }
 
     const isValid = validateAdminCredentials(username.trim(), password.trim());

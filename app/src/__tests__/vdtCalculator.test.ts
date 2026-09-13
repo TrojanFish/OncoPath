@@ -92,5 +92,27 @@ describe('VDT (Volume Doubling Time) & Nodule Growth Calculator', () => {
     expect(res.solidChangeMm).toBe(3);
     expect(res.sizeChangeMm).toBe(0);
   });
+
+  it('should accurately calculate elapsed days when explicit currentScanDate is provided', () => {
+    const history: FollowUpRecord[] = [
+      { id: '1', date: '2024-01-01', tumorSize: 1.0, solidSize: 0.2, ctr: 0.2 }
+    ];
+    // Pass explicit historical scan date 2024-06-01 (~152 days later)
+    const res = calculateVdtAndGrowth(history, 1.2, 0.3, 0.25, '2024-06-01');
+    expect(res.daysBetween).toBe(152);
+    expect(res.latestRecord?.date).toBe('2024-06-01');
+  });
+
+  it('should gracefully handle same-day imaging series without false positive VDT alerts', () => {
+    const history: FollowUpRecord[] = [
+      { id: '1', date: '2024-06-01', tumorSize: 1.2, solidSize: 0.3, ctr: 0.25 },
+      { id: '2', date: '2024-06-01', tumorSize: 1.3, solidSize: 0.4, ctr: 0.31 }
+    ];
+    const res = calculateVdtAndGrowth(history);
+    expect(res.daysBetween).toBe(0);
+    expect(res.growthCategory).toBe('stable');
+    expect(res.categoryLabel).toContain('同日影像序列对比');
+    expect(res.vdtDays).toBeNull();
+  });
 });
 

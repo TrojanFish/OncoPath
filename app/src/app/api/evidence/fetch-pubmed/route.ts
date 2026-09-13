@@ -1,10 +1,28 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { verifyAdminRequest } from '@/lib/adminAuth';
+import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
   try {
+    if (!verifyAdminRequest(request)) {
+      return NextResponse.json(
+        { success: false, error: "未授权的操作：文献抓取与入库需管理员权限，请先登录管理员账户" },
+        { status: 401 }
+      );
+    }
+
+    const clientIp = getClientIp(request);
+    const rateLimit = checkRateLimit(`evidence_pubmed_${clientIp}`, { intervalMs: 60 * 1000, maxRequests: 15 });
+    if (!rateLimit.success) {
+      return NextResponse.json(
+        { success: false, error: "抓取请求过于频繁，请稍候 1 分钟后重试" },
+        { status: 429 }
+      );
+    }
+
     const { searchParams } = new URL(request.url);
     let query = searchParams.get('query') || '';
 

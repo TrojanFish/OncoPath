@@ -4,7 +4,7 @@ import { GoogleGenAI } from '@google/genai';
  * Lazily initialize or retrieve GoogleGenAI instance with current environment variables
  */
 export function getGenAI(): GoogleGenAI {
-  const apiKey = process.env.GEMINI_API_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY || '';
+  const apiKey = process.env.GEMINI_API_KEY || '';
   return new GoogleGenAI(apiKey ? { apiKey } : {});
 }
 

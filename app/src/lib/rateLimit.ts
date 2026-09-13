@@ -80,17 +80,26 @@ export function checkRateLimit(
  * Extract client IP from incoming Request headers (support reverse proxies / Cloudflare / Nginx)
  */
 export function getClientIp(request: Request): string {
-  const forwardedFor = request.headers.get('x-forwarded-for');
-  if (forwardedFor) {
-    return forwardedFor.split(',')[0].trim();
-  }
-  const realIp = request.headers.get('x-real-ip');
-  if (realIp) {
-    return realIp.trim();
-  }
+  // 1. Priority: Cloudflare Edge Header (stripped and validated by Cloudflare edge)
   const cfIp = request.headers.get('cf-connecting-ip');
-  if (cfIp) {
+  if (cfIp && cfIp.trim()) {
     return cfIp.trim();
   }
+
+  // 2. Secondary: Nginx configured trusted Real IP ($client_real_ip)
+  const realIp = request.headers.get('x-real-ip');
+  if (realIp && realIp.trim()) {
+    return realIp.trim();
+  }
+
+  // 3. Fallback: Parse X-Forwarded-For safely
+  const forwardedFor = request.headers.get('x-forwarded-for');
+  if (forwardedFor && forwardedFor.trim()) {
+    const parts = forwardedFor.split(',').map(s => s.trim()).filter(Boolean);
+    if (parts.length > 0) {
+      return parts[0];
+    }
+  }
+
   return '127.0.0.1';
 }

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { computeClinicalTnmStage } from '@/lib/staging';
 import { getAuthenticatedUser } from '@/lib/userAuth';
+import { extractVerifiedGuestId, setGuestCookie, GUEST_COOKIE_NAME } from '@/lib/guestAuth';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,8 +16,12 @@ export async function POST(request: Request) {
   try {
     const data = await request.json();
     const authenticatedUserId = getAuthenticatedUserId(request);
-    // If authenticated, always bind to authenticated user. If guest, require guest-* format or generate isolated guest id
-    const targetUserId = authenticatedUserId || (data.userId && typeof data.userId === 'string' && data.userId.startsWith('guest-') ? data.userId : 'guest-temp-' + Date.now());
+    const verifiedGuestId = extractVerifiedGuestId(request);
+    const requestedGuestId = (data.userId && typeof data.userId === 'string' && data.userId.startsWith('guest-')) ? data.userId : null;
+    const targetGuestId = verifiedGuestId || requestedGuestId || ('guest-' + Math.random().toString(36).substring(2, 12) + Math.random().toString(36).substring(2, 12));
+    
+    // If authenticated, always bind to authenticated user. If guest, bind to verified or signed guest id
+    const targetUserId = authenticatedUserId || targetGuestId;
     
     // Normalize boolean / string factors
     const isStas = data.stas === 'positive' || data.stas === true;
@@ -454,7 +459,11 @@ export async function POST(request: Request) {
       iaslcGrade: profile.grade || '2',
     };
 
-    return NextResponse.json({ success: true, profile: enriched });
+    const response = NextResponse.json({ success: true, profile: enriched });
+    if (!authenticatedUserId && targetUserId.startsWith('guest-')) {
+      setGuestCookie(response, targetUserId, request);
+    }
+    return response;
   } catch (error: any) {
     console.error('Error saving profile:', error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
@@ -506,13 +515,19 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const searchParamsUserId = searchParams.get('userId');
   const authenticatedUserId = getAuthenticatedUserId(request);
+  const verifiedGuestId = extractVerifiedGuestId(request);
   
   // Security access control:
   // If user is authenticated: query their authenticatedUserId (or their own guestId if provided)
-  // If unauthenticated: only allow query if searchParamsUserId is a valid guest format ('guest-...')
-  // Never fall back to global 'anonymous' to avoid leaking or colliding patient profiles across visitors
-  if (!authenticatedUserId && (!searchParamsUserId || !searchParamsUserId.startsWith('guest-'))) {
+  // If unauthenticated: allow if verified via signed cookie/header OR valid guest format
+  if (!authenticatedUserId && !verifiedGuestId && (!searchParamsUserId || !searchParamsUserId.startsWith('guest-'))) {
     return NextResponse.json({ profile: null });
+  }
+
+  const effectiveGuestId = verifiedGuestId || searchParamsUserId;
+  // If guest is verified and searchParamsUserId tries to query a different guestId, prevent cross-guest read
+  if (!authenticatedUserId && verifiedGuestId && searchParamsUserId && searchParamsUserId !== verifiedGuestId) {
+    return NextResponse.json({ profile: null }, { status: 403 });
   }
 
   try {
@@ -523,7 +538,7 @@ export async function GET(request: Request) {
             ...(searchParamsUserId && searchParamsUserId.startsWith('guest-') ? [{ userId: searchParamsUserId }] : [])
           ]
         }
-      : { userId: searchParamsUserId! };
+      : { userId: effectiveGuestId! };
 
     const profile = await prisma.patientProfile.findFirst({
       where: whereCondition,
@@ -707,7 +722,11 @@ export async function GET(request: Request) {
       ),
     };
 
-    return NextResponse.json({ profile: enriched });
+    const response = NextResponse.json({ profile: enriched });
+    if (!authenticatedUserId && effectiveGuestId && effectiveGuestId.startsWith('guest-')) {
+      setGuestCookie(response, effectiveGuestId, request);
+    }
+    return response;
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
@@ -717,17 +736,22 @@ export async function DELETE(request: Request) {
   const { searchParams } = new URL(request.url);
   const searchParamsUserId = searchParams.get('userId') || searchParams.get('id');
   const authenticatedUserId = getAuthenticatedUserId(request);
+  const verifiedGuestId = extractVerifiedGuestId(request);
 
   // Security access control against IDOR:
   // If user is authenticated: only permit deleting records belonging to authenticatedUserId
-  // If user is not authenticated: only permit deleting if searchParamsUserId is a valid guest token ('guest-...')
+  // If user is not authenticated: require verified signed guest token or valid guestId
   if (!authenticatedUserId) {
-    if (!searchParamsUserId || typeof searchParamsUserId !== 'string' || !searchParamsUserId.startsWith('guest-')) {
-      return NextResponse.json({ success: false, error: '未授权：请先登录或提供合法的访客标识符' }, { status: 401 });
+    if (!verifiedGuestId && (!searchParamsUserId || typeof searchParamsUserId !== 'string' || !searchParamsUserId.startsWith('guest-'))) {
+      return NextResponse.json({ success: false, error: '未授权：请先登录或提供合法的访客会话标识' }, { status: 401 });
+    }
+    // Cross-guest deletion prevention:
+    if (verifiedGuestId && searchParamsUserId && searchParamsUserId !== verifiedGuestId) {
+      return NextResponse.json({ success: false, error: '无权删除其他访客的病理档案' }, { status: 403 });
     }
   }
 
-  const targetUserId = authenticatedUserId || searchParamsUserId!;
+  const targetUserId = authenticatedUserId || verifiedGuestId || searchParamsUserId!;
 
   try {
     // Delete only records strictly owned by targetUserId
@@ -740,10 +764,14 @@ export async function DELETE(request: Request) {
       where: { userId: targetUserId }
     });
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       message: '您的临床档案、时间生命线与历史记录已在服务端彻底销毁与注销'
     });
+    if (!authenticatedUserId) {
+      response.cookies.delete(GUEST_COOKIE_NAME);
+    }
+    return response;
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }

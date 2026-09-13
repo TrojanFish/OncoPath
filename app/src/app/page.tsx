@@ -97,7 +97,7 @@ export default function HomePage() {
                 <span className="w-4 h-4 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center">
                   <Check className="w-3 h-3 text-sky-600" />
                 </span>
-                <span>已收录 500,000+ 例临床病例 · 100% 顶刊出处可溯</span>
+                <span>收录国际权威前瞻临床队列 · 100% 顶刊证据出处可溯</span>
               </div>
 
               {/* Main Headline */}

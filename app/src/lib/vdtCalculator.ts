@@ -22,7 +22,13 @@ export interface VdtAnalysisResult {
  * VDT = (t * ln 2) / (3 * ln(D2 / D1))
  * where t = time elapsed in days, D1 = initial diameter, D2 = final diameter.
  */
-export function calculateVdtAndGrowth(history?: FollowUpRecord[] | null, currentTumorSizeCm?: number, currentSolidSizeCm?: number, currentCtr?: number): VdtAnalysisResult {
+export function calculateVdtAndGrowth(
+  history?: FollowUpRecord[] | null, 
+  currentTumorSizeCm?: number, 
+  currentSolidSizeCm?: number, 
+  currentCtr?: number,
+  currentScanDate?: string | null
+): VdtAnalysisResult {
   const fallbackResult: VdtAnalysisResult = {
     hasHistory: false,
     recordCount: 0,
@@ -52,16 +58,19 @@ export function calculateVdtAndGrowth(history?: FollowUpRecord[] | null, current
       ? Number(currentCtr) 
       : (currTumor > 0 ? currSolid / currTumor : 0);
     
-    const todayStr = new Date().toISOString().split("T")[0];
-    const isAlreadyPresent = records.some(r => r.tumorSize === currTumor && r.solidSize === currSolid && r.date === todayStr);
+    const recordDate = (currentScanDate && /^\d{4}-\d{2}-\d{2}/.test(currentScanDate.trim())) 
+      ? currentScanDate.trim().slice(0, 10) 
+      : new Date().toISOString().split("T")[0];
+
+    const isAlreadyPresent = records.some(r => r.tumorSize === currTumor && r.solidSize === currSolid && r.date === recordDate);
     
     if (!isAlreadyPresent) {
       if (records.length > 0) {
         const lastRecord = records[records.length - 1];
-        if (lastRecord.date !== todayStr || lastRecord.tumorSize !== currTumor || lastRecord.solidSize !== currSolid) {
+        if (lastRecord.date !== recordDate || lastRecord.tumorSize !== currTumor || lastRecord.solidSize !== currSolid) {
           records.push({
             id: 'current_scan',
-            date: todayStr,
+            date: recordDate,
             tumorSize: currTumor,
             solidSize: currSolid,
             ctr: Math.round(currCtrVal * 100) / 100,
@@ -71,7 +80,7 @@ export function calculateVdtAndGrowth(history?: FollowUpRecord[] | null, current
       } else {
         records.push({
           id: 'current_scan',
-          date: todayStr,
+          date: recordDate,
           tumorSize: currTumor,
           solidSize: currSolid,
           ctr: Math.round(currCtrVal * 100) / 100,
@@ -104,7 +113,8 @@ export function calculateVdtAndGrowth(history?: FollowUpRecord[] | null, current
 
   const t1 = new Date(prev.date).getTime();
   const t2 = new Date(curr.date).getTime();
-  const days = Math.max(1, Math.round((t2 - t1) / (1000 * 60 * 60 * 24)));
+  const rawDays = Math.round((t2 - t1) / (1000 * 60 * 60 * 24));
+  const days = Math.max(0, rawDays);
 
   const d1Mm = prev.tumorSize * 10;
   const d2Mm = curr.tumorSize * 10;
@@ -122,7 +132,13 @@ export function calculateVdtAndGrowth(history?: FollowUpRecord[] | null, current
   let interpretation = "";
   let guidance = "";
 
-  if (d2Mm < d1Mm - 1.5) {
+  if (days === 0) {
+    category = "stable";
+    label = "同日影像序列对比";
+    badgeColor = "slate";
+    interpretation = `前后两条记录均为同一天（${curr.date}）的影像。尺寸变化（${sizeDiffMm > 0 ? '+' : ''}${sizeDiffMm} mm）反映的是不同扫描层厚或平扫/增强算法的技术起伏，无时间演化进展意义。`;
+    guidance = "请以薄层高分辨 HRCT 或靶扫描测量值作为随访对比基线。建议按指南既定周期复查。";
+  } else if (d2Mm < d1Mm - 1.5) {
     // Shrinking / absorption (inflammatory)
     category = "shrinking";
     label = "明显吸收缩小 (炎性倾向)";
@@ -137,8 +153,8 @@ export function calculateVdtAndGrowth(history?: FollowUpRecord[] | null, current
     interpretation = `相隔 ${days} 天（约 ${(days / 30).toFixed(1)} 个月），结节总径变化仅 ${sizeDiffMm > 0 ? '+' : ''}${sizeDiffMm} mm，实性成分无明显进展，处于完全惰性静止状态。`;
     guidance = "结节长期保持稳定是磨玻璃结节最常见的良性或惰性生物学特征。完全处于安全随访区间，无需急于手术！";
   } else {
-    // Calculation of VDT if growing
-    if (d2Mm > d1Mm) {
+    // Calculation of VDT if growing and days > 0
+    if (d2Mm > d1Mm && d1Mm > 0 && days > 0) {
       vdtDays = Math.round((days * Math.log(2)) / (3 * Math.log(d2Mm / d1Mm)));
     }
 

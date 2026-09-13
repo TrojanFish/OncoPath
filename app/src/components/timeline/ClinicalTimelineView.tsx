@@ -47,7 +47,10 @@ export default function ClinicalTimelineView() {
     setLoading(true);
     try {
       const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-      const res = await fetch("/api/timeline", {
+      const guestId = typeof window !== "undefined" ? localStorage.getItem("guestId") : null;
+      const url = guestId ? `/api/timeline?userId=${encodeURIComponent(guestId)}` : "/api/timeline";
+      const res = await fetch(url, {
+        credentials: "same-origin",
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
       const data = await res.json();
@@ -157,13 +160,15 @@ export default function ClinicalTimelineView() {
 
     try {
       const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      const guestId = typeof window !== "undefined" ? localStorage.getItem("guestId") : null;
       await fetch("/api/timeline", {
         method: "POST",
+        credentials: "same-origin",
         headers: {
           "Content-Type": "application/json",
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
-        body: JSON.stringify(item),
+        body: JSON.stringify({ ...item, userId: guestId }),
       });
     } catch {
       // Ignore network errors for guest
@@ -182,12 +187,19 @@ export default function ClinicalTimelineView() {
     if (!window.confirm("确定删除该条检查记录吗？")) return;
     try {
       const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-      await fetch(`/api/timeline?id=${id}`, {
+      const guestId = typeof window !== "undefined" ? localStorage.getItem("guestId") : null;
+      const url = guestId ? `/api/timeline?id=${encodeURIComponent(id)}&userId=${encodeURIComponent(guestId)}` : `/api/timeline?id=${encodeURIComponent(id)}`;
+      const res = await fetch(url, {
         method: "DELETE",
+        credentials: "same-origin",
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
-    } catch {
-      // Ignore
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        console.warn("Server delete returned warning:", data.error);
+      }
+    } catch (err) {
+      console.warn("Delete request error:", err);
     }
 
     const updated = events.filter((e) => e.id !== id);
@@ -200,13 +212,15 @@ export default function ClinicalTimelineView() {
   const handleUpdateEvent = async (updatedEvent: TimelineEventItem) => {
     try {
       const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      const guestId = typeof window !== "undefined" ? localStorage.getItem("guestId") : null;
       await fetch("/api/timeline", {
         method: "PUT",
+        credentials: "same-origin",
         headers: {
           "Content-Type": "application/json",
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
-        body: JSON.stringify(updatedEvent),
+        body: JSON.stringify({ ...updatedEvent, userId: guestId }),
       });
     } catch {
       // Ignore network errors for guest
